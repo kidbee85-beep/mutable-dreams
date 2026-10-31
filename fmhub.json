@@ -1,10 +1,13 @@
 {
   "what": "Six assignable synth tracks, or a Lo-Fi kit plus three synths. Explore 156 contrasting musical Biomes, 352 sounds and thirteen scales; shape generative rhythms, chord journeys and per-track MIDI; play and edit in your browser.",
+  "author": "Kid Bunka / Christoph Link",
   "kinds": [
     "synth",
     "groove",
     "drums"
   ],
-  "play": "https://mutable-dreams.sugarypixie10.chatgpt.site/",
-  "editor": "https://mutable-dreams.sugarypixie10.chatgpt.site/#device-editor"
+  "play": "https://mutable-dreams.kidbee85.chatgpt.site/",
+  "editor": "https://mutable-dreams.kidbee85.chatgpt.site/#device-editor",
+  "cheat": "https://mutable-dreams.kidbee85.chatgpt.site/Mutable-Dreams-1.4-Guide.pdf",
+  "image": "Screen-1.4-Live-Biome.png"
 }
