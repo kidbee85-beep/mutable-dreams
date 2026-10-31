@@ -1,0 +1,28 @@
+PASS round bass audible
+PASS 1.0 migration retains old fields and disables additions
+PASS phrase rests do not trigger
+PASS Marbles remembered variation deterministic and audible
+PASS Tides changes filtered audio
+PASS Warps ring blend changes audio
+PASS shared effect tails / panic exact silence
+PASS 60-second feature stress model 8
+PASS 60-second feature stress model 9
+PASS 60-second feature stress model 4
+PASS 60-second feature stress model 5
+PASS 60-second feature stress model 8
+PASS 60-second feature stress model 9
+PASS 60-second feature stress model 4
+PASS 60-second feature stress model 5
+PASS MIDI note off releases Mellow
+PASS Satin morph / high and low notes / MIDI release
+PASS sustain and velocity-zero note off
+PASS velocity energy and MIDI CC routing
+PASS independent Step sequence with Euclidean hits zero
+PASS selected external clock and loss timeout
+PASS shared Elements budget keeps six tracks active
+PASS program bank retained and global channel macros
+Elements rapid pluck shape 334 energy 1287.777272642
+Elements rapid pluck shape 500 energy 1337.224283145
+Elements rapid pluck shape 666 energy 1406.281972041
+PASS rapid Plectrum rolls remain audible across the complete shape region
+ALL NEXT FEATURE TESTS PASSED; no hardware-performance claim

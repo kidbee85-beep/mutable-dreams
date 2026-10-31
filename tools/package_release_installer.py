@@ -9,21 +9,21 @@ qualification=json.loads(Path(sys.argv[3]).read_text())
 assert qualification.get('pass_') and qualification['firmware_sha256']==hashlib.sha256(raw).hexdigest(), 'The exact candidate must pass its device qualification first.'
 assert qualification.get('public_release'), 'Public packaging requires release approval.'
 product=''.join(chr((raw[i*48+47]-i-1)&255) for i in range(20) if raw[i*48+47]!=0x7d)
-assert product=='FM-1_710010300',product
+assert product=='FM-1_710010400',product
 s=(R/'base/web/installer.html').read_text()
-values={'NAME':'Mutable Dreams','REPO':'Mutable-Dreams-1.3-Source.zip','REPO_SHORT':'Download the complete source','LICENSE':'GPL-3.0 combined distribution; original MIT and MPL-2.0 notices retained','CREDITS':' With gratitude to Émilie Gillet and Mutable Instruments. An independent community project.'}
+values={'NAME':'Mutable Dreams','REPO':'Mutable-Dreams-1.4-Source.zip','REPO_SHORT':'Download the complete source','LICENSE':'GPL-3.0 combined distribution; original MIT and MPL-2.0 notices retained','CREDITS':' With gratitude to Émilie Gillet and Mutable Instruments. An independent community project.'}
 for k,v in values.items():s=s.replace('{{'+k+'}}',v)
 def strip(x):return re.sub(r'^import .*?;\n','',re.sub(r'^export\s+','',x,flags=re.M),flags=re.M)
 lib='\n'.join(strip((R/'base/web'/n).read_text()) for n in ['fm1pkg.js','fm1ota.js'])
-meta={'version':'1.3','product':product,'sha256':hashlib.sha256(raw).hexdigest(),'data':base64.b64encode(raw).decode()}
+meta={'version':'1.4','product':product,'sha256':hashlib.sha256(raw).hexdigest(),'data':base64.b64encode(raw).decode()}
 s=s.replace('/*LIB*/',lib).replace('/*META*/',json.dumps(meta))
 s=s.replace('const r = await fetch(meta.pkg);\n    if (!r.ok) throw new Error(`${meta.pkg}: HTTP ${r.status}`);\n    const pkg = new Uint8Array(await r.arrayBuffer());', '''const pkg = Uint8Array.from(atob(meta.data), c => c.charCodeAt(0));
     const digest = [...new Uint8Array(await crypto.subtle.digest('SHA-256', pkg))].map(b=>b.toString(16).padStart(2,'0')).join('');
     if(digest !== meta.sha256) { sayK('badpkg'); return; }''')
-s=s.replace('<h1>Install Mutable Dreams</h1>','<span class="eyebrow">MUTABLE DREAMS / VERSION 1.3</span><h1>A new world,<br>one small instrument.</h1><p class="small">Connect only the FM-1 you intend to update; disconnect other FM-1 units first. Install or update Mutable Dreams. Return to the original M-VAVE firmware whenever you choose.</p><p class="small">Start from original FM-1 V15 or update from an earlier Mutable Dreams version using its matching backup workflow. On 1.0, stop and SAVE on the device, then follow the legacy backup steps in the guide; its live editor is not available yet. On 1.1 or 1.3, back up saved User Banks as .mddb and export unsaved live edits as JSON before changing firmware. Returning to V15 erases User Banks and preferences. <a href="Mutable-Dreams-1.3.html#device-editor">Open the bank backup and editor</a>. <a href="Recovery-1.3.txt">Read the complete guide</a>.</p>')
-s=s.replace('href="../"','href="Mutable-Dreams-1.3.html"')
+s=s.replace('<h1>Install Mutable Dreams</h1>','<span class="eyebrow">MUTABLE DREAMS / VERSION 1.4</span><h1>A wider atlas,<br>one small instrument.</h1><p class="small">Connect only the FM-1 you intend to update; disconnect other FM-1 units first. Install or update Mutable Dreams. Return to original M-VAVE V15 if needed.</p><p class="small">Start from original FM-1 V15 or V16, or update from an earlier Mutable Dreams version using its matching backup workflow. On 1.0, stop and SAVE on the device, then follow the legacy backup steps in the guide; its live editor is not available yet. On 1.1 or later, back up saved User Banks as .mddb and export unsaved live edits as JSON before changing firmware. Returning to V15 erases User Banks and preferences. Official M-UPGRADE rejects this custom package: use this installer. <a href="Mutable-Dreams-1.4.html#device-editor">Open the bank backup and editor</a>. <a href="Recovery-1.4.txt">Read the complete guide</a>.</p>')
+s=s.replace('href="../"','href="Mutable-Dreams-1.4.html"')
 s=s.replace('  <button type="button" class="lang"','  <button hidden type="button" class="lang"')
-s=s.replace('Install · Mutable Dreams','Mutable Dreams 1.3 · Install & return')
+s=s.replace('Install · Mutable Dreams','Mutable Dreams 1.4 · Install & return')
 s=s.replace('    const raw = new Uint8Array(await f.arrayBuffer());','    if(f.size>2000000) { sayK("stockbad"); return; }\n    const raw = new Uint8Array(await f.arrayBuffer());')
 s=s.replace('async function run(img, product, isStock) {\n  let midi;', '''async function run(img, product, isStock) {
   if(writing || !img)return;
@@ -46,13 +46,11 @@ s=s.replace('</style>', '''
 </style>''')
 s=s.replace(' (or its safe mode, or another firmware with the same update entry)', '')
 s=s.replace('What Mutable Dreams saved may be lost.', 'Returning to V15 erases the User Banks and preferences. Back up .mddb and export any unsaved live patch first.')
-s=s.replace('Start from original FM-1 V15 or update from an earlier Mutable Dreams version', 'Start from original FM-1 V15 or V16, or update from an earlier Mutable Dreams version')
-s=s.replace('Returning to V15 erases User Banks and preferences. <a', 'Returning to V15 erases User Banks and preferences. Official M-UPGRADE installs manufacturer V16, but rejects this custom package; use this installer for Mutable Dreams. <a')
 assert not re.search(r'\{\{[A-Z_]+\}\}',s)
 out.write_text(s)
-kit=out.parent/'Mutable-Dreams-1.3-Installer-Kit.zip'
+kit=out.parent/'Mutable-Dreams-1.4-Installer-Kit.zip'
 with zipfile.ZipFile(kit,'w',zipfile.ZIP_DEFLATED) as z:
  for n in ['tools/fm1_install.py','LICENSE','CREDITS.md','LICENSING.md']:z.write(R/'base'/n,'Mutable-Dreams-Installer/'+Path(n).name)
  z.writestr('Mutable-Dreams-Installer/requirements.txt','mido>=1.3,<2\npython-rtmidi>=1.5,<2\n')
- z.writestr('Mutable-Dreams-Installer/Read-Me.txt','MUTABLE DREAMS 1.3 — USB INSTALLER\n\nPython 3.11 or later. Install dependencies with:\n  python3 -m pip install -r requirements.txt\n\nPlace the release firmware next to fm1_install.py, then:\n  python3 fm1_install.py --info\n  python3 fm1_install.py Mutable-Dreams-1.3.0.fwsc --yes\n\nExpected identity: FM-1_710010300. Read the Recovery Guide first.\nKeep USB connected until the identity is confirmed. Do not use --force for Mutable Dreams.\n\nFor stock recovery, verify the official V15 SHA-256 in Recovery-1.3.txt, then run fm1_install.py --force --yes FM-1-V15.fwsc. Restore .mddb after reinstalling 1.3; physical SEL is required.\nThis kit contains no firmware, private settings or manufacturer images.\n')
+ z.writestr('Mutable-Dreams-Installer/Read-Me.txt','MUTABLE DREAMS 1.4 — USB INSTALLER\n\nPython 3.11 or later. Install dependencies with:\n  python3 -m pip install -r requirements.txt\n\nPlace the release firmware next to fm1_install.py, then:\n  python3 fm1_install.py --info\n  python3 fm1_install.py Mutable-Dreams-1.4.0.fwsc --yes\n\nExpected identity: FM-1_710010400. Read the Recovery Guide first.\nKeep USB connected until the identity is confirmed. Do not use --force for Mutable Dreams.\n\nFor stock recovery, use the verified official V15 and the browser installer, then reinstall 1.4 and restore .mddb; physical SEL is required.\nThis kit contains no firmware, private settings or manufacturer images.\n')
 print(out,product,meta['sha256'])

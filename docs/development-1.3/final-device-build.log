@@ -1,0 +1,20 @@
+font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 3576 B
+font XS: BarlowSemiCondensed-Bold.ttf 12px h 14, digit adv 6, 6636 B
+font H: BarlowSemiCondensed-SemiBold.ttf 14px h 16, digit adv 7, 8432 B
+font S: Nunito[wght].ttf@Weight=650 14px h 17, digit adv 8, 9741 B
+font B: Nunito[wght].ttf@Weight=800 16px h 19, digit adv 10, 12179 B
+font M: Nunito[wght].ttf@Weight=700 22px h 25, digit adv 13, 13825 B
+font L: Nunito[wght].ttf@Weight=750 30px h 34, digit adv 18, 23596 B
+font set dreams: 79611 B (approx)
+words: 1 own + 51 common -> <workspace>/work/mutable-dreams-1.3/app/web/words/1384bc7f89.json (1013 B)
+loader: image 8264 B at 0x1c0a800, bss end 0x1c0f540
+loader: ota.bin 6980 B
+  ok    .ram_text: 932 insns, no calls
+  ok    no 64-bit multiply inlined beside a load
+  ok    no soft-double routines (single-precision FPU only)
+  ok    image 507968 B; RAM .data+.bss 73848 B of 98304; pool 334872 B of 344064
+  ok    register access: felucca-bsp only (device/, include/ and the app clean)
+parts    USB audio in, backup and restore  (not built in: Bluetooth MIDI, Bluetooth MIDI devices, WiFi, USB audio out, screen mirroring, velocity and pressure)
+app      <workspace>/work/mutable-dreams-1.3/app/build/mutable-dreams.bin  507968 B
+loader   <workspace>/work/mutable-dreams-1.3/app/build/loader/ota.bin  6980 B
+package  <workspace>/work/mutable-dreams-1.3/app/build/mutable-dreams-1.3.0-dev.fwsc  610136 B, identity FM-1_710010300

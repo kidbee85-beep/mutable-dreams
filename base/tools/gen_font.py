@@ -26,9 +26,9 @@ FONTS = Path(__file__).resolve().parents[1] / "assets" / "fonts"
 FONTSETS = {
     # Rounded display face, compact legible labels. Rasterized at build time;
     # the device still draws the same 4-bit coverage glyphs, with no font engine.
-    "dreams": [("T", "BarlowSemiCondensed-SemiBold.ttf", 10, 1, False, 32, 95),
+    "dreams": [("T", "BarlowSemiCondensed-Bold.ttf", 11, 1, False, 32, 95),
                ("XS", "BarlowSemiCondensed-Bold.ttf", 12, 1, False, 32, 126),
-               ("H", "BarlowSemiCondensed-SemiBold.ttf", 14, 1, False, 32, 126),
+               ("H", "BarlowSemiCondensed-Bold.ttf", 14, 1, False, 32, 126),
                ("S", "Nunito[wght].ttf@Weight=650", 14, 1, False, 32, 126),
                ("B", "Nunito[wght].ttf@Weight=800", 16, 1, False, 32, 126),
                ("M", "Nunito[wght].ttf@Weight=700", 22, 1, False, 32, 95),

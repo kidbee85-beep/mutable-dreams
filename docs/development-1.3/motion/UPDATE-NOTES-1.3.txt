@@ -1,0 +1,50 @@
+MUTABLE DREAMS 1.3 — PRIVATE REVIEW BUILD
+
+NEW WORLDS
+5 original Lo-Fi kits / 40 samples: Dust Room, Paper Machines, Soft Static,
+Found Objects and Velour Tape. Use one kit and three synth tracks, or six
+synth tracks. Dormant synth settings survive rack changes. Shape each pad's
+pitch, level, soft filter, tail and grain send; record or generate drum steps.
+48 additional tone presets and 16 Biomes bring the totals to 336 sounds and
+108 musical Biomes plus Blank. The additions combine warm keys, rounded bass,
+reeds, resonances and dust differently instead of duplicating one ensemble.
+
+MORE MOVEMENT
+Two independently routed LFOs per synth track: 12 in six-synth mode, or 6 in
+kit mode, plus the existing Breathe movement. Each offers Triangle, Sine,
+Bloom or Sigh and an independent 0.5–20 second cycle. Route to filter, colour,
+pan, grain send, shared-effect sends, Warps blend or soft amplitude swell.
+These are compact Tides-inspired controls, not a full emulation of a module.
+No additional audio tape or effect buffer is allocated. Sends need a base
+level, Filter needs a filter, and Warps needs a blend value. Both movements
+can address the same target; audio parameters remain bounded. LFOs run while
+the selected synth voice is active; they are not MIDI-clock-synced LFOs.
+Settings are stored in the complete Biome. Sound slots retain their existing
+format; the new routing and LFO B settings remain part of the Biome.
+
+SEQUENCES / HARMONY
+Forward, Reverse, Pendulum, Orbit and Seeded traversal, an independent offset
+and gentle deterministic velocity feel. Stored steps stay intact. Live note
+recording follows the remapped step. Four new generators (Petals, Tideline,
+Stars, Answers) join Sparse, Arpeggio, Pulse and Drift. Generating replaces the
+selected track's phrase; ENV undoes. Four longer journeys join the existing
+four progressions. Choose 1–16 bars per chord and Original or Nearby root
+moves. Nearby reduces root transposition jumps; it is not polyphonic voice
+leading. Sequences, recording and chord progressions already existed in 1.2;
+these are extensions, not claims that all sequencing is new.
+
+READABILITY / KEEP YOUR WORK
+Unsaved Biome-change protection; larger readable type, seven calm page
+palettes, contextual headings, transparent text over a darker field, tiny
+responsive organisms, and cached organic A/D and LFO graphs. The panel remains
+240 x 240 pixels. The envelope graph describes the actual one-shot attack and
+decay; MIDI gate/release is separate. A new full ADSR engine is not claimed.
+Every held function key opens help; releasing a held key does not perform its
+short press. Motion can be disabled on the Look page.
+
+SCOPE
+Bluetooth is excluded. Public 1.0, 1.1 and 1.2 are unchanged; Syntherella is
+untouched. The existing MIDI functions remain; this is not a new BLE release.
+V16 / M-UPGRADE and a new stock recovery roundtrip are not qualified here.
+Keep the original backup to downgrade. New v9 patches need this 1.3 candidate;
+old 1.0/1.1/1.2 and earlier private v8 Biomes migrate with neutral additions.

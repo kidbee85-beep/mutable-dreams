@@ -29,7 +29,13 @@ int app_sysex(const uint8_t *p,uint32_t n){
   uint32_t count=(n-5)/4,f=plat_lock();
   for(unsigned k=5;k<n;k+=4)if(p[k]>=MD_COMMAND_COUNT||(p[k]>=99&&p[k]<120))tx[6]=1;
   if(md_command_space()<count)tx[6]=2;
-  if(!tx[6])for(unsigned k=5;k<n;k+=4)md_command(p[k],p[k+1],(int)(p[k+2]|p[k+3]<<7)-8192);
+  if(!tx[6])for(unsigned k=5;k<n;k+=4){int c=p[k],t=p[k+1],v=(int)(p[k+2]|p[k+3]<<7)-8192;
+   if(c==MD_MIDI_ROUTE)v=clamp(v,0,16);
+   if(c==MD_MIDI_MACRO)v=clamp(v,0,1);
+   md_command(c,t,v);
+   if(c==MD_MIDI_ROUTE&&t>=0&&t<6)dream_prefs.midi_route[t]=v;
+   if(c==MD_MIDI_MACRO)dream_prefs.midi_macro=v;
+  }
   plat_unlock(f);
  }
  else if(p[3]==3&&n==5){uint32_t f=plat_lock();cpu_peak=ui_frame_peak_ms=0;plat_audio_peak_reset();plat_unlock(f);}

@@ -1,0 +1,44 @@
+MUTABLE DREAMS 1.3 — MEASURED CAPACITY
+Final private SHA-256: 13f28e8f62bf189be3fe4677d266d67aa34d24b5fac39edc5e922190383d3223
+
+Application image: 507968 / 581564 bytes.
+Free program space: 73596 bytes (71.87 KiB).
+Static RAM: 73848 / 98304 bytes.
+Free static-RAM budget: 24456 bytes (23.88 KiB).
+DSP pool: 334872 / 344064 bytes.
+Free pool budget: 9192 bytes (8.98 KiB).
+The builder requires at least 8192 pool bytes to remain reserved. Therefore
+only 1000 additional pool bytes fit without reducing that safety
+reserve; the full 9192 bytes are NOT disposable effect-buffer capacity.
+These are distinct budgets; do not add them. They are not stack high-water
+measurements. The new typography, page colours, headings and microorganisms
+cost 5184 additional image bytes and
+0 static-RAM bytes against the
+previous private candidate. No extra DSP/audio buffer is allocated.
+
+Runtime: worst observed callback 5040/5804 us, leaving
+13.16% of that deadline in the measured cases. This is not
+a universal allowance for added DSP. Check admission/fallback and the full
+six-voice engine matrix before using it for a new sound algorithm.
+
+GOOD NEXT USES OF SPACE
+- More genuinely different presets/Biomes using existing engines. Stored
+  recipes add flash, not processing cost until selected. Preserve stable IDs.
+- MIDI Learn, takeover, controller maps and improved synchronization: bounded
+  control work, no new audio buffers. Measure bursts and save-format overhead.
+- Sequence variations, mute/solo workflow and compact parameter locks.
+- One further kit of the existing size would need about 32,000 PCM bytes plus
+  definitions/code, leaving less room for MIDI/features. It looks plausible
+  in flash, but is not implemented or automatically approved by these numbers.
+- Lightweight tonal variants reusing existing state/filter/modulation paths.
+
+NOT FREE CAPACITY
+Long stereo samples, a second grain tape, convolution and unrestricted added
+voices are poor fits for the current remaining pool. User WAV import needs a
+separate safe storage, conversion and backup design. Bluetooth is deliberately
+out of scope for this version. Do not remove quality guards to gain features.
+
+Already included: 5 kits / 40 original PCM16 one-shots at 16 kHz (Lo-Fi sources),
+48 additional tones, 16 new worlds, 336 tones and 108 musical Biomes + Blank.
+Kit mode is one kit + three synths; ordinary mode retains six synth tracks.
+The existing grain tape and synth processing were not shortened for the UI.

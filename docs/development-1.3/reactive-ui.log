@@ -1,0 +1,15 @@
+  ok page == 11
+  ok motion == 0
+  ok field_density == 0
+  ok field_size == 0
+  ok field_density == 1000
+  ok field_size == 1000
+  ok field_density == 0
+  ok field_size == 0
+  ok field_density == 1000
+  ok field_size == 1000
+  ok page == 11
+  ok motion == 1
+  ok queue_drops == 0
+  ok invalid == 0
+host: 7970 ms simulated, 600 blits, render 0.2% of real time (host CPU)

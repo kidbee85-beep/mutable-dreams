@@ -1,0 +1,56 @@
+[
+  {
+    "name": "Tape-Constellation",
+    "seconds": 30.00018140589569,
+    "peak_dbfs": -26.56,
+    "rms_dbfs": -37.65,
+    "centroid_hz": 165,
+    "energy_above_4khz_percent": 0.003,
+    "nonfinite": 0
+  },
+  {
+    "name": "Paper-Lanterns",
+    "seconds": 30.00018140589569,
+    "peak_dbfs": -24.14,
+    "rms_dbfs": -38.69,
+    "centroid_hz": 127,
+    "energy_above_4khz_percent": 0.044,
+    "nonfinite": 0
+  },
+  {
+    "name": "Honey-Dusk",
+    "seconds": 30.00018140589569,
+    "peak_dbfs": -26.45,
+    "rms_dbfs": -40.28,
+    "centroid_hz": 119,
+    "energy_above_4khz_percent": 0.0,
+    "nonfinite": 0
+  },
+  {
+    "name": "Velour-Transit",
+    "seconds": 30.00018140589569,
+    "peak_dbfs": -24.85,
+    "rms_dbfs": -36.05,
+    "centroid_hz": 122,
+    "energy_above_4khz_percent": 0.007,
+    "nonfinite": 0
+  },
+  {
+    "name": "Dust-Afterglow",
+    "seconds": 30.00018140589569,
+    "peak_dbfs": -26.91,
+    "rms_dbfs": -38.94,
+    "centroid_hz": 110,
+    "energy_above_4khz_percent": 0.012,
+    "nonfinite": 0
+  },
+  {
+    "name": "Crackle-Estuary",
+    "seconds": 30.00018140589569,
+    "peak_dbfs": -28.5,
+    "rms_dbfs": -38.71,
+    "centroid_hz": 144,
+    "energy_above_4khz_percent": 0.004,
+    "nonfinite": 0
+  }
+]

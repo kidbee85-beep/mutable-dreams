@@ -1,6 +1,10 @@
 {
-  "what": "Six freely assignable synth tracks, or a Lo-Fi kit plus three synths. Shape 336 sounds and 108 Biomes with per-track LFOs, granular effects, 32-step phrases and chord journeys; play and edit in the browser.",
-  "kinds": ["synth", "groove", "drums"],
+  "what": "Six assignable synth tracks, or a Lo-Fi kit plus three synths. Explore 156 contrasting musical Biomes, 352 sounds and thirteen scales; shape generative rhythms, chord journeys and per-track MIDI; play and edit in your browser.",
+  "kinds": [
+    "synth",
+    "groove",
+    "drums"
+  ],
   "play": "https://mutable-dreams.sugarypixie10.chatgpt.site/",
   "editor": "https://mutable-dreams.sugarypixie10.chatgpt.site/#device-editor"
 }

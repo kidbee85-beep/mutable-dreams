@@ -1,0 +1,32 @@
+MUTABLE DREAMS 1.4 — RELEASE NOTES
+Independent open-source firmware for the M-VAVE FM-1
+
+NEW SOUND WORLDS
+• 48 new factory Biomes: 156 musical Biomes plus Blank in total.
+• 16 new tone presets: 352 in total.
+• Curated PRESET-dial and browser order puts contrasting sound families near one another. Existing factory IDs are unchanged; saved Biome references remain meaningful.
+• New starting points span drones, airy textures, resonant percussion, bass movement, broken rhythms, Lo-Fi kits and quiet meditation. The synthesis engines and sample kits are the established, qualified set; this update expands their musical combinations.
+
+PLAYABILITY
+• Muted voices are visibly dimmed across the Home row and meter and marked MUTED. A separate Solo function is not included.
+• Five added scales: Ukrainian Dorian (Dorian #4), Harmonic Minor, Double Harmonic Minor, Harmonic Major and Double Harmonic Major. Thirteen scales in total are available in firmware and browser.
+• Per-track MIDI input routing: Off or channels 1–16. Several tracks may share a channel. Kit input can be routed to channel 10; the channel-16 macro shortcut can be disabled when channel 16 is used for notes. Existing MIDI settings migrate to the new format. USB MIDI was device-tested. TRS MIDI has not yet been tested with an external sender.
+
+LOOK AND EDITOR
+• Distinct page-family backgrounds with restrained, value-responsive organic forms, smoother trails and more legible gradients. Stronger glass-card edges and less ambiguous control colours.
+• Larger, clearer condensed labels and improved contrast on the FM-1. Long scale names were checked for fit. Held-key help remains available on each page.
+• Browser atlas contains the 1.4 Biomes and sound presets. The playable browser instrument, patch import/export, browser User Banks and live USB device editor remain available. Browser 1.4 saves use their own storage key; export older browser patches before moving them between versions.
+
+PERFORMANCE AND INSTALLATION
+• Rings' audio buffers are no longer cleared redundantly. The previously published Biome audio hashes matched in the host comparison; the device stress checks found no new audio errors.
+• The exact tested package is identified by its SHA-256 in the download manifest. After an initial safe refusal, the stock-return guard was extended to the verified official V16 boot head. The exact 1.4 build passed 1.4 → Stock V15 → 1.4 on the development FM-1, followed by byte-identical .mddb bank restoration and live-patch comparison.
+• Measured device image: 551,376 / 581,564 bytes. Static RAM: 74,568 / 98,304 bytes. DSP pool: 334,896 / 344,064 bytes; after an 8,192-byte safety reserve, 976 bytes remain discretionary. New large DSP engines or buffers are therefore not implied by this release.
+• A six-Choir ECO plus granular case reached 72.29% of the audio callback budget; a Lo-Fi-kit-plus-three-synth case with granular reached 54.1%. These were short post-roundtrip tests with zero XRuns, overloads, nonfinite samples, dropped commands or host USB overflows. Earlier 48-Biome USB-audio checks were also clean. These measurements do not replace personal listening or long-term testing.
+
+KEEP YOUR WORK
+Save your current Biome and export a separate live JSON if you have unsaved edits. Back up all saved User Banks and preferences as .mddb before changing firmware. Returning to Stock V15 erases saved Mutable Dreams data; reinstall 1.4 and restore the .mddb with physical SEL confirmation on the FM-1. Granular audio and calibration are not included in the .mddb backup. Keep power and USB connected until the installer confirms the final device identity.
+
+LIMITS AND OPEN REQUESTS
+Bluetooth MIDI is intentionally excluded. MIDI CC Learn, a separate Solo mode and a one-step Save As / Init workflow remain design requests. Physical TRS-MIDI input still needs an external-cable test. An independent report of a black screen after an interrupted Firmware Hub update remains under investigation. The release does not claim recovery of devices that no longer enumerate over USB; use the Firmware Hub's documented rescue resources and seek device-specific help.
+
+Mutable Dreams is a free, independent community project, unaffiliated with and not endorsed by Mutable Instruments or M-VAVE. Selected Plaits, Rings and Elements Strike algorithms retain their original attribution and notices. Our granular bus, Round Bass, Biomes and FM-1 interface are separate project work.

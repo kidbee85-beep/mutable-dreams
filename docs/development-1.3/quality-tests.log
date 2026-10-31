@@ -1,0 +1,236 @@
+Short-gate envelope: tile 0.31998000, single-frame 0.31998000
+PASS six staggered short gates: four rack tiles, sample-accurate envelope releases
+PASS short gates independent of render partition; swing gate spans slow-track intervals
+PASS long held recording saturates at full gate across frame-counter wrap
+PASS Rings equal-touch energy ratio <= 1.25849 across 108 strikes; velocity ratio 2.50000
+PASS melodic retrigger attack and velocity slew: no gain reset jump
+PASS room diffusion preserves impulse energy, spreads arrivals, clears to silence
+PASS source colour: bass Shape harmonic ratio 0.04671 -> 0.18685; choir Tone 0.00060 -> 0.05647
+live colour edit model=7 first-tile difference 0.00198896
+live colour edit model=8 first-tile difference 0.00165850
+live colour edit model=10 first-tile difference 0.00066788
+live colour edit model=12 first-tile difference 0.00171745
+live colour edit model=14 first-tile difference 0.00138266
+PASS large live Tone/Shape changes enter smoothly on all five original direct voices
+filter cutoff=60 resonance=0.00 peak_gain_db=-0.0000
+filter cutoff=60 resonance=0.10 peak_gain_db=-0.0000
+filter cutoff=60 resonance=0.20 peak_gain_db=-0.0000
+filter cutoff=60 resonance=1.00 peak_gain_db=-0.0000
+filter cutoff=1000 resonance=0.00 peak_gain_db=-0.0000
+filter cutoff=1000 resonance=0.10 peak_gain_db=0.0120
+filter cutoff=1000 resonance=0.20 peak_gain_db=0.1641
+filter cutoff=1000 resonance=1.00 peak_gain_db=8.7617
+filter cutoff=8000 resonance=0.00 peak_gain_db=-0.0000
+filter cutoff=8000 resonance=0.10 peak_gain_db=0.0127
+filter cutoff=8000 resonance=0.20 peak_gain_db=0.1643
+filter cutoff=8000 resonance=1.00 peak_gain_db=8.7990
+filter cutoff=18000 resonance=0.00 peak_gain_db=0.0000
+filter cutoff=18000 resonance=0.10 peak_gain_db=0.0127
+filter cutoff=18000 resonance=0.20 peak_gain_db=0.1644
+filter cutoff=18000 resonance=1.00 peak_gain_db=8.7909
+Pure FM dry voice: harmonic distortion 0.00352973, peak 0.178018
+constant tape quality=0 size=0 interrupted_grains=0 max_sample_step=0.000320423
+constant tape quality=0 size=10 interrupted_grains=0 max_sample_step=0.000304447
+constant tape quality=0 size=20 interrupted_grains=0 max_sample_step=0.000290103
+constant tape quality=0 size=30 interrupted_grains=0 max_sample_step=0.000277003
+constant tape quality=0 size=40 interrupted_grains=0 max_sample_step=0.000264922
+constant tape quality=0 size=50 interrupted_grains=0 max_sample_step=0.000253715
+constant tape quality=0 size=60 interrupted_grains=0 max_sample_step=0.000243358
+constant tape quality=0 size=70 interrupted_grains=0 max_sample_step=0.000214736
+constant tape quality=0 size=80 interrupted_grains=0 max_sample_step=0.000206686
+constant tape quality=0 size=90 interrupted_grains=0 max_sample_step=0.000199412
+constant tape quality=0 size=100 interrupted_grains=0 max_sample_step=0.000192614
+constant tape quality=0 size=110 interrupted_grains=0 max_sample_step=0.000186228
+constant tape quality=0 size=120 interrupted_grains=0 max_sample_step=0.000168864
+constant tape quality=0 size=130 interrupted_grains=0 max_sample_step=0.000163175
+constant tape quality=0 size=140 interrupted_grains=0 max_sample_step=0.000157759
+constant tape quality=0 size=150 interrupted_grains=0 max_sample_step=0.000152718
+constant tape quality=0 size=160 interrupted_grains=0 max_sample_step=0.000147741
+constant tape quality=0 size=170 interrupted_grains=0 max_sample_step=0.000143144
+constant tape quality=0 size=180 interrupted_grains=0 max_sample_step=0.000138871
+constant tape quality=0 size=190 interrupted_grains=0 max_sample_step=0.000134766
+constant tape quality=0 size=200 interrupted_grains=0 max_sample_step=0.000121052
+constant tape quality=0 size=210 interrupted_grains=0 max_sample_step=0.000117967
+constant tape quality=0 size=220 interrupted_grains=0 max_sample_step=0.000115125
+constant tape quality=0 size=230 interrupted_grains=0 max_sample_step=0.000112302
+constant tape quality=0 size=240 interrupted_grains=0 max_sample_step=0.000109460
+constant tape quality=0 size=250 interrupted_grains=0 max_sample_step=0.000106920
+constant tape quality=0 size=260 interrupted_grains=0 max_sample_step=0.000104482
+constant tape quality=0 size=270 interrupted_grains=0 max_sample_step=0.000102124
+constant tape quality=0 size=280 interrupted_grains=0 max_sample_step=0.000088138
+constant tape quality=0 size=290 interrupted_grains=0 max_sample_step=0.000086123
+constant tape quality=0 size=300 interrupted_grains=0 max_sample_step=0.000084211
+constant tape quality=0 size=310 interrupted_grains=0 max_sample_step=0.000082399
+constant tape quality=0 size=320 interrupted_grains=0 max_sample_step=0.000080546
+constant tape quality=0 size=330 interrupted_grains=0 max_sample_step=0.000078880
+constant tape quality=0 size=340 interrupted_grains=0 max_sample_step=0.000077180
+constant tape quality=0 size=350 interrupted_grains=0 max_sample_step=0.000075606
+constant tape quality=0 size=360 interrupted_grains=0 max_sample_step=0.000074082
+constant tape quality=0 size=370 interrupted_grains=0 max_sample_step=0.000072591
+constant tape quality=0 size=380 interrupted_grains=0 max_sample_step=0.000071174
+constant tape quality=0 size=390 interrupted_grains=0 max_sample_step=0.000069789
+constant tape quality=0 size=400 interrupted_grains=0 max_sample_step=0.000068428
+constant tape quality=0 size=410 interrupted_grains=0 max_sample_step=0.000067110
+constant tape quality=0 size=420 interrupted_grains=0 max_sample_step=0.000065852
+constant tape quality=0 size=430 interrupted_grains=0 max_sample_step=0.000064612
+constant tape quality=0 size=440 interrupted_grains=0 max_sample_step=0.000063432
+constant tape quality=0 size=450 interrupted_grains=0 max_sample_step=0.000062277
+constant tape quality=0 size=460 interrupted_grains=0 max_sample_step=0.000061157
+constant tape quality=0 size=470 interrupted_grains=0 max_sample_step=0.000060136
+constant tape quality=0 size=480 interrupted_grains=0 max_sample_step=0.000059002
+constant tape quality=0 size=490 interrupted_grains=0 max_sample_step=0.000057989
+constant tape quality=0 size=500 interrupted_grains=0 max_sample_step=0.000057005
+constant tape quality=0 size=510 interrupted_grains=0 max_sample_step=0.000056046
+constant tape quality=0 size=520 interrupted_grains=0 max_sample_step=0.000055121
+constant tape quality=0 size=530 interrupted_grains=0 max_sample_step=0.000054246
+constant tape quality=0 size=540 interrupted_grains=0 max_sample_step=0.000053355
+constant tape quality=0 size=550 interrupted_grains=0 max_sample_step=0.000052455
+constant tape quality=0 size=560 interrupted_grains=0 max_sample_step=0.000051595
+constant tape quality=0 size=570 interrupted_grains=0 max_sample_step=0.000050815
+constant tape quality=0 size=580 interrupted_grains=0 max_sample_step=0.000049950
+constant tape quality=0 size=590 interrupted_grains=0 max_sample_step=0.000049234
+constant tape quality=0 size=600 interrupted_grains=0 max_sample_step=0.000048445
+constant tape quality=0 size=610 interrupted_grains=0 max_sample_step=0.000047686
+constant tape quality=0 size=620 interrupted_grains=0 max_sample_step=0.000047015
+constant tape quality=0 size=630 interrupted_grains=0 max_sample_step=0.000046311
+constant tape quality=0 size=640 interrupted_grains=0 max_sample_step=0.000045603
+constant tape quality=0 size=650 interrupted_grains=0 max_sample_step=0.000044927
+constant tape quality=0 size=660 interrupted_grains=0 max_sample_step=0.000044271
+constant tape quality=0 size=670 interrupted_grains=0 max_sample_step=0.000043652
+constant tape quality=0 size=680 interrupted_grains=0 max_sample_step=0.000043016
+constant tape quality=0 size=690 interrupted_grains=0 max_sample_step=0.000042386
+constant tape quality=0 size=700 interrupted_grains=0 max_sample_step=0.000041816
+constant tape quality=0 size=710 interrupted_grains=0 max_sample_step=0.000041227
+constant tape quality=0 size=720 interrupted_grains=0 max_sample_step=0.000040703
+constant tape quality=0 size=730 interrupted_grains=0 max_sample_step=0.000040056
+constant tape quality=0 size=740 interrupted_grains=0 max_sample_step=0.000039564
+constant tape quality=0 size=750 interrupted_grains=0 max_sample_step=0.000039011
+constant tape quality=0 size=760 interrupted_grains=0 max_sample_step=0.000038528
+constant tape quality=0 size=770 interrupted_grains=0 max_sample_step=0.000038004
+constant tape quality=0 size=780 interrupted_grains=0 max_sample_step=0.000037481
+constant tape quality=0 size=790 interrupted_grains=0 max_sample_step=0.000034950
+constant tape quality=0 size=800 interrupted_grains=0 max_sample_step=0.000034459
+constant tape quality=0 size=810 interrupted_grains=0 max_sample_step=0.000034008
+constant tape quality=0 size=820 interrupted_grains=0 max_sample_step=0.000033588
+constant tape quality=0 size=830 interrupted_grains=0 max_sample_step=0.000033158
+constant tape quality=0 size=840 interrupted_grains=0 max_sample_step=0.000032780
+constant tape quality=0 size=850 interrupted_grains=0 max_sample_step=0.000032349
+constant tape quality=0 size=860 interrupted_grains=0 max_sample_step=0.000031927
+constant tape quality=0 size=870 interrupted_grains=0 max_sample_step=0.000031465
+constant tape quality=0 size=880 interrupted_grains=0 max_sample_step=0.000031109
+constant tape quality=0 size=890 interrupted_grains=0 max_sample_step=0.000030726
+constant tape quality=0 size=900 interrupted_grains=0 max_sample_step=0.000030365
+constant tape quality=0 size=910 interrupted_grains=0 max_sample_step=0.000029957
+constant tape quality=0 size=920 interrupted_grains=0 max_sample_step=0.000029671
+constant tape quality=0 size=930 interrupted_grains=0 max_sample_step=0.000029270
+constant tape quality=0 size=940 interrupted_grains=0 max_sample_step=0.000028914
+constant tape quality=0 size=950 interrupted_grains=0 max_sample_step=0.000028568
+constant tape quality=0 size=960 interrupted_grains=0 max_sample_step=0.000028183
+constant tape quality=0 size=970 interrupted_grains=0 max_sample_step=0.000027870
+constant tape quality=0 size=980 interrupted_grains=0 max_sample_step=0.000027548
+constant tape quality=0 size=990 interrupted_grains=0 max_sample_step=0.000027220
+constant tape quality=0 size=1000 interrupted_grains=0 max_sample_step=0.000026902
+constant tape quality=1 size=0 interrupted_grains=0 max_sample_step=0.000178643
+constant tape quality=1 size=10 interrupted_grains=0 max_sample_step=0.000170346
+constant tape quality=1 size=20 interrupted_grains=0 max_sample_step=0.000162056
+constant tape quality=1 size=30 interrupted_grains=0 max_sample_step=0.000155079
+constant tape quality=1 size=40 interrupted_grains=0 max_sample_step=0.000148425
+constant tape quality=1 size=50 interrupted_grains=0 max_sample_step=0.000142645
+constant tape quality=1 size=60 interrupted_grains=0 max_sample_step=0.000135556
+constant tape quality=1 size=70 interrupted_grains=0 max_sample_step=0.000130355
+constant tape quality=1 size=80 interrupted_grains=0 max_sample_step=0.000124898
+constant tape quality=1 size=90 interrupted_grains=0 max_sample_step=0.000119857
+constant tape quality=1 size=100 interrupted_grains=0 max_sample_step=0.000115655
+constant tape quality=1 size=110 interrupted_grains=0 max_sample_step=0.000111122
+constant tape quality=1 size=120 interrupted_grains=0 max_sample_step=0.000107583
+constant tape quality=1 size=130 interrupted_grains=0 max_sample_step=0.000103589
+constant tape quality=1 size=140 interrupted_grains=0 max_sample_step=0.000100274
+constant tape quality=1 size=150 interrupted_grains=0 max_sample_step=0.000096813
+constant tape quality=1 size=160 interrupted_grains=0 max_sample_step=0.000093564
+constant tape quality=1 size=170 interrupted_grains=0 max_sample_step=0.000090785
+constant tape quality=1 size=180 interrupted_grains=0 max_sample_step=0.000087816
+constant tape quality=1 size=190 interrupted_grains=0 max_sample_step=0.000085637
+constant tape quality=1 size=200 interrupted_grains=0 max_sample_step=0.000083733
+constant tape quality=1 size=210 interrupted_grains=0 max_sample_step=0.000082128
+constant tape quality=1 size=220 interrupted_grains=0 max_sample_step=0.000080258
+constant tape quality=1 size=230 interrupted_grains=0 max_sample_step=0.000078820
+constant tape quality=1 size=240 interrupted_grains=0 max_sample_step=0.000077192
+constant tape quality=1 size=250 interrupted_grains=0 max_sample_step=0.000075635
+constant tape quality=1 size=260 interrupted_grains=0 max_sample_step=0.000074252
+constant tape quality=1 size=270 interrupted_grains=0 max_sample_step=0.000072815
+constant tape quality=1 size=280 interrupted_grains=0 max_sample_step=0.000071600
+constant tape quality=1 size=290 interrupted_grains=0 max_sample_step=0.000070218
+constant tape quality=1 size=300 interrupted_grains=0 max_sample_step=0.000069082
+constant tape quality=1 size=310 interrupted_grains=0 max_sample_step=0.000067782
+constant tape quality=1 size=320 interrupted_grains=0 max_sample_step=0.000066612
+constant tape quality=1 size=330 interrupted_grains=0 max_sample_step=0.000065558
+constant tape quality=1 size=340 interrupted_grains=0 max_sample_step=0.000064403
+constant tape quality=1 size=350 interrupted_grains=0 max_sample_step=0.000063404
+constant tape quality=1 size=360 interrupted_grains=0 max_sample_step=0.000062376
+constant tape quality=1 size=370 interrupted_grains=0 max_sample_step=0.000061434
+constant tape quality=1 size=380 interrupted_grains=0 max_sample_step=0.000060383
+constant tape quality=1 size=390 interrupted_grains=0 max_sample_step=0.000059538
+constant tape quality=1 size=400 interrupted_grains=0 max_sample_step=0.000058655
+constant tape quality=1 size=410 interrupted_grains=0 max_sample_step=0.000057660
+constant tape quality=1 size=420 interrupted_grains=0 max_sample_step=0.000056874
+constant tape quality=1 size=430 interrupted_grains=0 max_sample_step=0.000055976
+constant tape quality=1 size=440 interrupted_grains=0 max_sample_step=0.000055246
+constant tape quality=1 size=450 interrupted_grains=0 max_sample_step=0.000054378
+constant tape quality=1 size=460 interrupted_grains=0 max_sample_step=0.000053670
+constant tape quality=1 size=470 interrupted_grains=0 max_sample_step=0.000052862
+constant tape quality=1 size=480 interrupted_grains=0 max_sample_step=0.000052087
+constant tape quality=1 size=490 interrupted_grains=0 max_sample_step=0.000051409
+constant tape quality=1 size=500 interrupted_grains=0 max_sample_step=0.000050671
+constant tape quality=1 size=510 interrupted_grains=0 max_sample_step=0.000050012
+constant tape quality=1 size=520 interrupted_grains=0 max_sample_step=0.000049304
+constant tape quality=1 size=530 interrupted_grains=0 max_sample_step=0.000048738
+constant tape quality=1 size=540 interrupted_grains=0 max_sample_step=0.000047985
+constant tape quality=1 size=550 interrupted_grains=0 max_sample_step=0.000047434
+constant tape quality=1 size=560 interrupted_grains=0 max_sample_step=0.000036933
+constant tape quality=1 size=570 interrupted_grains=0 max_sample_step=0.000036394
+constant tape quality=1 size=580 interrupted_grains=0 max_sample_step=0.000035881
+constant tape quality=1 size=590 interrupted_grains=0 max_sample_step=0.000035336
+constant tape quality=1 size=600 interrupted_grains=0 max_sample_step=0.000034870
+constant tape quality=1 size=610 interrupted_grains=0 max_sample_step=0.000034353
+constant tape quality=1 size=620 interrupted_grains=0 max_sample_step=0.000033895
+constant tape quality=1 size=630 interrupted_grains=0 max_sample_step=0.000033417
+constant tape quality=1 size=640 interrupted_grains=0 max_sample_step=0.000032962
+constant tape quality=1 size=650 interrupted_grains=0 max_sample_step=0.000032507
+constant tape quality=1 size=660 interrupted_grains=0 max_sample_step=0.000032070
+constant tape quality=1 size=670 interrupted_grains=0 max_sample_step=0.000031654
+constant tape quality=1 size=680 interrupted_grains=0 max_sample_step=0.000031217
+constant tape quality=1 size=690 interrupted_grains=0 max_sample_step=0.000030839
+constant tape quality=1 size=700 interrupted_grains=0 max_sample_step=0.000030406
+constant tape quality=1 size=710 interrupted_grains=0 max_sample_step=0.000030089
+constant tape quality=1 size=720 interrupted_grains=0 max_sample_step=0.000029681
+constant tape quality=1 size=730 interrupted_grains=0 max_sample_step=0.000029240
+constant tape quality=1 size=740 interrupted_grains=0 max_sample_step=0.000027424
+constant tape quality=1 size=750 interrupted_grains=0 max_sample_step=0.000027019
+constant tape quality=1 size=760 interrupted_grains=0 max_sample_step=0.000026709
+constant tape quality=1 size=770 interrupted_grains=0 max_sample_step=0.000024173
+constant tape quality=1 size=780 interrupted_grains=0 max_sample_step=0.000023801
+constant tape quality=1 size=790 interrupted_grains=0 max_sample_step=0.000023413
+constant tape quality=1 size=800 interrupted_grains=0 max_sample_step=0.000023056
+constant tape quality=1 size=810 interrupted_grains=0 max_sample_step=0.000022723
+constant tape quality=1 size=820 interrupted_grains=0 max_sample_step=0.000022414
+constant tape quality=1 size=830 interrupted_grains=0 max_sample_step=0.000022146
+constant tape quality=1 size=840 interrupted_grains=0 max_sample_step=0.000021840
+constant tape quality=1 size=850 interrupted_grains=0 max_sample_step=0.000021581
+constant tape quality=1 size=860 interrupted_grains=0 max_sample_step=0.000021285
+constant tape quality=1 size=870 interrupted_grains=0 max_sample_step=0.000021064
+constant tape quality=1 size=880 interrupted_grains=0 max_sample_step=0.000020730
+constant tape quality=1 size=890 interrupted_grains=0 max_sample_step=0.000020445
+constant tape quality=1 size=900 interrupted_grains=0 max_sample_step=0.000020228
+constant tape quality=1 size=910 interrupted_grains=0 max_sample_step=0.000019948
+constant tape quality=1 size=920 interrupted_grains=0 max_sample_step=0.000019722
+constant tape quality=1 size=930 interrupted_grains=0 max_sample_step=0.000019469
+constant tape quality=1 size=940 interrupted_grains=0 max_sample_step=0.000019250
+constant tape quality=1 size=950 interrupted_grains=0 max_sample_step=0.000018977
+constant tape quality=1 size=960 interrupted_grains=0 max_sample_step=0.000018728
+constant tape quality=1 size=970 interrupted_grains=0 max_sample_step=0.000018570
+constant tape quality=1 size=980 interrupted_grains=0 max_sample_step=0.000018317
+constant tape quality=1 size=990 interrupted_grains=0 max_sample_step=0.000018081
+constant tape quality=1 size=1000 interrupted_grains=0 max_sample_step=0.000017860
+SUMMARY interrupted_grains=0 worst_step=0.000320423
+PASS live size / quality / position / pitch / reverse changes: no interrupted grains or tape seam crossings
+limiter relative error at peak 0.5: 0.000000000

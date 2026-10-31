@@ -1,0 +1,4 @@
+PASS 223 binary packing cases, all 22 backup objects, corrupt/truncated/wrong-ID rejection, serialized commands, immutable snapshot CRC, chunk upload, bank naming/save, disconnect, complete packaged HTML/JS syntax.
+PASS UI transfer lock before pending controls drain; repeated-click exclusion and disconnect cleanup (isolated JS, not a browser GUI test).
+PASS new browser saves isolated from released 1.2; read-only initial migration retained.
+PASS LFO B hardware editor uses DSP protocol, coalesced depth/rate preserved; UI preference remains separate.

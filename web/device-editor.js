@@ -11,7 +11,7 @@ class Device{
  constructor(link,id){this.link=link;this.id=id;this.seq=0;this.tail=Promise.resolve();this.pending=0;this.closed=false;}
  static async connect(access){
   const dev=await PB.find(access,(i,o)=>new Link(i,o));const d=new Device(dev.link,dev.id);
-  try{if(dev.id==='FM-1_710010000')throw Error('Mutable Dreams 1.0 detected. This private editor requires the matching 1.3 development firmware. Keep your released firmware and use browser-only mode until the device build is qualified.');const cap=words(await d.call(7));if(cap[0]!==1||cap[1]!==9||cap[2]!==2288)throw Error('This FM-1 needs the matching 1.3 development firmware.');await d.remote([5,1]);return d;}
+  try{if(dev.id==='FM-1_710010000')throw Error('Mutable Dreams 1.0 detected. The live editor requires 1.4. Back up your current work and install 1.4 first, or use browser-only mode.');const cap=words(await d.call(7));if(cap[0]!==1||cap[1]!==9||cap[2]!==2288)throw Error('This FM-1 needs the matching Mutable Dreams 1.4 firmware.');await d.remote([5,1]);return d;}
   catch(e){dev.link.close();throw e;}
  }
  exclusive(fn){

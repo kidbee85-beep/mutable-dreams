@@ -1,9 +1,9 @@
-# Build Mutable Dreams 1.3
+# Build Mutable Dreams 1.4
 
 Use the browsable repository source tree or the versioned source bundle. No Git submodule download is needed. The application, selected Mutable Instruments code, fm1-base platform and felucca-bsp are vendored with their original notices.
 
 ```sh
-cd /path/to/Mutable-Dreams-1.3-Source
+cd /path/to/Mutable-Dreams-1.4-Source
 ```
 
 ## Source map
@@ -19,7 +19,8 @@ cd /path/to/Mutable-Dreams-1.3-Source
 | `tools/` | Build/package tools, backup/editor utilities and test runners |
 | `tests/` | Native DSP/application and browser protocol tests |
 | `docs/release-1.2/` | Released build qualification and update/recovery evidence |
-| `docs/release-1.3/` | Exact-build qualification, update notes and recovery information |
+| `docs/release-1.3/` | Historical 1.3 release evidence |
+| `docs/release-1.4/` | Exact-build qualification, update notes and recovery information |
 
 ## Native build and checks (no FM-1 required)
 
@@ -97,8 +98,8 @@ For Apple Silicon, read [the tested build environment repair](docs/development/B
 
 ## Version and provenance
 
-The v1.3 source archive contains the full tree and a SHA-256 manifest. Run `python3 tools/verify_published_source.py` to check these files. The device/DSP sources are identical to the qualified build; release documentation and browser packaging were updated afterwards. Toolchain differences can change binary outputs, so file identity alone is not a bit-for-bit build reproducibility claim.
+The v1.4 source archive contains the full tree and a SHA-256 manifest. Run `python3 tools/verify_published_source.py` to check these files. The device/DSP sources are identical to the qualified build; release documentation and browser packaging were updated afterwards. Toolchain differences can change binary outputs, so file identity alone is not a bit-for-bit build reproducibility claim.
 
-Original v1.0 and v1.1 tags/assets remain unchanged. Their automatic GitHub source downloads describe their historical repository commits. Use their named source ZIPs for the original frozen snapshots.
+Published v1.0 through v1.3 tags/assets remain unchanged. Their automatic GitHub source downloads describe their historical repository commits. Use their named source ZIPs for the original frozen snapshots.
 
-See the [1.3 qualification](docs/release-1.3/DEVICE-TEST-REPORT-1.3.txt), historical [1.2 qualification](docs/release-1.2/QUALIFICATION.txt), [licensing](LICENSING-GPL.txt), platform credits and component/font notices.
+See the [1.4 qualification](docs/release-1.4/DEVICE-TEST-REPORT-1.4.txt), historical [1.2 qualification](docs/release-1.2/QUALIFICATION.txt), [licensing](LICENSING-GPL.txt), platform credits and component/font notices.

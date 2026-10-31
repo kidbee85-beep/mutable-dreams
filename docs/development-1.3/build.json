@@ -1,0 +1,21 @@
+{
+  "firmware_sha256": "13f28e8f62bf189be3fe4677d266d67aa34d24b5fac39edc5e922190383d3223",
+  "bytes": 610136,
+  "expected_identity": "FM-1_710010300",
+  "app_image_bytes": 507968,
+  "app_image_budget": 581564,
+  "ram_static_bytes": 73848,
+  "ram_static_budget": 98304,
+  "ram_pool_bytes": 334872,
+  "ram_pool_budget": 344064,
+  "pcm_bytes": 160000,
+  "factory_biomes": 109,
+  "tone_presets": 336,
+  "sample_kits": 5,
+  "samples": 40,
+  "visual_pass": 2,
+  "compiled_utc": "2026-10-29T00:20:31.177601+00:00",
+  "visual_revision": "context-headings-seven-palettes-transparent-glyph-shadows",
+  "ram_pool_required_reserve_bytes": 8192,
+  "ram_pool_additional_bytes_without_reducing_reserve": 1000
+}

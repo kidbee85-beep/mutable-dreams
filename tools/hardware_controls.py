@@ -34,5 +34,5 @@ def main():
   d.tap(7);time.sleep(.3);raw=d.patch();check('modified patch saved exactly',saved()==raw)
   target=Path(args.output);target.with_suffix('.raw').write_bytes(raw);target.write_text(json.dumps({'checks':checks,'saved_sha256':hashlib.sha256(raw).hexdigest(),'tempo_marker':83,'status':d.status()},indent=2))
  finally:
-  d.remote([1,0,0]);d.remote([2,0,0,0,0]);d.command(27,0,0);d.close()
+  d.remote([1,0,0]);d.remote([2,0,0,0,0]);d.command(27,0,0);d.remote([4,1,32]);d.close()
 if __name__=='__main__':main()

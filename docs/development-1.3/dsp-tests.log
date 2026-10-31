@@ -1,0 +1,187 @@
+PASS unused AUX removal: bit-identical main output for FM/VA/Additive over 512 parameter blocks each
+PASS Euclidean hit counts / all lengths and rotations
+PASS deterministic restart / identical audio hash
+PASS corrupted patch rejected
+PASS model 0 audible; peak 0.026976 RMS 0.003119
+PASS model 1 audible; peak 0.022487 RMS 0.001779
+PASS model 2 audible; peak 0.069598 RMS 0.003023
+PASS model 3 audible; peak 0.119481 RMS 0.062490
+PASS model 4 audible; peak 0.092750 RMS 0.032247
+PASS model 5 audible; peak 0.020256 RMS 0.001922
+PASS model 6 audible; peak 0.104694 RMS 0.019055
+PASS model 7 audible; peak 0.099256 RMS 0.031878
+PASS model 8 audible; peak 0.083390 RMS 0.041689
+PASS model 9 audible; peak 0.025051 RMS 0.002068
+PASS model 10 audible; peak 0.083396 RMS 0.041250
+PASS model 11 audible; peak 0.089214 RMS 0.045585
+PASS model 12 audible; peak 0.079761 RMS 0.041184
+PASS model 13 audible; peak 0.078222 RMS 0.041108
+PASS model 14 audible; peak 0.059540 RMS 0.031563
+PASS freeze stops tape writes / resume writes
+PASS mutation undo restores complete patch
+PASS all 8 scales / 12 roots / out-of-range notes / idempotence
+PASS v1 patch migration and corrupt legacy rejection
+PASS v2 patch migration / corrupt model rejection
+PASS v3 migration preserves all 153 parameter words / marks custom names
+Biome 0 Velvet Mist energy 1764.09193 hash b045e67e
+Biome 1 Soft Machines energy 651.848487 hash b2e1a35f
+Biome 2 Six Kicks energy 11.2466165 hash a7405b21
+Biome 3 Resonant Field energy 23.0763268 hash 5d9bc929
+Biome 4 Pearl Lagoon energy 1967.03977 hash a4dde495
+Biome 5 Amber Fog energy 1770.20662 hash 4e9f0bf3
+Biome 6 Soft Canopy energy 1387.8263 hash be7eec36
+Biome 7 Silver Marsh energy 1930.48305 hash 8e5148f1
+Biome 8 Cloud Atlas energy 1831.16815 hash 2b5c4569
+Biome 9 Still Water energy 1213.94138 hash 1e826946
+Biome 10 Moon Meadow energy 1477.55777 hash 019df90b
+Biome 11 Deep Tundra energy 1044.8429 hash 394d87a6
+Biome 12 Low Horizon energy 769.437546 hash e69c48d1
+Biome 13 Slow Monolith energy 991.487344 hash 18823f18
+Biome 14 Submerged Sun energy 575.991325 hash cd86180c
+Biome 15 Midnight Soil energy 486.602442 hash f8a0c445
+Biome 16 Ancient Air energy 1081.44165 hash b58fda5d
+Biome 17 Blue Cavern energy 869.383943 hash 28f45743
+Biome 18 Distant Shelter energy 1080.4666 hash 9f13f060
+Biome 19 Woodland Bells energy 1202.34138 hash e045b073
+Biome 20 Clay Basin energy 1282.52949 hash aab0f536
+Biome 21 Copper Grove energy 989.318242 hash a390f23c
+Biome 22 Glass River energy 961.553772 hash 6ee36550
+Biome 23 Moss Resonance energy 2111.73498 hash 3199db92
+Biome 24 Hollow Valley energy 1687.81356 hash 7b3f7969
+Biome 25 Stone Chimes energy 1676.09857 hash 400a5da8
+Biome 26 Dub Estuary energy 586.513411 hash fdc80a14
+Biome 27 Velvet Circuit energy 401.643888 hash f564a7d2
+Biome 28 Warm Current energy 405.797042 hash 4e8a5cd9
+Biome 29 Basalt Steps energy 466.584699 hash 6cca1a18
+Biome 30 Night Transit energy 403.301705 hash 31fa0a1d
+Biome 31 Copper Motor energy 438.544808 hash 6c88da2a
+Biome 32 Soft Pressure energy 444.512475 hash 03041f80
+Biome 33 Broken Fern energy 395.122985 hash cb0badf2
+Biome 34 Odd Islands energy 477.073559 hash a16ff887
+Biome 35 Loose Gravity energy 619.706013 hash e8a5e804
+Biome 36 Skipping Stones energy 528.987509 hash cba102a1
+Biome 37 Fracture Bloom energy 519.297117 hash 4205546c
+Biome 38 Tilted Rain energy 507.345458 hash ad0ceafa
+Biome 39 Uneven Tide energy 395.11905 hash ede7addd
+Biome 40 Polyrhythm Bay energy 476.675886 hash b5c229b3
+Biome 41 Root Network energy 1415.19526 hash 1baf4f79
+Biome 42 Seed Dispersal energy 1241.06568 hash 469c8738
+Biome 43 Rainforest Dew energy 1573.17428 hash 173f9ab0
+Biome 44 Coral Pulse energy 2154.48282 hash 2b40d536
+Biome 45 Mycelium Drift energy 882.789707 hash 62bea6a9
+Biome 46 Branching Paths energy 1240.70577 hash 5b90835a
+Biome 47 Tidal Roots energy 2575.5112 hash 7167b995
+Biome 48 Living Sand energy 727.074633 hash d8900d96
+Biome 49 Six Brushes energy 52.0032766 hash f8e6075f
+Biome 50 Six Leaves energy 5.40301392 hash 40f0b886
+Biome 51 Clay Ensemble energy 26.8271415 hash c112817d
+Biome 52 Skin And Stone energy 15.2723689 hash bc009d38
+Biome 53 Dust Ritual energy 14.843633 hash 2b0c8423
+Biome 54 Low Drum Circle energy 13.1815068 hash ca22dd45
+Biome 55 Wooden Clocks energy 16.1162926 hash 00aaed9e
+Biome 56 Sunlit Path energy 1959.03729 hash 4df8a7ee
+Biome 57 Tiny Constellation energy 2212.2292 hash 07348290
+Biome 58 Amber Arpeggio energy 2012.50888 hash 8f3a1f0a
+Biome 59 Open Clearing energy 2440.75178 hash 10f8ea8b
+Biome 60 Glass Orchard energy 2183.56463 hash 51b927a3
+Biome 61 Quiet Lanterns energy 1956.22984 hash d6dca896
+Biome 62 Pastel Stream energy 2245.86433 hash 145cdbc6
+Biome 63 Morning Orbit energy 2146.18029 hash f6c890d0
+Biome 64 Blank Biome energy 0 hash 583789c5
+Biome 65 Linen Evening energy 1934.56819 hash df953496
+Biome 66 Honey Lagoon energy 884.311077 hash e5ef44e7
+Biome 67 Mellow Canopy energy 1215.71809 hash f7043b0a
+Biome 68 Candle Drift energy 1182.04623 hash d88e7e1b
+Biome 69 Warm Shelter energy 1150.71801 hash 7e4637da
+Biome 70 Willow Haze energy 949.762188 hash 60dda00d
+Biome 71 Amber Rest energy 1181.51466 hash 741b39ed
+Biome 72 Moonlit Wool energy 1124.50201 hash d7729109
+Biome 73 Satin River energy 1147.10761 hash fa4ff3b5
+Biome 74 Cedar Hearth energy 1360.42721 hash eec046b3
+Biome 75 Velour Dawn energy 846.075619 hash 21eb3900
+Biome 76 Soft Current energy 1440.23884 hash a8b34c9a
+Biome 77 Quiet Arrival energy 535.571964 hash 864e6060
+Biome 78 Breathing Room energy 515.675245 hash 52732024
+Biome 79 Still Lake energy 415.616406 hash 309e1b1f
+Biome 80 Evening Paper energy 571.774992 hash e1b13cb9
+Biome 81 Soft Solstice energy 588.954385 hash 8e70d153
+Biome 82 Piano in the Moss energy 473.247002 hash 698d73e1
+Biome 83 Reed Sanctuary energy 356.0863 hash a531459e
+Biome 84 Distant Tide energy 528.922591 hash 8bcaee65
+Biome 85 Velvet Observatory energy 478.709106 hash e1372436
+Biome 86 Woodland Prayer energy 481.070228 hash e4d9ec88
+Biome 87 Luminous Rest energy 451.727875 hash 0112b4c9
+Biome 88 Cedar Lantern energy 474.634407 hash 7c5d9c0d
+Biome 89 Blue Meditation energy 496.78749 hash e710dd85
+Biome 90 Ember Valley energy 516.322242 hash 4fbce4bd
+Biome 91 Floating Petals energy 332.414077 hash 152e9ac4
+Biome 92 Return Home energy 512.700323 hash 83b21a10
+Biome 93 Honey Dusk energy 689.656576 hash aba668ea
+Biome 94 Linen Horizon energy 1292.9504 hash d56d0ad3
+Biome 95 Cedar Sleep energy 710.414963 hash ffb79f38
+Biome 96 Amber Stillness energy 733.427195 hash 939658fe
+Biome 97 Quiet Orchard energy 882.262303 hash e8ca4afa
+Biome 98 Cotton Current energy 762.005257 hash 8122e406
+Biome 99 Willow Shelter energy 805.033134 hash 4ffa138d
+Biome 100 Silt Meditation energy 764.187679 hash 839c8594
+Biome 101 Dust Afterglow energy 1350.67241 hash 345fe8a1
+Biome 102 Paper Lanterns energy 1396.71188 hash f0486a0c
+Biome 103 Static Meadow energy 1282.17283 hash 0e5e6a9e
+Biome 104 Crackle Estuary energy 1383.52821 hash 362464d2
+Biome 105 Velour Transit energy 2564.34874 hash 42753622
+Biome 106 Dust In Sunlight energy 1721.28931 hash bf3acc5e
+Biome 107 Wooden Atrium energy 1096.15317 hash 71dc2ec1
+Biome 108 Tape Constellation energy 1765.75847 hash 318ed06c
+PASS 108 audible unique Biomes / 12 seconds each; Blank exactly silent
+PASS all 336 tone presets audible / 8 seconds each; rhythm, notes, mix and mute preserved
+PASS Blank clears previous frozen audio / keyboard still plays
+PASS LP24 reduces normalized HF energy: 0.016543 -> 0.000337
+PASS 45 filter/engine combinations at extreme resonance, cutoff, repeats and feedback / 10s each
+PASS inactive voice DSP skipped / exact startup silence
+PASS exact 1/2/3/4 ratchet counts / stop cancels pending attacks
+PASS swing 65:35 / pair duration unchanged to one sample
+PASS 8-second attack attenuates first 200ms / remains audible
+PASS duck source dry signal unchanged / track 6 can duck track 1
+PASS frozen tape audible / reverse and octave change audio
+PASS 60s six model 0 requested quality 0 actual 0; host CPU 0.93% peak 0.05296
+PASS 60s six model 1 requested quality 0 actual 0; host CPU 1.25% peak 0.09346
+PASS 60s six model 2 requested quality 0 actual 0; host CPU 0.87% peak 0.05524
+PASS 60s six model 3 requested quality 0 actual 0; host CPU 1.66% peak 0.13788
+PASS 60s six model 4 requested quality 0 actual 0; host CPU 0.63% peak 0.09174
+PASS 60s six model 5 requested quality 0 actual 0; host CPU 1.46% peak 0.35501
+PASS 60s six model 6 requested quality 0 actual 0; host CPU 0.85% peak 0.10103
+PASS 60s six model 7 requested quality 0 actual 0; host CPU 0.83% peak 0.09068
+PASS 60s six model 8 requested quality 0 actual 0; host CPU 0.74% peak 0.09708
+PASS 60s six model 9 requested quality 0 actual 0; host CPU 0.82% peak 0.05965
+PASS 60s six model 10 requested quality 0 actual 0; host CPU 0.90% peak 0.08359
+PASS 60s six model 11 requested quality 0 actual 0; host CPU 0.82% peak 0.08756
+PASS 60s six model 12 requested quality 0 actual 0; host CPU 0.80% peak 0.09487
+PASS 60s six model 13 requested quality 0 actual 0; host CPU 0.82% peak 0.08262
+PASS 60s six model 14 requested quality 0 actual 0; host CPU 0.70% peak 0.04870
+PASS 60s six model 0 requested quality 1 actual 1; host CPU 1.03% peak 0.05296
+PASS 60s six model 1 requested quality 1 actual 0; host CPU 1.21% peak 0.09615
+PASS 60s six model 2 requested quality 1 actual 1; host CPU 0.94% peak 0.05492
+PASS 60s six model 3 requested quality 1 actual 0; host CPU 1.66% peak 0.14934
+PASS 60s six model 4 requested quality 1 actual 1; host CPU 0.79% peak 0.09113
+PASS 60s six model 5 requested quality 1 actual 0; host CPU 1.44% peak 0.34745
+PASS 60s six model 6 requested quality 1 actual 0; host CPU 0.83% peak 0.09664
+PASS 60s six model 7 requested quality 1 actual 0; host CPU 0.83% peak 0.09148
+PASS 60s six model 8 requested quality 1 actual 1; host CPU 0.79% peak 0.09561
+PASS 60s six model 9 requested quality 1 actual 0; host CPU 0.81% peak 0.05957
+PASS 60s six model 10 requested quality 1 actual 1; host CPU 0.98% peak 0.08708
+PASS 60s six model 11 requested quality 1 actual 0; host CPU 0.84% peak 0.10083
+PASS 60s six model 12 requested quality 1 actual 1; host CPU 0.89% peak 0.08976
+PASS 60s six model 13 requested quality 1 actual 0; host CPU 0.81% peak 0.08876
+PASS 60s six model 14 requested quality 1 actual 1; host CPU 0.73% peak 0.05102
+PASS expanded tape: panic/freeze remains exactly silent for 14.5s / no stale audio
+ECO/FULL fundamental model 3: 440/440 Hz
+ECO/FULL fundamental model 4: 440/440 Hz
+ECO/FULL fundamental model 6: 440/440 Hz
+PASS ECO pitch compensation / odd fragment continuity
+PASS FULL admission guard keeps 2 Rings / sends 3 Rings to ECO before render
+PASS measured FULL limits: 4 FM/Harmonic stay FULL, 5 use ECO before render
+PASS FULL admission counts shared effects: 3 FM/Harmonic stay FULL, 4 use ECO
+PASS full-rate tape admission: six snares and dense techno use ECO before rendering
+PASS 10,000 boundary / all-command / reassignment commands
+DSP owned storage (incl conservative 512B globals): 337600 bytes
+ALL DSP TESTS PASSED; host measurements are not FM1 performance measurements.

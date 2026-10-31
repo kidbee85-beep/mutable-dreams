@@ -1,0 +1,69 @@
+MUTABLE DREAMS 1.3.0-dev — FINAL PRIVATE VISUAL PASS
+Completed: 2026-10-29T00:26:37.823456+00:00
+SHA-256: 13f28e8f62bf189be3fe4677d266d67aa34d24b5fac39edc5e922190383d3223
+Identity: FM-1_710010300 / package 610136 bytes.
+The public 1.0, 1.1 and 1.2 releases remain unchanged. Syntherella was not opened.
+
+THIS CANDIDATE
+Larger useful labels (14 px) and values (16 px), with 12 px fallback for long
+labels. Seven calm page palettes and independently coloured controls replace
+the pervasive coral accent. Quiet gradients are rendered within the existing
+tile; there is no extra framebuffer. Tiny jellyfish, cells and capsules react
+to page settings. Motion can be disabled. Context headings replace repeated
+branding; HOME and the opening screen keep the project name. The physical
+screen is still 240 x 240: larger text is not a higher-resolution panel.
+Text is drawn over the field with a one-pixel glyph shadow, without opaque
+label rectangles. Tile rejection avoids rendering labels outside the current
+strip. The browser uses the same native interface and page colours.
+
+EXACT-BUILD DEVICE TESTS
+6 playback cases / 270.03 seconds, including a 100-second
+three-synth + kit / full-effects soak, live grain changes and held-key help.
+Every case traversed all 27 pages. All reported audio-overrun, overload,
+invalid-sample and dropped-command counters remained unchanged. USB input
+capture had no nonfinite samples and no host overflow. The Mac did not monitor
+or play the captured audio. Worst observed callback: 5040/5804 us
+(86.84% of its deadline). This is measured coverage, not a
+guarantee for every possible combination or an all-day endurance test.
+
+Six synths / all 27 animated pages: 38.69 s, peak CPU 69%, callback 4421/5804 us, ECO, 27 pages, audio verified
+Honey Dusk / all pages: 28.47 s, peak CPU 61%, callback 3924/5804 us, ECO, 27 pages, audio verified
+Dust Afterglow / all pages: 28.17 s, peak CPU 41%, callback 2763/5804 us, ECO, 27 pages, audio verified
+Velour Transit / all pages: 28.44 s, peak CPU 44%, callback 2975/5804 us, ECO, 27 pages, audio verified
+Six Harmonic engines / dense FX / admission guard: 45.92 s, peak CPU 80%, callback 5040/5804 us, ECO, 27 pages, audio verified
+Three VA + kit / full FX / help and page changes: 100.34 s, peak CPU 62%, callback 4011/5804 us, FULL, 27 pages, audio verified
+
+DATA / INSTALLATION
+A fresh double bank backup and separate live patch preceded flashing. Every
+saved object compares byte-identical after testing. The fresh owner live patch
+and display preferences were restored, playback stopped and remote control
+released. No user slot was written in this visual pass. The earlier Lo-Fi
+qualification added DUST AFTERGLOW only to a previously empty slot.
+
+NATIVE / BROWSER CHECKS
+Seven native UI suites passed under ASan/UBSan, including all held-key help.
+Moving fields change pixels; Motion Off stays pixel-identical. Key screens
+were visually reviewed for text fit and colour. WASM engine/storage, editor
+serialization, packaged JS and all 27 reactive control ranges passed offline.
+A visible browser/editor check remains for the owner because local-page UI
+access is blocked by the browser policy. No workaround was used.
+
+RELATION TO EARLIER 1.3 DSP TESTS
+The broader kit/preset/storage qualification belongs to prior candidate
+dc194e5eea1a8ee365fb391a623dbb0c40b33d3e05556ee143a7267044e5fe59.
+Its 23 load cases and 18 functional checks remain historical evidence; they
+are not mislabelled as tests of this new binary. All 182 DSP/vendor/bank source
+files compare identical to that packaged candidate. Only UI/fonts/browser
+styling and test fixtures changed in this pass. The first visual stress run
+produced silence because the TEST SCRIPT's remote-master lease expired during
+long setup. The capture assertion caught it. Re-arming after setup fixes the
+harness; the final tests include non-zero captured audio in every case.
+
+BEFORE PUBLIC RELEASE
+Owner listening and handling review, visible browser/editor interaction and a
+physical power-disconnect cold start remain pending for this exact candidate.
+V16/M-UPGRADE and the stock recovery roundtrip are not newly qualified here.
+External TRS has not been physically retested. Bluetooth is excluded from this
+version by the owner's instruction. MIDI roadmap features are not advertised
+as already implemented. New kit patches need 1.3; retain the 1.2 backup for
+downgrades. Naming/permission discussion remains separate from this preview.

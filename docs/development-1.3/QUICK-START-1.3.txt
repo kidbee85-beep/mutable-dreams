@@ -1,0 +1,65 @@
+MUTABLE DREAMS 1.3 — PRIVATE LO-FI PREVIEW
+
+START WITH THE NEW WORLDS
+Displayed Biome numbers 94–101 are new six-synth landscapes.
+Displayed numbers 102–109 are new three-synth + kit worlds:
+102 Dust Afterglow       103 Paper Lanterns
+104 Static Meadow       105 Crackle Estuary
+106 Velour Transit      107 Dust In Sunlight
+108 Wooden Atrium       109 Tape Constellation
+
+The browser has dedicated buttons for the new quiet Biomes and first kit Biome.
+Start the browser instrument explicitly; there is no automatic audio playback.
+
+KIT MODE
+GLO cycles through the global pages to User Banks, then KIT.
+On KIT: K1 chooses six synths or three synths + kit; K2 selects one of five kits;
+K3 selects a pad; K4 mixes gentle tape hiss while playing.
+In kit mode, tracks 1–3 are freely assignable synths and track 4 is the kit.
+The original synth settings on tracks 4–6 remain stored for switching back.
+
+Select track 4. The keyboard repeats the eight pads from left to right.
+EDIT: per-pad pitch / level / soft filter / envelope tail.
+EDIT again: pad selection / pad grain send / kit delay / kit reverb sends.
+Mixer track 4 sets kit level and the kit's shared grain send.
+The pad grain send is multiplied by the kit send; both must be above zero.
+FX edits the ONE shared grain bus. Freeze holds that shared recording.
+
+SEQ on track 4 opens the kit's 32-step page:
+K1 position, K2 this pad's hit on/off, K3 shared pattern length, K4 generator.
+PRESET changes the selected pad on the kit pages.
+REC cycles step recording, live overdub, off. Play keys to add pad hits.
+Step recording advances the position after a hit. Edit K2 to remove a hit.
+The eight patterns can overlap; at most four samples sound simultaneously.
+The four generators replace all pad patterns; ENV undoes the last generation.
+On the other KIT pages, REC previews the selected pad.
+USB MIDI channel 4 plays the kit; channels 1–3 play synths. In normal mode,
+channels 1–6 remain synth tracks. GM notes 36/38/42/45/37/46/39/51 address pads 1–8.
+
+KEEPING YOUR WORK
+Stop playback and select internal clock before saving.
+SAVE stores the current project; GLO > User Banks stores a named User Biome.
+The 16 Biome slots can include complete kit settings and patterns.
+The 64 sound slots store synth sounds, not a complete kit.
+If a Biome has unsaved changes, an accidental Biome change opens a choice:
+HOME = keep editing; SAVE = open User Banks; SEL = discard and load.
+SAVE in that question does not itself write a slot. Choose a slot and save.
+Hold a function key for contextual help; releasing a hold never triggers its tap.
+
+BROWSER AND HARDWARE
+Open Mutable-Dreams-1.3.html for the matching browser instrument / editor.
+The browser uses the real firmware DSP in WASM. Hardware and browser saves
+remain separate. 1.3 browser writes cannot overwrite the retained 1.2 bank key.
+A first 1.3 browser start can read old 1.2 banks; keep separate exported backups.
+Connect FM-1 requires matching private 1.3 firmware and Web MIDI/SysEx access.
+Disconnect the editor before any update or bank transfer through another tool.
+The new patch format needs 1.3. Keep pre-update files for a downgrade.
+
+This is a private test snapshot, not an online release. No user WAV import,
+Bluetooth clock or Stock V16/M-UPGRADE qualification is claimed. Existing
+published releases are unchanged. See DEVICE-TEST-REPORT-1.3.txt for evidence.
+
+FINAL VISUAL PASS
+HOME keeps the project title; other pages use context headings. Seven quiet
+page palettes, four coloured controls, larger type and tiny responsive
+creatures distinguish pages. LOOK > Motion turns movement off.

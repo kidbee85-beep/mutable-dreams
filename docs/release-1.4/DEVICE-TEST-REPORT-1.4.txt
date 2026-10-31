@@ -1,0 +1,71 @@
+MUTABLE DREAMS 1.4 — DEVICE QUALIFICATION
+31 October 2026
+
+EXACT RELEASE PACKAGE
+Mutable-Dreams-1.4.0.fwsc
+SHA-256: d6682e1433f581285333f23629be20b96a595707776c6359d22d14e6542d6bda
+Device identity after install: FM-1_710010400
+Only the uniquely named Mutable Dreams FM-1 MIDI and audio ports were opened.
+The other connected FM-1 was not used.
+
+DATA AND STOCK ROUTE
+The exact package was installed on the FM-1. With its previously installed
+official V16 start region, a return to verified original V15 first refused
+without writing because the guard allowed only the V15 start region. The
+guard was amended to allow only the exact official V16 start region as well.
+The corrected build then passed 1.4 -> Stock V15 (FM-1_015) -> 1.4. The saved
+User Banks were restored after physical SEL confirmation. The .mddb file read
+back byte-for-byte identical to the pre-V15 backup (SHA-256
+bd6bb4cf51511e7e848f347d7001fae876ef739892c1d9c0da02c1450464c872).
+The live patch also matched byte-for-byte after restoration. A separate
+cold-start test retained the banks and produced no new audio counters.
+
+A prior 1.3 qualification verified official M-UPGRADE from Stock V15 to V16,
+but that utility rejected a custom Mutable Dreams package with "File format
+error". The exact 1.4 browser installer contains the verified package, SHA
+check, target identity check and stock V15 file-hash restriction. Its JavaScript
+syntax and permission, mismatch and success paths passed isolated tests. The
+owner visually checked the 1.4 installer layout, Install action and V15
+return option. A full click-through installation from that browser page is
+still a separate manual check; device installation used the same underlying
+exact-device USB update protocol. No universal path from other custom
+firmware is claimed.
+
+SOUND AND LOAD
+All 48 new Biomes were loaded and captured over direct stereo USB on the
+physical FM-1. All were audible at a moderate temporary test master. No
+invalid samples, new XRuns, overloads or host USB overflows were recorded.
+The factory preset wheel was stepped through the catalogue and returned to
+its original position. The live patch was restored byte-for-byte afterwards.
+
+The exact corrected package passed short six-second cases after the V15
+roundtrip: six Choir voices in ECO with strong granular send took at most
+4,196 of 5,804 microseconds per audio callback (72.29%); a Lo-Fi kit plus
+three synth voices with strong granular send took at most 3,140 of 5,804
+microseconds (54.10%). No new XRuns, overloads, nonfinite samples, dropped
+commands or host USB capture overflows occurred. Five contrasting Biomes
+were subsequently recorded for the update film from the physical FM-1; the
+live patch was restored. These bounded checks do not prove every arbitrary
+user patch or a multi-hour performance.
+
+BROWSER AND EDITOR
+The browser WASM uses the same firmware app and DSP. Automated sound,
+storage, parameter and editor tests passed. The playable 1.4 page was
+visibly used to play Shoreline Radio, adjust controls, save and reload a
+Biome, and persist that slot across page reload. Chrome's Web MIDI permission
+was granted on the private page. Its editor connected to FM-1_710010400,
+changed Density, read the device value back, restored the original value
+and disconnected. Browser User Banks remain separate from hardware banks.
+
+RESOURCES
+Image 551,376 / 581,564 bytes. Static RAM 74,568 / 98,304 bytes. DSP pool
+334,896 / 344,064 bytes. After an 8,192-byte safety reserve, only 976 bytes
+of that DSP pool remain discretionary; this is not the device's total free RAM.
+
+KNOWN LIMITS
+Physical TRS MIDI has not been exercised with an external cable. Bluetooth
+MIDI, arbitrary sample import, MIDI CC Learn and a dedicated Solo mode are
+not in 1.4. A black-screen report after an interrupted Firmware Hub flash
+remains under investigation: https://github.com/kidbee85-beep/mutable-dreams/issues/6.
+No general recovery of a USB-invisible FM-1 has been verified. Power was not
+intentionally interrupted on the functioning test device.

@@ -1,0 +1,12 @@
+PASS exact v6 prefix migration; new behavior disabled for saved worlds
+PASS shared grain parameters never mutate any track; sends address only their track
+PASS mixed grain air audible; panic remains silent
+PASS step 32 plays independently of Euclidean hits and old 16-step motifs
+PASS keyboard and MIDI step entry, track isolation, velocity, patch round trip
+PASS live overdub records note and duration; stop disarms
+PASS MIDI stop, clock loss and clock-source changes disarm recording; wrong-port stop ignored
+PASS four deterministic, scale-aware generators; other tracks unchanged
+PASS scale-degree chord progression changes at bar boundary
+PASS six voices of each new engine plus shared effects and grain air (offline only)
+PASS every factory Biome validates
+EVOLUTION TESTS PASSED / device performance still requires measurement

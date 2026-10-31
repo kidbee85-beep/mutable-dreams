@@ -79,7 +79,14 @@ int main(void){
  uint32_t glow_state;memcpy(&glow_state,response+220,4);assert(glow_state==2);
  uint32_t old_pref[3]={0x4d445046,1,0};
  assert(app_backup_validate(OBJ_PREFS,old_pref,sizeof old_pref));
- assert(!plat_store_save(OBJ_PREFS,&dream_prefs,sizeof dream_prefs));app_init();assert(dream_prefs.button_glow==2);
- assert(!plat_store_save(OBJ_PREFS,old_pref,sizeof old_pref));app_init();assert(dream_prefs.button_glow==1&&dream_prefs.boot_sound==0);
+ dream_command(MD_MIDI_ROUTE,2,11);dream_command(MD_MIDI_ROUTE,3,10);dream_command(MD_MIDI_MACRO,0,0);
+ dream_command(MD_MIDI_MACRO,0,-1);assert(!dream_prefs.midi_macro);
+ dream_command(MD_MIDI_MACRO,0,2);assert(dream_prefs.midi_macro);
+ dream_command(MD_MIDI_MACRO,0,0);
+ assert(dream_prefs.midi_route[2]==11&&dream_prefs.midi_route[3]==10&&!dream_prefs.midi_macro);
+ assert(app_backup_validate(OBJ_PREFS,&dream_prefs,sizeof dream_prefs));
+ md_preferences bad_pref=dream_prefs;bad_pref.midi_route[2]=17;assert(!app_backup_validate(OBJ_PREFS,&bad_pref,sizeof bad_pref));
+ assert(!plat_store_save(OBJ_PREFS,&dream_prefs,sizeof dream_prefs));app_init();assert(dream_prefs.button_glow==2&&md_midi_route(2)==11&&md_midi_route(3)==10&&!md_midi_macro_enabled());
+ assert(!plat_store_save(OBJ_PREFS,old_pref,sizeof old_pref));app_init();assert(dream_prefs.button_glow==1&&dream_prefs.boot_sound==0&&md_midi_route(2)==3&&md_midi_macro_enabled());
  puts("PASS editor capabilities/state, atomic snapshot, bounded upload, CRC/version/range/timeout/busy rejection, all 16/64 slots, overwrite guard, backup save lock, saved-state reload, LED preference and legacy settings");return 0;
 }

@@ -1,0 +1,1 @@
+PASS single persistence event, invalid IDs/bytes/sizes/top-level data rejected, valid saved Biome survives restart; no audio playback

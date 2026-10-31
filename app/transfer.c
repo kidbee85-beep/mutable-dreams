@@ -25,8 +25,10 @@ int app_backup_validate(unsigned obj,const void *data,unsigned n){
  if(obj==OBJ_PANEL||obj>=OBJ_NOBJ)return 0;
  if(!n)return 1; /* An empty record intentionally clears this saved object. */
  if(obj==OBJ_PREFS){
-  uint32_t p[4]={0};if(n!=12&&n!=sizeof p)return 0;memcpy(p,data,n);
-  return p[0]==0x4d445046&&p[1]<=1&&p[2]<=1&&(n==12||p[3]<=2);
+  md_preferences p={0};if(n!=12&&n!=16&&n!=sizeof p)return 0;memcpy(&p,data,n);
+  if(p.magic!=0x4d445046||p.motion<0||p.motion>1||p.boot_sound<0||p.boot_sound>1||(n>=16&&(p.button_glow<0||p.button_glow>2)))return 0;
+  if(n==sizeof p){if(p.revision!=1||p.midi_macro>1||p.reserved)return 0;for(int i=0;i<6;i++)if(p.midi_route[i]>16)return 0;}
+  return 1;
  }
  if(obj==OBJ_PATCH){
   return md_decode(&bank_patch_io,data,n);

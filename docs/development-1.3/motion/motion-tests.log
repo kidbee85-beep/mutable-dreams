@@ -1,0 +1,10 @@
+PASS full v8 prefix migration; all motion additions default neutral
+PASS all five paths / lengths 1, 4, 32 / every offset / seeded repeatability
+PASS live recording uses the sounding, remapped step
+PASS eight generators in all eight scales / deterministic / isolated / undo
+PASS eight journeys / 1–16 bars / compact roots / bounded output
+PASS depth zero is bit-identical across every routing and curve
+PASS 28 LFO combinations audible and finite; changes isolated to target track
+PASS both LFOs independent; second 28 routes/curves audible; disabled adds no sound change
+PASS invalid motion storage rejected
+PASS feel preserves stored notes and velocity; patch round trip retains every new setting

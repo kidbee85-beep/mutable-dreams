@@ -1,0 +1,35 @@
+PASS tone recall keeps Biome dirty; user Biome replacement guarded; kits use complete Biome banks
+PASS clock rollover: live uploads, timeout rejection, overwrite confirmation, intro, message, pulse and UI cadence across UINT32_MAX
+PASS editor capabilities/state, atomic snapshot, bounded upload, CRC/version/range/timeout/busy rejection, all 16/64 slots, overwrite guard, backup save lock, saved-state reload
+backup: an end frame, status 0, the frames contiguous              ok
+... each frame fits the SysEx ring whole (<= 64 packets)           ok
+... stopped: the unsaved saved first; the autosave held, then free ok
+... the length and the CRC-32 of the whole                         ok
+... the image: the head, 22 records as stored (absent: 0 bytes)    ok
+... the tail: the CRC-32 of all before                             ok
+  19816 bytes in 156 frames (largest 161 wire bytes)
+backup while playing: nothing saved first, flagged                 ok
+backup stalled (the ring never drains): given up after ~2 s, autosave free ok
+... USB gone: given up at once, autosave free                      ok
+set B differs from A                                               ok
+playing: STOP FIRST (RS_E_PLAYING), told, nothing read             ok
+... nothing changed                                                ok
+  68 reads a restore
+the cable cut at each read: RS_E_FETCH, never asked, nothing changed ok
+a byte changed (payload, record, head, tail): refused, nothing changed ok
+a wrong length: refused, nothing changed                           ok
+another version's backup, another app's: RS_E_HEAD, nothing changed ok
+the host's CRC-32 not the image's: RS_E_TOTAL, nothing changed     ok
+started playing meanwhile: RS_E_PLAYING, nothing changed           ok
+HOME at the question: RS_E_NO, asked once, the host told first     ok
+... nothing changed, nothing reloaded                              ok
+SEL: restored (0), the host told, the app reloaded                 ok
+... every object as backed up (the slot absent in A: absent)       ok
+... the panel's calibration untouched                              ok
+... the journal record erased                                      ok
+... a backup of it is the image again                              ok
+... saving after it works (the next seq)                           ok
+  130 flash writes a restore: cut before the record 107 (old), after 23 (new, finished at boot)
+a power cut at each write: the old set or the new, whole, never a mix ok
+... the panel's calibration untouched through all of it            ok
+backup test passed

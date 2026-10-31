@@ -1,0 +1,2 @@
+PASS incoming Density position and number update while focus stays; all macros, pointer/multitouch/cancel/capture, adjustment keys, focus loss and tempo gesture protection (isolated JS, not rendered GUI).
+PASS living browser field responds to control ranges on all 30 pages (isolated style-state test).

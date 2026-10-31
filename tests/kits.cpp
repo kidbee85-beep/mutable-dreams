@@ -24,6 +24,21 @@ int main(){
  auto saved=*md_state();cmd(MD_PANIC,0,0);assert(md_import(&saved,sizeof saved));assert(!memcmp(md_state(),&saved,sizeof saved));saved.kit.bank=5;assert(!md_load(&saved));saved=*md_state();saved.kit.length=0;assert(!md_load(&saved));saved=*md_state();saved.kit.pads[2].tune=13;assert(!md_load(&saved));puts("PASS kit persistence and malformed bank rejection");
  for(int b=0;b<5;b++){md_init();base.kit.bank=b;base.kit.hiss=100;base.track[3].send=1000;base.fx_level=900;base.macro[3]=1000;base.feedback=850;base.grain_noise=500;base.tempo=220;base.grain_size=1000;base.ext[3].delay_send=1000;base.ext[3].reverb_send=1000;for(auto &p:base.kit.pads)p.send=1000;assert(md_load(&base));cmd(MD_KIT_GENERATE,3,1);cmd(MD_PLAY,0,1);for(int j=0;j<800;j++){md_midi(0x93,36+(j%8),127,0);cmd(MD_KIT_TRIGGER,3,j%8);render(1102);}cmd(MD_PANIC,0,0);assert(render(44100)==0);assert(!md_status()->nonfinite&&!md_status()->dropped_commands);}
  puts("PASS dense kit/MIDI stealing + max grains/noise/delay/reverb, bounded audio, panic silence");
- for(int id=0;id<MD_BIOMES;id++){md_init();select(id);assert(md_validate(md_state()));if(id>=93){cmd(MD_PLAY,0,1);assert(render(MD_RATE*8)>.01);assert(md_state()->kit.enabled==(id>=101));}}
- puts("PASS all 109 factory patches validate; 16 additions audible / correct rack mode");
+ for(int id=0;id<MD_BIOMES;id++){
+  md_init();select(id);assert(md_validate(md_state()));
+  if(id>=93){
+   cmd(MD_PLAY,0,1);assert(render(MD_RATE*8)>.01);
+   const bool kit=(id>=101&&id<MD_V13_BIOMES)||(id>=MD_V13_BIOMES&&(id-MD_V13_BIOMES)%8==4);
+   assert(md_state()->kit.enabled==kit);
+  }
+ }
+ puts("PASS all 157 factory patches validate; kit mode and synth allocation agree");
+ bool seen[MD_BIOMES]={};int cursor=md_biome_step(-1,1);
+ for(int i=0;i<MD_BIOMES;i++){
+  assert(cursor>=0&&cursor<MD_BIOMES&&!seen[cursor]);seen[cursor]=true;
+  if(i+1<MD_BIOMES){int next=md_biome_step(cursor,1);assert(md_biome_step(next,-1)==cursor);cursor=next;}
+ }
+ for(bool present:seen)assert(present);
+ assert(md_biome_step(cursor,1)==cursor);
+ puts("PASS curated wheel visits every original and new Biome exactly once, with stable inverse navigation");
 }

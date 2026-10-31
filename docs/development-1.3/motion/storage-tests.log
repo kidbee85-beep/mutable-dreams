@@ -1,0 +1,20 @@
+empty flash loads nothing                      ok
+save A                                         ok
+load returns A                                 ok
+save B                                         ok
+load returns B (newer seq)                     ok
+torn save keeps B                              ok
+header not written keeps B                     ok
+save A again                                   ok
+load returns A                                 ok
+both copies corrupt -> nothing                 ok
+other objects untouched                        ok
+settings save/load                             ok
+CRC-32 is zlib's (check value 0xCBF43926)      ok
+newer copy rotten -> the older one loads       ok
+save over the rotten copy                      ok
+... loads the new data                         ok
+both headers broken -> nothing                 ok
+Mutable Dreams map in data regions; no overlapping objects ok
+20 bank objects: interrupted writes preserve a committed payload
+storage test passed

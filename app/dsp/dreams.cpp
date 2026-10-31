@@ -103,6 +103,7 @@ static int playing;
 static int clock_source,midi_quantize,clock_pulse;
 static unsigned clock_age,clock_last;static float clock_interval;
 static int held[6],sustain[6],midi_bank[6];
+static uint8_t midi_route[6],midi_macro_enabled;
 static float bend[6],bend_smooth[6],expression[6];
 struct Command { int c,t,v; };
 static Command queue[64];
@@ -153,7 +154,9 @@ static void scene(int id) {
  id=bound(id,0,MD_BIOMES-1);
  memset(&patch,0,sizeof patch);memcpy(&patch,&biome_bank[id].patch,sizeof(FactoryPatch));extension_defaults(patch);
  if(id!=MD_BLANK_BIOME){
-  unsigned family=biome_bank[id].family;bool ambient=family==0||family==1||id>=65;
+  unsigned family=biome_bank[id].family;
+  int atlas_arch=id>=MD_V13_BIOMES?(id-MD_V13_BIOMES)%8:-1;
+  bool ambient=family==0||family==1||(id>=65&&id<MD_V13_BIOMES)||atlas_arch==2||atlas_arch==5||atlas_arch==6;
   patch.fx_level=ambient?380:family==2||family==5||family==7?260:140;
   patch.reverb_time=ambient?640:450;patch.delay_fb=ambient?220:270;
   patch.delay_ms=bound(60000/patch.tempo/2,40,350);
@@ -164,7 +167,7 @@ static void scene(int id) {
    if(ambient&&md_has_envelope(model)){e.tides=90+(i%3)*35;e.tides_rate=650+i*45;}
   }
  }
- if(id>=77){
+ if(id>=77&&id<MD_V13_BIOMES){
   patch.chord_pattern=1+(id-77)%4;patch.chord_bars=4;patch.chord_tracks=63;
   // A sparse, editable phrase in the existing step sequencer: one foreground
   // gesture, while pads and bass keep their independent slower cycles.
@@ -178,9 +181,37 @@ static void scene(int id) {
    for(int k=0;k<16;k++){int off=phrases[(id-77)%4][k];q.steps[k]={(uint8_t)(off<0?0:bound(md_quantize(patch.track[i].note+off,patch.root,patch.scale),24,96)),(uint8_t)(k==0?78:62+(k*3+id)%14),100,(uint8_t)(72+(k*7)%25)};}break;
   }
  }
- if(id>=93){
+ if(id>=93&&id<MD_V13_BIOMES){
   if(id>=101){patch.kit.enabled=1;static const int kit_banks[8]={0,1,2,3,4,0,3,4};patch.kit.bank=kit_banks[id-101];kit_pattern(patch.kit,(id-101)%4);patch.track[3].level=700;patch.track[3].send=280;patch.ext[3].reverb_send=150;patch.track[3].speed=1;}
   patch.chord_pattern=1+(id%3);patch.chord_bars=4;patch.chord_tracks=7;
+ }
+ if(id>=MD_V13_BIOMES){
+  const int arch=(id-MD_V13_BIOMES)%8,variation=(id-MD_V13_BIOMES)/8;
+  if(arch==4){
+   patch.kit.enabled=1;patch.kit.bank=variation%5;kit_pattern(patch.kit,variation%4);
+   patch.track[3].level=700;patch.track[3].send=170;
+   patch.ext[3].reverb_send=110;patch.grain_noise=90;
+  }else if(arch==6){patch.grain_noise=55;}
+  if(arch==0||arch==2||arch==5){
+   patch.chord_pattern=5+variation%4;patch.chord_bars=4;
+   patch.chord_tracks=arch==2?0x24:0x35;
+  }else if(arch==3){
+   patch.chord_pattern=1+variation%3;patch.chord_bars=4;patch.chord_tracks=0x12;
+  }
+  if(arch==1||arch==3||arch==7){
+   const int lead=arch==3?1:arch==7?3:5;
+   md_sequence &q=patch.sequence[lead];q.enabled=1;q.length=16;
+   patch.track[lead].speed=arch==1?1:2;
+   static const int8_t phrase[3][16]={
+    {0,-1,-1,-1,3,-1,7,-1,0,-1,-1,10,7,-1,-1,-1},
+    {0,-1,7,-1,-1,-1,3,-1,12,-1,-1,7,-1,-1,3,-1},
+    {0,-1,3,-1,7,-1,-1,10,0,-1,7,-1,12,-1,3,-1}};
+   for(int k=0;k<16;k++){
+    int off=phrase[(variation+arch)%3][k];
+    q.steps[k]={(uint8_t)(off<0?0:bound(md_quantize(patch.track[lead].note+off,patch.root,patch.scale),24,96)),
+                (uint8_t)(k==0?76:53+(k*3+variation)%22),100,(uint8_t)(64+(k*5)%31)};
+   }
+  }
  }
  clear_audio();for(int i=0;i<6;i++){reset_voice(i);}for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);
  previous=patch;step=0;untilstep=0;seqrng=patch.seed;pending_biome=-1;md_mark_saved();
@@ -225,7 +256,7 @@ static unsigned sequence_position(unsigned i,unsigned local){
  return (at+patch.motion.shift[i])%n;
 }
 static int chord_offset(){
- static const int intervals[8][7]={{0,2,4,5,7,9,11},{0,2,3,5,7,8,10},{0,2,4,5,7,9,11},{0,2,3,5,7,9,10},{0,2,3,5,7,8,10},{0,2,4,5,7,9,11},{0,2,4,6,8,10,12},{0,1,3,5,7,8,10}};
+ static const int intervals[13][7]={{0,2,4,5,7,9,11},{0,2,3,5,7,8,10},{0,2,4,5,7,9,11},{0,2,3,5,7,9,10},{0,2,3,5,7,8,10},{0,2,4,5,7,9,11},{0,2,4,6,8,10,12},{0,1,3,5,7,8,10},{0,2,3,6,7,9,10},{0,2,3,5,7,8,11},{0,2,3,6,7,8,11},{0,2,4,5,7,8,11},{0,1,4,5,7,8,11}};
  // Pentatonic melodies retain functional fourth/fifth roots from their parent
  // major/minor scale. Quantization still constrains each resulting voice.
  int d=journey_degrees[patch.chord_pattern][(step/(16*patch.chord_bars))%(patch.chord_pattern>4?8:4)];
@@ -271,7 +302,7 @@ static void apply(Command e) {
  int i=bound(e.t,0,5),v=e.v;md_track &t=patch.track[i];
  if(patch.kit.enabled&&i==3&&(e.c==MD_MODEL||e.c==MD_TONE_PRESET))return;
  // Playback, preview notes and emergency silence do not change a preset.
- if(e.c!=MD_SCENE_CONFIRM&&e.c!=MD_KIT_TRIGGER&&e.c!=MD_KIT_PAD&&e.c!=MD_KIT_STEP&&e.c!=MD_SEQ_STEP&&e.c!=MD_BASS_STEP&&e.c!=MD_SCENE&&e.c!=MD_RETURN&&e.c!=MD_PLAY&&e.c!=MD_TRIGGER&&e.c!=MD_PANIC&&e.c!=MD_MUTATE&&e.c!=MD_RECORD&&e.c!=MD_NOTE_OFF)patch.edited_mask|=1u;
+ if(e.c!=MD_MIDI_ROUTE&&e.c!=MD_MIDI_MACRO&&e.c!=MD_SCENE_CONFIRM&&e.c!=MD_KIT_TRIGGER&&e.c!=MD_KIT_PAD&&e.c!=MD_KIT_STEP&&e.c!=MD_SEQ_STEP&&e.c!=MD_BASS_STEP&&e.c!=MD_SCENE&&e.c!=MD_RETURN&&e.c!=MD_PLAY&&e.c!=MD_TRIGGER&&e.c!=MD_PANIC&&e.c!=MD_MUTATE&&e.c!=MD_RECORD&&e.c!=MD_NOTE_OFF)patch.edited_mask|=1u;
  if(e.c==MD_MODEL||e.c==MD_TONE||e.c==MD_HARM||e.c==MD_DECAY||e.c==MD_ATTACK||(e.c>=MD_SHAPE&&e.c<=MD_BREATHE))patch.edited_mask|=2u<<i;
  if(e.c<=MD_SPEED) {
   int32_t *p=track_field(t,e.c);
@@ -312,6 +343,8 @@ static void apply(Command e) {
  case MD_LFO2_SHAPE:patch.motion.wave2[i]=bound(v,0,3);break;
  case MD_LFO2_DEPTH:patch.motion.depth2[i]=bound(v,0,1000);break;
  case MD_LFO2_RATE:patch.motion.rate2[i]=bound(v,0,1000);break;
+ case MD_MIDI_ROUTE:md_set_midi_route(i,bound(v,0,16));break;
+ case MD_MIDI_MACRO:md_set_midi_macro_enabled(v);break;
  case MD_SEQ_DIRECTION:patch.motion.direction[i]=bound(v,0,4);break;
  case MD_SEQ_FEEL:patch.motion.feel[i]=bound(v,0,100);break;
  case MD_SEQ_SHIFT:patch.motion.shift[i]=bound(v,0,31);break;
@@ -348,7 +381,7 @@ static void apply(Command e) {
  case MD_ACCENT:t.accent=bound(v,0,1000);break;
  case MD_SWING:patch.swing=bound(v,0,600);break;
  case MD_ROOT:patch.root=bound(v,0,11);break;
- case MD_SCALE:patch.scale=bound(v,0,7);break;
+ case MD_SCALE:patch.scale=bound(v,0,12);break;
  case MD_TRANSPOSE:patch.transpose=bound(v,-24,24);break;
  case MD_GRAIN_PITCH:patch.grain_pitch=bound(v,-24,24);break;
  case MD_REVERSE:patch.reverse=!!v;break;
@@ -481,7 +514,12 @@ static void quantum(float *lr,unsigned n) {
   float played_note=v.note+bend_smooth[i];
   float f=440.0f*stmlib::SemitonesToRatio(played_note-69.0f)/MD_RATE;
   plaits::EngineParameters p={trig?1:0,played_note,tone,unit(t.shape),unit(t.harm)*.999f,v.velocity};bool done=false;
-  memset(out,0,sizeof out);memset(aux,0,sizeof aux);
+  memset(out,0,sizeof out);
+  // Only the resonators write/read AUX. Keep its zero baseline there while
+  // skipping a redundant tile clear for the other thirteen sound engines.
+  // Rings::Resonator::Process overwrites both outputs on every sample.
+  // Elements still uses its auxiliary buffer as an accumulator.
+  if(t.model==MD_ELEMENTS)memset(aux,0,sizeof aux);
   bool eco=patch.quality==0&&(t.model==MD_FM||t.model==MD_VA||t.model==MD_HARMONIC);
   unsigned engine_n=eco?(n+(v.eco_phase?0:1))/2:n;
   if(eco)p.note+=12.0f; // same concert pitch at 22.05 kHz; linear reconstruction below.
@@ -749,10 +787,14 @@ int md_hit(unsigned s,unsigned h,unsigned l,unsigned r) {if(!l||l>32)return 0;h=
 void md_init() {
  voices=reinterpret_cast<Voice*>(voices_raw);memset(voices_raw,0,sizeof voices_raw);memset(tape,0,sizeof tape);memset(grains,0,sizeof grains);
  memset(&stats,0,sizeof stats);memset(smooth,0,sizeof smooth);memset(dcx,0,sizeof dcx);memset(dcy,0,sizeof dcy);
- memset(midi_bank,0,sizeof midi_bank);qread=qwrite=writehead=grainclock=tape_valid=0;feedback_lp=0;rng=0x88888;stmlib::Random::Seed(rng);scene(0);playing=0;clock_source=midi_quantize=clock_pulse=0;clock_age=clock_last=0;clock_interval=0;
+ memset(midi_bank,0,sizeof midi_bank);for(unsigned i=0;i<6;i++)midi_route[i]=i+1;midi_macro_enabled=1;qread=qwrite=writehead=grainclock=tape_valid=0;feedback_lp=0;rng=0x88888;stmlib::Random::Seed(rng);scene(0);playing=0;clock_source=midi_quantize=clock_pulse=0;clock_age=clock_last=0;clock_interval=0;
 }
 int md_clock_source(void){return clock_source;}
 int md_midi_quantize(void){return midi_quantize;}
+int md_midi_route(unsigned track){return track<6?midi_route[track]:0;}
+int md_midi_macro_enabled(void){return midi_macro_enabled;}
+void md_set_midi_route(unsigned track,unsigned channel){if(track>=6||channel>16||midi_route[track]==channel)return;midi_route[track]=channel;held[track]=-1;sustain[track]=0;voices[track].midi_gate=-1;}
+void md_set_midi_macro_enabled(int enabled){midi_macro_enabled=!!enabled;}
 void md_midi(unsigned st,unsigned a,unsigned b,int port){
  a&=127;b&=127;
  if(st>=0xf8){
@@ -765,8 +807,12 @@ void md_midi(unsigned st,unsigned a,unsigned b,int port){
    clock_age=0;if(clock_pulse==0){untilstep=0;tick();}clock_pulse=(clock_pulse+1)%6;}
   return;
  }
- unsigned i=st&15;if(i==15&&(st&240)==0xb0&&a>=16&&a<=19){apply({MD_MACRO,(int)a-16,(int)b*1000/127});return;}if(i>=(patch.kit.enabled?4u:6u))return;Voice &v=voices[i];unsigned type=st&240;
- if(patch.kit.enabled&&i==3){if(type==0x90&&b){kit_fire(kit_note(a),b/127.f);stats.events[3]++;if(record_mode&&record_track==3){unsigned at=record_mode==1?patch.kit.step:((step?step-1:0)/patch.track[3].speed)%patch.kit.length;patch.kit.gates[kit_note(a)]|=1u<<at;if(record_mode==1)patch.kit.step=(at+1)%patch.kit.length;}}else if(type==0xb0&&(a==120||a==123))kit_reset();if(type!=0xb0)return;}
+ unsigned channel=(st&15)+1,type=st&240;
+ if(channel==16&&midi_macro_enabled&&type==0xb0&&a>=16&&a<=19){apply({MD_MACRO,(int)a-16,(int)b*1000/127});return;}
+ for(unsigned i=0;i<(patch.kit.enabled?4u:6u);i++){
+ if(midi_route[i]!=channel)continue;
+ Voice &v=voices[i];
+ if(patch.kit.enabled&&i==3){if(type==0x90&&b){kit_fire(kit_note(a),b/127.f);stats.events[3]++;if(record_mode&&record_track==3){unsigned at=record_mode==1?patch.kit.step:((step?step-1:0)/patch.track[3].speed)%patch.kit.length;patch.kit.gates[kit_note(a)]|=1u<<at;if(record_mode==1)patch.kit.step=(at+1)%patch.kit.length;}}else if(type==0xb0&&(a==120||a==123))kit_reset();if(type!=0xb0)continue;}
  if(type==0x90&&b){int note=midi_quantize?md_quantize(a,patch.root,patch.scale):bound(a,24,96);capture_note(i,bound(a,24,96),b/127.0f);fire(i,note,b/127.0f);held[i]=a;v.midi_gate=md_has_envelope(v.model)?1:0;}
  else if(type==0x80||(type==0x90&&!b)){capture_off(i,bound(a,24,96));if(held[i]==(int)a){held[i]=-1;if(!sustain[i])v.midi_gate=-1;}}
  else if(type==0xc0){unsigned id=midi_bank[i]*128+a;if(id<MD_TONE_PRESETS)tone_preset(i,id);}
@@ -780,6 +826,7 @@ void md_midi(unsigned st,unsigned a,unsigned b,int port){
   else if(a==123){held[i]=-1;sustain[i]=0;v.midi_gate=-1;}
   else if(a==11)expression[i]=b/127.0f;
   else {int c=a==7?MD_LEVEL:a==10?MD_PAN:a==74?MD_CUTOFF:a==71?MD_RESONANCE:a==91?MD_REVERB_SEND:a==12?MD_DELAY_SEND:a==13?MD_SEND:a==5?MD_GLIDE:-1;if(c>=0)apply({c,(int)i,value});}
+ }
  }
 }
 unsigned md_command_space(void){return 64-(qwrite-qread);}
@@ -815,7 +862,7 @@ int md_validate(const md_patch *p) {
  for(int j=0;j<4;j++)if(p->macro[j]<0||p->macro[j]>1000)return 0;
  if(p->locked<0||p->locked>1||p->freeze<0||p->freeze>1||p->quality<0||p->quality>1)return 0;
  if(p->grain_size<0||p->grain_size>1000||p->grain_pos<0||p->grain_pos>1000||p->feedback<0||p->feedback>850)return 0;
- if(p->root<0||p->root>11||p->scale<0||p->scale>7||p->transpose< -24||p->transpose>24||p->swing<0||p->swing>600||p->grain_pitch< -24||p->grain_pitch>24||p->reverse<0||p->reverse>1||p->duck_source< -1||p->duck_source>5||p->duck_amount<0||p->duck_amount>1000||p->duck_release<0||p->duck_release>1000)return 0;
+ if(p->root<0||p->root>11||p->scale<0||p->scale>12||p->transpose< -24||p->transpose>24||p->swing<0||p->swing>600||p->grain_pitch< -24||p->grain_pitch>24||p->reverse<0||p->reverse>1||p->duck_source< -1||p->duck_source>5||p->duck_amount<0||p->duck_amount>1000||p->duck_release<0||p->duck_release>1000)return 0;
  for(int i=0;i<6;i++){const md_track &t=p->track[i];if(t.attack<0||t.attack>1000||t.ratchet<1||t.ratchet>4||t.accent<0||t.accent>1000)return 0;if(t.model<0||t.model>=MD_MODELS||t.length<1||t.length>32||t.hits<0||t.hits>t.length||t.rotate<0||t.rotate>=t.length||t.note<24||t.note>96||t.mute<0||t.mute>1||t.speed<1||t.speed>8)return 0;
  if(t.filter<0||t.filter>3)return 0;const int q[]={t.tone,t.harm,t.decay,t.level,t.send,t.shape,t.cutoff,t.resonance,t.breathe};for(int j=0;j<9;j++)if(q[j]<0||q[j]>1000)return 0;if(t.prob<0||t.prob>1000||t.pan<0||t.pan>1000)return 0;}
  for(int i=0;i<6;i++){const md_extension &e=p->ext[i];const int values[]={e.delay_send,e.reverb_send,e.glide,e.marbles,e.tides,e.tides_rate,e.warps};for(int v:values)if(v<0||v>1000)return 0;if(e.bass_mode<0||e.bass_mode>2||e.pattern<0||e.pattern>3||e.edit_step<0||e.edit_step>15)return 0;for(int v:e.notes)if(v< -1||v>24)return 0;}
@@ -866,6 +913,12 @@ int md_import(const void *data,unsigned bytes){
 }
 int md_import_edit(const void *data,unsigned bytes){uint32_t h[2]={saved_hash[0],saved_hash[1]};int ok=md_import(data,bytes);saved_hash[0]=h[0];saved_hash[1]=h[1];return ok;}
 const char *md_biome_name(int id){return id<0?"USER BIOME":biome_bank[bound(id,0,MD_BIOMES-1)].name;}
+int md_biome_step(int current,int delta){
+ int pos=-1;
+ for(int i=0;i<MD_BIOMES;i++)if(biome_browse_order[i]==current){pos=i;break;}
+ if(pos<0)pos=delta<0?MD_BIOMES:-1;
+ return biome_browse_order[bound(pos+delta,0,MD_BIOMES-1)];
+}
 const char *md_biome_family(int id){return id<0?"CUSTOM":biome_families[biome_bank[bound(id,0,MD_BIOMES-1)].family];}
 const char *md_tone_name(int id){return id<0?"BIOME VOICE":tone_bank[bound(id,0,MD_TONE_PRESETS-1)].name;}
 int md_tone_model(int id){return tone_bank[bound(id,0,MD_TONE_PRESETS-1)].model;}
@@ -873,8 +926,8 @@ int md_has_envelope(int model){return model==MD_FM||model==MD_VA||model==MD_HARM
 int md_cutoff_hz(int value){return (int)cutoff_hz(unit(value));}
 
 int md_quantize(int note,int root,int scale){
- static const unsigned masks[]={0xfff,0x5ad,0xab5,0x6ad,0x4a9,0x295,0x555,0x5ab};
- note=bound(note,24,96);root=bound(root,0,11);unsigned mask=masks[bound(scale,0,7)];
+ static const unsigned masks[]={0xfff,0x5ad,0xab5,0x6ad,0x4a9,0x295,0x555,0x5ab,0x6cd,0x9ad,0x9cd,0x9b5,0x9b3};
+ note=bound(note,24,96);root=bound(root,0,11);unsigned mask=masks[bound(scale,0,12)];
  for(int delta=0;delta<12;delta++){
   int low=note-delta,high=note+delta;
   if(low>=24&&(mask&(1u<<((low-root+12)%12))))return low;
@@ -889,6 +942,6 @@ const char *md_generator_name(int n){static const char *s[]={"SPARSE","ARP","PUL
 const char *md_direction_name(int n){static const char *s[]={"FORWARD","REVERSE","PENDULUM","ORBIT","SEEDED"};return s[bound(n,0,4)];}
 const char *md_lfo_target_name(int n){static const char *s[]={"FILTER","COLOUR","PAN","GRAIN SEND","FX SENDS","WARPS","SOFT SWELL"};return s[bound(n,0,6)];}
 const char *md_lfo_wave_name(int n){static const char *s[]={"TRIANGLE","SINE","BLOOM","SIGH"};return s[bound(n,0,3)];}
-const char *md_scale_name(int s){static const char *names[]={"CHROMATIC","MINOR","MAJOR","DORIAN","MINOR PENT","MAJOR PENT","WHOLE TONE","PHRYGIAN"};return names[bound(s,0,7)];}
+const char *md_scale_name(int s){static const char *names[]={"CHROMATIC","MINOR","MAJOR","DORIAN","MINOR PENT","MAJOR PENT","WHOLE TONE","PHRYGIAN","UKR DORIAN","HARM MINOR","DBL HARM MIN","HARM MAJOR","DBL HARM MAJ"};return names[bound(s,0,12)];}
 const char *md_model_name(int m){static const char *names[]={"PLAITS KICK","PLAITS SNARE","PLAITS HAT","PLAITS FM","PLAITS VA","RINGS MODAL","PLAITS HARMONIC","SINE CHOIR","ROUND BASS","ELEMENTS STRIKE","MELLOW DRIFT","SATIN MORPH","VELVET KEYS","SPECTRAL BLOOM","BREATH TEXTURE"};return names[bound(m,0,MD_MODELS-1)];}
 }

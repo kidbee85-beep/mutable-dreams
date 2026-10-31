@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT OR GPL-3.0-only
-"""Live-editor client for Mutable Dreams 1.3 development (mido + python-rtmidi).
+"""Live-editor client for Mutable Dreams 1.4 development (mido + python-rtmidi).
 Uploads change the live patch only; explicit bank saves are separate.
 """
 import argparse,json,struct,time,zlib
@@ -69,7 +69,7 @@ def main():
  try:
   cap=struct.unpack('<8I',d.call(7));assert cap[:3]==(1,9,2288)
   if a.action=='info':print(json.dumps(dict(protocol=cap[0],patch_bytes=cap[2],biomes=cap[4],sounds=cap[5]),indent=2))
-  elif a.action=='export':Path(a.file).write_text(json.dumps(dict(format='mutable-dreams-patch',version=1,firmware='1.3-dev',name='FM-1 Live Biome',patch=list(d.snapshot())),indent=2)+'\n')
+  elif a.action=='export':Path(a.file).write_text(json.dumps(dict(format='mutable-dreams-patch',version=1,firmware='1.4-dev',name='FM-1 Live Biome',patch=list(d.snapshot())),indent=2)+'\n')
   else:
    v=json.loads(Path(a.file).read_text());assert v['format']=='mutable-dreams-patch' and v['version']==1;d.upload(bytes(v['patch']));print('Live patch loaded. Use SAVE or User Banks explicitly to keep it.')
  finally:d.close()

@@ -1,0 +1,9 @@
+wait 3300
+tap HOME
+shot before-mute.png
+tap SEL
+wait 80
+shot after-mute.png
+tap SEL
+wait 80
+shot after-unmute.png

@@ -29,7 +29,7 @@ int main(){
  aux_equivalence<plaits::FMEngine>();aux_equivalence<plaits::VirtualAnalogEngine>();aux_equivalence<plaits::AdditiveEngine>();puts("PASS unused AUX removal: bit-identical main output for FM/VA/Additive over 512 parameter blocks each");
  for(unsigned l=1;l<=32;l++)for(unsigned h=0;h<=l;h++)for(unsigned r=0;r<l;r++){unsigned count=0;for(unsigned s=0;s<l;s++)count+=md_hit(s,h,l,r);assert(count==h);}puts("PASS Euclidean hit counts / all lengths and rotations");
  assert(test_hash()==test_hash());puts("PASS deterministic restart / identical audio hash");
- md_init();md_patch p=*md_state();assert(md_validate(&p));p.track[0].length=0;assert(!md_load(&p));p=*md_state();p.feedback=999999;assert(!md_load(&p));puts("PASS corrupted patch rejected");
+ md_init();md_patch p=*md_state();assert(md_validate(&p));p.scale=12;assert(md_validate(&p));p.scale=13;assert(!md_validate(&p));p=*md_state();p.track[0].length=0;assert(!md_load(&p));p=*md_state();p.feedback=999999;assert(!md_load(&p));puts("PASS corrupted patch rejected");
  for(int m=0;m<MD_MODELS;m++){
   md_init();md_command(MD_SCENE,0,1);for(int t=0;t<6;t++){md_command(MD_MODEL,t,m);md_command(MD_MUTE,t,t!=0);}md_command(MD_TRIGGER,0,m<3?40:60);render(1);
   double energy=0;float peak=0;for(int b=0;b<690;b++){md_render(out,128);for(float x:out){assert(std::isfinite(x));energy+=x*x;peak=fmaxf(peak,fabsf(x));}}
@@ -38,10 +38,22 @@ int main(){
  md_init();md_command(MD_PLAY,0,1);render(300);unsigned w=md_status()->grain_writes;md_command(MD_FREEZE,0,1);render(300);assert(w==md_status()->grain_writes);md_command(MD_FREEZE,0,0);render(1);assert(md_status()->grain_writes>w);puts("PASS freeze stops tape writes / resume writes");
  md_patch before=*md_state();md_command(MD_MUTATE,0,0);render(1);assert(md_state()->seed!=before.seed);md_command(MD_RETURN,0,0);render(1);assert(!memcmp(&before,md_state(),sizeof before));puts("PASS mutation undo restores complete patch");
  // Scale contract: all pitches, all roots, bounded range, and idempotence.
- const unsigned masks[]={0xfff,0x5ad,0xab5,0x6ad,0x4a9,0x295,0x555,0x5ab};
- for(int sc=0;sc<8;sc++)for(int root=0;root<12;root++)for(int note=-24;note<=144;note++){
+ const unsigned masks[]={0xfff,0x5ad,0xab5,0x6ad,0x4a9,0x295,0x555,0x5ab,0x6cd,0x9ad,0x9cd,0x9b5,0x9b3};
+ for(int sc=0;sc<13;sc++)for(int root=0;root<12;root++)for(int note=-24;note<=144;note++){
   int q=md_quantize(note,root,sc);assert(q>=24&&q<=96);assert(masks[sc]&(1u<<((q-root+12)%12)));assert(md_quantize(q,root,sc)==q);
- }puts("PASS all 8 scales / 12 roots / out-of-range notes / idempotence");
+ }puts("PASS all 13 scales / 12 roots / out-of-range notes / idempotence");
+ md_init();assert(md_midi_route(0)==1&&md_midi_route(5)==6&&md_midi_macro_enabled());
+ md_set_midi_route(0,11);md_set_midi_route(1,11);md_midi(0x9a,60,100,0);
+ assert(md_status()->events[0]==1&&md_status()->events[1]==1);
+ md_midi(0x90,60,100,0);assert(md_status()->events[0]==1);
+ md_set_midi_route(0,0);md_midi(0x9a,62,100,2);
+ assert(md_status()->events[0]==1&&md_status()->events[1]==2);
+ md_set_midi_route(2,16);md_midi(0x9f,60,100,0);assert(md_status()->events[2]==1);
+ int macro_before=md_state()->macro[0];md_set_midi_macro_enabled(0);md_midi(0xbf,16,127,0);assert(md_state()->macro[0]==macro_before);
+ md_set_midi_macro_enabled(1);md_midi(0xbf,16,127,0);assert(md_state()->macro[0]==1000);
+ md_command(MD_KIT_MODE,0,1);render(1);md_set_midi_route(3,10);md_midi(0x99,36,100,0);assert(md_status()->events[3]>0);
+ md_init();assert(md_midi_route(0)==1&&md_midi_route(3)==4&&md_midi_macro_enabled());
+ puts("PASS per-track MIDI routes: defaults, CH11 layers, Off, CH16 macros and kit CH10");
  // Old v1 data remains readable, with explicit neutral defaults for new features.
  struct OldPatch{uint32_t magic,version,seed;int32_t macro[4],tempo,locked,freeze,grain_size,grain_pos,feedback,quality;int32_t tracks[6][14];}old={};
  md_init();p=*md_state();memcpy(&old,&p,56);old.version=1;for(int i=0;i<6;i++)memcpy(old.tracks[i],&p.track[i],56);

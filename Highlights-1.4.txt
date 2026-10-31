@@ -1,0 +1,17 @@
+MUTABLE DREAMS 1.4 — A WIDER ATLAS
+
+The FM-1 can now take you somewhere genuinely different with the next turn of the PRESET dial. Version 1.4 adds 48 carefully arranged Biomes and 16 sound presets. The instrument now offers 156 musical factory Biomes, a Blank Biome and 352 sound presets. Ambient, resonant, percussive, bass-led and Lo-Fi worlds appear close together in the new browse order. Existing factory IDs and your User Banks remain in place.
+
+Small requests from the community made a real difference. A muted track is again immediately recognisable on Home: its entire row and meter dim, and the screen says MUTED. Five more scales widen the harmonic vocabulary: Ukrainian Dorian, Harmonic Minor, Double Harmonic Minor, Harmonic Major and Double Harmonic Major. They join the existing scales for chords, phrases and generative sequences.
+
+Each track can now listen to its own MIDI channel, share one with other tracks, or ignore MIDI input. The Lo-Fi kit can use channel 10; the channel-16 macro shortcut can be switched off when that channel is needed for notes. USB MIDI has been exercised on the FM-1. Physical TRS MIDI still awaits a cable test.
+
+The display has become easier to read and more alive: clearer type, stronger contrast, quiet colour gradients and little organic forms that respond to the current page and values. The browser instrument keeps the same spirit, with an updated Biome atlas and a live USB editor.
+
+Underneath, a redundant scratch-buffer clear was removed from the Rings path without changing the measured sound. The dense-patch protection remains active. The release build has been measured with six synth tracks and with a Lo-Fi kit plus three synth tracks, both with a strong granular send.
+
+Make a Biome your own, save it in one of 16 User Biome slots, and keep a complete .mddb backup before updating. The tested update path includes a return to original Stock V15 from a device that entered through Stock V16, followed by reinstalling 1.4 and restoring the saved banks with physical SEL confirmation.
+
+Thank you to everyone who listened, played, and told us what needed attention. Mutable Dreams is an independent project inspired by the generous work of Émilie Gillet and Mutable Instruments; it is not endorsed by them. The firmware remains free and open source.
+
+Bluetooth MIDI, a separate Solo mode and MIDI CC Learn are not part of 1.4. A report of a black screen after an interrupted third-party installation is still being investigated; no universal recovery claim is made. Read the recovery guide before installing and keep power and USB connected until the device identity is confirmed.

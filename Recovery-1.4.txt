@@ -1,0 +1,62 @@
+MUTABLE DREAMS 1.4 — INSTALL, BACKUP AND RECOVERY
+
+1. IDENTIFY THE CORRECT FM-1
+Connect only the FM-1 you intend to update. Disconnect any other FM-1 unit.
+Stop playback and keep USB and power connected until the installer confirms
+the final identity. Use current Chrome or Edge with Web MIDI SysEx, or the
+included Python installer. Never choose an unknown MIDI device by guesswork.
+
+2. SAVE BOTH KINDS OF WORK
+Save the Biome on the FM-1. In the browser editor that matches your installed
+version, download a complete .mddb backup of saved User Banks and preferences.
+Separately export the live patch as JSON if it has unsaved edits. Keep the
+files away from the device. The .mddb does not contain the temporary granular
+tape, calibration, unsaved edits or the current MIDI connection. For 1.0,
+follow its older backup procedure first. Preserve older backups for a
+possible downgrade. Browser-only saves are separate from device banks.
+
+3. INSTALL MUTABLE DREAMS 1.4
+Open Mutable-Dreams-1.4-Install.html and check that it identifies the FM-1
+you intend to update. Disconnect the live editor, choose Install, and leave
+USB connected until the instrument restarts as FM-1_710010400. The exact
+release package hash appears below. The exact package was installed on the
+test FM-1, returned to manufacturer V15 from a device that had previously
+entered through V16, and reinstalled. The direct route from every other
+custom firmware has not been qualified.
+
+M-UPGRADE: The official M-VAVE utility was previously tested updating Stock
+V15 to manufacturer V16. It rejected a custom Mutable Dreams package with
+"File format error". Use the browser or Python installer for 1.4, not the
+manufacturer utility. Do not rename a custom .fwsc to bypass its check.
+
+4. RESTORE AFTER AN INTERMEDIATE STOCK INSTALL
+Returning to Stock V15 erases Mutable Dreams User Banks and preferences.
+Reinstall 1.4 first. Stop playback and choose internal clock, then send a
+compatible .mddb backup. The FM-1 asks RESTORE FROM USB?; press SEL physically
+on that device. The tested backup read back byte-for-byte after this step.
+Import the separate live JSON afterwards if you need unsaved edits. If the
+prompt expires, repeat the restore; do not keep sending blindly.
+
+5. RETURN TO THE MANUFACTURER FIRMWARE
+Use the official V15 file, verified against this SHA-256:
+db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a
+The browser installer offers the return path and checks the file hash.
+Manufacturer downloads can change; verify the file and current instructions
+from M-VAVE. To update original V15 to V16, use the official M-UPGRADE and
+M-VAVE's own V16 file from https://www.m-vave.com/appdownload.
+
+6. IF AN UPDATE STOPS
+Do not disconnect power during a write. If the device still identifies over
+USB, let the same updater inspect the exact target and package before any
+resume. Do not force an unknown image or open another FM-1. A community
+report describes a black screen and absent USB detection after an interrupted
+third-party update; its cause and recovery are unresolved. If the unit no
+longer enumerates, consult the Firmware Hub rescue resources at
+https://thefirmwarehub.com/tools/ and seek device-specific help. We have not
+qualified recovery of a unit in that state and did not deliberately interrupt
+a functioning FM-1 flash to simulate it.
+
+RELEASE FILE: Mutable-Dreams-1.4.0.fwsc
+SHA-256: d6682e1433f581285333f23629be20b96a595707776c6359d22d14e6542d6bda
+EXPECTED IDENTITY: FM-1_710010400
+RELEASE: https://github.com/kidbee85-beep/mutable-dreams/releases/tag/v1.4

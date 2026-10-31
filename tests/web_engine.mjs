@@ -28,6 +28,6 @@ const g=new Processor();await g.onMessage({type:'load',wasm:fs.readFileSync(root
 assert.deepEqual([...new Uint8Array(g.mem.buffer,g.ex.dream_patch_data(),2288)],saved);
 // Every new warm tone renders without invalid output.
 for(let id=160;id<208;id++){command(45,id);render(2);f.ex.web_midi_in(0,(0x90<<8)|(48<<16)|(100<<24)|9);render(100);f.ex.web_midi_in(0,(0x80<<8)|(48<<16)|8);render(100);}
-for(let id=208;id<336;id++){command(45,id);render(2);f.ex.web_midi_in(0,(0x90<<8)|(48<<16)|(100<<24)|9);render(100);f.ex.web_midi_in(0,(0x80<<8)|(48<<16)|8);render(100);}
-console.log('PASS user Biome / sound banks, overwrite guard, restart, 176 warm tones (IDs 160–335)');
+for(let id=208;id<352;id++){command(45,id);render(2);f.ex.web_midi_in(0,(0x90<<8)|(48<<16)|(100<<24)|9);render(100);f.ex.web_midi_in(0,(0x80<<8)|(48<<16)|8);render(100);}
+console.log('PASS user Biome / sound banks, overwrite guard, restart, 192 warm and new tones (IDs 160–351)');
 console.log(JSON.stringify({result:'PASS',pages:30,patchBytes:2288,legacyImport:true,invalidPatchUnchanged:true,exportRoundTrip:true,newDemos:5,tone207:true,peak,wasmMemory:f.mem.buffer.byteLength,hardwareTest:false},null,2));

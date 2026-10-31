@@ -13,7 +13,7 @@ class Mock{
  constructor(){this.q=[];this.log=[];this.lost=false;this.data=[];this.token=7;this.parallel=0;this.max=0;}
  send(p){this.log.push(p);this.parallel++;this.max=Math.max(this.max,this.parallel);const c=p[4];let status=0,data=[];
   if(p[2]===0x4c){this.q.push([0xf0,0x7d,0x4c,0x43,c,0xf7]);return true;}
-  if(c===7)data=(this.capability||[1,9,2288,29,16,64,336,109]).flatMap(le);
+  if(c===7)data=(this.capability||[1,9,2288,29,16,64,352,157]).flatMap(le);
   if(c===8)data=[2288,PB.crc32(patch),4].flatMap(le);
   if(c===5){assert.equal(p[8],4);const off=p[6]|p[7]<<7;data=patch.slice(off,off+224);}
   if(c===11){const h=unpack(p.slice(6,-1));assert.equal(new DataView(h.buffer).getUint32(0,true),2288);this.data=[];data=[this.token];}
@@ -66,9 +66,10 @@ console.log('PASS 223 binary packing cases, all 22 backup objects, corrupt/trunc
 console.log('PASS UI transfer lock before pending controls drain; repeated-click exclusion and disconnect cleanup (isolated JS, not a browser GUI test).');
 
 assert(!html.includes("localStorage.setItem('mutable-dreams-1.2'"));
-assert(html.includes("localStorage.setItem('mutable-dreams-1.3'"));
-assert(html.includes("localStorage.getItem('mutable-dreams-1.3')??localStorage.getItem('mutable-dreams-1.2')"));
-console.log('PASS new browser saves isolated from released 1.2; read-only initial migration retained.');
+assert(!html.includes("localStorage.setItem('mutable-dreams-1.3'"));
+assert(html.includes("localStorage.setItem('mutable-dreams-1.4'"));
+assert(html.includes("localStorage.getItem('mutable-dreams-1.4')??localStorage.getItem('mutable-dreams-1.3')??localStorage.getItem('mutable-dreams-1.2')"));
+console.log('PASS private 1.4 browser saves isolated from released 1.3; read-only initial migration retained.');
 
 // New DSP command IDs 120..123 must never be dispatched as UI commands.
 const routed=[],routing=vm.createContext({window:{addEventListener(){}},$:()=>({}),setTimeout,clearTimeout,setInterval,clearInterval,routed});

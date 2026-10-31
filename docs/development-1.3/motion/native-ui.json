@@ -1,0 +1,54 @@
+[
+  {
+    "test": "ui",
+    "pass": true
+  },
+  {
+    "test": "kit-ui",
+    "pass": true
+  },
+  {
+    "test": "landscape-ui",
+    "pass": true
+  },
+  {
+    "test": "reactive-ui",
+    "pass": true
+  },
+  {
+    "test": "evolution-ui",
+    "pass": true
+  },
+  {
+    "test": "next_ui",
+    "pass": true
+  },
+  {
+    "test": "all_context_help",
+    "pass": true
+  },
+  {
+    "test": "motion-ui",
+    "pass": true
+  },
+  {
+    "comparison": "still-a.png / still-b.png",
+    "identical": true,
+    "pass": true
+  },
+  {
+    "comparison": "sparse-live.png / sparse-still.png",
+    "identical": true,
+    "pass": true
+  },
+  {
+    "comparison": "water-a.png / water-b.png",
+    "identical": false,
+    "pass": true
+  },
+  {
+    "comparison": "living-full.png / living-next.png",
+    "identical": false,
+    "pass": true
+  }
+]

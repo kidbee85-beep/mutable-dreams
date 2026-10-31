@@ -1,0 +1,41 @@
+Matching v8 editor / 109 Biomes / 336 tones True
+Owner live state restored before final suite True
+Unsaved owner patch also restored through v8 live editor True
+Unsaved Biome request preserves complete current patch True
+HOME cancels accidental PRESET change True
+Panel-input SEL action explicitly loads requested Biome True
+Kit Biome activates one kit + three synths True
+Track selection cannot enter disabled slots True
+Panel keyboard-input path records kit pad 7 and advances step True
+Disabling Kit keeps original track 4-6 parameters True
+Only overwrite our previously created test Biome True
+Kit parameters / pattern survive actual User Biome save and load True
+User Biome name roundtrip True
+Factory 93 True peak 27 issues []
+Factory 94 True peak 42 issues []
+Factory 95 True peak 31 issues []
+Factory 96 True peak 35 issues []
+Factory 97 True peak 33 issues []
+Factory 98 True peak 36 issues []
+Factory 99 True peak 40 issues []
+Factory 100 True peak 39 issues []
+Factory 101 True peak 34 issues []
+Factory 102 True peak 46 issues []
+Factory 103 True peak 42 issues []
+Factory 104 True peak 50 issues []
+Factory 105 True peak 44 issues []
+Factory 106 True peak 42 issues []
+Factory 107 True peak 50 issues []
+Factory 108 True peak 44 issues []
+Original six-synth Biome 0 True peak 70 issues []
+Three engines 9 + kit / all effects True peak 60 issues []
+Three engines 5 + kit / all effects True peak 57 issues []
+Three engines 6 + kit / all effects True peak 57 issues []
+Three engines 4 + kit / all effects True peak 62 issues []
+Three engines 10 + kit / all effects True peak 55 issues []
+Three VA + kit / all effects / extended soak True peak 62 issues []
+Existing user sound recall retains Biome-change protection True
+Freeze holds shared tape with kit playing True
+No invalid USB audio samples True
+Original owner live settings restored, transport stopped True
+All original saved objects byte-identical; only previously empty slot 1 added True

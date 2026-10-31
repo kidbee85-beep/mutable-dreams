@@ -28,6 +28,18 @@
 #define OTA_LDR_HCRC 0xEBAAu                     /* official update loader (usb_hid_ota.bin) */
 #define OTA_LDR_DCRC 0x5881u
 #define OTA_LDR_LEN 0x4DE1u
+#define OTA_HEAD_CHUNKS 32u
+/* CRC-16 of each 512-byte boot-head block in M-VAVE's official FM-1 V16
+ * package (SHA-256 d017fb65e70aca97ee29d944470c3515a74581df5c0576bf70de917c7b2b61d5).
+ * V16 is a supported starting point for Mutable Dreams, so its boot head can
+ * legitimately remain on the device when a user later requests Stock V15.
+ * The official loader rewrites the whole head. An unknown head is refused. */
+static const uint16_t ota_v16_head_crc[OTA_HEAD_CHUNKS] = {
+    0x2901u, 0x50b8u, 0x5026u, 0xde38u, 0x012cu, 0x1594u, 0x9c22u, 0xfcaeu,
+    0x6764u, 0x0424u, 0xf81fu, 0xda6cu, 0xf85eu, 0x51d2u, 0x6e0bu, 0x2bc7u,
+    0x41ceu, 0x7eccu, 0xd4cfu, 0x1541u, 0xcd11u, 0xe609u, 0x4ee3u, 0x39c3u,
+    0x1fc5u, 0x977du, 0xd0f5u, 0x1ce7u, 0xa144u, 0xa4b7u, 0x251eu, 0x7fa1u,
+};
 #define OTA_FRAME_MAX 640u                       /* 512-B response = 605 wire bytes */
 
 static int ota_wire_send(const uint8_t *p, uint32_t n);
@@ -262,6 +274,7 @@ static int ota_stage(void)                       /* steps 1..6; 0 = host said su
 {
     static uint8_t hdr[0x400], b[512], mine[512];
     uint32_t i, n, ota_off, ota_len, fl_off, fl_len, c, len, own, official;
+    uint32_t same_head = 1u, known_v16_head = 1u;
     int rc;
     /* 1. UFW header + entry list */
     ota_show(1, 0);
@@ -283,14 +296,18 @@ static int ota_stage(void)                       /* steps 1..6; 0 = host said su
         own = ota_memeq(b + i, (const uint8_t *)"FELUCCA-LOADER-1", 16) && ota_rd32(b + 0x20 + 4) <= 0x14000u;
     if (!official && !own)
         return -7;
-    if (official) {                    /* the official loader writes the head: it must equal ours */
+    if (official) {                    /* the official loader rewrites the boot head */
         ota_show(2, 0);
         for (i = 0; i < 0x4000u; i += 512u) {
             if (ota_read(fl_off + i, b, 512) || ota_fread(i, mine, 512))
                 return -4;
             if (!ota_memeq(b, mine, 512))
-                return -5;
+                same_head = 0u;
+            if (ota_crc16(mine, 512, 0) != ota_v16_head_crc[i / 512u])
+                known_v16_head = 0u;
         }
+        if (!same_head && !known_v16_head)
+            return -5;
     }
     /* 4. stage the package's loader: erase, body, verify, head last */
     ota_show(3, 0);
