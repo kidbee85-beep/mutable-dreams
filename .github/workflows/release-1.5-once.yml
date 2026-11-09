@@ -1,0 +1,77 @@
+name: Publish tested Mutable Dreams 1.5 once
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/release-1.5-once.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: mutable-dreams-release-1.5
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Refuse to overwrite an existing release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.5 >/dev/null 2>&1; then echo 'v1.5 already exists'; exit 1; fi
+          if git show-ref --verify --quiet refs/tags/v1.5; then echo 'v1.5 tag already exists'; exit 1; fi
+      - name: Verify exact release assets and import browsable source
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess
+          from hashlib import sha256
+          import zipfile, io, shutil, os
+          root=Path.cwd()
+          out=Path(os.environ['RUNNER_TEMP'])/'md15-assets';out.mkdir()
+          expected={'Mutable-Dreams-1.5-Guide.pdf': '07ab36bc6ae48e9c5ff03c2c318fc1151e8a56791dab8d82ff5cb09cbefb3d75', 'Mutable-Dreams-1.5-Install.html': '0909cc636cbb42ffe20f6122d4de6a80cd6e188adfd8b57c393efa9fef959216', 'Mutable-Dreams-1.5-Installer-Kit.zip': '557f4a0cef5cfaa10fbe8eb1d89eab482720052402a345406097f93b369f965f', 'Mutable-Dreams-1.5-Short.mp4': 'b85ebc5311886c04d180b5b4d498e3f113200d6ac615547b6e06dfebd7bd763b', 'Mutable-Dreams-1.5-Source.zip': '93d48a008d42f3e5d2b4f4d30166035bcca90e7789e92a97c7249fe1000100dd', 'Mutable-Dreams-1.5-Update.mp4': '19c98f0ec9fbedbed0525a8e7fc18aff968231fe0e5115f55c35c69aaf31ddba', 'Mutable-Dreams-1.5.fwsc': 'ee5d410fc13b9861baa2336303821ccf66ec8c7143c167649886fad368198b52', 'Mutable-Dreams-1.5.html': '604275485478844199cc5bab9fa31d9f11d7b7b2b76f47573db7f47d36c1addc', 'Recovery-1.5.txt': '4b43baebddcc2743b9333e05e47207d64d5424dbcaf32fe915dc87dd1f7aa6cd', 'Release-Notes-1.5.md': '27ce853253fa1313899b53871d76c83b5f3b52b2fd34708ba35e79c265e00ac2', 'SHA256-1.5.txt': '8cc9315ffc46076c777d670c84dd768ed0aa687d0ae41acd959fea48c2b9bc43', 'qualification-1.5.json': '4a7193c6a74f7b647419e8374cbbad55ebd39341bf2c2dd2de23477af498e083'}
+          for name,digest in expected.items():
+              assert '/' not in name and name.startswith(('Mutable-Dreams-1.5','Recovery-1.5','Release-Notes-1.5','qualification-1.5','SHA256-1.5'))
+              data=subprocess.check_output(['curl','--fail','--location','--retry','2','--max-time','90','--silent','--show-error','https://mutable-dreams.kidbee85.chatgpt.site/'+name])
+              assert sha256(data).hexdigest()==digest, 'Download checksum mismatch: '+name
+              (out/name).write_bytes(data)
+          with zipfile.ZipFile(out/'Mutable-Dreams-1.5-Source.zip') as z:
+              files={}
+              for i in z.infolist():
+                  path=Path(i.filename)
+                  assert path.parts[0]=='Mutable-Dreams-1.5-Source'
+                  rel=Path(*path.parts[1:]); assert rel.parts and '..' not in rel.parts and not rel.is_absolute()
+                  assert rel.parts[0] in ['app','base','web','presets','tools','tests','assets','docs','.gitignore','BUILDING.md','DEVELOPMENT-NOTES-BLE.md','LICENSE','LICENSE-MIT.txt','LICENSING-GPL.txt','README.md','SOURCE-PUBLICATION.md','SOURCE-SHA256.txt','firmware.json','fmhub.json']
+                  assert ((i.external_attr >> 16) & 0o170000) != 0o120000, 'Symlink not allowed'
+                  if not i.is_dir(): files[rel.as_posix()]=z.read(i)
+              manifest=files['SOURCE-SHA256.txt'].decode().splitlines()
+              assert len(files)==len(manifest)+1
+              for line in manifest:
+                  digest,name=line.split('  ',1);assert sha256(files[name]).hexdigest()==digest,name
+              for name in ['app','base','web','presets','tools','tests','assets']:
+                  if (root/name).exists(): shutil.rmtree(root/name)
+              for rel,data in files.items():
+                  target=root/rel;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
+              for rel in files:
+                  if rel.endswith('.sh') or (rel.startswith('tools/') and rel.endswith('.py')): (root/rel).chmod(0o755)
+              for line in manifest:
+                  digest,name=line.split('  ',1);assert sha256((root/name).read_bytes()).hexdigest()==digest,name
+          (root/'.github/workflows/release-1.5-once.yml').unlink()
+          print('Verified',len(files),'browsable source files and',len(expected),'release assets.')
+          PY
+      - name: Commit exact source and create v1.5 tag
+        run: |
+          git config user.name 'Kid Bunka'
+          git config user.email '338288444+kidbee85-beep@users.noreply.github.com'
+          git add -A
+          git commit -m 'Release Mutable Dreams 1.5: wireless MIDI and new Biomes'
+          git tag v1.5
+          git push --atomic origin HEAD:main refs/tags/v1.5
+      - name: Publish release and verified download assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v1.5 "$RUNNER_TEMP"/md15-assets/* --verify-tag --latest --title 'Mutable Dreams 1.5 — New worlds, a living signal' --notes-file "$RUNNER_TEMP/md15-assets/Release-Notes-1.5.md"
