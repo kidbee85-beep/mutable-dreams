@@ -14,7 +14,7 @@
  *     goes off (asked, silence, another connection);
  *   - with --out DIR, a session for the web viewer's decoder (tests/mirror_test.mjs): DIR/stream.syx as the host
  *     receives it (a screen drawn, partly again, a ring too small; the panel: SEL held with keys 5 and 9, K1 +3,
- *     PRESETS -2, K2 +4, MASTER 3000, PLAY lit green, then all let go; a remote request answered) and DIR/screen.bin,
+ *     PRESETS -2, K2 +4, MASTER 3000, PLAY lit green, SEL dim, key 12 at the mid level, then all let go; a remote request answered) and DIR/screen.bin,
  *     the device's screen at its end (RGB565, high byte first).
  *   cc -Itemplate/build/gen tests/mirror_test.c && ./a.out [--out DIR] [SCREEN.bin ...] */
 #include <stdio.h>
@@ -446,7 +446,8 @@ static void test_input(void)
     btn = 1u << B_SEL;
     keys = (1u << 5) | (1u << 26);
     master = 3000;
-    mirror_leds(1u << B_PLAY | 1u << 15, 1u << 9);
+    mirror_leds(1u << B_PLAY | 1u << 15, 1u << 9, 1u << B_SEL | 1u << B_PLAY, 1u << 9 | 1u << 3);   /* (PLAY, key 9 lit) */
+    mirror_mid(1u << B_REC, 1u << 4);
     memset(enc_sum, 0, sizeof enc_sum);
     mirror_step();
     decode();
@@ -457,6 +458,10 @@ static void test_input(void)
     CHECK((inp[13] | inp[14] << 8) == 3000, "input: master");
     CHECK((inp[15] | inp[16] << 8) == (1u << B_PLAY | 1u << 15), "input: lit buttons");
     CHECK(inp[17] == 0 && inp[18] == 2, "input: lit keys");
+    CHECK((inp[21] | inp[22] << 8) == (1u << B_SEL | 1u << B_REC), "input: dim buttons %x (lit PLAY not dim)",
+          inp[21] | inp[22] << 8);
+    CHECK((uint32_t)(inp[23] | inp[24] << 8 | inp[25] << 16 | (uint32_t)inp[26] << 24) == (1u << 3 | 1u << 4),
+          "input: dim keys (the mid one too; lit key 9 not)");
     mirror_enc(EN_K1, 2);                             /* turns added up: one report, 50 a second at most */
     now += 5;
     mirror_step();
@@ -624,7 +629,8 @@ static void session(const char *dir)
     s0 = stream_n;
     btn = keys = 0;
     master = 2048;
-    mirror_leds(0, 0);
+    mirror_leds(0, 0, 0, 0);
+    mirror_mid(0, 0);
     on();
     now += 1000;
     test_drawn_screen();
@@ -661,7 +667,8 @@ static void session(const char *dir)
     mirror_enc(EN_PRESET, -2);
     mirror_enc(EN_K2, 4);
     master = 3000;
-    mirror_leds(1u << B_PLAY, 0);
+    mirror_leds(1u << B_PLAY, 0, 1u << B_SEL, 0);    /* PLAY lit, SEL dim, key 12 mid (the viewer shows both dim) */
+    mirror_mid(0, 1u << 12);
     now += 30;
     mirror_step();
     btn = keys = 0;

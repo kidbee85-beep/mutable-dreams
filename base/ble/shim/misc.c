@@ -56,7 +56,11 @@ char *strcpy(char *d, const char *s)
 #define HEAP_BYTES (SHIM_HEAP_KB * 1024u)
 static uint32_t heap[HEAP_BYTES / 4u] __attribute__((section(".pool")));
 #else
-#define HEAP_BYTES (24u * 1024u)
+#ifndef SHIM_BLE_HEAP_KB
+#define SHIM_BLE_HEAP_KB 24u          /* fm1.toml ble_heap_kb: an app short of RAM may ask for less (radio.c logs its
+                                       * most ever, "heap", beside the stacks: one link with MIDI both ways took 7 KB) */
+#endif
+#define HEAP_BYTES (SHIM_BLE_HEAP_KB * 1024u)
 /* in .bss, low in RAM, not the pool: the radio's buffers come from here, and the hardware does not reach the pool's
  * top (a CTL-1 with two links, its heap at 0x01C4F028, had stacks overwritten 0.55 s into every Bluetooth start, in
  * the radio's calibration; at 0x01C121F0 it starts cleanly) */

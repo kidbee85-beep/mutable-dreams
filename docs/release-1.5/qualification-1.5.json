@@ -1,0 +1,21 @@
+{
+  "version": "1.5",
+  "pass_": true,
+  "candidate_checked": true,
+  "firmware_sha256": "ee5d410fc13b9861baa2336303821ccf66ec8c7143c167649886fad368198b52",
+  "device_identity": "FM-1_710010500",
+  "device_tested": "existing Mutable Dreams FM-1; revised full-chip reset re-enumerated USB MIDI automatically",
+  "banks": "preflash and after-final-editor-build bank backups byte-identical SHA-256 bd6bb4cf51511e7e848f347d7001fae876ef739892c1d9c0da02c1450464c872; live patch restored exactly",
+  "ble_peripheral": "notes, CC74, Start, Clock, Stop passed on physical FM-1; note and CC74 also passed while Wireless page stayed open",
+  "ble_central": "not physically verified: external BLE peripheral unavailable",
+  "uc25hq80": "static flash ID included; physical board unavailable",
+  "trs": "not physically verified",
+  "audio_stress": "four Biomes and two dense cases on first 1.5 build: 0 xruns/overloads; final build eight-second six-track run: 0 xruns/overloads/nonfinite/dropped, callback peak 4245/5804 us",
+  "public_release": true,
+  "browser_installer": "generated from exact final package; inline JS syntax and simulated boot/fast-resume/port/stock tests pass; visible Web MIDI install flow untested because local automated browsers do not execute even minimal inline scripts",
+  "editor": "device UI LED ID108 and DSP LFO2 rate ID123 separately verified on final physical build; browser protocol test passed",
+  "build_id": "4BDEF36B",
+  "device_image_bytes": 564300,
+  "app_slot_headroom_bytes": 17264,
+  "user_acceptance": "User confirmed testing and explicitly authorized public release on 2026-11-09. Specialized test limits remain documented."
+}

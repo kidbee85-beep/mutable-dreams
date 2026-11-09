@@ -125,6 +125,22 @@ static const uint8_t LCD_SEQ[] = {
     0x36, 1, 0x00,               /* MADCTL: top-left origin, RGB order */
     0x21, 0,                     /* INVON: IPS panel */
     0x13, 0,                     /* NORON */
+#if FM1B_LCD_PANEL
+    /* The M-VAVE FM-1 panel's own setup (fm1.toml lcd_panel = true), the ST7789V datasheet's registers at the values the
+     * panel is driven with: without them VCOMS stays at the reset value 0x20 (the panel wants 0x18), GCTRL 0x35 (0x56),
+     * VRHS 0x0B (0x1F) and the gamma at its default (a VCOM off the panel's value shows as flicker). */
+    0xB2, 5, 0x0C, 0x0C, 0x0C, 0x00, 0x33,   /* PORCTRL: porch */
+    0xB7, 1, 0x56,                           /* GCTRL: VGH / VGL */
+    0xBB, 1, 0x18,                           /* VCOMS */
+    0xC0, 1, 0x2C,                           /* LCMCTRL */
+    0xC2, 1, 0x01,                           /* VDVVRHEN */
+    0xC3, 1, 0x1F,                           /* VRHS */
+    0xC4, 1, 0x20,                           /* VDVS */
+    0xC6, 1, 0x0F,                           /* FRCTRL2: 60 Hz */
+    0xD0, 2, 0xA6, 0xA1,                     /* PWCTRL1 */
+    0xE0, 14, 0xD0, 0x0D, 0x14, 0x0B, 0x0B, 0x07, 0x3A, 0x44, 0x50, 0x08, 0x13, 0x13, 0x2D, 0x32,   /* PVGAMCTRL */
+    0xE1, 14, 0xD0, 0x0D, 0x14, 0x0B, 0x0B, 0x07, 0x3A, 0x44, 0x50, 0x08, 0x13, 0x13, 0x2D, 0x32,   /* NVGAMCTRL */
+#endif
 };
 
 static void lcd_init(void)

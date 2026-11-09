@@ -1,0 +1,46 @@
+# The dim-levels test app in the host simulator (tests/run_tests.sh): tools/build.py tests/dim_app --host, then
+#   tests/dim_app/build/host/dimtest_host tests/dim_app/tests/dim.txt tests/dim_app/build/host
+wait 300
+# no plat_dim_ns yet: the glow's own strength (glow 2: 3,200 ns)
+expect dim_ns 3200
+leds
+# the glow's low strength (SAVE held: glow 1)
+press SAVE
+wait 100
+expect dim_ns 1600
+release SAVE
+wait 100
+expect dim_ns 3200
+# the app's pulse, and it stays after the button is let go
+tap FX
+wait 100
+expect dim_ns 500
+leds
+tap SEL
+wait 100
+expect dim_ns 1000
+tap ENV
+wait 100
+expect dim_ns 2000
+# it wins over the glow: SAVE's glow 1 does not change it
+press SAVE
+wait 100
+expect dim_ns 2000
+release SAVE
+wait 100
+# outside the range: clamped to what the scan takes (500 .. 4,000)
+tap LFO
+wait 100
+expect dim_ns 4000
+tap EDIT
+wait 100
+expect dim_ns 500
+# 0 hands the dim lights back to the glow
+tap GLO
+wait 100
+expect dim_ns 3200
+press SAVE
+wait 100
+expect dim_ns 1600
+release SAVE
+wait 100

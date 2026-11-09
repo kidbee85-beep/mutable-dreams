@@ -1,0 +1,12 @@
+# A test app: Bluetooth audio's calls in the host simulator (tests/run_tests.sh bta)
+name = "BTA_TEST"
+id_prefix = "FM-1_19"
+usb_manufacturer = "fm1-base"
+usb_product = "BTA TEST FM-1"
+o2 = []
+ble = true
+ble_stack = "own"
+bt_audio = true
+bt_audio_sim = true            # the host simulator on fm1-base's stand-in for plat_bta_*
+licence = "MPL-2.0"
+words = "words.tsv"

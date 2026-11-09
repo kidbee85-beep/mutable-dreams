@@ -1,0 +1,59 @@
+expect ble_enabled 0
+expect ble 0
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+expect page 30
+turn K1 1
+expect ble_enabled 1
+wait 1200
+expect ble 2
+wait 650
+expect ble_dev 1
+turn K3 1
+wait 1200
+expect ble_dev 4
+midi BLE-DEV 90 3C 64
+expect ble_events >0
+midi BLE-DEV B0 4A 7F
+wait 12
+expect cutoff 1000
+turn K4 1
+expect midi_thru 1
+midi TRS 90 40 64
+wait 12
+expect_out BLE-DEV 90 40 64
+midi BLE-DEV 80 3C 00
+wait 12
+expect_out USB 80 3C 00
+midi USB B0 4A 60
+wait 12
+expect_out BLE-DEV B0 4A 60
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+expect page 17
+turn K1 3
+expect clock_source 3
+midi BLE-DEV FA 00 00
+wait 12
+expect playing 1
+midi BLE-DEV FC 00 00
+wait 12
+expect playing 0
+turn K1 -3
+expect clock_source 0
+tap SAVE
+expect store_writes >0
+reboot
+expect ble_enabled 1
+expect midi_thru 1
+wait 1200
+expect ble 2

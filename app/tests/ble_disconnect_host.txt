@@ -1,0 +1,24 @@
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+expect page 30
+turn K1 1
+wait 1200
+wait 650
+turn K3 1
+wait 1200
+midi BLE-DEV 90 3C 64
+wait 12
+expect midi_held_port 1
+midi USB 91 40 64
+wait 12
+turn SELECT 1
+expect midi_held_port 0
+turn K3 -1
+wait 12
+expect midi_held_port 0
+turn SELECT -1
+expect midi_held_port -1

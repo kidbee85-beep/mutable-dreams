@@ -92,6 +92,7 @@ check(sum[EN_K1] === 3 && sum[EN_PRESET] === -2 && sum[EN_K2] === 4, `the turns:
 check(sum[0] === 0 && sum[1] === 0 && sum[5] === 0 && sum[6] === 0, `turns not made: ${sum}`);
 check(states.length && states[states.length - 1].master === 3000, `MASTER ${states.length && states[states.length - 1].master}`);
 check(states.some((s) => s.litButtons & (1 << B_PLAY) && !s.playRed), "PLAY never lit (green)");
+check(states.some((s) => s.dimButtons === 1 << B_SEL && s.dimKeys === 1 << 12), "SEL never dim with key 12 (version 4's dim lights)");
 check(states.length && !states[states.length - 1].buttons && !states[states.length - 1].keys, "a button or key left held");
 
 // fed in other pieces: the same screen

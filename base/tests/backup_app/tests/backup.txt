@@ -1,0 +1,7 @@
+wait 300
+tap SEL
+tap SEL
+tap SEL
+backup out:a.bkt
+wait 100
+expect value 3

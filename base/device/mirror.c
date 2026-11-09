@@ -15,7 +15,8 @@
  *                   cmd 0x53 input: buttons held u16 (bit B_*: plat.h), keys held u32 (bit k = key k, F3 = 0),
  *                        the encoders' detents since the last report, int8 each (SELECT, ALGORITHM, PRESETS,
  *                        KNOB 1..4: EN_*), MASTER u16 (plat_master: 0..4096), the lit buttons u16 (bit 15: PLAY
- *                        lit red), the lit keys u32 (little-endian, 21 bytes)
+ *                        lit red), the lit keys u32; then (version 4) the dim buttons u16 and the dim keys u32,
+ *                        not lit but glowing (plat_lights' dim ones, plat_lights_mid's) (little-endian, 27 bytes)
  *   host -> device  cmd 0x54 remote, body 5 bytes: seq, op, a, b, c; only while mirroring (else refused), one at a
  *                   time (the device keeps one frame from the host: send the next after the answer)
  *                     op 1 a button: a = B_* (plat.h), b = 1 down, 0 up
@@ -30,8 +31,7 @@
  *                   They go in at the plat_* calls (plat_buttons, plat_keys, plat_enc, plat_master: held = the panel's
  *                   OR the host's), the path the panel takes into the app; the input reports show them. Mirroring off
  *                   (asked, timed out, unplugged, another host): everything let go, a test session ended. Never in the
- *                   update mode's OCT- + OCT+ (main_fm1.c reads the matrix), the calibration, or a restore's question
- *                   (backup.c: the hand's).
+ *                   calibration or a restore's question (backup.c: the hand's).
  *   device -> host  cmd 0x54: seq, op, 1 done / 0 refused (mirroring off, a bad op). The same seq again (an answer
  *                   lost, the host asks again): answered again, not done twice
  * seq counts rect and fill frames (mod 256): a gap tells the viewer one went missing (it asks for a refresh).
@@ -48,7 +48,7 @@
  * SysEx ring (updates, backups, this file's input reports) and after the notes and clock, whole (nothing in the middle
  * of a SysEx message). A rectangle that does not fit in the ring now is dropped and its rows marked dirty; the
  * screen has no framebuffer to send them from later, so the app is asked to draw everything again (APP_REDRAW), and
- * what the viewer already has is skipped: a 32-bit hash of each 30-pixel segment of each full-width row sent is kept;
+ * what the viewer already has is skipped: a 32-bit hash of each MR_SEGW-pixel segment of each full-width row sent is kept;
  * a row drawn again sends only its segments that changed (a playhead moving: a narrow rect, not the band). So a busy
  * screen on a slow link loses frames, never the picture (with APP_REDRAW; without it, until the app draws there again).
  *
@@ -71,7 +71,8 @@
 #define MR_FILL 0x52u
 #define MR_INPUT 0x53u
 #define MR_REMOTE 0x54u
-#define MR_VERSION 3u                                 /* 2: the remote (cmd 0x54); 3: its test session (op 5) */
+#define MR_VERSION 4u                                 /* 2: the remote (cmd 0x54); 3: its test session (op 5); 4: the dim
+                                                       * lights in the input report */
 #define MR_W 240u
 #define MR_H 240u
 #define MR_CAP 256u                                   /* a rect frame's pixel code, about (one row more at most) */
@@ -82,10 +83,14 @@
 #define MR_REDRAW_MS 50u                              /* dirty rows: the UI asked to draw again this often at most, */
 #define MR_REDRAW_ROOM (MRQ * 3u / 4u)                /* once the ring has this much room */
 #define MR_HASH(c) ((((uint32_t)(c)) * 40503u) >> 10 & 63u)
-#define MR_SEGW 30u                                   /* a row's segments: only the changed ones are sent */
+#ifndef MR_SEGW
+#define MR_SEGW 30u                                   /* a row's segments: only the changed ones are sent (app.h may widen
+                                                       * them: 4 B a segment of each row in the pool, 240 x 8 = 7.5 KB at 30) */
+#endif
 #define MR_NSEG (MR_W / MR_SEGW)
+_Static_assert(MR_W % MR_SEGW == 0, "MR_SEGW divides the row");
 #define MR_MROWS 32u                                  /* rows a rect frame takes at most */
-#define MR_NIN 21u
+#define MR_NIN 27u
 
 static uint32_t mr_free(void);
 static void mr_put(const uint8_t *p, uint32_t n);
@@ -102,8 +107,8 @@ static struct {
     uint32_t known[(MR_H + 31u) / 32u];               /* the viewer's row r: its segments' hashes are mr_seg[r] */
     uint32_t dirty[(MR_H + 31u) / 32u];               /* the viewer's row r is wrong somewhere (dropped) */
     int16_t enc[7];                                   /* detents not reported yet (EN_*) */
-    uint16_t lit_b;
-    uint32_t lit_k;
+    uint16_t lit_b, dim_b, mid_b;                     /* the lights: lit, dim (plat_lights), mid (plat_lights_mid) */
+    uint32_t lit_k, dim_k, mid_k;
     uint8_t last[MR_NIN];                             /* the last input report's body */
     uint16_t cache[64], cur;
     uint32_t pos;                                     /* the frame being coded: its length in mr_msg */
@@ -290,8 +295,10 @@ static void mirror_blit(uint32_t x, uint32_t y, uint32_t w, uint32_t h, const ui
                 ch = (uint32_t)mr_span(px + r * w, y + r, full, sh, &s0, &s1);
                 have = 1;
             }
-            if (rows && (!ch || (full && (s0 < m0 || s1 > m1))))
-                break;                                /* unchanged, or changed elsewhere: the next frame's */
+            if (rows && (mr.pos - 11u > MR_CAP || !ch || (full && (s0 < m0 || s1 > m1))))
+                break;                                /* full (the first row alone can pass MR_CAP: mr_msg has room
+                                                       * for MR_CAP and one row more, not two rows), unchanged, or
+                                                       * changed elsewhere: the next frame's */
             mr_code_row(px + r * w + (full ? fx : 0u), fw);
             if (rows && mr.pos - 11u > MR_CAP) {
                 mr.pos = at;                          /* (it starts the next frame) */
@@ -366,10 +373,17 @@ static void mirror_enc(int role, int32_t n)
     n += mr.enc[role];
     mr.enc[role] = (int16_t)(n > 4000 ? 4000 : n < -4000 ? -4000 : n);
 }
-static void mirror_leds(uint32_t buttons, uint32_t keys)
+static void mirror_leds(uint32_t buttons, uint32_t keys, uint32_t dim_buttons, uint32_t dim_keys)
 {
     mr.lit_b = (uint16_t)buttons;
     mr.lit_k = keys;
+    mr.dim_b = (uint16_t)dim_buttons;
+    mr.dim_k = dim_keys;
+}
+static void mirror_mid(uint32_t buttons, uint32_t keys)
+{
+    mr.mid_b = (uint16_t)buttons;
+    mr.mid_k = keys;
 }
 
 static void mr_hello(void)
@@ -517,10 +531,12 @@ static void mirror_step(void)
     mr_wr16(b + 13, plat_master());
     mr_wr16(b + 15, mr.lit_b);
     mr_wr32(b + 17, mr.lit_k);
+    mr_wr16(b + 21, (uint32_t)(mr.dim_b | mr.mid_b) & ~(uint32_t)mr.lit_b & 0x7FFFu);   /* (lit wins) */
+    mr_wr32(b + 23, (mr.dim_k | mr.mid_k) & ~mr.lit_k);
     {
         int32_t dm = (int32_t)(b[13] | b[14] << 8) - (int32_t)(mr.last[13] | mr.last[14] << 8);
         if (!any && now - mr.input_t < MR_INPUT_IDLE_MS && !memcmp(b, mr.last, 6) &&
-            !memcmp(b + 15, mr.last + 15, 6) && dm < 32 && dm > -32)
+            !memcmp(b + 15, mr.last + 15, 12) && dm < 32 && dm > -32)
             return;                                   /* nothing new (MASTER: moved by 32 / 4096 or more) */
     }
     if (mr_ctl_send(mr_wire, mr_seal(MR_INPUT, MR_NIN)))

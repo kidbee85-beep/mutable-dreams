@@ -1,0 +1,16 @@
+# The whole flash into a new run of the host simulator (flash_load, then reboot: a power-on with it), from
+# tests/run_tests.sh after tests/flash_dump.txt and tests/flash_image_test.c (flash2.bin: device/storage.c saved the
+# settings again there, so copy B, seq 2, is the current one):
+#   template/build/host/template_host tests/flash_load.txt template/build/host
+wait 600
+expect octave 0
+expect data.0x97000 0xFF
+flash_load out:flash2.bin
+reboot
+wait 600
+expect octave 2
+expect data.0x97000 0x12
+expect data.0x97003 0x78
+expect data.0x97004 0xFF
+# and back out: the same settings, the same bytes as tests/flash_dump.txt's flash.bin (run_tests.sh compares them)
+flash_dump out:flash3.bin

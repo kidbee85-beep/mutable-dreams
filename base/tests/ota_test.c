@@ -4,14 +4,18 @@
 /* Host test of bsp/chip/ota.c: a fake M-UPGRADE serves a real .fwsc over
  * the SysEx protocol (pack7, cmd 0x30 reads, 0xE0000000 -> "success") and a
  * simulated NOR plays the flash.
- *   cc -o ota_test tests/ota_test.c && ./ota_test FILE.fwsc
+ *   cc -o ota_test tests/ota_test.c && ./ota_test FILE.fwsc [MBOOT.fwsc [STOCK.fwsc...]]
+ * MBOOT.fwsc: an m-bootloader installer package (ota.bin only, no flash.bin); its bootloader
+ * (the plain .boot container) is read from the same name with .boot for .fwsc, for the boot area rule.
+ * STOCK.fwsc... (optional, never committed): M-VAVE's FM-1 packages (V15, V16), staged over any head,
+ * refused with a damaged boot area
  */
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define FELUCCA_ID "FM-1_900"
+#define FELUCCA_ID "FM-1_9001613"   /* a release's (id_prefix + XXYYZZ): the plain handshake answers FM-1_900 */
 #define FELUCCA_OTA_DRYRUN 0
 
 static uint8_t nor[0x100000];
@@ -151,22 +155,34 @@ static void reset_dev(void)
     mute_after = 0xFFFFFFFFu; corrupt_at = NULL; bad_erase = 0;
 }
 
-int main(int argc, char **argv)
+static int load(const char *path)                  /* the package's logical image -> logical */
 {
     FILE *f;
     uint8_t *raw;
     size_t n, i;
-    int bad = 0, rc;
-    if (argc < 2) { printf("usage: ota_test FILE.fwsc\n"); return 2; }
-    f = fopen(argv[1], "rb");
-    if (!f) { perror(argv[1]); return 2; }
+    f = fopen(path, "rb");
+    if (!f) { perror(path); return -1; }
     raw = malloc(0x200000);
     n = fread(raw, 1, 0x200000, f);
     fclose(f);
+    free(logical);
     logical = malloc(n);
     for (i = 0; i < 20; i++) memcpy(logical + i * 47, raw + i * 48, 47);   /* drop the marker bytes */
     memcpy(logical + 20 * 47, raw + 20 * 48, n - 20 * 48);
     logical_len = n - 20;
+    free(raw);
+    return 0;
+}
+
+static uint8_t b_scratch[512];
+
+int main(int argc, char **argv)
+{
+    int bad = 0, rc;
+    size_t i;
+    if (argc < 2) { printf("usage: ota_test FILE.fwsc [MBOOT.fwsc [STOCK.fwsc...]]\n"); return 2; }
+    if (load(argv[1]))
+        return 2;
 
     /* handshake outside a session */
     reset_dev();
@@ -175,8 +191,18 @@ int main(int argc, char **argv)
         host_reply(m, 7);
         ota_service();
         bad += check("handshake answered", ident_replies == 1);
-        bad += check("identity frame is " FELUCCA_ID,
-                     ota_msg[2] == 0x11 && !memcmp(ota_msg + 6, FELUCCA_ID, sizeof FELUCCA_ID - 1));
+        bad += check("plain query: FM-1_900 (M-UPGRADE 3.11: NAME_ + 1-3 digits)",
+                     ota_msg[2] == 0x11 && !memcmp(ota_msg + 6, "FM-1_900", 8) && ota_msg[6 + 8] == 0);
+    }
+    reset_dev();
+    {
+        uint8_t m[8] = {0, 0x59, 0x11, 1, 0, 0, 1, 0xFE};   /* body 01: the whole identity */
+        host_reply(m, 8);
+        ota_service();
+        bad += check("asked with 01: answered", ident_replies == 1);
+        bad += check("asked with 01: the whole identity " FELUCCA_ID,
+                     ota_msg[2] == 0x11 && !memcmp(ota_msg + 6, FELUCCA_ID, sizeof FELUCCA_ID - 1) &&
+                     ota_msg[6 + sizeof FELUCCA_ID - 1] == 0);
     }
 
     /* full session */
@@ -217,6 +243,94 @@ int main(int argc, char **argv)
         mute_after = total - 1;                            /* answer everything but the confirmation */
         rc = ota_session();
         bad += check("no 'success' -> -13, no commit, area clean", rc == -13 && !committed && area_erased());
+    }
+
+    /* any well-made writer: m-bootloader's installer (no flash.bin), staged as it is */
+    if (argc > 2) {
+        static uint8_t tpl[0x4000], img[0x4000], boot[0x4000];
+        char path[1024];
+        FILE *f;
+        size_t blen, plen = strlen(argv[2]);
+        memcpy(tpl, logical + 0x400, sizeof tpl);          /* our package's head: a flash header to build on */
+        if (load(argv[2]))
+            return 2;
+        reset_dev();
+        rc = ota_session();
+        bad += check("m-bootloader installer commits", rc == 0 && committed);
+        bad += check("staged body == its installer", !memcmp(nor + 0xE0020, logical + ota_body_off(), 64));
+        bad += check("m-bootloader: nothing outside 0xE0000..0xE4FFF", bad_erase == 0);
+        reset_dev();
+        corrupt_at = logical + ota_body_off() + 0x100;     /* a body byte: CRC mismatch */
+        rc = ota_session();
+        bad += check("corrupt writer body -> no commit, area clean", rc < 0 && !committed && area_erased());
+        reset_dev();
+        corrupt_at = logical + ota_body_off() - 0x20 + 8;  /* its head: not where the SPL runs it */
+        rc = ota_session();
+        bad += check("malformed writer head -> -7", rc == -7 && !committed && area_erased());
+
+        /* the boot area rule, on heads built here: m-bootloader's container (SPEC 11.2) in our flash header */
+        snprintf(path, sizeof path, "%.*s.boot", (int)(plen > 5 ? plen - 5 : plen), argv[2]);
+        f = fopen(path, "rb");
+        if (!f) { perror(path); return 2; }
+        blen = fread(boot, 1, sizeof boot, f);
+        fclose(f);
+        ota_deadline = 0;                                  /* no session: no deadline */
+        {
+            static const char *board[] = { "fm1", "smk37" };
+            uint32_t v;
+            for (v = 0; v < 3u; v++) {
+                uint8_t c[0x4000], rec[32];
+                memcpy(c, boot, blen);
+                if (v == 1u) {                              /* another board's, every CRC right */
+                    memset(c + 16 + 0x48, 0, 8);
+                    memcpy(c + 16 + 0x48, board[1], strlen(board[1]));
+                }
+                ota_wr16(c + 12, ota_crc16(c + 16, (uint32_t)blen - 16u, 0));
+                ota_wr16(c + 14, ota_crc16(c, 14, 0));
+                memcpy(img, tpl, sizeof img);
+                memcpy(rec, img + 32, 32);
+                ota_jl_enc(rec, 32);
+                ota_wr16(rec + 2, ota_crc16(c, (uint32_t)blen, 0));
+                ota_wr32(rec + 4, 0xA0u);
+                ota_wr32(rec + 8, (uint32_t)blen);
+                ota_wr16(rec, ota_crc16(rec + 2, 30, 0));
+                ota_jl_enc(rec, 32);
+                memcpy(img + 32, rec, 32);
+                memset(img + 0xA0, 0xFF, sizeof img - 0xA0);
+                memcpy(img + 0xA0, c, blen);
+                ota_jl_enc(img + 0xA0, 16);
+                ota_jl_enc(img + 0xB0, (uint32_t)blen - 16u);
+                if (v == 2u)
+                    img[0xA0 + 0x800] ^= 0x01;              /* a damaged payload */
+                logical = img;
+                logical_len = sizeof img;
+                rc = ota_boot_valid(0, sizeof img, b_scratch);
+                bad += check(v == 0u ? "m-bootloader boot area for the FM-1: valid" :
+                             v == 1u ? "m-bootloader boot area for the SMK-37 -> -5" :
+                                       "damaged boot area -> -5", v == 0u ? rc == 0 : rc == -5);
+            }
+            memcpy(img, tpl, sizeof img);                   /* ours keeps the SDK's file unciphered: */
+            logical = img;                                  /* never written (Felucca's writer is exempt) */
+            rc = ota_boot_valid(0, sizeof img, b_scratch);
+            bad += check("our packages' head: not one to write -> -5", rc == -5);
+            logical = NULL;
+        }
+
+        /* M-VAVE's packages (optional, never committed): staged over any head, m-bootloader's too */
+        for (i = 3; i < (size_t)argc; i++) {
+            char what[96];
+            if (load(argv[i]))
+                return 2;
+            reset_dev();
+            nor[0x1000] ^= 0x01;                           /* the device's head differs from the package's */
+            rc = ota_session();
+            snprintf(what, sizeof what, "%s over another head commits", argv[i] + (strrchr(argv[i], '/') ? strrchr(argv[i], '/') - argv[i] + 1 : 0));
+            bad += check(what, rc == 0 && committed);
+            reset_dev();
+            corrupt_at = logical + 0x400 + 0xA0 + 0x800;   /* its boot area's payload */
+            rc = ota_session();
+            bad += check("  ... with a damaged boot area -> -5", rc == -5 && !committed && area_erased());
+        }
     }
 
     printf("%s\n", bad ? "OTA TEST FAILED" : "ota test passed");

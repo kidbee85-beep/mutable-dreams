@@ -17,7 +17,9 @@ import zlib from "zlib";
 import { fileURLToPath } from "url";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
-const FILL = { NAME: "Template", ID: "FM-1_11", MAGIC: "TSTB", BACKUP_VERSION: "3", EXT: "bak", HOLDS: "everything", EXTRA: "" };
+// fm1ports.js as tools/make_site.py inlines it (strip_module: no export, no import)
+const PORTS_JS = fs.readFileSync(path.join(root, "web/fm1ports.js"), "utf8").replace(/^export\s+/gm, "").replace(/^import .*?;\n/gm, "");
+const FILL = { NAME: "Template", ID: "FM-1_11", MAGIC: "TSTB", BACKUP_VERSION: "3", EXT: "bak", HOLDS: "everything", EXTRA: "", EXTRAS_JS: "const EXTRAS = [];", TERMINAL: "", PORTS_JS };
 let html = fs.readFileSync(path.join(root, "web/backup/index.html"), "utf8");
 html = html.replace(/\{\{([A-Z_]+)\}\}/g, (m, k) => (k in FILL ? FILL[k] : m));
 const unfilled = html.match(/\{\{[A-Z_]+\}\}/g);
@@ -25,7 +27,7 @@ const m = /\/\/ --- backup protocol: begin[^\n]*\n([\s\S]*?)\/\/ --- backup prot
 if (!m) { console.log("FAIL no backup protocol markers in web/backup/index.html"); process.exit(1); }
 if (unfilled) { console.log(`FAIL web/backup/index.html: ${unfilled.join(" ")}, not make_site.py's`); process.exit(1); }
 const PB = new Function(`"use strict";\n${m[1]}\nreturn PB;`)();
-Object.assign(PB.DELAY, { poll: 5, idle: 300, ask: 500, first: 300, hs: 100 });
+Object.assign(PB.DELAY, { poll: 5, idle: 300, ask: 500, first: 300, hs: 100, hsFull: 100 });
 
 let fails = 0;
 const check = (ok, msg) => { console.log(`${ok ? "ok  " : "FAIL"} ${msg}`); if (!ok) fails++; };
@@ -141,9 +143,19 @@ class FakeFM1 {                                                // its app's magi
     this.ask(...r.value);
   }
   rx(d) {
+    // newOta: chip/ota.c from M-UPGRADE 3.11's fix on, NAME_ and three digits to HS_QUERY, the whole to HS_FULL
+    const reply = (text) => {
+      const t = [...Buffer.from(text), ...new Array(27 - text.length).fill(0)];
+      t[24] = 0xB3, t[25] = 0x60, t[26] = 0x14;                  // felucca-bsp#29: the flash's JEDEC id after the text
+      this.q.push([0xF0, ...PB.pack7([0, 0x59, 0x11, 27, 0, 0, ...t, ~t.reduce((a, v) => a + v, 0) & 255]), 0xF7]);
+    };
     if (same(d, PB.HS_QUERY)) {
-      const t = [...Buffer.from(this.identity)];
-      this.q.push([0xF0, ...PB.pack7([0, 0x59, 0x11, 0, 0, 0, ...t, ...new Array(28 - t.length).fill(0)]), 0xF7]);
+      reply(this.newOta ? this.identity.slice(0, this.identity.indexOf("_") + 4) : this.identity);
+      return;
+    }
+    if (same(d, PB.HS_FULL)) {
+      this.hsFull = (this.hsFull || 0) + 1;
+      if (this.newOta) reply(this.identity);
       return;
     }
     const f = PB.parseFrame(d);
@@ -227,6 +239,13 @@ const resealed = (b) => {                                      // its CRCs right
   check(e && e.code === "model" && /not Template/.test(e.message), "another firmware on the FM-1 (X0X's identity): refused");
 }
 {
+  const dev = new FakeFM1(img, { identity: "FM-1_11000300", newOta: true });
+  const c = await connect(dev);
+  check(c && c.id === "FM-1_11000300" && dev.hsFull === 1,
+        "a firmware that answers FM-1_110 to the plain query (M-UPGRADE 3.11): its whole identity asked with 01");
+  c.link.close();
+}
+{
   const dev = new FakeFM1(other, { stallAfter: 5 });
   const e = await err(PB.restore((await connect(dev)).link, img));
   check(e && e.code === "stopped" && same(dev.image, other), "the FM-1 stops asking: stopped, nothing changed");
@@ -240,6 +259,89 @@ const resealed = (b) => {                                      // its CRCs right
   const empty = { inputs: new Map(), outputs: new Map() };
   const e = await err(PB.find(empty, () => null));
   check(e && e.code === "notfound", "no FM-1: not found");
+}
+{
+  // an FM-1 under another device's name: not asked; listed for Try; asked once picked (allowed), or alone (only)
+  const dev = new FakeFM1(img);
+  const sent = {};
+  const port = (name) => ({ name, state: "connected", open: async () => {}, addEventListener() {}, removeEventListener() {},
+                            send: (b) => (sent[name] = sent[name] || []).push(b) });
+  const acc = { inputs: new Map([["i", port("Arturia KeyStep")], ["j", port("Launchkey Mini")], ["k", port("IAC Bus 1")]]),
+                outputs: new Map([["o", port("Arturia KeyStep")], ["p", port("Launchkey Mini")]]) };
+  let made = 0;
+  let e = await err(PB.find(acc, () => { made++; return dev; }));
+  check(e && e.code === "notfound" && made === 0, "a port with another device's name: not asked");
+  check(Object.values(sent).every((l) => l.length === 3 && l.every((b) => b.join() === "240,125,83,82,1,1,247")),
+        "  only the screen reader's HELLO goes to it, three times");
+  check(PB.others(acc).join() === "Arturia KeyStep,Launchkey Mini", "others: the pairs are listed to try (an input alone is not)");
+  const one = await PB.find(acc, () => dev, [], "Arturia KeyStep");
+  check(one && one.name === "Arturia KeyStep", "Try: asked alone, it answers");
+  const got = await PB.find(acc, () => dev, ["Arturia KeyStep"]);
+  check(got && got.name === "Arturia KeyStep" && PB.others(acc, ["Arturia KeyStep"]).join() === "Launchkey Mini", "picked: found from then on, no longer listed");
+}
+{
+  // an FM-1 under another device's name that answers the screen reader's HELLO (every fm1-base firmware): found without
+  // picking it; a loopback (an IAC bus: the HELLO comes back as it went) and other gear are never sent the identity query
+  const dev = new FakeFM1(img);
+  const port = (name, answer) => {
+    const ears = new Set(), sent = [];
+    const input = { name, state: "connected", open: async () => {}, addEventListener: (t, f) => ears.add(f), removeEventListener: (t, f) => ears.delete(f) };
+    const hear = (b) => setTimeout(() => ears.forEach((f) => f({ data: Uint8Array.from(b), target: input })), 1);
+    const output = { name, state: "connected", open: async () => {}, send: (b) => { sent.push(b); answer && answer(Array.from(b), hear); } };
+    return { input, output, sent };
+  };
+  const fm1 = port("Arturia KeyStep", (b, hear) => b[4] === 1 && hear([0xF0, 0x7D, 0x53, 0x52, 1, 1, ...Buffer.from("Template 1.0"), 0, 0xF7]));
+  const iac = port("IAC Bus 1", (b, hear) => hear(b)), other = port("Launchkey Mini");
+  const all = [iac, other, fm1];
+  const acc = { inputs: new Map(all.map((p, i) => ["i" + i, p.input])), outputs: new Map(all.map((p, i) => ["o" + i, p.output])) };
+  const linked = [];
+  const got = await PB.find(acc, (i) => { linked.push(i.name); return dev; });
+  check(got && got.name === "Arturia KeyStep" && linked.join() === "Arturia KeyStep", "an FM-1 answering HELLO on another device's port: found, and only it asked");
+  check(iac.sent.length === 3 && other.sent.length === 3 && fm1.sent.length === 1, "  the loopback and the other gear: three HELLOs, nothing more");
+}
+{
+  // a Bluetooth MIDI port (an FM-1 paired beside its USB cable) is never asked, allowed, tried or listed
+  const dev = new FakeFM1(img);
+  const port = (name) => ({ name, state: "connected", open: async () => {} });
+  const acc = { inputs: new Map([["i", port("Optimist 112D Bluetooth")], ["j", port("FM-1")]]),
+                outputs: new Map([["o", port("Optimist 112D Bluetooth")], ["p", port("FM-1")]]) };
+  const asked = [];
+  const got = await PB.find(acc, (i) => { asked.push(i.name); return dev; }, ["Optimist 112D Bluetooth"]);
+  check(got && got.name === "FM-1" && !asked.includes("Optimist 112D Bluetooth"), "Bluetooth port: skipped, the USB port is found");
+  check(!PB.others(acc, []).length, "Bluetooth port: not listed for Try");
+  const only = { inputs: new Map([["i", port("Optimist 112D Bluetooth")]]), outputs: new Map([["o", port("Optimist 112D Bluetooth")]]) };
+  const e = await err(PB.find(only, (i) => { asked.push(i.name); return dev; }, ["Optimist 112D Bluetooth"], "Optimist 112D Bluetooth"));
+  check(e && e.code === "notfound" && !asked.includes("Optimist 112D Bluetooth"), "Bluetooth port: not even Try asks it");
+}
+{
+  // an FM-1 under the name of a firmware of the family (Optimist, SLOOP, Melodee, LOOM-8) is asked by itself
+  for (const name of ["Optimist", "SLOOP 2.4", "Melodee", "LOOM-8"]) {
+    const dev = new FakeFM1(img);
+    const port = (n) => ({ name: n, state: "connected", open: async () => {} });
+    const acc = { inputs: new Map([["i", port("Launchkey Mini")], ["j", port(name)]]), outputs: new Map([["o", port("Launchkey Mini")], ["p", port(name)]]) };
+    const asked = [];
+    const got = await PB.find(acc, (i) => { asked.push(i.name); return dev; });
+    check(got && got.name === name && !asked.includes("Launchkey Mini") && !PB.others(acc).includes(name), `family port "${name}": asked by itself, other gear not`);
+  }
+}
+{
+  // the firmware's own sections after the backup (EXTRAS): the page's join and split against fm1_backup.py's
+  const secs = [{ tag: "LSMP", data: Uint8Array.from({ length: 2304 }, (_, i) => i & 0xFF) }, { tag: "ZZZZ", data: new Uint8Array(0) }];
+  const withsec = Uint8Array.from(Buffer.from(tr.withsec, "hex"));
+  const joined = PB.join(img, secs);
+  check(same(joined, withsec), "join: the file fm1_backup.py's join makes, byte for byte");
+  const sp = PB.split(withsec);
+  check(same(sp.image, img) && sp.sections.length === 2 && sp.sections[0].tag === "LSMP" && same(sp.sections[0].data, secs[0].data) &&
+        sp.sections[1].tag === "ZZZZ" && !sp.sections[1].data.length, "split: the backup and its sections");
+  check(PB.split(img).sections.length === 0 && same(PB.split(img).image, img), "split: a file without sections");
+  let e = null; try { PB.split(withsec.subarray(0, withsec.length - 1)); } catch (x) { e = x; }
+  check(e && e.code === "file" && /cut short/.test(e.message), "split: a section cut short");
+  const bad = Uint8Array.from(withsec); bad[img.length + 20] ^= 1;
+  e = null; try { PB.split(bad); } catch (x) { e = x; }
+  check(e && e.code === "file" && /LSMP/.test(e.message), "split: a section damaged");
+  const dev = new FakeFM1(other);
+  const code = await PB.restore((await connect(dev)).link, PB.split(withsec).image);
+  check(code === 0 && same(dev.image, img), "restore of the backup split from a file with sections");
 }
 console.log(fails ? `backup page test FAILED (${fails})` : "backup page test passed");
 process.exit(fails ? 1 : 0);

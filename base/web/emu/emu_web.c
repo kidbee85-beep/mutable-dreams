@@ -78,7 +78,39 @@ __attribute__((used, visibility("default"))) void web_reader(int on)
         ann_frame(BYE, sizeof BYE, now_ms);
 }
 
-__attribute__((used, visibility("default"))) void web_boot(void) { boot(); }
+#if FM1B_EMU_REBOOT
+/* the update mode (the part "reboot"): as device/main_fm1.c's enter_uboot shows it, the sound stopped and the screen
+ * black with the reason, until the page starts the app again. 1: the computer asked (UBOOT (USB)), 2: REC held at
+ * power-on (UPDATE MODE (REC)) */
+#include "sys_text.c"
+static uint8_t update_why;
+static void update_enter(uint32_t why)
+{
+    update_why = (uint8_t)why;
+    lcd_fill(0, 0, 240, 240, C_BLACK);
+    sys_box(0, 110, 240, SYS_S, why == 2u ? "UPDATE MODE (REC)" : "UBOOT (USB)", C_WHITE, 1);
+    web_down = 1;
+}
+/* the page asks for the update mode (1), as a computer's request does; web_update is 0 in a running app */
+__attribute__((used, visibility("default"))) void web_update_enter(uint32_t why) { update_enter(why == 2u ? 2u : 1u); }
+__attribute__((used, visibility("default"))) uint32_t web_update(void) { return update_why; }
+/* what a restart carries into the next start of the app: how many plat_restart calls there were (the part starts the
+ * wasm again when it counts one), the held buttons and MASTER, and whether a screen reader was listening */
+__attribute__((used, visibility("default"))) uint32_t web_restarts(void) { return restarts; }
+__attribute__((used, visibility("default"))) uint32_t web_buttons_get(void) { return held_btn; }
+__attribute__((used, visibility("default"))) uint32_t web_master_get(void) { return master; }
+__attribute__((used, visibility("default"))) uint32_t web_listening(void) { return sim_listen != 0; }
+#endif
+__attribute__((used, visibility("default"))) void web_boot(void)
+{
+#if FM1B_EMU_REBOOT
+    if (held_btn & (1u << B_REC)) {                 /* REC held at power-on: the chip's update mode (main_fm1.c) */
+        update_enter(2u);
+        return;
+    }
+#endif
+    boot();
+}
 __attribute__((used, visibility("default"))) void web_buttons(uint32_t m) { held_btn = m; }
 __attribute__((used, visibility("default"))) void web_keys(uint32_t m)
 {
@@ -112,7 +144,11 @@ __attribute__((used, visibility("default"))) void web_master(uint32_t v) { maste
 __attribute__((used, visibility("default"))) uint32_t web_lit_buttons(void) { return lit_btn; }
 __attribute__((used, visibility("default"))) uint32_t web_lit_keys(void) { return lit_keys; }
 __attribute__((used, visibility("default"))) uint32_t web_dim_buttons(void) { return dim_btn; }
-__attribute__((used, visibility("default"))) uint32_t web_dim_keys(void) { return dim_keys; }
+__attribute__((used, visibility("default"))) uint32_t web_dim_keys(void) { return dim_keys | mid_keys; }
+#ifdef APP_DIM_LEVELS
+/* the dim lights' pulse a scan frame in ns (plat_dim_ns, else the glow's), for a page that draws their brightness */
+__attribute__((used, visibility("default"))) uint32_t web_dim_ns(void) { return dim_pulse(); }
+#endif
 
 /* MIDI: in from the page (port PORT_*: a Web MIDI input is USB), out as the app sent it (USB-MIDI packets) */
 __attribute__((used, visibility("default"))) void web_midi_in(uint32_t port, uint32_t pkt)
@@ -142,6 +178,68 @@ __attribute__((used, visibility("default"))) void web_store_set_len(uint32_t obj
 __attribute__((used, visibility("default"))) uint32_t web_store_writes(void) { return store_writes; }
 __attribute__((used, visibility("default"))) uint32_t web_nobj(void) { return OBJ_NOBJ; }
 __attribute__((used, visibility("default"))) uint32_t web_store_max(void) { return PLAT_STORE_MAX; }
+
+#if defined(APP_SYSEX) && FM1B_EMU_MIDI
+/* SysEx with the app (APP_SYSEX), as over USB, with the emulator's part "midi" (which carries it to and from the page;
+ * without it, none of this: the 8 KB buffer and the exports): the page writes a frame from the computer (F0 .. F7,
+ * whole) to web_sx_in_buf (web_sx_in_max bytes at most) and gives it with web_sx_in(n). As felucca-bsp's usb.c hands a
+ * frame to the main loop: 7-bit, 640 bytes at most between F0 and F7, to app_sysex; else dropped (with APP_SYSEX_BYTE
+ * every byte to app_sysex_byte first, any length, up to a status byte inside). What the app sent (plat_sysex_send, a
+ * stream), F0 .. F7 frames one after another (a stream cut short ends at the next F0), from web_sx_out_buf
+ * (web_sx_out_len bytes; web_sx_out_clear when read) */
+#define WEB_SX_IN 8192u
+#define WEB_SX_MAX 640u
+static uint8_t wsx_in[WEB_SX_IN];
+__attribute__((used, visibility("default"))) uint8_t *web_sx_in_buf(void) { return wsx_in; }
+__attribute__((used, visibility("default"))) uint32_t web_sx_in_max(void) { return WEB_SX_IN; }
+__attribute__((used, visibility("default"))) int web_sx_in(uint32_t n)
+{
+    uint32_t i, ok = 1;
+    if (n < 2u || n > WEB_SX_IN || wsx_in[0] != 0xF0u || wsx_in[n - 1u] != 0xF7u)
+        return -1;                                /* (not a frame) */
+    for (i = 1; i + 1u < n; i++)
+        ok &= wsx_in[i] < 0x80u;
+#ifdef APP_SYSEX_BYTE
+    for (i = 0; i < n && (i == 0 || i + 1u == n || wsx_in[i] < 0x80u); i++)
+        app_sysex_byte(wsx_in[i]);
+#endif
+    if (!ok || n - 2u > WEB_SX_MAX)
+        return 0;                                 /* (a status byte inside, or too long: the device drops it) */
+    (void)app_sysex(wsx_in + 1, n - 2u);
+    return 1;
+}
+__attribute__((used, visibility("default"))) uint8_t *web_sx_out_buf(void) { return hsx_out; }
+__attribute__((used, visibility("default"))) uint32_t web_sx_out_len(void) { return hsx_n; }
+__attribute__((used, visibility("default"))) void web_sx_out_clear(void) { hsx_n = hsx_lost = 0; }
+#endif
+
+#ifdef FM1B_EMU_DATA
+/* the data area (plat_data, its windows: plat.h) for the page to keep (the emulator's data part, fm1.toml emu): its
+ * web_data_len bytes from web_data(), the device's address web_data_base() first; written before boot, it is what
+ * the app finds */
+__attribute__((used, visibility("default"))) uint8_t *web_data(void) { data_init(); return data_area; }
+__attribute__((used, visibility("default"))) uint32_t web_data_len(void) { return sizeof data_area; }
+__attribute__((used, visibility("default"))) uint32_t web_data_base(void) { return DATA_BASE; }
+#endif
+
+#if FM1B_EMU_BACKUP && FM1B_BACKUP
+/* a backup in the file format of web/backup/index.html and tools/fm1_backup.py (device/backup.c's image: the magic,
+ * version, count, flags, then each saved object, every part and the whole checked by CRC-32): web_backup_make makes it
+ * (the unsaved saved first unless the app is playing: then flag bit 0) into web_backup_buf, its length returned;
+ * web_backup_restore(n) takes the n bytes the page put in web_backup_buf as the FM-1 does after its question is
+ * answered yes: checked whole before anything changes, then 0, or 10 playing (stop first), 3 not this app's or
+ * version's, 4..6 damaged */
+__attribute__((used, visibility("default"))) uint8_t *web_backup_buf(void) { return sim_img; }
+__attribute__((used, visibility("default"))) uint32_t web_backup_max(void) { return sizeof sim_img; }
+__attribute__((used, visibility("default"))) uint32_t web_backup_make(void) { return (uint32_t)sim_backup_image(); }
+__attribute__((used, visibility("default"))) int web_backup_restore(uint32_t n)
+{
+    restore_rc = n > sizeof sim_img ? 3 : sim_restore_image(n);
+    if (!restore_rc)
+        store_writes++;                             /* (the page keeps the objects it is told changed) */
+    return restore_rc;
+}
+#endif
 
 #ifdef APP_WEB
 #include "web.c"                        /* the app's own exports for its page (app.h APP_WEB) */

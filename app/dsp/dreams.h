@@ -4,7 +4,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-enum { MD_TRACKS=6, MD_MODELS=15, MD_RATE=44100, MD_QUANTUM=64, MD_V13_BIOMES=109, MD_BIOMES=157, MD_TONE_PRESETS=352, MD_BLANK_BIOME=64, MD_STEPS=32 };
+enum { MD_TRACKS=6, MD_MODELS=15, MD_RATE=44100, MD_QUANTUM=64, MD_V13_BIOMES=109, MD_BIOMES=169, MD_TONE_PRESETS=364, MD_BLANK_BIOME=64, MD_STEPS=32 };
 enum { MD_KICK, MD_SNARE, MD_HAT, MD_FM, MD_VA, MD_RINGS, MD_HARMONIC, MD_CHOIR, MD_BASS, MD_ELEMENTS, MD_MELLOW, MD_SATIN, MD_VELVET_KEYS, MD_SPECTRAL, MD_BREATH };
 enum { MD_MODEL, MD_TONE, MD_HARM, MD_DECAY, MD_LEVEL, MD_SEND, MD_HITS,
  MD_LENGTH, MD_ROTATE, MD_PROB, MD_NOTE, MD_PAN, MD_MUTE, MD_SPEED,
@@ -39,9 +39,11 @@ void md_init(void);
 int md_command(int command,int track,int value);
 unsigned md_command_space(void);
 void md_midi(unsigned status,unsigned a,unsigned b,int port); /* audio owner only */
+void md_midi_lost(int port); /* release notes held by a disconnected transport */
 int md_clock_source(void);
 int md_midi_quantize(void);
 int md_midi_route(unsigned track); /* 0 = Off, 1..16 = channel */
+int md_midi_held_port(unsigned track); /* -1 for none; transport of the current held note */
 int md_midi_macro_enabled(void);
 void md_set_midi_route(unsigned track,unsigned channel); /* boot/restore with transport stopped */
 void md_set_midi_macro_enabled(int enabled);

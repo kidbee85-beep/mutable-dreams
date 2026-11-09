@@ -1,0 +1,10 @@
+# The headphone jack in the host simulator (tests/run_tests.sh, on the template's host build): plat_headphones
+# follows the script's jack in / jack out (the device's debounce is tests/hp_test.c's)
+wait 100
+expect headphones 0
+jack in
+expect headphones 1
+wait 50
+expect headphones 1
+jack out
+expect headphones 0

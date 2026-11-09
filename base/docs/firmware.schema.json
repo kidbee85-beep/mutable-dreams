@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/charlesvestal/fm1-base/blob/main/docs/firmware.schema.json",
+  "title": "firmware.json",
+  "description": "A firmware's description for firmware hubs, schema 1 (docs/FIRMWARE-JSON.md). Readers ignore keys they do not know; hubs keep their own data under keys starting with x-.",
+  "type": "object",
+  "required": ["schema", "id", "name"],
+  "properties": {
+    "schema": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]*$" },
+    "name": { "type": "string", "minLength": 1 },
+    "author": { "type": "string", "minLength": 1 },
+    "license": { "type": "string", "minLength": 1 },
+    "tagline": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1, "maxLength": 600, "pattern": "^[^\\n]*$" },
+    "tags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": ["synth", "drum-machine", "groovebox", "sequencer", "sampler", "controller", "midi", "chords",
+                 "arranger", "ambient", "generative", "fm", "game", "utility", "general-midi", "experimental"]
+      }
+    },
+    "install": { "type": "string", "pattern": "^https://" },
+    "site": { "type": "string", "pattern": "^https://" },
+    "source": { "type": "string", "pattern": "^https://" },
+    "screenshot": { "type": "string", "pattern": "^(?!(.*/)?\\.\\.?(/|$))[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*\\.png$" },
+    "hardware": {
+      "type": "object",
+      "properties": {
+        "models": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "flash": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[0-9A-F]{6}$" } },
+        "features": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": ["bluetooth-midi", "bluetooth-midi-devices", "bluetooth-audio", "usb-audio-in", "usb-audio-out",
+                     "usb-midi-host", "usb-disk", "wifi", "second-core", "velocity", "pressure", "screen-reader",
+                     "screen-mirror", "backup", "resources"]
+          }
+        }
+      },
+      "patternProperties": { "^x-": {} }
+    },
+    "credits": { "type": "string", "minLength": 1 }
+  },
+  "patternProperties": { "^x-": {} }
+}

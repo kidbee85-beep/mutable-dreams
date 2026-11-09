@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: MPL-2.0
+# The CPU clock test app's words for a screen reader: the text on the screen <TAB> what to say.
+# url: https://charlesvestal.github.io/fm1-base/words/
+KHZTEST	clock test

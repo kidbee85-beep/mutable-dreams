@@ -160,7 +160,7 @@ class FakeFM1:
 
 
 def fast():
-    I.DELAY.update(open=0, hs=0.1, retry=0.02)
+    I.DELAY.update(open=0, hs=0.1, hs_full=0.1, retry=0.02)
     B.DELAY.update(poll=0.02, idle=0.3, ask=0.5, first=0.3)
 
 
@@ -210,6 +210,25 @@ def main(img_path):
     ok(rc == 0 and dev.image == img and "done" in out.getvalue(), "restore: exit 0, the device holds the backup")
     ok(dev.req == (len(img), zlib.crc32(img)) and dev.asked == 1, "... the request: its size and CRC-32; asked once")
     ok("SEL yes" in out.getvalue(), "... the host says to answer on the FM-1")
+
+    # a file with the firmware's own sections (the web page's EXTRAS) after the backup's CRC-32
+    secs = [("LSMP", bytes(range(256)) * 9), ("ZZZZ", b"")]
+    withsec = B.join(img, secs)
+    ok(B.split(withsec) == (img, secs) and B.split(img) == (img, []), "split / join: the backup and its sections")
+    open(path + ".sec", "wb").write(withsec)
+    dev = FakeFM1(other)
+    out = io.StringIO()
+    rc = run(["restore", path + ".sec", "--yes"], dev, out=out)
+    ok(rc == 0 and dev.image == img and dev.req == (len(img), zlib.crc32(img)) and "LSMP, ZZZZ" in out.getvalue(),
+       "restore of a file with sections: the backup alone sent, the sections named")
+    out = io.StringIO()
+    ok(B.main(["info", path + ".sec"], out=out) == 0 and "section LSMP 2304 bytes" in out.getvalue(),
+       "info: the sections listed")
+    for cut, what in ((withsec[:-1], "cut short"), (withsec[:len(img) + 20] + bytes([withsec[len(img) + 20] ^ 1]) + withsec[len(img) + 21:], "damaged")):
+        open(path + ".secbad", "wb").write(cut)
+        dev = FakeFM1(other)
+        ok(run(["restore", path + ".secbad", "--yes"], dev) == 2 and dev.req is None,
+           f"a section {what}: refused (exit 2), nothing sent")
 
     dev = FakeFM1(other, playing=True)
     ok(run(["restore", path, "--yes"], dev) == B.EXIT["playing"] and dev.image == other,

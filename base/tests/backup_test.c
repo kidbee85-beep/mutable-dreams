@@ -23,12 +23,22 @@
 #define FELUCCA_ID "FM-1_1100"
 
 /* the app (its app.h) */
-enum { OBJ_PROJ, OBJ_PANEL, OBJ_SONGS, OBJ_PAT0, OBJ_NOBJ = OBJ_PAT0 + 16 };
+enum { OBJ_PROJ, OBJ_PANEL, OBJ_SONGS, OBJ_PAT0, OBJ_KEYS = OBJ_PAT0 + 16, OBJ_NOBJ };   /* KEYS: not backed up (the
+                                                * radio's, say): the pooled variant keeps it in the pool */
 #define APP_STORE_MAP {0xFC000u, 0xDC000u, 0x97000u, 0x99000u, 0x9B000u, 0x9D000u, 0x9F000u, 0xA1000u, 0xA3000u, \
-                       0xA5000u, 0xA7000u, 0xA9000u, 0xAB000u, 0xAD000u, 0xAF000u, 0xB1000u, 0xB3000u, 0xB5000u, 0xB7000u}
+                       0xA5000u, 0xA7000u, 0xA9000u, 0xAB000u, 0xAD000u, 0xAF000u, 0xB1000u, 0xB3000u, 0xB5000u, 0xB7000u, \
+                       0xB9000u}
 #define APP_BACKUP_OBJS {OBJ_PROJ, OBJ_SONGS, OBJ_PAT0, OBJ_PAT0 + 1, OBJ_PAT0 + 2, OBJ_PAT0 + 3, OBJ_PAT0 + 4, \
                          OBJ_PAT0 + 5, OBJ_PAT0 + 6, OBJ_PAT0 + 7, OBJ_PAT0 + 8, OBJ_PAT0 + 9, OBJ_PAT0 + 10, \
                          OBJ_PAT0 + 11, OBJ_PAT0 + 12, OBJ_PAT0 + 13, OBJ_PAT0 + 14, OBJ_PAT0 + 15}
+#ifdef BACKUP_TEST_POOL                 /* the same app with its songs and slots in a pool (storage.c APP_STORE_POOL) */
+#define APP_STORE_POOL
+#define APP_STORE_POOL_BASE 0x97000u
+#define APP_STORE_POOL_N 24u
+#define APP_STORE_POOL_OLD 34u
+#define APP_STORE_POOL_OBJ0 OBJ_SONGS
+#define APP_STORE_POOL_OBJN 18u             /* (the songs, 16 slots and KEYS) */
+#endif
 #define APP_BACKUP_MAGIC 0x42545354u     /* "TSTB" */
 #define APP_BACKUP_VERSION 3u
 
@@ -93,10 +103,18 @@ static void ota_show(uint32_t step, int32_t code) { (void)step; (void)code; }
 static void ota_commit(const uint8_t *parm) { (void)parm; }
 #include "../bsp/chip/ota.c"
 
+#ifdef BACKUP_TEST_APPBUF                /* the app lends its scratch buffer to a restore (plat.h APP_BACKUP_BUF) */
+#define APP_BACKUP_BUF app_io_buf
+uint8_t app_io_buf[ST_PAYLOAD_MAX] __attribute__((aligned(4)));
+#endif
 #include "../device/backup.c"
 
 static int in_store(uint32_t off, uint32_t n)     /* the 18 objects' sectors, the journal record's */
 {
+#ifdef APP_STORE_POOL
+    if (off >= APP_STORE_POOL_BASE && off + n <= APP_STORE_POOL_BASE + APP_STORE_POOL_OLD * ST_SECTOR)
+        return 1;
+#endif
     for (uint32_t i = 0; i < BU_NOBJ; i++) {
         uint32_t b = st_sector(bu_obj(i), 0);
         if (off >= b && off + n <= b + 2u * ST_SECTOR)
@@ -230,6 +248,9 @@ static int backup(int play)
     while (bu.on && passes < 100000) {
         frames_this_pass = 0;
         room = passes % 3 != 1;                   /* the ring busy now and then */
+#ifdef BACKUP_TEST_APPBUF
+        memset(app_io_buf, passes & 0xFF, sizeof app_io_buf);   /* the app's loads meanwhile: the stream needs none of it */
+#endif
         bu_step();
         if (frames_this_pass > 1)
             gap = 1;
@@ -254,6 +275,11 @@ int main(int argc, char **argv)
         st_erase(st_sector(bu_obj(i), 1));
     }
     st_erase(RS_REC);
+#ifdef APP_STORE_POOL
+    for (uint32_t i = 0; i < APP_STORE_POOL_OLD; i++)
+        st_erase(APP_STORE_POOL_BASE + i * ST_SECTOR);
+    st_pool_boot();
+#endif
     memset(nor + st_sector(OBJ_PANEL, 0), 0x33, sizeof panel_was);   /* the calibration: never touched */
     memcpy(panel_was, nor + st_sector(OBJ_PANEL, 0), sizeof panel_was);
 
@@ -340,6 +366,9 @@ int main(int argc, char **argv)
     save(OBJ_PAT0 + 15, 3840, 8);
     snap(&set_b);
     check("set B differs from A", !same(&set_a, &set_b));
+#ifdef APP_STORE_POOL
+    save(OBJ_KEYS, 200, 77);                      /* a pooled object the backup does not hold */
+#endif
 
     /* ---- refused, failed: nothing changes */
     playing = 1;
@@ -446,6 +475,14 @@ int main(int argc, char **argv)
                                                                reloads == 1 && begins == 1);
     check("... every object as backed up (the slot absent in A: absent)", same(&now, &set_a) && now.n[3] < 0);
     check("... the panel's calibration untouched", panel_same());
+#ifdef APP_STORE_POOL
+    {
+        uint8_t b[256], k[256];
+        fill(b, 200, 77);
+        check("... a pooled object the backup does not hold (the radio's keys): kept",
+              st_load(OBJ_KEYS, k, sizeof k) == 200 && !memcmp(k, b, 200));
+    }
+#endif
     check("... the journal record erased", nor[RS_REC] == 0xFF && nor[RS_REC + 299] == 0xFF);
     backup(0);
     check("... a backup of it is the image again", got_n == img_n && !memcmp(got, img, img_n));
@@ -484,6 +521,26 @@ int main(int argc, char **argv)
             }
             cut_at = -1;
             rs_boot();                            /* the next power-on */
+#ifdef APP_STORE_POOL
+            st_pool_scan = APP_STORE_POOL_OLD;
+            st_pool_boot();
+            snap(&now);
+            for (uint32_t i = 0; i < BU_NOBJ; i++)   /* each object whole: A's, B's or absent */
+                if (!(now.n[i] < 0 || (now.n[i] == set_a.n[i] && !memcmp(now.d[i], set_a.d[i], (size_t)now.n[i])) ||
+                      (now.n[i] == set_b.n[i] && !memcmp(now.d[i], set_b.d[i], (size_t)now.n[i]))))
+                    mixed++;
+            if (same(&now, &set_a))
+                n_new++;
+            else
+                n_old++;
+            answer = 1;                               /* restored again: the backup whole */
+            ops = 0;
+            if (restore() != 0)
+                mixed++;
+            snap(&now);
+            if (!same(&now, &set_a))
+                mixed++;
+#else
             snap(&now);
             if (same(&now, &set_a))
                 n_new++;
@@ -491,13 +548,18 @@ int main(int argc, char **argv)
                 n_old++;
             else
                 mixed++;
+#endif
             if (nor[RS_REC] != 0xFF)
                 mixed++;
         }
         cut_at = -1;
         printf("  %d flash writes a restore: cut before the record %d (old), after %d (new, finished at boot)\n", total,
                n_old, n_new);
+#ifdef APP_STORE_POOL
+        check("pool: a cut at each write: every object whole; restoring again gives the backup", !mixed && n_old);
+#else
         check("a power cut at each write: the old set or the new, whole, never a mix", !mixed && n_old && n_new);
+#endif
         check("... the panel's calibration untouched through all of it", panel_same());
     }
     printf("%s\n", fails ? "BACKUP TEST FAILED" : "backup test passed");

@@ -43,8 +43,9 @@ typedef OS_SEM OS_MUTEX;
 
 /* the platform (the firmware) */
 uint32_t shim_ms(void);
-uint32_t shim_irq_save(void);
-void shim_irq_restore(uint32_t f);
+uint32_t shim_irq_save(void);         /* interrupts off; nests. Returns whether they were on ... */
+void shim_irq_restore(uint32_t f);    /* ... and the outermost restore, given that, switches them on only if they
+                                       * were: safe inside an interrupt (the radio's take it), they stay off */
 int shim_in_irq(void);
 void shim_idle(void);                 /* the main loop has nothing to run: return soon */
 void shim_request_irq(int index, int prio, void (*handler)(void));

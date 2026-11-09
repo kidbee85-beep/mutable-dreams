@@ -1,0 +1,11 @@
+# The backup test app's build settings (tools/build.py): an app with backup = true, for the browser emulator's part
+# "backup" and the host simulator (tests/emu_backup_test.mjs, tests/backup_app/tests/backup.txt)
+name = "BKTEST"
+id_prefix = "FM-1_16"          # package identity: dev FM-1_1600
+usb_manufacturer = "fm1-base"
+usb_product = "BKTEST FM-1"
+o2 = []
+words = "words.tsv"
+licence = "MPL-2.0"
+backup = true
+backup_ext = "bkt"

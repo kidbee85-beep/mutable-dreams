@@ -5,14 +5,19 @@
 (X0X_DEBUG=1 ./build.sh; the commands are in firmware/src/app/editor.c and refuse anything outside
 a few register and RAM ranges). Needs mido with python-rtmidi.
 
-  fm1_debug.py peek ADDR [N]          N words (<= 16) from ADDR
-  fm1_debug.py poke ADDR VALUE        write a word, print it before and after
-  fm1_debug.py clock [ITERATIONS]     time a fixed loop against the 24 MHz timer (IRQs off)
+  fm1_debug.py [--port NAME] peek ADDR [N]          N words (<= 16) from ADDR
+  fm1_debug.py [--port NAME] poke ADDR VALUE        write a word, print it before and after
+  fm1_debug.py [--port NAME] clock [ITERATIONS]     time a fixed loop against the 24 MHz timer (IRQs off)
+
+--port: the FM-1's MIDI port (part of its name); else a port named after the FM-1 or X0X, or one that answers the
+screen reader's HELLO (tools/fm1ports.py).
 """
 import sys
 import time
 
 import mido
+
+import fm1ports
 
 HDR = [0x7D, 0x46, 0x4C]
 PEEK, POKE, CLOCK = 40, 41, 42
@@ -26,11 +31,15 @@ def r35(b, i):
     return sum(b[i + k] << (7 * k) for k in range(5)) & 0xFFFFFFFF
 
 
+PORT = None
+
+
 def ask(cmd, args, timeout=3.0):
-    name = next((n for n in mido.get_output_names() if "FM-1" in n or "X0X" in n), None)
-    if not name:
-        sys.exit("fm1_debug: no FM-1 MIDI port")
-    with mido.open_input(name) as i, mido.open_output(name) as o:
+    try:
+        i, o, _ = fm1ports.connect(PORT, names=("X0X",), mido=mido)
+    except LookupError as e:
+        sys.exit(f"fm1_debug: {e}")
+    with i, o:
         while i.poll():
             pass
         o.send(mido.Message("sysex", data=HDR + [cmd] + args))
@@ -46,7 +55,10 @@ def ask(cmd, args, timeout=3.0):
 
 
 def main():
+    global PORT
     a = sys.argv[1:]
+    if a[:1] == ["--port"] and len(a) > 1:
+        PORT, a = a[1], a[2:]
     if not a:
         sys.exit(__doc__)
     if a[0] == "peek":

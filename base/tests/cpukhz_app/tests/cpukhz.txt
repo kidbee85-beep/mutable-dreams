@@ -1,0 +1,7 @@
+# The CPU clock test app in the host simulator (tests/run_tests.sh): tools/build.py tests/cpukhz_app --host, then
+#   tests/cpukhz_app/build/host/khztest_host tests/cpukhz_app/tests/cpukhz.txt tests/cpukhz_app/build/host
+wait 300
+# the app's frames read plat_cpu_khz: the host has no clock to speak of (0, as an FM-1 whose clock is not the stock set-up)
+expect app_frames_read >0
+expect app_cpu_khz 0
+expect cpu_khz 0

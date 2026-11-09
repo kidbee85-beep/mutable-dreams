@@ -1,0 +1,6 @@
+# A power-on with a flash image (FM1B_FLASH=FILE in the environment, from tests/run_tests.sh): the template finds its
+# saved settings and the data area from the start
+#   FM1B_FLASH=template/build/host/flash2.bin template/build/host/template_host tests/flash_boot.txt template/build/host
+wait 600
+expect octave 2
+expect data.0x97000 0x12

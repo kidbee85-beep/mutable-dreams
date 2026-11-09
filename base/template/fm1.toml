@@ -12,3 +12,10 @@ tagline = "a starting point for FM-1 firmware"
 repo = "https://github.com/charlesvestal/fm1-base"
 licence = "MPL-2.0"
 credits = ""                   # a sentence for the installer's footer: what your firmware is built from
+# firmware.json, for firmware hubs (docs/FIRMWARE-JSON.md): the build writes it from these and the keys above
+author = "Charles Vestal"      # who made it
+description = "The smallest complete firmware for the FM-1, made to be copied. The keys play a simple voice with velocity and pressure, your settings save, MIDI goes in and out over USB and Bluetooth and comes in over TRS, and it works with a screen reader."
+tags = ["synth", "utility"]    # from the list in docs/FIRMWARE-JSON.md; the build refuses another
+install = "https://charlesvestal.github.io/fm1-base/install/"   # the page that installs it
+site = "https://charlesvestal.github.io/fm1-base/"
+screenshot = "docs/img/screen-playing.png"   # for the hubs' cards: a square PNG, at least 240 x 240, in your repository

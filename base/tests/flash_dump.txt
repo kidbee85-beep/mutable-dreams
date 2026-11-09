@@ -1,0 +1,16 @@
+# The whole flash out of the host simulator (flash_dump): the template's settings saved, a file in the data area, then
+# the 1 MiB image into OUTDIR. tests/run_tests.sh, then tests/flash_image_test.c reads it with device/storage.c and
+# tests/flash_load.txt puts it back in a new run:
+#   template/build/host/template_host tests/flash_dump.txt template/build/host
+wait 600
+expect octave 0
+tap OCT+
+wait 30
+tap OCT+
+wait 30
+expect octave 2
+tap SAVE
+wait 30
+expect store_writes 1
+data template/build/tests/data4.bin 0x97000
+flash_dump out:flash.bin

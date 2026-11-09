@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "id": "mutable-dreams",
+  "name": "Mutable Dreams",
+  "author": "Kid Bunka",
+  "license": "GPL-3.0-only",
+  "tagline": "Living sound worlds for the M-VAVE FM-1",
+  "description": "An open source FM-1 instrument for generative ambient music, rhythms and evolving soundscapes. Arrange freely assigned tracks, explore Biomes, shape synth voices and lo-fi kits, record sequences, and connect MIDI over USB, TRS or Bluetooth.",
+  "tags": [
+    "synth",
+    "groovebox",
+    "sequencer",
+    "sampler",
+    "midi",
+    "chords",
+    "ambient",
+    "generative"
+  ],
+  "install": "https://mutable-dreams.kidbee85.chatgpt.site/Mutable-Dreams-1.5-Install.html",
+  "site": "https://mutable-dreams.kidbee85.chatgpt.site/",
+  "source": "https://github.com/kidbee85-beep/mutable-dreams",
+  "screenshot": "docs/img/screen-1.5.png",
+  "hardware": {
+    "models": [
+      "FM-1"
+    ],
+    "flash": [
+      "856014",
+      "B36014"
+    ],
+    "features": [
+      "bluetooth-midi",
+      "usb-audio-in",
+      "backup"
+    ],
+    "compatibility_notes": "BLE peripheral reception tested; BLE central role, physical TRS input and UC25HQ80 installation await device tests."
+  },
+  "credits": "Created by Kid Bunka; inspired by the open source work of Mutable Instruments, built with fm1-base and felucca-bsp. Independent from Mutable Instruments and M-VAVE."
+}

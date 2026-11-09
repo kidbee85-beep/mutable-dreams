@@ -1,0 +1,74 @@
+# The USB host test app in the host simulator (tests/run_tests.sh): tools/build.py tests/usbh_app --host, then
+#   tests/usbh_app/build/host/usbhtest_host tests/usbh_app/tests/usbh.txt tests/usbh_app/build/host
+wait 300
+# boot: a device, the computer's notes in and out
+expect usbh 0
+midi 90 3C 64
+wait 20
+expect app_in 1
+expect_out USB 90 48 64
+expect_no_out USBH 90 48 64
+out
+# the port a host, nothing plugged in: looking, the computer's session ended once, its notes dropped
+tap SEL
+wait 50
+expect app_host 1
+expect usbh 1
+expect app_msg 1
+expect app_lost 1
+midi 90 3D 64
+wait 20
+expect app_in 1
+# a keyboard plugged in: connected after its enumeration, its name, its notes in, the app's out to it, none to a computer
+usbh plug Test_Keys_25
+wait 300
+expect usbh 2
+expect app_msg 3
+expect app_name 12
+usbh midi 90 40 64
+wait 20
+expect app_in 2
+expect usbh_in 1
+expect_out USBH 90 4C 64
+expect_no_out USB 90 4C 64
+expect usbh_out 1
+out
+usbh clock 4 10
+expect usbh_in 5
+# unplugged: lost (its notes to be released), looking again, no name
+usbh unplug
+wait 50
+expect usbh 1
+expect app_msg 6
+expect app_lost 2
+expect app_name 0
+# a stick with no MIDI: NO MIDI, never connected
+usbh plug Stick nomidi
+wait 300
+expect usbh 1
+expect app_msg 4
+usbh unplug
+# an output-only synth: connected, nothing comes in from it, the app's notes go to it
+usbh plug Synth out
+wait 300
+expect usbh 2
+usbh midi 90 41 64
+wait 20
+expect usbh_in 5
+# back to a device: the session ended, the computer again
+tap SEL
+wait 50
+expect usbh 0
+expect app_msg 2
+expect app_lost 3
+midi 90 3E 64
+wait 20
+expect app_in 3
+expect_out USB 90 4A 64
+# a restart while a host: every boot is a device
+tap SEL
+wait 50
+expect usbh 1
+reboot
+wait 300
+expect usbh 0

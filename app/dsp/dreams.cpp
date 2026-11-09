@@ -102,7 +102,7 @@ static float untilstep,duckenv;
 static int playing;
 static int clock_source,midi_quantize,clock_pulse;
 static unsigned clock_age,clock_last;static float clock_interval;
-static int held[6],sustain[6],midi_bank[6];
+static int held[6],held_port[6],sustain[6],midi_bank[6];
 static uint8_t midi_route[6],midi_macro_enabled;
 static float bend[6],bend_smooth[6],expression[6];
 struct Command { int c,t,v; };
@@ -137,7 +137,7 @@ static void reset_voice(unsigned i) {
  v->additive.Init(&a);v->additive.Reset();v->filter1.Init();v->filter2.Init();
  v->cut_smooth=patch.track[i].cutoff*.001f;v->res_smooth=patch.track[i].resonance*.001f;v->breath_phase=i*.137f;
  v->colour_tone=unit(patch.track[i].tone);v->colour_harm=unit(patch.track[i].harm);v->colour_shape=unit(patch.track[i].shape);
- v->expression_smooth=1;v->pan_smooth=unit(patch.track[i].pan);held[i]=-1;sustain[i]=0;bend[i]=bend_smooth[i]=0;expression[i]=1;
+ v->expression_smooth=1;v->pan_smooth=unit(patch.track[i].pan);held[i]=held_port[i]=-1;sustain[i]=0;bend[i]=bend_smooth[i]=0;expression[i]=1;
  v->model=patch.track[i].model;v->note=(float)patch.track[i].note;v->target_note=v->note;v->fade=0;v->velocity=.8f;
  memset(static_cast<void*>(&element_body[i]),0,sizeof(element_body[i]));element_body[i].Init();element_body[i].set_modulation_frequency(.5f/MD_RATE);element_body[i].set_modulation_offset(.25f);
  memset(static_cast<void*>(&element_strike[i]),0,sizeof(element_strike[i]));element_strike[i].Init();
@@ -155,7 +155,7 @@ static void scene(int id) {
  memset(&patch,0,sizeof patch);memcpy(&patch,&biome_bank[id].patch,sizeof(FactoryPatch));extension_defaults(patch);
  if(id!=MD_BLANK_BIOME){
   unsigned family=biome_bank[id].family;
-  int atlas_arch=id>=MD_V13_BIOMES?(id-MD_V13_BIOMES)%8:-1;
+  int atlas_arch=id>=MD_V13_BIOMES&&id<157?(id-MD_V13_BIOMES)%8:-1;
   bool ambient=family==0||family==1||(id>=65&&id<MD_V13_BIOMES)||atlas_arch==2||atlas_arch==5||atlas_arch==6;
   patch.fx_level=ambient?380:family==2||family==5||family==7?260:140;
   patch.reverb_time=ambient?640:450;patch.delay_fb=ambient?220:270;
@@ -185,7 +185,7 @@ static void scene(int id) {
   if(id>=101){patch.kit.enabled=1;static const int kit_banks[8]={0,1,2,3,4,0,3,4};patch.kit.bank=kit_banks[id-101];kit_pattern(patch.kit,(id-101)%4);patch.track[3].level=700;patch.track[3].send=280;patch.ext[3].reverb_send=150;patch.track[3].speed=1;}
   patch.chord_pattern=1+(id%3);patch.chord_bars=4;patch.chord_tracks=7;
  }
- if(id>=MD_V13_BIOMES){
+ if(id>=MD_V13_BIOMES&&id<157){
   const int arch=(id-MD_V13_BIOMES)%8,variation=(id-MD_V13_BIOMES)/8;
   if(arch==4){
    patch.kit.enabled=1;patch.kit.bank=variation%5;kit_pattern(patch.kit,variation%4);
@@ -211,6 +211,34 @@ static void scene(int id) {
     q.steps[k]={(uint8_t)(off<0?0:bound(md_quantize(patch.track[lead].note+off,patch.root,patch.scale),24,96)),
                 (uint8_t)(k==0?76:53+(k*3+variation)%22),100,(uint8_t)(64+(k*5)%31)};
    }
+  }
+ }
+ if(id>=157){
+  const int world=id-157;
+  bool quiet=world==1||world==6||world==11;
+  patch.fx_level=quiet?350:world==4||world==5||world==7||world==10?225:310;
+  patch.reverb_time=quiet?760:world==0||world==9?630:510;
+  // The independent echo has 16,384 samples (371 ms at 44.1 kHz). Keep every
+  // factory world inside its validated 40..350 ms window; an oversized delay
+  // would make the ring read position negative before the write head wraps.
+  patch.delay_ms=bound(60000/patch.tempo/2,40,350);
+  patch.delay_fb=quiet?250:world==0||world==8?310:210;
+  patch.grain_noise=world==3?70:world==4?55:world==11?35:0;
+  for(int i=0;i<6;i++){
+   md_extension &e=patch.ext[i];int model=patch.track[i].model;
+   e.reverb_send=model==MD_KICK||model==MD_BASS?60:quiet?420:world==5||world==7?140:270;
+   e.delay_send=model==MD_FM||model==MD_VELVET_KEYS||model==MD_RINGS?
+                (quiet?190:125):0;
+   if(quiet&&md_has_envelope(model)){e.tides=95+(i%3)*32;e.tides_rate=700+i*50;}
+  }
+  if(world==4){
+   patch.kit.enabled=1;patch.kit.bank=4;kit_pattern(patch.kit,2);
+   patch.track[3].level=690;patch.track[3].send=170;
+   patch.ext[3].reverb_send=100;
+  }
+  if(world==2||world==8||world==9){
+   patch.chord_pattern=world==2?6:world==8?7:8;
+   patch.chord_bars=4;patch.chord_tracks=world==8?0x23:0x15;
   }
  }
  clear_audio();for(int i=0;i<6;i++){reset_voice(i);}for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);
@@ -394,7 +422,7 @@ static void apply(Command e) {
  case MD_DELAY_FB:patch.delay_fb=bound(v,0,800);break;
  case MD_REVERB_TIME:patch.reverb_time=bound(v,0,850);break;
  case MD_FX_LEVEL:patch.fx_level=bound(v,0,1000);break;
- case MD_CLOCK_SOURCE:clock_source=bound(v,0,2);playing=0;record_mode=0;record_note=record_step=-1;clock_pulse=0;clock_age=clock_last=0;clock_interval=0;break;
+ case MD_CLOCK_SOURCE:clock_source=bound(v,0,3);playing=0;record_mode=0;record_note=record_step=-1;clock_pulse=0;clock_age=clock_last=0;clock_interval=0;break;
  case MD_MIDI_QUANTIZE:midi_quantize=!!v;break;
  case MD_BASS_MODE:patch.ext[i].bass_mode=bound(v,0,2);break;
  case MD_BASS_PATTERN:{static const int motifs[4][16]={{0,-1,0,-1,7,-1,0,-1,0,-1,3,-1,7,-1,10,-1},{0,0,-1,7,0,-1,3,-1,0,0,7,-1,10,-1,7,-1},{0,-1,-1,-1,0,-1,7,-1,3,-1,-1,-1,7,-1,5,-1},{0,-1,12,7,0,3,-1,7,0,-1,10,7,5,-1,3,-1}};patch.ext[i].pattern=bound(v,0,3);memcpy(patch.ext[i].notes,motifs[patch.ext[i].pattern],sizeof motifs[0]);break;}
@@ -713,7 +741,7 @@ static void quantum(float *lr,unsigned n) {
   if(melodic&&!v.attacking&&v.env<.000001f)v.active=0;
  }
  if(patch.kit.enabled)kit_mix(lr,send,delay_send,room_send,n);
- const float echo_feedback=unit(patch.delay_fb),room_decay=.45f+.5f*unit(patch.reverb_time),effect_return=unit(patch.fx_level),echo_target=patch.delay_ms*44.1f;
+ const float echo_feedback=unit(patch.delay_fb),room_decay=.45f+.5f*unit(patch.reverb_time),effect_return=unit(patch.fx_level),echo_target=fminf(16382.0f,patch.delay_ms*44.1f);
  unsigned maxgrains=patch.quality?4:2;
  for(unsigned k=0;k<n;k++) {
   float wet[2]={};
@@ -792,13 +820,15 @@ void md_init() {
 int md_clock_source(void){return clock_source;}
 int md_midi_quantize(void){return midi_quantize;}
 int md_midi_route(unsigned track){return track<6?midi_route[track]:0;}
+int md_midi_held_port(unsigned track){return track<6?held_port[track]:-1;}
 int md_midi_macro_enabled(void){return midi_macro_enabled;}
-void md_set_midi_route(unsigned track,unsigned channel){if(track>=6||channel>16||midi_route[track]==channel)return;midi_route[track]=channel;held[track]=-1;sustain[track]=0;voices[track].midi_gate=-1;}
+void md_set_midi_route(unsigned track,unsigned channel){if(track>=6||channel>16||midi_route[track]==channel)return;midi_route[track]=channel;held[track]=held_port[track]=-1;sustain[track]=0;voices[track].midi_gate=-1;}
 void md_set_midi_macro_enabled(int enabled){midi_macro_enabled=!!enabled;}
+void md_midi_lost(int port){for(unsigned i=0;i<6;i++)if(held_port[i]==port){held[i]=held_port[i]=-1;sustain[i]=0;voices[i].midi_gate=-1;}}
 void md_midi(unsigned st,unsigned a,unsigned b,int port){
  a&=127;b&=127;
  if(st>=0xf8){
-  if(!clock_source||port!=(clock_source==1?0:2))return;
+  if(!clock_source||port!=(clock_source==1?0:clock_source==2?2:1))return;
   if(st==0xfa){step=0;seqrng=patch.seed;clock_pulse=0;playing=1;clock_age=0;clock_last=stats.frames;clock_interval=0;memset(repeats,0,sizeof repeats);}
   else if(st==0xfb){playing=1;clock_age=0;}
   else if(st==0xfc){playing=0;record_mode=0;record_note=record_step=-1;memset(repeats,0,sizeof repeats);}
@@ -813,17 +843,17 @@ void md_midi(unsigned st,unsigned a,unsigned b,int port){
  if(midi_route[i]!=channel)continue;
  Voice &v=voices[i];
  if(patch.kit.enabled&&i==3){if(type==0x90&&b){kit_fire(kit_note(a),b/127.f);stats.events[3]++;if(record_mode&&record_track==3){unsigned at=record_mode==1?patch.kit.step:((step?step-1:0)/patch.track[3].speed)%patch.kit.length;patch.kit.gates[kit_note(a)]|=1u<<at;if(record_mode==1)patch.kit.step=(at+1)%patch.kit.length;}}else if(type==0xb0&&(a==120||a==123))kit_reset();if(type!=0xb0)continue;}
- if(type==0x90&&b){int note=midi_quantize?md_quantize(a,patch.root,patch.scale):bound(a,24,96);capture_note(i,bound(a,24,96),b/127.0f);fire(i,note,b/127.0f);held[i]=a;v.midi_gate=md_has_envelope(v.model)?1:0;}
- else if(type==0x80||(type==0x90&&!b)){capture_off(i,bound(a,24,96));if(held[i]==(int)a){held[i]=-1;if(!sustain[i])v.midi_gate=-1;}}
+ if(type==0x90&&b){int note=midi_quantize?md_quantize(a,patch.root,patch.scale):bound(a,24,96);capture_note(i,bound(a,24,96),b/127.0f);fire(i,note,b/127.0f);held[i]=a;held_port[i]=port;v.midi_gate=md_has_envelope(v.model)?1:0;}
+ else if(type==0x80||(type==0x90&&!b)){if(held[i]==(int)a&&held_port[i]==port){capture_off(i,bound(a,24,96));held[i]=-1;if(!sustain[i]){held_port[i]=-1;v.midi_gate=-1;}}}
  else if(type==0xc0){unsigned id=midi_bank[i]*128+a;if(id<MD_TONE_PRESETS)tone_preset(i,id);}
  else if(type==0xe0)bend[i]=((int)(a|(b<<7))-8192)*(2.0f/8192);
  else if(type==0xb0){int value=b*1000/127;
   if(a==0)midi_bank[i]=b;
   else if(a==32){} /* Only LSB zero supported; reserved, never a send. */
-  else if(a==121){expression[i]=1;bend[i]=0;sustain[i]=0;if(held[i]<0)v.midi_gate=-1;}
-  else if(a==64){sustain[i]=b>=64;if(!sustain[i]&&held[i]<0)v.midi_gate=-1;}
+  else if(a==121){expression[i]=1;bend[i]=0;sustain[i]=0;if(held[i]<0){held_port[i]=-1;v.midi_gate=-1;}}
+  else if(a==64){sustain[i]=b>=64;if(!sustain[i]&&held[i]<0){held_port[i]=-1;v.midi_gate=-1;}}
   else if(a==120)reset_voice(i);
-  else if(a==123){held[i]=-1;sustain[i]=0;v.midi_gate=-1;}
+  else if(a==123){held[i]=held_port[i]=-1;sustain[i]=0;v.midi_gate=-1;}
   else if(a==11)expression[i]=b/127.0f;
   else {int c=a==7?MD_LEVEL:a==10?MD_PAN:a==74?MD_CUTOFF:a==71?MD_RESONANCE:a==91?MD_REVERB_SEND:a==12?MD_DELAY_SEND:a==13?MD_SEND:a==5?MD_GLIDE:-1;if(c>=0)apply({c,(int)i,value});}
  }

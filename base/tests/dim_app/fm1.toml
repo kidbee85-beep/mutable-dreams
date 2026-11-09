@@ -1,0 +1,9 @@
+# The dim-levels test app's build settings (tools/build.py): an app that sets the dim lights' brightness (APP_DIM_LEVELS), for
+# tests/run_tests.sh in the host simulator (tests/dim_app/tests/dim.txt)
+name = "DIMTEST"
+id_prefix = "FM-1_14"          # package identity: dev FM-1_1400
+usb_manufacturer = "fm1-base"
+usb_product = "DIMTEST FM-1"
+o2 = []
+words = "words.tsv"
+licence = "MPL-2.0"

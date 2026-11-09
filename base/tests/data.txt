@@ -1,0 +1,24 @@
+# The simulated data area (host/plat_host.c, plat.h's windows) on the template's host build, from tests/run_tests.sh:
+#   template/build/host/template_host tests/data.txt template/build/host
+# template/build/tests/data4.bin: the four bytes 12 34 56 78 (run_tests.sh writes it). "data" puts a file at its
+# offset in any window, and plat_data reads it back there, not at another window's offset
+wait 50
+data template/build/tests/data4.bin 0x97000
+expect data.0x97000 0x12
+expect data.0x97003 0x78
+expect data.0x97004 0xFF
+expect data.0x93000 0xFF
+data template/build/tests/data4.bin 0x93000
+expect data.0x93000 0x12
+expect data.0x93003 0x78
+data template/build/tests/data4.bin 0xE5000
+expect data.0xE5001 0x34
+expect data.0xE5004 0xFF
+# a file is cut at its window's end: the last byte of the main area, the gap after it (the update's staging) untouched
+data template/build/tests/data4.bin 0xDFFFE
+expect data.0xDFFFE 0x12
+expect data.0xDFFFF 0x34
+expect data.0xE0000 -1
+# outside every window: nothing read there
+expect data.0x92FFF -1
+expect data.0xFC000 -1

@@ -1,0 +1,22 @@
+# The Bluetooth devices test app in the host simulator (tests/run_tests.sh): tools/build.py tests/peers_app --host,
+# then tests/peers_app/build/host/peertest_host tests/peers_app/tests/peers.txt tests/peers_app/build/host
+# Bluetooth up after a second, the stand-in device found half a second into the scan: nothing reported before
+wait 1200
+expect ble 2
+expect reports 0
+expect ble_dev 1
+# its reports, every 100 ms (the app connects after three): the BLE-MIDI service, its name, a random address, the rssi
+wait 600
+expect reports >2
+expect midi_reports >2
+expect peer_name_ok 1
+expect peer_rand 1
+expect peer_rssi 60
+# connected by its address: a wrong address is refused, the device connects in 0.3 s; no pairing, no keys
+expect connect_other_rc -1
+expect connect_rc 0
+wait 400
+expect ble_dev 4
+expect keys_seen 0
+expect device_fail 0
+expect device_flags 0

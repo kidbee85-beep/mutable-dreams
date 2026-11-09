@@ -435,6 +435,94 @@ for variation in range(6):
 assert len(tones)==352 and len(biomes)==157
 assert len({b['name'] for b in biomes})==len(biomes)
 
+# A new listening atlas. Published identifiers 0..156 are immutable: user
+# banks keep referring to the same factory scenes after an update. These
+# additions favour contrasting *ensembles*, density and register instead of
+# more subtle variations of the same six-voice template.
+listening_voices=[
+ ('Submerged Valve',8,130,210,270,5,750,420,2,35),
+ ('Frost Ribbon',13,850,710,410,550,990,710,1,390),
+ ('Felt Rhodes',12,310,470,350,80,690,560,1,130),
+ ('Reed Current',10,520,270,370,390,870,520,1,270),
+ ('Tidal Air',14,360,690,540,620,970,680,1,440),
+ ('Clay Vessel',9,220,310,240,0,620,610,1,80),
+ ('Hearth Choir',7,260,0,160,620,960,540,1,310),
+ ('Soft Voltage',11,550,410,410,210,780,570,2,180),
+ ('Amber Prisms',6,20,540,790,420,920,640,1,260),
+ ('Moss Wire',5,200,270,190,0,580,550,1,90),
+ ('Night Plectrum',3,150,234,500,30,620,570,1,110),
+ ('Low Meadow',4,190,500,350,440,930,510,2,330),
+]
+for name,model,tone,harm,shape,attack,decay,cutoff,fil,breathe in listening_voices:
+ tones.append(dict(id=len(tones),name=name,model=model,tone=tone,harm=harm,
+                   decay=decay,attack=attack,shape=shape,cutoff=cutoff,
+                   resonance=0,filter=fil,breathe=breathe))
+
+# name / family / six voice roles / tempo / root / scale / hits / clock dividers
+listening_worlds=[
+ ('Obsidian Tide',1,[8,8,0,10,2,14],72,2,3,[3,2,4,1,3,0],[2,4,1,8,2,8]),
+ ('Snowglass',2,[13,6,5,14,7,9],48,9,4,[1,1,1,0,1,1],[7,5,8,8,7,6]),
+ ('Ribbon Orchard',7,[12,10,7,5,14,8],94,5,2,[3,2,1,3,0,1],[2,4,8,3,8,4]),
+ ('Signal Marsh',5,[14,2,13,9,5,10],87,0,6,[2,7,1,3,2,0],[5,1,8,3,5,8]),
+ ('Night Hearth',9,[8,10,12,0,1,2],82,7,3,[2,1,2,4,2,5],[2,4,2,1,1,1]),
+ ('Clay Polymeter',6,[9,0,1,2,5,8],123,10,8,[3,4,2,7,3,1],[3,1,1,1,5,4]),
+ ('Breathing Vault',0,[10,7,13,14,8,6],43,3,5,[1,0,1,1,1,0],[8,8,7,6,8,8]),
+ ('Neon Moss',3,[0,8,11,2,3,10],132,0,1,[4,5,2,9,2,1],[1,1,2,1,4,8]),
+ ('Glass Wings',2,[5,6,3,12,9,7],76,5,10,[2,1,3,2,1,0],[3,5,4,3,7,8]),
+ ('Felt Labyrinth',7,[12,8,10,14,5,13],66,2,9,[3,2,1,0,2,1],[4,4,8,8,5,7]),
+ ('Earth Current',3,[8,0,8,2,4,9],118,0,1,[4,4,3,8,2,1],[1,1,2,1,4,6]),
+ ('White Coast',0,[14,7,6,13,10,5],39,7,5,[1,1,0,1,1,0],[8,7,8,6,8,8]),
+]
+assert len({row[0] for row in listening_worlds})==len(listening_worlds)
+assert not ({row[0] for row in listening_worlds} & {b['name'] for b in biomes})
+model_tones={m:[x['id'] for x in tones if x['model']==m] for m in range(15)}
+featured={m:[x['id'] for x in tones[352:] if x['model']==m] for m in range(15)}
+for j,(name,family,models,tempo,root,scale,hits,speeds) in enumerate(listening_worlds):
+ b=copy.deepcopy(biomes[0]);b.update(id=len(biomes),name=name,family=family,
+    tempo=tempo,root=root,scale=scale,seed=0x150000+j*1733,
+    # Engine subtracts sparse hits below 500 density. Keep the authored one-
+    # hit anchors audible on recall; the player can still make them rarer.
+    macro=[500,
+           [45,15,75,115,70,160,0,130,90,35,110,0][j],
+           [420,690,480,600,370,670,350,590,720,340,510,260][j],
+           [170,230,160,330,240,90,190,110,220,170,100,130][j]],
+    grain_size=620+(j%3)*50,grain_pos=170+j*43,feedback=120+(j%4)*28,
+    swing=90 if j in (4,5,7,10) else 0,
+    duck_source=0 if j in (4,5,7,10) else -1,
+    duck_amount=260 if j in (4,5,7,10) else 0,grain_pitch=0,reverse=0)
+ for i,model in enumerate(models):
+  ids=model_tones[model]
+  ix=featured[model][0] if featured[model] and (j+i)%3==0 else ids[(j*11+i*7)%len(ids)]
+  x=tones[ix];tr=b['tracks'][i];tr.update({k:x[k] for k in tone_fields})
+  tr.update(note=([30,36,48,55,67,72][i] if model==8 or j in (0,4,5,7,10)
+                  else [48,55,60,67,72,79][i])+root,
+            level=([460,290,170,170,100,95][i] if j in (4,5,7,10)
+                   else [330,230,190,160,140,110][i]),
+            send=65 if model in (0,8) else 190 if j in (4,5,7,10) else 340,
+            hits=hits[i],speed=speeds[i],length=[16,19,23,29,17,31][i]
+                if j in (1,3,6,8,9,11) else 16,
+            rotate=0 if i==0 else (i*3+j*2)%16,
+            prob=1000 if i==0 else 820+(j*17+i*11)%180,
+            pan=[500,320,680,260,740,550][i],ratchet=1,
+            accent=80 if j in (1,6,11) else 180)
+  if model>=3 and j in (1,2,3,6,8,9,11):
+   tr.update(attack=max(tr['attack'],[190,280,350,430,240,400][i]),
+             decay=max(tr['decay'],670))
+  if model==4:tr.update(level=min(tr['level'],200),tone=min(tr['tone'],360),cutoff=min(tr['cutoff'],620))
+  if model==3:tr.update(level=min(tr['level'],190),harm=234,shape=500)
+  if model==2:tr.update(level=min(tr['level'],160),cutoff=min(tr['cutoff'],770))
+  if model==8:tr.update(note=30+root+(i%2)*7,send=60,cutoff=min(tr['cutoff'],590))
+  # Rings and Velvet Keys can be much hotter than breath or low bass at the
+  # same fader value. Balance their foreground appearances explicitly.
+  if j==8 and i==0:tr['level']=250
+  if j==8 and i==2:tr['level']=160
+  if j==9 and i==0:tr['level']=240
+  if j in (1,6,11) and i>=3:tr['level']=min(tr['level'],95)
+  tr['rotate']%=tr['length']
+  b['tones'][i]=ix if all(tr[k]==x[k] for k in tone_fields) else -1
+ biomes.append(b)
+assert len(tones)==364 and len(biomes)==169
+
 # Curated wheel order changes navigation, never stored IDs. Alternate sonic
 # families and keep the six-voice signatures distinct at every adjacent step.
 def browse_score(prev,candidate,recent):
@@ -449,9 +537,10 @@ def browse_score(prev,candidate,recent):
 remaining=set(range(len(biomes)))-{0,1,2,3,64}
 browse_order=[0,1,2,3]
 while remaining:
- # Weave the new scenes through the old atlas so a new world appears quickly.
+ # Weave newly authored scenes through the old atlas so an obviously new
+ # world appears after the four familiar starting points.
  new_only=(len(browse_order)-4)%3==0
- candidates=[k for k in remaining if (k>=109)==new_only]
+ candidates=[k for k in remaining if (k>=157)==new_only]
  if not candidates:candidates=list(remaining)
  chosen=max(candidates,key=lambda k:(browse_score(browse_order[-1],k,browse_order),-k))
  browse_order.append(chosen);remaining.remove(chosen)
@@ -459,7 +548,7 @@ browse_order.append(64)
 assert sorted(browse_order)==list(range(len(biomes)))
 assert all([t['model'] for t in biomes[a]['tracks']]!=[t['model'] for t in biomes[b]['tracks']]
            for a,b in zip(browse_order,browse_order[1:]))
-catalog=dict(version='1.4 private development',families=family_names+['Your own world','Lo-Fi & Warmth'],family_short=family_short+['BLANK','LO-FI'],tone_fields=tone_fields,tones=tones,biomes=biomes,browse_order=browse_order)
+catalog=dict(version='private development',families=family_names+['Your own world','Lo-Fi & Warmth'],family_short=family_short+['BLANK','LO-FI'],tone_fields=tone_fields,tones=tones,biomes=biomes,browse_order=browse_order)
 (R/'presets/catalog.json').write_text(json.dumps(catalog,indent=2,ensure_ascii=False)+'\n')
 lines=['/* Generated by tools/generate_presets.py; MIT. Flash-resident factory atlas. */','struct TonePreset { const char *name; int32_t '+','.join(tone_fields)+'; };','static const TonePreset tone_bank[MD_TONE_PRESETS]={']
 for t in tones:lines.append('{'+json.dumps(t['name'])+','+','.join(str(t[k]) for k in tone_fields)+'},')

@@ -1,0 +1,48 @@
+# PLAT_XDATA2 (plat.h, fm1.toml xdata2 = true): the template's host build with FM1B_XDATA2=1, from tests/run_tests.sh:
+#   FM1B_XDATA2=1 tools/build.py template --host; template/build/host/template_host tests/data_xdata2.txt ...
+# The template keeps its settings pair at 0xFC000 / 0xFD000 (APP_STORE_MAP): those two sectors are refused, the third
+# (0xFE000) is the app's; key_mac (0xFF000) is outside every window
+wait 600
+expect data.0xFE000 0xFF
+data_erase 0xFE000
+expect data_rc 0
+data_write 0xFE000 A55A
+expect data_rc 0
+expect data.0xFE000 0xA5
+expect data.0xFE001 0x5A
+data_write 0xFE000 0F
+expect data.0xFE000 0x05
+data_write 0xFEFFF 00
+expect data_rc 0
+expect data.0xFEFFF 0x00
+# the store's own sectors: read in place as any window, never erased or written through plat_data
+expect data.0xFC000 0xFF
+data_erase 0xFC000
+expect data_rc -1
+data_erase 0xFD000
+expect data_rc -1
+data_write 0xFD800 00
+expect data_rc -1
+data_write 0xFDFFF 0000
+expect data_rc -1
+# the template's saves still go to its own pair
+tap OCT+
+wait 30
+tap SAVE
+wait 30
+expect store_writes 1
+# past the window: key_mac, and nothing across the third window's end
+expect data.0xFF000 -1
+data_write 0xFF000 00
+expect data_rc -1
+data_write 0xFEFFF 0000
+expect data_rc -1
+# across the third and the fourth windows: refused (a write stays in one window)
+data_write 0xFBFFF 0000
+expect data_rc -1
+data_erase 0xFB000
+expect data_rc 0
+# "data" puts a file in the fourth window too, cut at its end
+data template/build/tests/data4.bin 0xFEFFE
+expect data.0xFEFFE 0x12
+expect data.0xFEFFF 0x34

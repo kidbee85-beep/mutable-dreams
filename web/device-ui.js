@@ -31,7 +31,7 @@ function hardwarePost(m){
    if([1,2,3,4,5,9,11,14,15,22,23,24,28,29,37,38,39,40,41,42,44,46,47,48,49,50,51,54,55,56,57,58,94,122,123].includes(m.c)){
     hardwareParams.set(m.c+':'+m.t,[m.c,m.t,m.v]);if(!hardwareFlush)hardwareFlush=setTimeout(()=>flushHardwareParams().catch(deviceError),45);return;
    }
-   await flushHardwareParams();if((m.c>=100&&m.c<120)||m.c===124)await d.ui(m.c,m.t,m.v);else await d.command(m.c,m.t,m.v);
+   await flushHardwareParams();if(m.c>=100&&m.c<120)await d.ui(m.c,m.t,m.v);else await d.command(m.c,m.t,m.v);
   }else{
    await flushHardwareParams();
    if(m.type==='app'&&m.cmd==='page')await d.ui(100,0,m.v);
@@ -76,7 +76,7 @@ async function disconnectHardware(){
  $('device-connect').disabled=false;$('device-disconnect').disabled=true;$('device-backup').disabled=$('device-restore').disabled=true;
  $('power').disabled=browserWasReady;$('play').disabled=!ready;$('export-patch').disabled=$('import-patch').disabled=!ready;
  $('load-dev-example').disabled=!ready;$('midi-connect').disabled=false;$('midi-input').disabled=false;$('device-target').textContent='BROWSER';
- if(ctx&&browserWasReady)await ctx.resume();deviceMessage('Browser instrument selected. Hardware banks remain on the FM-1.');
+ if(ctx&&browserWasReady)await ctx.resume();deviceMessage('Browser instrument selected. Hardware banks remain on the FM-1.');if(page===30)macroUI();
 }
 $('device-connect').onclick=async()=>{
  if(hardwareDevice||hardwareBusy)return;
@@ -91,7 +91,7 @@ $('device-connect').onclick=async()=>{
   $('power').disabled=true;$('device-disconnect').disabled=false;$('device-backup').disabled=$('device-restore').disabled=false;
   $('play').disabled=$('export-patch').disabled=$('import-patch').disabled=false;$('load-dev-example').disabled=false;
   $('midi-connect').disabled=$('midi-input').disabled=true;$('device-target').textContent='LIVE FM-1';
-  deviceMessage('Connected to '+d.id+'. Listen through the FM-1. Controls edit its live patch; Save is explicit.');
+  deviceMessage('Connected to '+d.id+'. Listen through the FM-1. Controls edit its live patch; Save is explicit.');if(page===30)macroUI();
   await pollHardware();$('bank-name').value=values.bankName||'MY BIOME';hardwarePoll=setInterval(pollHardware,450);
  }catch(e){$('device-connect').disabled=false;deviceError(e);}
 };

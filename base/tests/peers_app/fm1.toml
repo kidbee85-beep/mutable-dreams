@@ -1,0 +1,12 @@
+# The Bluetooth devices test app's build settings (tools/build.py): an app with APP_BLE_PEERS on the own stack's
+# central, for tests/run_tests.sh in the host simulator (tests/peers_app/tests/peers.txt)
+name = "PEERTEST"
+id_prefix = "FM-1_17"          # package identity: dev FM-1_1700
+usb_manufacturer = "fm1-base"
+usb_product = "PEERTEST FM-1"
+o2 = []
+words = "words.tsv"
+ble = true
+ble_stack = "own"
+ble_central = true
+licence = "MPL-2.0"

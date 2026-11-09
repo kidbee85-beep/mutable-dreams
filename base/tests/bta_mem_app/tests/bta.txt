@@ -1,0 +1,51 @@
+# the same calls with the buffers lent by the app (bt_audio_mem = "app"): the block lent, not taken back while on
+wait 1200
+expect bta 3
+expect latency_ms -1
+expect mem_bytes 17728
+expect mem_take -1
+bta add A
+bta add B
+tap PLAY
+expect bta 1
+wait 1100
+expect bta 2
+expect found 2
+# found device 0 (A) connects, streams, is remembered
+tap SAVE
+wait 400
+expect bta 7
+expect bta_known 1
+expect out_device 1
+expect latency_ms 20
+# the output to the FM-1's own and back, the link kept
+tap FX
+wait 30
+expect out_device 0
+expect bta 7
+tap FX
+wait 30
+expect out_device 1
+# A leaves while streaming: lost, said once
+bta drop A
+wait 30
+expect lost 5
+expect bta 10
+# B through a scan: remembered first, A second; A reconnected (not around: no answer). A fresh scan lists B alone
+tap PLAY
+wait 1100
+expect found 1
+tap SAVE
+wait 400
+expect bta 7
+expect bta_known 2
+expect last_is_b 1
+tap OCT+
+wait 1100
+expect bta 10
+expect last_is_b 0
+tap REC
+tap OCT-
+wait 30
+expect bta_known 1
+expect last_is_b 1

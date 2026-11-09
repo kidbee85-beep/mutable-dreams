@@ -1,0 +1,18 @@
+# The template's build settings (tools/build.py)
+name = "BLE_OWN"              # APP_NAME is in app.h; this names the build's files
+id_prefix = "FM-1_11"          # package identity (each firmware its own): dev FM-1_1100, releases FM-1_11XXYYZZ
+usb_manufacturer = "fm1-base"
+usb_product = "TEMPLATE FM-1"
+o2 = []                        # separate units compiled at -O2 (an app's DSP)
+words = "words.tsv"
+ble = true                     # Bluetooth MIDI (--no-ble builds without it)
+ble_stack = "own"              # Optimist's own Bluetooth stack (bt/), no JieLi library
+ble_pairing = true             # pairing and an encrypted link (the bond kept)
+bt_audio = true                # Bluetooth audio out to headphones and speakers (A2DP)
+bt_log = true                  # the audio set-up step by step on the log (diagnostics)
+ble_central = true             # and connects to Bluetooth MIDI devices (one link at a time)
+# the site (tools/make_site.py, tools/publish_site.sh)
+tagline = "a starting point for FM-1 firmware"
+repo = "https://github.com/charlesvestal/fm1-base"
+licence = "MPL-2.0"
+credits = ""                   # a sentence for the installer's footer: what your firmware is built from

@@ -6,7 +6,12 @@
  * every boot, as the stock firmware does, unless the last radio run ended in a crash or a watchdog reset (then by
  * hand: plat_ble_start). WiFi's own part: wifi.c. Part of the unity build (unity.c). A short log and a crash note
  * survive a reset (plat_ble_log_line). */
+#if !FM1B_BLE_OWN
 #include "shim.h"
+#else
+void shim_log(const char *s);                     /* (the own stack has no shim: these are radio.c's, for both) */
+uint32_t shim_ms(void);
+#endif
 
 /* ---- the platform the shim asks for */
 /* milliseconds since boot, from TIMER4 (independent of the timer-5 tick). TIMER4 wraps every 2^32 / 24 MHz = 179 s,
@@ -29,31 +34,10 @@ uint32_t shim_ms(void)
     return r;
 }
 
-static volatile uint32_t shim_depth;
-uint32_t shim_off_max, shim_off_from;            /* the longest the stack kept interrupts off (us), and from where
-                                                  * (main_fm1.c's log reads and clears them) */
-static uint32_t shim_off_t0, shim_off_ra;
-uint32_t shim_irq_save(void)                     /* nests, unlike irq_save(): the shim calls itself */
-{
-    fm1_irq_off();
-    if (shim_depth == 0) {
-        shim_off_t0 = fm1_ticks();
-        shim_off_ra = (uint32_t)(uintptr_t)__builtin_return_address(0);
-    }
-    return shim_depth++;
-}
-void shim_irq_restore(uint32_t f)
-{
-    (void)f;
-    if (shim_depth && --shim_depth == 0) {
-        uint32_t us = (fm1_ticks() - shim_off_t0) / FM1_TICKS_PER_US;
-        if (us > shim_off_max) {
-            shim_off_max = us;
-            shim_off_from = shim_off_ra;
-        }
-        fm1_irq_on();
-    }
-}
+/* the shim's critical sections (shim_irq_save / shim_irq_restore: JieLi's local_irq_disable and the shim's own
+ * locks): they nest and restore the interrupts as they found them (shim_lock.c), so the radio's own interrupts can
+ * take them */
+#include "shim_lock.c"
 #if SHIM_WIFI
 /* the nesting is each task's own, as FreeRTOS keeps it: a task that waits inside a critical section must not leave
  * the interrupts off for the others (os.c switch_to; fm1-radio's) */
@@ -78,6 +62,7 @@ volatile uint32_t shim_isr_blocks;               /* waits refused in an interrup
  * whichever context we are in (btstack_init waits in the main loop's) */
 static void radio_stuck_check(void);
 static void (*radio_idle_hook)(void);             /* while every task waits: what must still be answered (USB) */
+#if !FM1B_BLE_OWN
 void shim_idle(void)
 {
     static uint8_t in;
@@ -95,6 +80,7 @@ void shim_idle(void)
         in = 0;
     }
 }
+#endif
 void shim_reboot(void) { fm1_reboot(); }
 /* the shim's delays (JieLi's delay_us and friends): from RAM, timed by TIMER4, nothing called */
 __attribute__((section(".ram_text"), noinline, used)) void shim_delay_us(uint32_t us) { fm1_busy_us_inl(us); }
@@ -192,6 +178,27 @@ static char *put_dec(char *b, uint32_t v)
     return b;
 }
 
+#include "fm1_rf_regs.h"
+/* the radio's calibration as it stands (both stacks): the TX LO trims, RX DC, the RX filter codes and the VCO
+ * bank, one log line each pair (docs/bt/RF-CALIBRATION.md §4.1: what a measurement of ours must match) */
+static void radio_cal_log(void)
+{
+    uint32_t v[FM1_RF_CAL_NREGS], i;
+    char b[40];
+    fm1_rf_cal_regs(v);
+    for (i = 0; i < FM1_RF_CAL_NREGS; i += 2u) {
+        b[0] = 'r'; b[1] = 'f'; b[2] = (char)('1' + i / 2u);   /* (rf1..rf7: the log folds lines that start alike) */
+        hex8(b + 3, FM1_RF_CAL_REGS[i] & 0xFFFFFu);
+        b[3] = ' ';
+        b[11] = ' ';
+        hex8(b + 12, v[i]);
+        b[20] = ' ';
+        hex8(b + 21, v[i + 1]);
+        b[29] = 0;
+        shim_log(b);
+    }
+}
+
 /* at boot: what ended the last run. The crash note: the fault's pc, vector and debug register, its
  * return address and how long Bluetooth had run, and the core's last four branches (ETM). */
 static uint8_t radio_last_bad;                      /* the last BT run ended in a crash or a watchdog reset */
@@ -232,7 +239,11 @@ static void radio_boot_note(void)
         b[37] = 0;
         shim_log(b);
     } else if (blog.running && (fm1_boot.p3_rst & 4u)) {
+#if FM1B_BLE_OWN
+        const uint32_t shim_task_now = 0;         /* (no tasks: the main loop's) */
+#else
         extern uint32_t shim_task_now;
+#endif
         static const char *const T[4] = {"main", "1", "2", "3"};
         char *q = b;
         const char *t = "reset by the watchdog: task ";
@@ -252,14 +263,22 @@ static void radio_boot_note(void)
 static void radio_clean_exit(void) { blog.running = 0; }
 
 /* the radio's address and pairing: the app's store object OBJ_BLE (app.h) */
+#ifdef APP_BLE_STORE
+#if !FM1B_BLE_OWN
+#error "APP_BLE_STORE: with the own stack only (fm1.toml ble_stack = \"own\"): JieLi's keeps its records in OBJ_BLE"
+#endif
+#else
 int shim_store_load(void *dst, uint32_t max) { return plat_store_load(OBJ_BLE, dst, max); }
 int shim_store_save(const void *src, uint32_t len) { return plat_store_save(OBJ_BLE, src, len); }
+#endif
 
+#if !FM1B_BLE_OWN
 extern int syscfg_read(uint16_t id, void *buf, uint16_t len);
 extern int syscfg_write(uint16_t id, void *buf, uint16_t len);
 /* the BT address: the one kept, or one made from the chip's unique data (the SDK's own fallback is
  * a random one, kept) */
-#define CFG_BT_MAC_ADDR 1                         /* include_lib/utils/syscfg/syscfg_id.h */
+#define CFG_BT_MAC_ADDR 1                         /* the shim's own syscfg record (ble/shim/misc.c; the SDK's id is 102,
+                                                   * but only the shim reads it): kept 1, the address every FM-1 has */
 const uint8_t *bt_get_mac_addr(void)
 {
     static uint8_t mac[6];
@@ -277,6 +296,31 @@ const uint8_t *bt_get_mac_addr(void)
     return mac;
 }
 
+/* the name it advertises (le_midi.c): "FM-1 " and four hex digits of this FM-1's own, Melodee's way, so two FM-1s on
+ * one computer are told apart. From the flash's unique ID: the same every start, update and firmware, and a wiped
+ * store; no ID (a part that does not answer), from the BT address */
+void ble_midi_name(char *name)
+{
+    static const char hex[] = "0123456789ABCDEF";
+    const uint8_t *u = plat_chip_uid();
+    uint32_t h = 2166136261u, i = 1;
+    while (u && i < 16u && u[i] == u[0])          /* all FF or all 0: no ID */
+        i++;
+    if (u && i < 16u) {
+        for (i = 0; i < 16u; i++)
+            h = (h ^ u[i]) * 16777619u;
+        h ^= h >> 16;
+    } else {
+        u = bt_get_mac_addr();
+        h = (uint32_t)u[4] << 8 | u[5];
+    }
+    name[0] = 'F', name[1] = 'M', name[2] = '-', name[3] = '1', name[4] = ' ';
+    for (i = 0; i < 4u; i++)
+        name[5 + i] = hex[h >> (12u - 4u * i) & 15u];
+    name[9] = 0;
+}
+#endif
+
 
 /* ---- a radio's start (Bluetooth's, WiFi's): its log, the render held while it calibrates */
 static uint32_t radio_t0;
@@ -284,6 +328,14 @@ static uint8_t radio_starting;                    /* started, not ready yet (rad
 /* BLE_MASK_AT_START: mask the input timer while the radio calibrates. fm1-ble needed it while the RF
  * trim ran from the flash (the real cause of its crashes, notes/06); with the trim in RAM it should
  * not be, and without it keys, USB and the screen do not pause when Bluetooth starts. */
+#if SHIM_WIFI                                     /* WiFi: its calibration undisturbed by the input timer and the
+                                                  * audio render (fm1-radio: a tester's FM-1 crashed in its TX
+                                                  * calibration with an interrupt taken; masked, the first join took
+                                                  * 15 s, not minutes). Keys, USB and the sound pause meanwhile */
+#define BLE_MASK_AT_START 1
+#define MASK_ALNK0_AT_START 1
+static void audio_silence(void);
+#endif
 #ifndef BLE_MASK_AT_START
 #define BLE_MASK_AT_START 0
 #endif
@@ -324,10 +376,17 @@ static void radio_begin(const char *what)
     {
         uint32_t f = irq_save();
         fm1_irq_mask(FM1_IRQ_TIMER5);
+#ifdef MASK_ALNK0_AT_START
+        audio_silence();                          /* (the DMA loops the buffer meanwhile) */
+        fm1_irq_mask(FM1_IRQ_ALNK0);
+#endif
         irq_restore(f);
         irqs_masked = 1;
     }
 #endif
+#if FM1B_BLE_OWN
+    (void)os_up;
+#else
     if (!os_up) {                                 /* the shim, once (both radios share it) */
         os_up = 1;
         shim_os_init();
@@ -336,6 +395,7 @@ static void radio_begin(const char *what)
         task_create(sys_timer_task, 0, "sys_timer");
 #endif
     }
+#endif
 }
 /* the main loop: the render back a second into the start once the radio is ready (or after 15 s), and the input
  * timer if it was masked */
@@ -355,9 +415,13 @@ static void radio_settle(int ready)
     irqs_masked = 0;
     f = irq_save();
     fm1_irq_unmask(FM1_IRQ_TIMER5);
+#ifdef MASK_ALNK0_AT_START
+    fm1_irq_unmask(FM1_IRQ_ALNK0);
+#endif
     irq_restore(f);
     shim_log(ready ? "irqs back: ready" : "irqs back: 15 s, not ready");
 }
+#if !FM1B_BLE_OWN
 extern void shim_os_dump(void);
 static void radio_stuck_check(void)               /* still starting after 3 s: say what each task waits for */
 {
@@ -368,106 +432,224 @@ static void radio_stuck_check(void)               /* still starting after 3 s: s
         shim_os_dump();
     }
 }
+#endif
 
 #if FM1B_BLE
 /* ---- Bluetooth MIDI */
 static volatile uint8_t ble_state;
 
 /* ---- MIDI both ways (ble/midi/le_midi.c); everything here runs in the main loop */
-extern int ble_midi_send_many(const uint32_t *pkts, const uint16_t *ms, int n);
-extern int ble_midi_connected(void);
+extern int ble_midi_send_many(int link, const uint32_t *pkts, const uint16_t *ms, int n);
+extern int ble_midi_connected(int link);
 static uint32_t ble_rx_count, ble_tx_count;
-static uint8_t ble_conn;                          /* ble_midi_connected(), as of the last poll */
+/* the links: 0 the computer's, 1 the device's (FM1B_BLE_CENTRAL); each with its out (plat.h TO_BLE_*) */
+#define BLINKS (1 + FM1B_BLE_CENTRAL)
+static const uint32_t BLE_TO[2] = {TO_BLE_HOST, TO_BLE_DEV};
+static uint8_t ble_conn;                          /* bit l: ble_midi_connected(l), as of the last poll */
 #define BQ 64u
 static uint32_t ble_in_q[BQ];
 static uint32_t bi_w, bi_r;
-void ble_midi_receive(uint32_t pkt)               /* from the stack (in ble_poll): for plat_midi_in */
+#if FM1B_BLE_MIDI_TIME
+/* fm1.toml ble_midi_time: every message goes in at once with the time it was sent, on plat_ticks24's clock (the own
+ * stack's ble_in_time, bt/ble/ble_time.c: the sender's own timestamps, the connection's bunching taken out), for
+ * plat_midi_in_t24; the transport is not held to the sender's time (ble_midi_receive, ble_transport: unused) */
+static uint32_t ble_in_t[BQ], ble_in_t_last;
+void ble_midi_receive_at(uint32_t pkt, uint32_t t24)   /* from the stack (in ble_poll): for plat_midi_in */
 {
     if (bi_w - bi_r < BQ) {
-        ble_in_q[bi_w % BQ] = pkt & ~0xF0u;
+        ble_in_q[bi_w % BQ] = pkt & ~0xE0u;
+        ble_in_t[bi_w % BQ] = t24;
         bi_w++;
         ble_rx_count++;
     }
 }
-static int ble_midi_in(uint32_t *pkt)
+#endif
+/* The transport (clock, start, continue, stop) by the sender's time: the radio bunches messages into its
+ * connection events (7.5..30 ms apart), so ticks would come in clumps and a sequencer stepping on them would clump
+ * too (LOOM-8 on a Mac's clock: its sixteenths 60..180 ms apart at 140 BPM, against 104..112 over USB). Each BLE
+ * MIDI message carries the millisecond it was sent (13 bits); the quickest one seen gives the two clocks' offset
+ * (a message can only be late), and each is let out at its sent time plus the lateness the link has lately had
+ * (at most BJ_MAX): spaced as sent, a constant delay later. The rest (notes, CCs ...) comes at once */
+#define BTQ 32u                                  /* (120 ms of ticks at 300 BPM: 15) */
+#define BJ_MAX 120u                              /* a DAW schedules its clock ahead (Logic, Live: ~100 ms) and macOS
+                                                  * sends each tick at once with its future time: they come up to
+                                                  * that much early; held to their times, the steps are as even as
+                                                  * over USB, a constant ~0.1 s later (a DAW's clock delay setting) */
+static struct { uint32_t pkt, due; } ble_tq[BTQ];
+static volatile uint32_t bt_w, bt_r;
+static uint32_t bj_base, bj_late, bj_t, bj_creep, bj_decay;
+static uint8_t bj_have, bj_ts_seen;
+uint32_t bj_ts_prev, bj_gap_min = 0xFFFFu, bj_gap_max, bj_gap_zero, bj_ticks, bj_rel_max;   /* (the log readout) */
+uint32_t ble_jitter_late(void) { return bj_late; }
+static void ble_transport(uint32_t pkt, uint32_t ts)
 {
-    if (bi_r == bi_w)
+    uint32_t now = shim_ms(), diff = (now - ts) & 8191u, rel;
+    if (!bj_have || now - bj_t > 2000u) {         /* the first, or after a pause: the offset afresh */
+        bj_base = diff;
+        bj_late = 0;
+        bj_creep = bj_decay = now;
+        bj_have = 1;
+    }
+    if ((pkt >> 8 & 0xFFu) == 0xF8u) {           /* (the log: the clock's sender gaps and lateness, since read) */
+        uint32_t g = (ts - bj_ts_prev) & 8191u;
+        if (bj_ts_seen && g < 1000u) {
+            if (g < bj_gap_min) bj_gap_min = g;
+            if (g > bj_gap_max) bj_gap_max = g;
+            if (g == 0u) bj_gap_zero++;
+        }
+        bj_ts_prev = ts;
+        bj_ts_seen = 1;
+        bj_ticks++;
+    }
+    bj_t = now;
+    if (now - bj_creep >= 1000u) {                /* (the two crystals drift: the offset may grow; a quicker one
+                                                   * sets it back at once) */
+        bj_base = (bj_base + 1u) & 8191u;
+        bj_creep = now;
+    }
+    rel = (diff - bj_base) & 8191u;
+    if (rel >= 4096u) {                           /* quicker than any yet: the offset */
+        bj_base = diff;
+        rel = 0;
+    }
+    if (rel > bj_rel_max)
+        bj_rel_max = rel;
+    if (rel > BJ_MAX)
+        rel = BJ_MAX;
+    if (rel > bj_late)
+        bj_late = rel;
+    else if (now - bj_decay >= 1000u && bj_late) {   /* (the lateness allowed shrinks again, a ms a second) */
+        bj_late--;
+        bj_decay = now;
+    }
+    if (bt_w - bt_r < BTQ) {
+        ble_tq[bt_w % BTQ].pkt = pkt & ~0xE0u;
+        ble_tq[bt_w % BTQ].due = now + (bj_late - rel);
+        __asm__ volatile("" ::: "memory");
+        bt_w++;
+        ble_rx_count++;
+    }
+}
+void ble_midi_receive(uint32_t pkt, uint32_t ts)  /* from the stack (in ble_poll): for plat_midi_in. The device's
+                                                   * packets carry cable 1, which tells them from the computer's */
+{
+    uint32_t st = pkt >> 8 & 0xFFu;
+    if (st == 0xF8u || st == 0xFAu || st == 0xFBu || st == 0xFCu) {
+        ble_transport(pkt, ts);
+        return;
+    }
+    if (bi_w - bi_r < BQ) {
+        ble_in_q[bi_w % BQ] = pkt & ~0xE0u;
+        bi_w++;
+        ble_rx_count++;
+    }
+}
+static int ble_midi_in(uint32_t *pkt, uint32_t *from)   /* from: its link's out, TO_BLE_HOST or TO_BLE_DEV */
+{
+    uint32_t p;
+    if (bt_r != bt_w && (int32_t)(shim_ms() - ble_tq[bt_r % BTQ].due) >= 0) {   /* the transport, when due */
+        p = ble_tq[bt_r % BTQ].pkt;
+        bt_r++;
+    } else if (bi_r == bi_w)
         return 0;
-    *pkt = ble_in_q[bi_r % BQ];
-    bi_r++;
+    else {
+        p = ble_in_q[bi_r % BQ];
+#if FM1B_BLE_MIDI_TIME
+        ble_in_t_last = ble_in_t[bi_r % BQ];
+#endif
+        bi_r++;
+    }
+    *from = (p >> 4 & 0xFu) == 1u ? TO_BLE_DEV : TO_BLE_HOST;
+    *pkt = p & ~0xF0u;
     return 1;
 }
 /* out: every message with the millisecond it was queued (fm1_ms), which goes with it as its BLE MIDI
  * timestamp. MIDI clock waits in its own short ring (a few ticks at most: later than that they are no
- * use) so a stream of clock never holds up notes; the drain merges the two in time order. */
-static uint32_t ble_out_q[BQ];
-static uint16_t ble_out_ms[BQ];
-static uint32_t bo_w, bo_r;
+ * use) so a stream of clock never holds up notes; the drain merges the two in time order. Each link has its
+ * own two, so a slow one holds up only itself. */
 #define BCQ 4u
-static uint16_t ble_clk_ms[BCQ];
-static volatile uint32_t bc_w, bc_r;
-static uint32_t ble_midi_out_room(void)          /* free slots in the out ring; 0: nobody listening */
+static struct ble_out {
+    uint32_t q[BQ];
+    uint16_t ms[BQ];
+    uint32_t w, r;
+    uint16_t clk_ms[BCQ];
+    volatile uint32_t cw, cr;
+} ble_out[BLINKS];
+static uint32_t ble_midi_out_room(uint32_t to)   /* free slots in the out rings of to's links: the fewest among
+                                                   * those listening; 0: none is */
 {
-    return ble_state == BLE_READY && ble_conn ? BQ - (bo_w - bo_r) : 0u;
+    uint32_t room = 0xFFFFFFFFu;
+    int l;
+    for (l = 0; l < BLINKS; l++)
+        if ((to & BLE_TO[l]) && (ble_conn >> l & 1u) && BQ - (ble_out[l].w - ble_out[l].r) < room)
+            room = BQ - (ble_out[l].w - ble_out[l].r);
+    return ble_state == BLE_READY && room != 0xFFFFFFFFu ? room : 0u;
 }
-static void ble_midi_tap(uint32_t pkt)            /* main loop (locked) or the tick; nothing queues for a central not there */
+static void ble_midi_tap(uint32_t pkt, uint32_t to)   /* main loop (locked) or the tick; nothing queues for a link
+                                                       * not there */
 {
     uint16_t ms = (uint16_t)(fm1_ms & 0x1FFFu);
-    if (ble_state != BLE_READY || !ble_conn)
+    int l;
+    if (ble_state != BLE_READY)
         return;
-    if (((pkt >> 8) & 0xFFu) == 0xF8u) {
-        if (bc_w - bc_r < BCQ) {
-            ble_clk_ms[bc_w % BCQ] = ms;
+    for (l = 0; l < BLINKS; l++) {
+        struct ble_out *o = &ble_out[l];
+        if (!(to & BLE_TO[l]) || !(ble_conn >> l & 1u))
+            continue;
+        if (((pkt >> 8) & 0xFFu) == 0xF8u) {
+            if (o->cw - o->cr < BCQ) {
+                o->clk_ms[o->cw % BCQ] = ms;
+                RING_PUBLISH();
+                o->cw++;
+            }
+        } else if (o->w - o->r < BQ) {
+            o->q[o->w % BQ] = pkt;
+            o->ms[o->w % BQ] = ms;
             RING_PUBLISH();
-            bc_w++;
+            o->w++;
         }
-        return;
-    }
-    if (bo_w - bo_r < BQ) {
-        ble_out_q[bo_w % BQ] = pkt;
-        ble_out_ms[bo_w % BQ] = ms;
-        RING_PUBLISH();
-        bo_w++;
     }
 }
 static int ms_before(uint16_t a, uint16_t b) { return ((uint32_t)(b - a) & 0x1FFFu) < 4096u && a != b; }
-static void ble_midi_drain(void)                  /* main loop: what waits, as many notifications as the stack takes */
+static void ble_midi_drain(int l)                 /* main loop: what waits for link l, as many notifications as the
+                                                   * stack takes */
 {
+    struct ble_out *o = &ble_out[l];
     int round;
     for (round = 0; round < 4; round++) {
         uint32_t pkts[16], n = 0, ni = 0, ci, nw, cw, sent, k;
         uint16_t ms[16];
         uint8_t is_clk[16];
         uint32_t f = plat_lock();                 /* a snapshot: the tick may add meanwhile */
-        nw = bo_w;
-        cw = bc_w;
+        nw = o->w;
+        cw = o->cw;
         plat_unlock(f);
-        ci = bc_r;
-        ni = bo_r;
+        ci = o->cr;
+        ni = o->r;
         while (n < 16u && (ni != nw || ci != cw)) {
-            int take_clk = ci != cw && (ni == nw || ms_before(ble_clk_ms[ci % BCQ], ble_out_ms[ni % BQ]));
+            int take_clk = ci != cw && (ni == nw || ms_before(o->clk_ms[ci % BCQ], o->ms[ni % BQ]));
             if (take_clk) {
                 pkts[n] = 0xFu | 0xF8u << 8;
-                ms[n] = ble_clk_ms[ci % BCQ];
+                ms[n] = o->clk_ms[ci % BCQ];
                 is_clk[n++] = 1;
                 ci++;
             } else {
-                pkts[n] = ble_out_q[ni % BQ];
-                ms[n] = ble_out_ms[ni % BQ];
+                pkts[n] = o->q[ni % BQ];
+                ms[n] = o->ms[ni % BQ];
                 is_clk[n++] = 0;
                 ni++;
             }
         }
         if (!n)
             return;
-        sent = (uint32_t)ble_midi_send_many(pkts, ms, (int)n);
+        sent = (uint32_t)ble_midi_send_many(l, pkts, ms, (int)n);
         if (!sent)
             return;                               /* the stack is full: what did not go stays for the next poll */
         for (k = 0; k < sent; k++) {
             if (is_clk[k])
-                bc_r++;
+                o->cr++;
             else
-                bo_r++;
+                o->r++;
         }
         RING_PUBLISH();
         ble_tx_count += sent;
@@ -475,6 +657,9 @@ static void ble_midi_drain(void)                  /* main loop: what waits, as m
 }
 
 /* ---- the stack */
+#if FM1B_BLE_OWN
+#include "bt_own.c"                               /* Optimist's own (bt/): no JieLi library, no shim */
+#else
 static volatile uint32_t ble_events;
 extern void btstack_init(void);
 extern void bt_ble_init(void);
@@ -492,15 +677,21 @@ void shim_bt_event(int from, const void *event, int len)
     (void)len;
     ble_events++;
     if (from == 3 && e && e->event == 3 && ble_state == BLE_STARTING) {   /* BT_EVENT_FROM_CON, BT_STATUS_INIT_OK */
-        shim_log("BT ready: advertising as FM-1");
+        {
+            char b[40] = "BT ready: advertising as ";
+            ble_midi_name(b + 25);
+            shim_log(b);
+        }
         {
             extern uint32_t shim_heap_peak;
+            extern const uint32_t shim_heap_size;
             char b[32] = "heap peak ", *q = put_dec(b + 10, shim_heap_peak);
             q[0] = ' '; q[1] = 'o'; q[2] = 'f'; q[3] = ' ';
-            put_dec(q + 4, 24u * 1024u);
+            put_dec(q + 4, shim_heap_size);
             shim_log(b);
         }
         bt_ble_init();
+        radio_cal_log();
         ble_state = BLE_READY;
     }
 }
@@ -525,16 +716,23 @@ static void ble_start(void)
 /* the main loop's turn: timers, then every BT task that can run */
 static void ble_poll(void)
 {
+    uint8_t conn = 0;
+    int l;
     if (ble_state == BLE_OFF)
         return;
     shim_timers();
     shim_run();
-    ble_conn = (uint8_t)(ble_state == BLE_READY && ble_midi_connected());
-    if (!ble_conn) {
-        bo_r = bo_w;                              /* a central gone: nothing stale for the next one */
-        bc_r = bc_w;
+    for (l = 0; l < BLINKS; l++)
+        if (ble_state == BLE_READY && ble_midi_connected(l))
+            conn |= (uint8_t)(1u << l);
+    ble_conn = conn;                              /* (once: the tick reads it) */
+    for (l = 0; l < BLINKS; l++) {
+        if (!(conn >> l & 1u)) {
+            ble_out[l].r = ble_out[l].w;          /* a link gone: nothing stale for the next one */
+            ble_out[l].cr = ble_out[l].cw;
+        }
+        ble_midi_drain(l);
     }
-    ble_midi_drain();
 #if FM1B_BLE_CENTRAL
     {
         extern void ble_midi_poll(void);
@@ -543,18 +741,34 @@ static void ble_poll(void)
 #endif
     radio_stuck_check();
     radio_settle(ble_state == BLE_READY);
-    {   /* ten seconds after it is ready, once: the tasks' deepest stack so far (sizing; 8 KiB each) */
-        static uint8_t said;
+    {   /* ten seconds after it is ready: the tasks' deepest stack so far (sizing; 8 KiB each), then again each
+         * time one goes deeper (a second at most between looks) */
+        static uint8_t said, deep[4];
+        static uint32_t looked, heap_said;
         extern int shim_stack_depth(int task);
-        if (ble_state == BLE_READY && !said && shim_ms() - radio_t0 > 10000u) {
-            char b[40] = "stacks ", *q = b + 7;
-            int k;
+        extern uint32_t shim_heap_peak;
+        int k, more = 0;
+        if (ble_state == BLE_READY && said && shim_ms() - looked > 1000u) {
+            looked = shim_ms();
+            for (k = 1; k <= 3; k++)
+                if (shim_stack_depth(k) > deep[k])
+                    more = 1;
+            if (shim_heap_peak > heap_said)
+                more = 1;
+        }
+        if (ble_state == BLE_READY && (more || (!said && shim_ms() - radio_t0 > 10000u))) {
+            char b[56] = "stacks ", *q = b + 7;
             said = 1;
+            looked = shim_ms();
+            for (k = 1; k <= 3; k++)
+                deep[k] = (uint8_t)shim_stack_depth(k);
             for (k = 1; k <= 3; k++) {
-                q = put_dec(q, (uint32_t)shim_stack_depth(k) * 256u);
-                *q++ = k < 3 ? ' ' : 0;
+                q = put_dec(q, (uint32_t)deep[k] * 256u);
+                *q++ = ' ';
             }
-            q[-1] = 0;
+            heap_said = shim_heap_peak;               /* (and the heap's most ever: its sizing) */
+            q[0] = 'h'; q[1] = 'e'; q[2] = 'a'; q[3] = 'p'; q[4] = ' ';
+            put_dec(q + 5, heap_said);
             shim_log(b);
         }
     }
@@ -568,6 +782,13 @@ static uint8_t ble_off;                           /* switched off by the player 
 int plat_ble_state(void) { return ble_off ? BLE_OFF : ble_state; }
 int plat_ble_connected(void) { return !ble_off && ble_state == BLE_READY && ble_midi_peripheral_connected(); }
 int plat_ble_linked(void) { return !ble_off && ble_state == BLE_READY && ble_midi_peripheral_linked(); }
+int plat_ble_stream(const struct plat_ble_stream *s) { (void)s; return 0; }   /* (send by plat_midi_send) */
+void plat_ble_link_info(uint32_t v[7])
+{
+    int i;
+    for (i = 0; i < 7; i++)
+        v[i] = 0;
+}
 void plat_ble_enable(int on)
 {
     ble_off = (uint8_t)!on;
@@ -597,14 +818,19 @@ void plat_ble_disconnect(void)
         ble_midi_disconnect();
 }
 int plat_ble_device(void) { return ble_state == BLE_READY ? ble_midi_central_state() : BLE_DEV_OFF; }
+int plat_ble_passkey(void) { return -1; }
+#include "ble_peers_none.c"
 #else
 void plat_ble_scan(int on) { (void)on; }
 int plat_ble_found(int i, char *name, int *rssi) { (void)i, (void)name, (void)rssi; return 0; }
 int plat_ble_connect(int i) { (void)i; return -1; }
 void plat_ble_disconnect(void) {}
 int plat_ble_device(void) { return BLE_DEV_OFF; }
+int plat_ble_passkey(void) { return -1; }
+#include "ble_peers_none.c"
 #endif
 void plat_ble_start(void) { ble_start(); }
+#endif                                            /* (FM1B_BLE_OWN) */
 #else
 #include "ble_none.c"
 #endif

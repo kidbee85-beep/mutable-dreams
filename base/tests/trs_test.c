@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <string.h>
 #define RING_PUBLISH() __asm__ volatile("" ::: "memory")
-static void fm1_delay_ms(uint32_t ms) { (void)ms; }
+#include "fm1_time.h"            /* fm1_delay_ms (not called here), FM1_TICKS_PER_US (FELUCCA_MIDI_STAMP) */
 #include "usb.c"
 #include "midi_uart.c"
 

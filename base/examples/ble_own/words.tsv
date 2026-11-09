@@ -1,0 +1,6 @@
+# SPDX-License-Identifier: MPL-2.0
+# The template's words for a screen reader (fm1-reader): the text on the screen <TAB> what to say.
+# url: https://charlesvestal.github.io/fm1-base/words/
+TEMPLATE	template
+K1 OCTAVE	knob 1, octave
+K2 WAVE	knob 2, wave

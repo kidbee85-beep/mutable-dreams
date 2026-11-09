@@ -1,0 +1,49 @@
+# plat_data_write clears bits in place (plat.h): each byte becomes the old AND the new, with no erase between, as the
+# device's NOR does. On the template's host build, from tests/run_tests.sh:
+#   template/build/host/template_host tests/data_bits.txt template/build/host
+wait 50
+data_erase 0x97000
+expect data_rc 0
+expect data.0x97000 0xFF
+# a state byte marked used, then dead, in place: 0xFF -> 0x7F -> 0x3F
+data_write 0x97000 7F
+expect data_rc 0
+expect data.0x97000 0x7F
+data_write 0x97000 3F
+expect data_rc 0
+expect data.0x97000 0x3F
+# a 1 over a 0 stays 0, and is no error (no read-back): 0x3F AND 0xF0 = 0x30
+data_write 0x97000 F0
+expect data_rc 0
+expect data.0x97000 0x30
+# a bitmap's bits taken one by one, the bytes beside untouched
+data_write 0x97001 FE
+data_write 0x97001 FC
+data_write 0x97001 F8
+expect data.0x97001 0xF8
+expect data.0x97002 0xFF
+# a run of bytes over written ones: ANDed byte by byte
+data_write 0x97010 F00F55AA
+data_write 0x97010 0FF0FF0F
+expect data.0x97010 0x00
+expect data.0x97011 0x00
+expect data.0x97012 0x55
+expect data.0x97013 0x0A
+# only an erase sets bits again, the whole sector
+data_erase 0x97000
+expect data.0x97000 0xFF
+expect data.0x97013 0xFF
+# in each window the same (XDATA0, XDATA1)
+data_write 0x93F00 81
+data_write 0x93F00 18
+expect data.0x93F00 0x00
+data_write 0xE5000 C3
+data_write 0xE5000 3C
+expect data.0xE5000 0x00
+# outside the windows: refused, nothing written
+data_write 0xE0000 00
+expect data_rc -1
+data_erase 0x97800
+expect data_rc -1
+data_write 0x97000 ZZ
+expect data_rc -2

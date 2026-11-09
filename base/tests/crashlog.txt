@@ -1,0 +1,66 @@
+# The crash history (device/crashlog.c) in the host simulator, on the template: crashes, restarts and power-offs, and
+# the history's request (F0 7D 4C 48 F7: a frame a record, then "end N") and its clear (F0 7D 4C 48 43 4C 52 F7).
+# tests/crashlog_host_test.py reads the same frames with tools/fm1_remote.py's parser
+sysex_log out:crashlog_frames.bin
+wait 200
+expect crashes 0
+expect crash_count 0
+sysex F0 7D 4C 48 F7
+wait 20
+# "end 0": none, an answer all the same
+expect_sysex F0 7D 4C 48 65 6E 64 20 30 F7
+sysex_out
+# a crash at 1.2 s: the restart keeps .noinit, the boot keeps it in flash
+wait 1000
+crash 02011000 3
+expect crash_boot_rc 1
+expect crashes 1
+expect crash_count 1
+# a restart on purpose (.noinit kept): the same crash is not kept twice
+reboot
+expect crash_boot_rc 0
+expect crashes 1
+wait 500
+crash 02012000 5
+expect crashes 2
+expect crash_count 2
+# a power-off: .noinit lost, the flash kept; the next crash is count 1 again, and kept
+power
+expect crash_count 0
+expect crash_boot_rc 0
+expect crashes 2
+wait 300
+crash 02013000 3
+expect crash_count 1
+expect crash_boot_rc 1
+expect crashes 3
+# a crash while the boot was saving one: that boot keeps nothing (no loop), the next crash is kept
+crash_in_save 02014000 3
+expect crash_boot_rc <0
+expect crashes 3
+crash 02015000 3
+expect crash_boot_rc 1
+expect crashes 4
+power
+expect crashes 4
+sysex F0 7D 4C 48 F7
+wait 20
+# "end 4"
+expect_sysex F0 7D 4C 48 65 6E 64 20 34 F7
+sysex_out
+# the flash image keeps the history: dumped, and power-on with it again
+flash_dump out:crashlog_flash.bin
+# the clear answers "cleared"; then "end 0"
+sysex F0 7D 4C 48 43 4C 52 F7
+wait 20
+expect_sysex F0 7D 4C 48 63 6C 65 61 72 65 64 F7
+expect crashes 0
+sysex F0 7D 4C 48 F7
+wait 20
+expect_sysex F0 7D 4C 48 65 6E 64 20 30 F7
+# a boot never clears it: power, crash, power, power
+crash 02016000 3
+power
+power
+expect crashes 1
+sysex_log off

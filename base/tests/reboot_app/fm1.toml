@@ -1,0 +1,9 @@
+# The restart test app's build settings (tools/build.py): an app that restarts the FM-1 (APP_RESTART) and saves an object, for
+# the browser emulator's part "reboot" (tests/emu_reboot_test.mjs)
+name = "RBTEST"
+id_prefix = "FM-1_15"          # package identity: dev FM-1_1500
+usb_manufacturer = "fm1-base"
+usb_product = "RBTEST FM-1"
+o2 = []
+words = "words.tsv"
+licence = "MPL-2.0"

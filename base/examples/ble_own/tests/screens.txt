@@ -1,0 +1,16 @@
+# The manual's screenshots (template/docs/img): tools/build.py template --host, then
+#   template/build/host/template_host template/tests/screens.txt template/docs/img
+wait 900
+shot screen-ready.png
+key 7 down 90 50
+press FX
+turn K3 3
+wait 1400
+shot screen-playing.png
+release FX
+key 7 up
+tap OCT+
+wait 30
+turn PRESET 1
+wait 30
+shot screen-settings.png

@@ -1,0 +1,13 @@
+tap HOME
+wait 300
+scene 164
+wait 300
+shot live-neon-moss.png
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+tap GLO
+expect page 30
+shot wireless-midi.png

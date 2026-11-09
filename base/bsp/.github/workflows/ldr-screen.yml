@@ -1,0 +1,19 @@
+name: Update loader screen test
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  ldr-screen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: The update loader's screen on a model of the panel, the fast install's table check
+        env:
+          CC: clang
+        run: tests/run_ldr_screen_test.sh
+      - name: Where the update loader erases and programs (every install path, power cuts, hostile packages and hosts)
+        env:
+          CC: clang
+        run: tests/run_ldr_bounds_test.sh

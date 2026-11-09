@@ -282,7 +282,7 @@ extern void dns_set_server(unsigned int *dnsserver);
 */
 //#define LWIP_NOASSERT
 
-#define LWIP_DEBUG  1
+/* #define LWIP_DEBUG  1   FM-1: off: every packet formatted a log line (flash, time, the log ring full of it) */
 
 #ifdef LWIP_DEBUG
 

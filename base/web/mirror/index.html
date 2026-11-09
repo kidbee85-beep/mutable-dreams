@@ -2,7 +2,8 @@
 <!-- SPDX-License-Identifier: MPL-2.0
      Copyright (C) 2026 Charles Vestal
      The screen mirror (device/mirror.c, fm1.toml mirror = true): the FM-1's screen and panel live in the browser, and
-     the panel played from it (Control). From Polly's. tools/make_site.py fills in the firmware's name ({{...}}). The
+     the panel played from it (Control). From Polly's. tools/make_site.py fills in the firmware's name and the panel's
+     drawing, web/fm1panel.js ({{...}}). The
      part between the "decoder" markers is what tests/mirror_test.mjs runs in Node. -->
 <html lang="en">
 <head>
@@ -59,14 +60,11 @@ a { color: var(--accent-ink); }
 .controlling .device svg { touch-action: none; }
 .device canvas { position: absolute; left: 31.8%; top: 9.6875%; width: 20%; height: 31.25%; background: #000; border-radius: 2px; }
 .btnface, .keyface { transition: fill .06s, stroke .06s; }
-.lit .btnface { fill: #f28a5a; }
-.lit.green .btnface { fill: #4cc36a; }
-.lit text.btn { fill: #2a140a; }
+.lit.green .btnface { fill: #4cc36a; }                 /* (the lit and dim colours: fm1panel.js's --panel-*) */
+.dim.green .btnface { fill: #2f5a3a; }
 .held .btnface, .held .keyface { stroke: #4cc3b6; stroke-width: 4; }
 .held .btnface { fill: #3c5f5b; }
-.held.lit .btnface { fill: #f28a5a; }
-.lit .keyface.white { fill: #f6b48e; }
-.lit .keyface.black { fill: #4cc3b6; }
+.held.lit .btnface { fill: var(--panel-lit, #f28a5a); }
 .held .keyface.white { fill: #b9ddd8; }
 .held .keyface.black { fill: #8fd6ce; }
 .ring { fill: none; stroke: #f28a5a; stroke-width: 5; opacity: 0; }
@@ -131,7 +129,7 @@ a { color: var(--accent-ink); }
   </div>
   <div>
     <h2>What you see</h2>
-    <p>The screen updates as {{NAME}} draws it. Buttons and keys light up as their LEDs do. Held ones are outlined in teal.
+    <p>The screen updates as {{NAME}} draws it. Buttons and keys light up as their LEDs do, bright or glowing. Held ones are outlined in teal.
       A knob you turn flashes and shows its steps. If you unplug the FM-1 or it sleeps, the page waits and reconnects.</p>
   </div>
   <div>
@@ -243,7 +241,8 @@ function createMirror(on = {}) {
       const lit = b[15] | b[16] << 8;
       stats.inputs++;
       on.input?.({ buttons: b[0] | b[1] << 8, keys: u32(2), enc: Array.from(b.slice(6, 13), (v) => (v << 24) >> 24),
-                   master: b[13] | b[14] << 8, litButtons: lit & 0x7FFF, playRed: !!(lit & 0x8000), litKeys: u32(17) });
+                   master: b[13] | b[14] << 8, litButtons: lit & 0x7FFF, playRed: !!(lit & 0x8000), litKeys: u32(17),
+                   dimButtons: n >= 27 ? b[21] | b[22] << 8 : 0, dimKeys: n >= 27 ? u32(23) : 0 });   // (version 4)
     } else if (cmd === MR_REQ && n >= 4) {
       on.hello?.({ version: b[0], on: !!b[1], w: b[2] + 1, h: b[3] + 1 });
     } else if (cmd === MR_REMOTE && n >= 3) {
@@ -264,82 +263,56 @@ function createMirror(on = {}) {
 }
 // --- decoder: end ---
 
+// --- ports: begin (tests/mirror_ports_test.mjs runs this part in Node) ---
+// finding FM-1s on Web MIDI: web/fm1ports.js, inlined by tools/make_site.py
+{{PORTS_JS}}
+// The ports the page takes by itself. The mirror's requests are fm1-base's own SysEx, so they never go to other gear:
+// only to a port named after the firmware or with an FM-1's usual name (fm1ports.js PORT_NAMES, but the update
+// loader's "ota": it mirrors nothing), the one the user picked (saved), or one that answered the screen reader's HELLO
+// (every fm1-base firmware does, whatever its port is called)
+function mirrorPorts(name) {
+  const nameRe = new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+  const usual = PORT_NAMES.filter((n) => n !== "ota");
+  const askable = (n, heard) => nameRe.test(n || "") || usualName(n, usual) || heard.has(n);
+  // the pair to mirror: the saved one ({ in, out }: port names), else one named after the firmware, else one with a
+  // usual name, else one that answered a HELLO (heard: their names) -> { input, output }, or null
+  function choose(access, saved = {}, heard = new Set()) {
+    const ins = livePorts(access.inputs), outs = livePorts(access.outputs);
+    const input = ins.find((p) => saved.in && p.name === saved.in) || ins.find((p) => nameRe.test(p.name || "")) ||
+      ins.find((p) => usualName(p.name, usual)) || ins.find((p) => heard.has(p.name));
+    if (!input) return null;
+    const output = (input.name === saved.in && outs.find((o) => saved.out && o.name === saved.out)) || outputFor(access, input);
+    return output ? { input, output } : null;
+  }
+  // the other ports asked for a HELLO, each output at most asking.tries times while it stays plugged in (asking: an
+  // Asking) -> the pair that answered (one named after the firmware first), its name added to heard; or null
+  async function seek(access, asking, heard, ms = 500) {
+    for (let t = 0; t < asking.tries; t++) {
+      const outs = new Set();
+      const want = new Set(pairs(access).filter((p) => !askable(p.name, heard) &&
+        (outs.has(p.output) || (outs.add(p.output), asking.due(p.output)))).map((p) => p.name));
+      if (!want.size) return null;
+      const got = await askAll(access, { ms, tries: 1, skip: (n) => !want.has(n) });
+      const g = got.find((x) => nameRe.test(x.firmware)) || got[0];
+      if (g) { heard.add(g.name); return { input: g.input, output: g.output, firmware: g.firmware }; }
+    }
+    return null;
+  }
+  return { askable, choose, seek };
+}
+// --- ports: end ---
+
 if (typeof document !== "undefined") {
 const NAME = "{{NAME}}", SLUG = NAME.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-const NAME_RE = new RegExp(NAME.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
-// ---------------------------------------------------------------- the panel (web/emu's drawing)
-const NS = "http://www.w3.org/2000/svg";
-const BTN = { FX: 0, SEL: 1, ENV: 2, LFO: 3, EDIT: 4, GLO: 5, HOME: 6, SAVE: 7, ARP: 8, SEQ: 9, PLAY: 10, REC: 11, "OCT-": 12, "OCT+": 13 };
-const ENC = { SELECT: 0, ALGORITHM: 1, PRESETS: 2, KNOB1: 3, KNOB2: 4, KNOB3: 5, KNOB4: 6 };
-const WHITE_K = [0, 2, 4, 6, 7, 9, 11, 12, 14, 16, 18, 19, 21, 23, 24, 26];
-const BLACK_K = [1, 3, 5, 8, 10, 13, 15, 17, 20, 22, 25];
-const BLACK_AFTER = [0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 14];
-const BODY = "#3a3d42", TRAY = "#26282c", KEY_W = "#d9dadc", KEY_B = "#c9cacd", KNOB = "#1f2124", BTNC = "#2e3135", LABEL = "#e8e8ea";
-const svg = document.getElementById("panel");
-function el(tag, attrs, parent = svg) {
-  const e = document.createElementNS(NS, tag);
-  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
-  parent.appendChild(e);
-  return e;
+// ---------------------------------------------------------------- the panel: fm1-base's web/fm1panel.js (the emulator's too)
+{{PANEL_JS}}
+const BTN = PANEL_BTN, ENC = PANEL_ENC;
+const svg = document.getElementById("panel"), panel = fm1Panel(svg);
+const knobs = panel.knobs, byRole = panel.byRole, buttons = panel.buttons, keys = panel.keys;
+for (const k of Object.values(knobs)) {                // a turn's feedback: the ring pulses, the steps rise beside it
+  k.delta = panel.el("text", { x: k.x + k.r + 14, y: k.y + 8, class: "delta", "text-anchor": "start" }, k.g);
+  k.sum = k.t = 0;
 }
-function text(parent, x, y, s, size, fill = LABEL) {
-  const t = el("text", { x, y, "text-anchor": "middle", "font-family": "'Barlow Semi Condensed', 'Arial Narrow', Arial, sans-serif",
-                         "font-size": size, "font-weight": 600, fill, "letter-spacing": ".05em", class: "btn" }, parent);
-  t.textContent = s;
-  return t;
-}
-el("rect", { x: 4, y: 4, width: 992, height: 632, rx: 44, fill: BODY });
-const knobs = {}, byRole = [];
-function knob(x, y, r, label, role) {
-  const g = el("g", {});
-  el("circle", { cx: x, cy: y, r: r + 5, fill: TRAY }, g);
-  const ring = el("circle", { cx: x, cy: y, r: r + 9, class: "ring" }, g);
-  el("circle", { cx: x, cy: y, r, fill: KNOB, stroke: "#44474c", "stroke-width": 2, class: "knobface" }, g);
-  const ind = el("line", { x1: x, y1: y - r + 5, x2: x, y2: y - r + 15, stroke: LABEL, "stroke-width": 3, "stroke-linecap": "round" }, g);
-  text(g, x, y - r - 12, label, 17);
-  const delta = el("text", { x: x + r + 14, y: y + 8, class: "delta", "text-anchor": "start" }, g);
-  const k = { g, ind, ring, delta, x, y, angle: 0, sum: 0, t: 0, label };
-  knobs[label] = k;
-  if (role !== undefined) byRole[role] = k;
-  return k;
-}
-knob(105, 100, 24, "MASTER");
-knob(215, 100, 24, "SELECT", ENC.SELECT);
-knob(105, 205, 24, "PRESETS", ENC.PRESETS);
-knob(215, 205, 24, "ALGORITHM", ENC.ALGORITHM);
-for (let i = 0; i < 4; i++) knob(610 + i * 104, 100, 22, `KNOB${i + 1}`, ENC[`KNOB${i + 1}`]);
-const buttons = [];
-function button(x, y, w, h, label, two) {
-  const g = el("g", {});
-  el("rect", { x, y, width: w, height: h, rx: 9, fill: BTNC, stroke: "#4a4d52", "stroke-width": 1.5, class: "btnface" }, g);
-  if (two) { text(g, x + w / 2, y + h / 2 - 1, label, 12); text(g, x + w / 2, y + h / 2 + 12, two, 12); }
-  else text(g, x + w / 2, y + h / 2 + 5, label, 15);
-  buttons[BTN[label]] = { g, label: two ? `${label} ${two}` : label };
-}
-el("rect", { x: 58, y: 258, width: 210, height: 58, rx: 14, fill: TRAY });
-button(72, 268, 82, 38, "OCT-"); button(170, 268, 82, 38, "OCT+");
-el("rect", { x: 300, y: 44, width: 236, height: 236, rx: 26, fill: "#111214" });
-el("rect", { x: 568, y: 160, width: 400, height: 140, rx: 18, fill: TRAY });
-const ROW1 = ["FX", "SEL", "ENV", "LFO", "EDIT", "GLO"], ROW2 = ["HOME", "SAVE", "ARP", "SEQ", "PLAY", "REC"];
-for (let i = 0; i < 6; i++) {
-  button(582 + i * 63, 174, 54, 48, ROW1[i]);
-  if (ROW2[i] === "PLAY") button(582 + i * 63, 236, 54, 48, "PLAY", "STOP"); else button(582 + i * 63, 236, 54, 48, ROW2[i]);
-}
-const keys = [];
-(function keybed(x0, y0, w, h) {
-  el("rect", { x: x0, y: y0, width: w, height: h, rx: 18, fill: TRAY });
-  const pitch = (w - 24) / 16, kw = pitch * 0.78;
-  for (let i = 0; i < 16; i++) {
-    const g = el("g", {});
-    el("rect", { x: x0 + 12 + i * pitch + (pitch - kw) / 2, y: y0 + h * 0.43, width: kw, height: h * 0.52, rx: kw / 2, fill: KEY_W, class: "keyface white" }, g);
-    keys[WHITE_K[i]] = { g, label: `white key ${i + 1}` };
-  }
-  BLACK_AFTER.forEach((a, k) => {
-    const g = el("g", {});
-    el("rect", { x: x0 + 12 + (a + 1) * pitch - kw / 2, y: y0 + h * 0.06, width: kw, height: h * 0.33, rx: kw / 2, fill: KEY_B, class: "keyface black" }, g);
-    keys[BLACK_K[k]] = { g, label: `black key ${k + 1}` };
-  });
-})(36, 340, 928, 270);
 
 function restart(e, cls) { e.classList.remove(cls); void e.getBoundingClientRect(); e.classList.add(cls); }
 function turned(k, n) {
@@ -354,16 +327,15 @@ function turned(k, n) {
 }
 let lastMaster = -1;
 function showInput(s) {
+  panel.lights(s.litButtons, s.litKeys, s.dimButtons, s.dimKeys);
   buttons.forEach((b, i) => {
     b.g.classList.toggle("held", !!(s.buttons & (1 << i)));
     if (control) b.g.setAttribute("aria-pressed", s.buttons & (1 << i) ? "true" : "false");
-    b.g.classList.toggle("lit", !!(s.litButtons & (1 << i)));
     if (i === BTN.PLAY) b.g.classList.toggle("green", !s.playRed);
   });
   keys.forEach((k, i) => {
     k.g.classList.toggle("held", !!(s.keys & (1 << i)));
     if (control) k.g.setAttribute("aria-pressed", s.keys & (1 << i) ? "true" : "false");
-    k.g.classList.toggle("lit", !!(s.litKeys & (1 << i)));
   });
   s.enc.forEach((n, r) => { if (n && byRole[r]) turned(byRole[r], n); });
   if (s.master !== lastMaster) {                       // gain = position^2: the knob's position back
@@ -443,20 +415,30 @@ function askRefresh() {
   mirror.resync();
   send(2);
 }
-function fill(sel, ports, saved) {
-  const names = ports.map((p) => p.name);
-  sel.replaceChildren(...ports.map((p) => new Option(p.name, p.id)));
-  const pick = ports.find((p) => p.name === saved) || ports.find((p) => NAME_RE.test(p.name)) || ports.find((p) => /fm-?1/i.test(p.name));
-  if (pick) sel.value = pick.id;
-  sel.disabled = !names.length;
+function fill(sel, ports, pick) {
+  sel.replaceChildren(new Option(ports.length ? "Choose its port" : "No ports", ""), ...ports.map((p) => new Option(p.name, p.id)));
+  sel.value = pick ? pick.id : "";
+  sel.disabled = !ports.length;
 }
+const MP = mirrorPorts(NAME), asking = new Asking(), answered = new Set();
+let seeking = 0;
 function pickPorts() {
-  const ins = [...access.inputs.values()].filter((p) => p.state === "connected");
-  const outs = [...access.outputs.values()].filter((p) => p.state === "connected");
+  const ins = livePorts(access.inputs), outs = livePorts(access.outputs);
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem(`${SLUG}-mirror-ports`) || "{}"); } catch {}
-  fill(inSel, ins, saved.in);
-  fill(outSel, outs, saved.out);
+  const c = MP.choose(access, saved, answered);
+  fill(inSel, ins, c && c.input);
+  fill(outSel, outs, c && c.output);
+  attach();
+  if (!c) seekPorts();
+}
+// no port to take by itself: the others asked for the screen reader's HELLO, and the one that answers taken
+async function seekPorts() {
+  const gen = ++seeking;
+  const got = await MP.seek(access, asking, answered);
+  if (gen !== seeking || !got || (inPort && outPort)) return;     // (picked meanwhile, or the ports changed again)
+  inSel.value = got.input.id;
+  outSel.value = got.output.id;
   attach();
 }
 function attach() {
@@ -472,7 +454,11 @@ function attach() {
   try { localStorage.setItem(`${SLUG}-mirror-ports`, JSON.stringify({ in: inPort.name, out: outPort.name })); } catch {}
   if (fresh) { heardHello = false; lastHeard = performance.now(); mirror.resync(); send(2); say(`Asking ${outPort.name}...`, "wait"); }
 }
-inSel.addEventListener("change", attach);
+inSel.addEventListener("change", () => {           // an input picked: its output with it (fm1ports.js outputFor)
+  const i = access.inputs.get(inSel.value), o = i && outputFor(access, i);
+  if (o) outSel.value = o.id;
+  attach();
+});
 outSel.addEventListener("change", () => { outPort = null; attach(); });
 document.getElementById("refresh").addEventListener("click", () => { lastAsk = 0; askRefresh(); });
 async function connect() {
@@ -490,6 +476,7 @@ async function connect() {
     const p = e.port;
     if (seen.get(p.id) === p.state) return;
     seen.set(p.id, p.state);
+    if (p.state === "disconnected") asking.forget(p.id);   // (plugged in again: asked again)
     if (inPort) inPort.onmidimessage = null;           // the FM-1 back (or gone): the ports picked afresh, a refresh
     inPort = outPort = null;
     pickPorts();
@@ -532,7 +519,7 @@ function panelKeys(on) {
                  ...[12, 13, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => [buttons[i], "button"]),
                  ...keys.map((k) => [k, "key"])];
   for (const [c, kind] of order) {
-    SVG_A(c.g, on ? { tabindex: "0", role: "button", "aria-label": c.label,
+    SVG_A(c.g, on ? { tabindex: "0", role: "button", "aria-label": kind === "button" ? c.label : c.name,
                       "aria-description": kind === "knob" ? "Turn with the arrow keys" : "Hold Space or Enter to hold it down" }
                   : { tabindex: null, role: null, "aria-label": null, "aria-description": null, "aria-pressed": null });
     if (on && kind !== "knob") c.g.setAttribute("aria-pressed", c.g.classList.contains("held") ? "true" : "false");

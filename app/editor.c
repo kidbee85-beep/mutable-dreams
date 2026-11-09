@@ -34,7 +34,7 @@ static int editor_reply(const uint8_t *p,unsigned n,uint8_t *raw,uint32_t *len){
  if(c==10&&n==9){
   int cmd=p[5],t=p[6],v=(p[7]|p[8]<<7)-8192;
   if(cmd==100){dream_page(v);return 0;}if(cmd==101){dream_track(v);return 0;}
-  if(cmd==103||cmd==104||cmd==105||cmd==106||cmd==111||cmd==112||cmd==124){dream_command(cmd,t,v);return 0;}
+  if(cmd==103||cmd==104||cmd==105||cmd==106||cmd==108||cmd==111||cmd==112){dream_command(cmd,t,v);return 0;}
   return 1;
  }
  if(c==11){

@@ -1,0 +1,10 @@
+# The plat_core test app's build settings (tools/build.py): an app on both cores (cpu2 = true) asking plat_core,
+# for tests/run_tests.sh in the host simulator (tests/core_app/tests/core.txt)
+name = "CORETEST"
+id_prefix = "FM-1_17"          # package identity: dev FM-1_1700
+usb_manufacturer = "fm1-base"
+usb_product = "CORETEST FM-1"
+cpu2 = true
+o2 = []
+words = "words.tsv"
+licence = "MPL-2.0"

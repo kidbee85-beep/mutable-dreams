@@ -1,0 +1,7 @@
+# The battery test app in the host simulator (tests/run_tests.sh): tools/build.py tests/battery_app --host, then
+#   tests/battery_app/build/host/battest_host tests/battery_app/tests/battery.txt tests/battery_app/build/host
+wait 300
+# the app's frames read plat_battery_raw: the simulator's full cell (620, over the third bar's 591)
+expect app_frames_read >0
+expect app_battery_raw 620
+expect battery_raw 620

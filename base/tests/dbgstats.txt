@@ -1,0 +1,86 @@
+# The debug stats (device/dbgstats.c) in the host simulator, on the template: the switch, a snapshot every 5 minutes of
+# uptime, restarts, a crash and power-offs, a staged update, the request (F0 7D 4C 53 F7: two frames a record, then
+# "end N") and its clear (F0 7D 4C 53 43 4C 52 F7). tests/dbgstats_host_test.py reads the same frames with
+# tools/fm1_remote.py's parser
+sysex_log out:dbgstats_frames.bin
+wait 200
+expect stats 0
+expect stats_on 0
+sysex F0 7D 4C 53 F7
+wait 20
+# "end 0": none, an answer all the same
+expect_sysex F0 7D 4C 53 65 6E 64 20 30 F7
+sysex_out
+# off (every start's default): 6 minutes, nothing written
+wait 360000
+expect stats 0
+expect stats_pending 0
+# on at 6:00 of uptime: the first at 10:00, then 15, 20, 25
+stats_switch 1
+expect stats_on 1
+wait 1260000
+expect stats 4
+expect stats_rc 0
+# a restart (.noinit kept): off again until the app says on; the uptime from 0, the first at 5:00
+reboot
+expect stats_on 0
+expect stats 4
+stats_switch 1
+wait 300100
+expect stats 5
+# the main stack's marks used down to 900 bytes left (then a guard hit): a crash at 5:20, the boot writes the second
+# before it; the crash record keeps the stacks' room, the least ever goes down to it
+expect stk_ever_main -1
+stack 900 6000 -1
+stack_guard 1
+wait 20000
+expect stk_ever_main 900
+crash 02011000 3
+expect stats 6
+expect stats_on 0
+expect crashes 1
+expect stk_ever_main 900
+expect stk_ever_irq 6000
+expect stk_ever_c1 -1
+# a restart: kept (.noinit); this run's own stack: not measured yet
+reboot
+expect stk_ever_main 900
+# a power-off: the flash kept, the switch off; the least ever from the newest record
+power
+expect stats 6
+expect stk_ever_main 900
+sysex F0 7D 4C 53 F7
+wait 50
+# "end 6"
+expect_sysex F0 7D 4C 53 65 6E 64 20 36 F7
+sysex_out
+# the crash history: the crash's stacks' room and the guard ("stk 1/1 main 896 irq 5984 c1 -1 guard 1")
+sysex F0 7D 4C 48 F7
+wait 50
+sysex_out
+flash_dump out:dbgstats_flash.bin
+# an update staged: the 5:00 snapshot waits, the clear is refused
+stats_switch 1
+ota_stage
+wait 300100
+expect stats 6
+expect stats_pending 1
+expect stats_rc -7
+sysex F0 7D 4C 53 43 4C 52 F7
+wait 20
+# "clear failed"
+expect_sysex F0 7D 4C 53 63 6C 65 61 72 20 66 61 69 6C 65 64 F7
+# the update failed (ota_unstage: the area erased, the stats with it): the waiting one written
+ota_unstage
+wait 1100
+expect stats 1
+expect stats_pending 0
+# the clear answers "cleared"; then "end 0"
+sysex F0 7D 4C 53 43 4C 52 F7
+wait 20
+expect_sysex F0 7D 4C 53 63 6C 65 61 72 65 64 F7
+expect stats 0
+sysex F0 7D 4C 53 F7
+wait 20
+expect_sysex F0 7D 4C 53 65 6E 64 20 30 F7
+sysex_log off

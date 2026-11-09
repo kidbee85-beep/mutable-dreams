@@ -1,31 +1,59 @@
 # Experimental features
 
-Status of the advanced features planned for this repository. **Beta**: the second core and expanded flash (code exists, never run on a device). **Concept**: USB host, the clock (nothing runs). Nothing here has run on a device; each item says what is
-established, what is guessed, and what the first bench test is. All of it stays behind explicit calls: no firmware
-starts any of it by itself.
+Status of the advanced features planned for this repository. **Beta**: the second core (runs in Melodee;
+this version not yet on a device), expanded flash (code exists, never run on a device), the cache RAM (code and a
+host test; Optimist's own copy runs on an FM-1), and USB MIDI host
+(input runs in Melodee; this BSP port and output need device validation). **Concept**: the clock (nothing runs).
+Each item says what is established, what is guessed, and what the first bench test is. All of it stays behind
+explicit calls: no firmware starts any of it by itself.
 
-## Second core (CPU1): `chip/fm1_cpu1.h`, `chip/fm1_cpu1.S`
+## Second core (CPU1): `chip/fm1_cpu1.h`, `chip/fm1_cpu1.S`, `chip/fm1_cpu1_stop.h`
 
-Established from the SDK (`EnableOtherCpu` in `system.a`, `cpu1_start` in `cpu.a`): the entry word at `0x01C7FFF8`,
-the SYS_DIV bit 3 during the start, CORE_CON `0x1EEE004` (set bit 3, clear bit 1), the stub that sets `usp`, `sp`,
-`reti` and does `rti`. The stub assembles to the same bytes as the SDK's. `examples/hwtest/hwtest-exp.bin` (not the safe `hwtest.bin`) has it behind the serial
-command `k` (CPU1 counts, the status line shows `cpu1=`).
-Unknown: CPU1's interrupt bank, whether the guard windows of `fm1_guard.h` apply to it, cache behaviour between the
-cores. First test: `k`, then `p` twice; the count must grow.
+Melodee's second core (keremimo, under MPL-2.0 by agreement: #5), which runs on the device in Melodee, with the API
+and the start X0X, NuSaw, SPH-16 and LOOM-8 use: a worker that runs one job at a time for CPU0 (`fm1_cpu1_run`,
+`fm1_cpu1_wait`). Established on the device (Melodee, X0X): the start at power-on, before the audio and the timers,
+with the PC limits open while CPU1 boots through the ROM; CPU1's own guards (the stack limit in its EMU bank);
+holding it first thing at a start, and safely (the delayed bus flag cleared: `fm1_cpu1_stop`); the units whose CPU1
+misreads shared RAM (keremimo/melodee#17, charlesvestal/fm1-x0x#10, measured by Jangada): a check word on each job,
+retirement on a misread, a fault or a late job, one core until power-off after that (`fm1_cpu1_bar`), CPU1's faults
+handled without a crash (`fm1_irq.h` with `FM1_CPU1`, the resume in `fm1_vec.S`).
+This file as a whole has not run on a device yet. First test: `hwtest-exp`, `k`, then `p` a few times: `cpu1=` grows
+by 1000 each time, `late=`, `rejected=` and `faults=` stay 0 (on a unit that misreads: `gave_up=1`, one core).
 
 ## Expanded flash: `chip/fm1_flash_ext.h`
 
 For a larger part soldered in place of the stock SOIC-8 flash. Done: size from the JEDEC id, the range check for the
-room above the stock 1 MiB, a host test (`tests/flash_ext_test.c`). Not done: hooking it into the erase/program
-entry points of `fm1_flash.h`, 4-byte addressing above 16 MiB.
+room above the stock 1 MiB, a host test (`tests/flash_ext_test.c`). The runtime driver accepts an explicit physical capacity and application write
+regions up to 16 MiB ([configuration](FLASH.md#replacement-flash-parts)); JEDEC discovery does not automatically
+widen write permissions. Not done: hardware qualification and 4-byte addressing above 16 MiB.
 Unknown: how much flash the XIP window maps, the quad-enable bit of other vendors' parts. First test: read the
 JEDEC id of a swapped part and check that the stock layout still boots.
 
+## Cache RAM: `chip/fm1_cache_ram.h`
+
+From Optimist (hdavid, under MPL-2.0: `NOTICE`), behind an explicit `fm1_cache_ram_init(ways)` at the start. 1 to 7 of
+the 8 data-cache ways (4 KiB each, at 0x01F28000 + way x 4 KiB) become plain RAM, with the AC79 SDK's sequence
+(`cache_way_config`, as M-VAVE's V15 runs it with 7 ways: the masks, every tag invalid, from RAM with the cache off),
+then a memory test (address patterns and their complements) before anything uses them; a failure puts the masks back
+and leaves 0 bytes (`fm1_cache_ram_bytes`). Established on one FM-1 by Optimist's own copy (2026-10-18 .. 25): the test
+passes, the memory reads as fast as main RAM, 2 ways in daily use for days without a fault; with 7 ways flash data
+reads over 16 KiB are 57x slower (the flash's data goes through this cache), so fewer ways are the safer choice. Done
+here: the logic on a model of the registers (`tests/cache_ram_test.c`: 2, 4 and 7 ways, the failures). Not
+established: whether the second core and DMA read the ways (the registers are one set for the corex2 cluster, and the
+SDK's dual-core OS keeps its tables there, but neither has been measured); this file's own run on a device. First
+test: a firmware with 2 ways that reads back `fm1_cr.status` 1 and `fm1_cache_ram_bytes()` 8192.
+
 ## USB host
 
-The USB0 core has host-mode functions in the SDK (`usb_h_sie_init`, `usb_h_chirp_and_reset`, `usb_h_ep_read/write`
-in `cpu.a`), on the same controller `chip/usb.c` drives as a device. Not started. Unknown and possibly blocking: the
-FM-1's USB-C port may not be able to supply 5 V (VBUS) or to switch to host at all. First step: look at the board.
+`chip/usb_host.c` and `chip/usb_host_desc.h` port Melodee's USB MIDI host under MPL-2.0,
+with permission from Adrien Tibi (Recursive Field Instruments) and Kerem Kilic (Ellic Studio).
+Full-speed MIDI 1.0 input and output work directly or behind one powered hub in the SIE/bus
+model, including ACK ownership, retries and recovery. Adrien and Melodee's maintainer report
+physical input use on FM-1 hardware. This BSP adaptation and the later OUT path have not been
+validated on hardware. The host PHY never supplies VBUS: use external power.
+
+Opt-in only (`FELUCCA_USB_HOST=1`); every boot starts as a device. Update loaders force it off.
+Integration, API, supported devices and first bench checks: [USB_HOST.md](USB_HOST.md).
 
 ## Bluetooth
 

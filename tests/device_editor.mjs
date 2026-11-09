@@ -27,19 +27,19 @@ class Mock{
 }
 const link=new Mock(),d=new Device(link,'FM-1_710010100');
 await Promise.all([d.command(14,0,300),d.command(41,2,500),d.ui(100,0,10)]);assert.equal(link.max,1);
-await d.command(120,0,2);await d.command(123,0,740);assert.throws(()=>d.command(99,0,0));assert.throws(()=>d.command(124,0,0));
+await d.command(120,0,2);await d.command(123,0,740);assert.throws(()=>d.command(99,0,0));assert.throws(()=>d.command(124,0,0));assert.throws(()=>d.command(127,0,0));
 assert.deepEqual(await d.snapshot(),patch);await d.upload(patch);assert.deepEqual(link.data,patch);
 await assert.rejects(()=>d.upload([1,2,3]));const state=await d.state();assert.equal(state.models.length,6);assert.equal(state.knobs.length,4);
 const saves=link.log.length;await d.bank(0,15,3,3,'MY OWN BIOME');assert.equal(link.log.length,saves+1);assert.equal(link.log.at(-1).length,35);await d.close();assert(link.closed);
 await assert.rejects(()=>d.call(7));
 // 1.0 has no new editor/backup protocol. Reject before probing capabilities.
 const find=PB.find,legacy=new Mock();PB.find=async()=>({link:legacy,id:'FM-1_710010000'});
-try{await assert.rejects(()=>Device.connect({}),/1\.0 detected.*matching 1\.3 development firmware/);assert(legacy.closed);assert.equal(legacy.log.length,0);}
+try{await assert.rejects(()=>Device.connect({}),/1\.0 detected.*live editor requires a later firmware/);assert(legacy.closed);assert.equal(legacy.log.length,0);}
 finally{PB.find=find;}
 // A released 1.1 endpoint receives only the read-only capability request.
 const oldEditor=new Mock();oldEditor.capability=[1,6,1292,22,16,64,224,77];
 PB.find=async()=>({link:oldEditor,id:'FM-1_710010100'});
-try{await assert.rejects(()=>Device.connect({}),/matching 1\.3 development/);assert(oldEditor.closed);assert.equal(oldEditor.log.length,1);assert.equal(oldEditor.log[0][4],7);}
+try{await assert.rejects(()=>Device.connect({}),/matching Mutable Dreams 1\.5 firmware/);assert(oldEditor.closed);assert.equal(oldEditor.log.length,1);assert.equal(oldEditor.log[0][4],7);}
 finally{PB.find=find;}
 // Identical device names must fail before opening a port or creating a link.
 let opened=0;const port=()=>({name:'Mutable Dreams FM-1',state:'connected',open:async()=>opened++});
@@ -65,11 +65,10 @@ assert.equal(transfers,1);assert.equal(vm.runInContext('hardwareBusy',ui),false)
 console.log('PASS 223 binary packing cases, all 22 backup objects, corrupt/truncated/wrong-ID rejection, serialized commands, immutable snapshot CRC, chunk upload, bank naming/save, disconnect, complete packaged HTML/JS syntax.');
 console.log('PASS UI transfer lock before pending controls drain; repeated-click exclusion and disconnect cleanup (isolated JS, not a browser GUI test).');
 
-assert(!html.includes("localStorage.setItem('mutable-dreams-1.2'"));
-assert(!html.includes("localStorage.setItem('mutable-dreams-1.3'"));
-assert(html.includes("localStorage.setItem('mutable-dreams-1.4'"));
-assert(html.includes("localStorage.getItem('mutable-dreams-1.4')??localStorage.getItem('mutable-dreams-1.3')??localStorage.getItem('mutable-dreams-1.2')"));
-console.log('PASS private 1.4 browser saves isolated from released 1.3; read-only initial migration retained.');
+assert(!html.includes("localStorage.setItem('mutable-dreams-1.4'"));
+assert(html.includes("localStorage.setItem('mutable-dreams-1.5'"));
+assert(html.includes("localStorage.getItem('mutable-dreams-1.5')??localStorage.getItem('mutable-dreams-1.4')??localStorage.getItem('mutable-dreams-1.3')"));
+console.log('PASS private 1.5 browser saves isolated from released 1.4; read-only initial migration retained.');
 
 // New DSP command IDs 120..123 must never be dispatched as UI commands.
 const routed=[],routing=vm.createContext({window:{addEventListener(){}},$:()=>({}),setTimeout,clearTimeout,setInterval,clearInterval,routed});
@@ -77,6 +76,6 @@ vm.runInContext(fs.readFileSync(root+'/web/device-ui.js','utf8'),routing);
 vm.runInContext('hardwareDevice={command:async(...a)=>routed.push(["dsp",...a]),ui:async(...a)=>routed.push(["ui",...a])};',routing);
 for(const c of [120,121,122,123]){vm.runInContext(`hardwarePost({type:"app",cmd:"command",c:${c},t:2,v:1})`,routing);await new Promise(r=>setTimeout(r,60));}
 vm.runInContext('hardwarePost({type:"app",cmd:"command",c:103,t:0,v:1})',routing);await new Promise(r=>setTimeout(r,10));
-vm.runInContext('hardwarePost({type:"app",cmd:"command",c:124,t:0,v:2})',routing);await new Promise(r=>setTimeout(r,10));
-assert.deepEqual(routed.map(x=>Array.from(x)),[["dsp",120,2,1],["dsp",121,2,1],["dsp",122,2,1],["dsp",123,2,1],["ui",103,0,1],["ui",124,0,2]]);
-console.log('PASS LFO B hardware editor uses DSP protocol, coalesced depth/rate preserved; LED preference uses UI protocol.');
+vm.runInContext('hardwarePost({type:"app",cmd:"command",c:108,t:0,v:2})',routing);await new Promise(r=>setTimeout(r,10));
+assert.deepEqual(routed.map(x=>Array.from(x)),[["dsp",120,2,1],["dsp",121,2,1],["dsp",122,2,1],["dsp",123,2,1],["ui",103,0,1],["ui",108,0,2]]);
+console.log('PASS LFO B rate uses DSP protocol while LED preference uses its own UI ID.');

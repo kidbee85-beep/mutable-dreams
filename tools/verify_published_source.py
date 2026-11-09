@@ -10,4 +10,4 @@ for line in manifest.read_text().splitlines():
     assert not rel.is_absolute() and '..' not in rel.parts, name
     assert sha256((root/rel).read_bytes()).hexdigest()==expected, name
     count+=1
-print(f'Verified {count} private source files for Mutable Dreams 1.3 development.')
+print(f'Verified {count} private source files for Mutable Dreams 1.5 candidate.')

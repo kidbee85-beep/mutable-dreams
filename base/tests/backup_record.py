@@ -58,7 +58,8 @@ def main(image_path, out_path):
     runs["restore_playing"] = dev.log
 
     tmp.unlink()
-    json.dump({"image": img.hex(), "other": other.hex(), "runs": runs}, open(out_path, "w"))
+    withsec = B.join(img, [("LSMP", bytes(range(256)) * 9), ("ZZZZ", b"")])   # the page's join must make the same
+    json.dump({"image": img.hex(), "other": other.hex(), "withsec": withsec.hex(), "runs": runs}, open(out_path, "w"))
     print(f"{out_path}: " + ", ".join(f"{k} {len(v)} messages" for k, v in runs.items()))
 
 

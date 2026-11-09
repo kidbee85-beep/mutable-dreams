@@ -4,9 +4,18 @@
      Backup and restore in the browser (fm1.toml backup = true): tools/fm1_backup.py's backup and restore over Web MIDI
      (SysEx), on the protocol of device/backup.c. From Polly's. tools/make_site.py fills in the firmware's own
      ({{...}}): NAME, ID its identity's prefix (fm1.toml id_prefix), MAGIC and BACKUP_VERSION (app.h APP_BACKUP_MAGIC,
-     APP_BACKUP_VERSION), EXT the files' extension, HOLDS what a backup holds (a phrase), EXTRA more notes (<li>s). The
-     part between the "backup protocol" markers is what tests/backup_page_test.mjs runs against a simulated FM-1 and
-     against a transcript of tools/fm1_backup.py. -->
+     APP_BACKUP_VERSION), EXT the files' extension, HOLDS what a backup holds (a phrase), EXTRA more notes (<li>s),
+     EXTRAS_JS the firmware's own sections (default none: "const EXTRAS = [];"), TERMINAL the note on doing it from
+     a terminal. The part between the "backup
+     protocol" markers is what tests/backup_page_test.mjs runs against a simulated FM-1 and against a transcript of
+     tools/fm1_backup.py.
+     A firmware's sections: what it keeps outside the backup's parts (too big for device/backup.c, which holds a
+     restore in RAM until it is checked), read and written by the page over the firmware's own SysEx. Each is an
+     object in EXTRAS: {tag (4 letters), what (a phrase: "the samples"), backup(link, onProgress(0..1)) -> bytes,
+     check(bytes) -> a phrase on what it holds (throws on a bad one), restore(link, bytes, onProgress(0..1))
+     (throws on failure)}; link: send(bytes), read(ms) -> a SysEx message or null, drain(), lost. In the file, after
+     the backup's own CRC, each section: its tag, u32 length, the bytes, u32 CRC-32 of the bytes (fm1_backup.py
+     split). A restore puts the backup back first, then, once the FM-1 said yes, each section the page knows. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -55,6 +64,10 @@ progress { width: 100%; height: 6px; margin: .2rem 0 1rem; accent-color: var(--t
 progress[hidden] { display: none; }
 ul.small, p.small { color: var(--muted); font-size: .92rem; }
 ul.small { padding-left: 1.1rem; margin: 0; }
+ul.ports { list-style: none; padding: 0; margin: 0 0 .6rem; }
+ul.ports li { display: flex; gap: .6rem; align-items: center; margin: 0 0 .4rem; }
+.ask { border-top: 1px solid var(--rule); margin-top: .9rem; padding-top: .8rem; }
+.ask p { color: var(--ink); }
 kbd { font: 600 .9em "Barlow Semi Condensed", "Barlow", sans-serif; border: 1px solid var(--rule); border-bottom-width: 2px;
       border-radius: 4px; padding: 0 .3em; background: var(--ground); }
 </style>
@@ -68,6 +81,13 @@ cable. This page works in Chrome or Edge, and there is nothing to install.</p>
 <!-- what is happening, in words: the status (polite) and, when something fails, the alert (read at once) -->
 <div class="status" id="statusBox"><p id="status" role="status">Plug the FM-1 running {{NAME}} into this computer with a USB cable.</p><p id="alert" role="alert"></p></div>
 <progress id="bar" max="100" value="0" hidden aria-label="Backup progress"></progress>
+<section class="card" id="portpick" aria-labelledby="ph" hidden>
+  <h2 id="ph">Is the FM-1 under another name?</h2>
+  <p>A computer can show an FM-1's port under another device's name (a Mac remembers names by USB socket). This page asks
+  only the ports with an FM-1's usual names by itself. If your FM-1 is in this list, press Try on it.</p>
+  <ul id="portlist" class="ports"></ul>
+  <p id="pickstatus" role="status"></p>
+</section>
 
 <section class="card" aria-labelledby="bh">
   <h2 id="bh">Back up</h2>
@@ -86,6 +106,14 @@ cable. This page works in Chrome or Edge, and there is nothing to install.</p>
     <button id="restore" class="primary" type="button" disabled>Restore</button>
   </div>
   <p class="file" id="fileInfo" hidden></p>
+  <!-- asked in the page, not with confirm(): an iOS app showing pages (MIDIWeb) may not show confirm() and answers no -->
+  <div class="ask" id="ask" role="group" aria-labelledby="askText" hidden>
+    <p id="askText"></p>
+    <div class="row">
+      <button id="askYes" class="primary" type="button">Replace everything</button>
+      <button id="askNo" class="quiet" type="button">Cancel</button>
+    </div>
+  </div>
 </section>
 
 <ul class="small">
@@ -93,7 +121,7 @@ cable. This page works in Chrome or Edge, and there is nothing to install.</p>
   <li>A cut cable or a damaged file changes nothing. Even a power cut during the write leaves either what was there or
     the backup, never a mix.</li>
   <li>The browser asks once for permission to use MIDI with SysEx. Allow it, and close other apps that use the FM-1's MIDI first.</li>
-  <li>You can also back up from a terminal. Run <code>python3 tools/fm1_backup.py</code> in fm1-base's repository. It does the same, and makes the same files.</li>
+  <li>{{TERMINAL}}</li>
 </ul>
 </main>
 <script>
@@ -102,13 +130,15 @@ cable. This page works in Chrome or Edge, and there is nothing to install.</p>
 const FW = { name: "{{NAME}}", id: "{{ID}}", magic: "{{MAGIC}}", version: Number("{{BACKUP_VERSION}}"), ext: "{{EXT}}" };
 const PB = (() => {
   const HS_QUERY = [0xF0, 0x00, 0x32, 0x45, 0x00, 0x00, 0x00, 0x40, 0x7F, 0xF7];   // fm1_install.py / fm1ota.js
+  // the one with the body 01: the whole identity (HS_QUERY gets NAME_ and three digits, M-UPGRADE 3.11's limit)
+  const HS_FULL = [0xF0, 0x00, 0x32, 0x45, 0x08, 0x00, 0x00, 0x40, 0x00, 0x7E, 0x01, 0xF7];
   const RS_REQ = 0x41, BU_REQ = 0x42, BU_END = 0x43;
   const OK_ADDR = 0xC0000000, ASK_ADDR = 0xC1000000, FAIL_ADDR = 0xCF000000;
   const NAME = FW.name, MAGIC = [...FW.magic].map((c) => c.charCodeAt(0)), VERSION = FW.version;   // app.h's
   const HEAD = 16, REC = 8, PAYLOAD_MAX = 3840, MAXDATA = 512;
   const PLAYING = 10, DECLINED = 11;
   const ID = FW.id;                                                // the firmware's package identity (its prefix)
-  const DELAY = { poll: 500, idle: 10000, ask: 75000, first: 3000, hs: 1000 };   // ms, as fm1_backup.py
+  const DELAY = { poll: 500, idle: 10000, ask: 75000, first: 3000, hs: 1000, hsFull: 600 };   // ms, as fm1_backup.py
   const ERRORS = {
     1: "the file's size", 2: "the transfer (a piece of the file did not arrive)", 3: "the file's head",
     4: "a part's header", 5: "a part's check (a byte changed on the way)", 6: "the whole file's check",
@@ -184,7 +214,8 @@ const PB = (() => {
     if (pkt.length < 2 || pkt[0] !== 0xF0 || pkt[pkt.length - 1] !== 0xF7) return null;
     const d = unpack7(pkt.slice(1, -1));
     if (d.length !== 34 || d[0] !== 0 || d[1] !== 0x59 || d[2] !== 0x11) return null;
-    const txt = String.fromCharCode(...d.slice(6, 33)).replace(/\0+$/, "");
+    const z = d.indexOf(0, 6);                   // the text up to its first zero (bytes after it may carry data)
+    const txt = String.fromCharCode(...d.slice(6, z < 0 || z > 33 ? 33 : z));
     return /^[^_]+_\d+$/.test(txt) ? txt : null;
   }
 
@@ -211,47 +242,116 @@ const PB = (() => {
     if (pos + 4 !== image.length || u32(image, pos) !== crc32(image, 0, pos)) throw bad("This backup is damaged (the whole file's check).");
     return { flags, objs };
   }
+  // a file -> {image: the backup itself, sections: [{tag, data}]}: the firmware's sections after the backup's own
+  // CRC (EXTRAS); throws (code "file") on a damaged one. The backup itself is checked by parse.
+  function split(file) {
+    const bad = (m) => fail("file", m);
+    let pos = HEAD;
+    if (file.length >= HEAD) {
+      const n = u16(file, 6);
+      for (let k = 0; k < n && pos + REC <= file.length; k++) pos += REC + u16(file, pos + 2);
+    }
+    pos += 4;
+    if (pos >= file.length) return { image: file, sections: [] };
+    const sections = []; let at = pos;
+    while (at < file.length) {
+      if (at + 8 > file.length) throw bad("This backup is damaged (a section after it is cut short).");
+      const tag = String.fromCharCode(...file.subarray(at, at + 4)), ln = u32(file, at + 4);
+      if (at + 8 + ln + 4 > file.length) throw bad(`This backup is damaged (its section ${tag} is cut short).`);
+      const data = file.subarray(at + 8, at + 8 + ln);
+      if (u32(file, at + 8 + ln) !== crc32(data)) throw bad(`This backup is damaged (its section ${tag}: a byte changed).`);
+      sections.push({ tag, data });
+      at += 8 + ln + 4;
+    }
+    return { image: file.subarray(0, pos), sections };
+  }
+  function join(image, sections) {
+    const parts = [image];
+    for (const { tag, data } of sections) {
+      const head = new Uint8Array(8);
+      for (let i = 0; i < 4; i++) head[i] = tag.charCodeAt(i);
+      head.set(le32(data.length), 4);
+      parts.push(head, data, Uint8Array.from(le32(crc32(data))));
+    }
+    const out = new Uint8Array(parts.reduce((a, p) => a + p.length, 0));
+    let o = 0;
+    for (const p of parts) { out.set(p, o); o += p.length; }
+    return out;
+  }
   function summary(objs) {
     const used = objs.filter((o) => o.data.length).length;
     const total = objs.reduce((a, o) => a + o.data.length, 0);
     return `${used} of ${objs.length} parts with something saved (${total.toLocaleString("en")} bytes)`;
   }
 
+  // send a handshake -> the identity answered, null (no answer in ms), false (the send failed)
+  async function ask(link, query, ms) {
+    if (!link.send(query)) return false;
+    const end = Date.now() + ms;
+    while (Date.now() < end) {
+      const p = await link.read(end - Date.now());
+      if (!p) break;
+      const id = parseIdentity(p);
+      if (id) return id;
+    }
+    return null;
+  }
+  // the identity (fm1ota.js handshake): HS_QUERY, then HS_FULL when the answer is NAME_ and three digits; the plain
+  // answer when nothing answers HS_FULL (M-VAVE's, an older build)
   async function handshake(link, tries = 2) {
     link.drain();
     for (let t = 0; t < tries; t++) {
-      if (!link.send(HS_QUERY)) return null;
-      const end = Date.now() + DELAY.hs;
-      while (Date.now() < end) {
-        const p = await link.read(end - Date.now());
-        if (!p) break;
-        const id = parseIdentity(p);
-        if (id) return id;
-      }
+      const id = await ask(link, HS_QUERY, DELAY.hs);
+      if (id === false) return null;
+      if (id === null) continue;
+      if (/^ota-/i.test(id) || !/^[^_]+_\d{3}$/.test(id)) return id;
+      const full = await ask(link, HS_FULL, DELAY.hsFull);
+      return full && full.split("_")[0] === id.split("_")[0] && full.startsWith(id) ? full : id;
     }
     return null;
   }
 
-  // the first MIDI port pair that answers as an FM-1 (ports named after the firmware first); a Link from makeLink(input, output)
+  // finding FM-1s on Web MIDI: web/fm1ports.js, inlined by tools/make_site.py
+  {{PORTS_JS}}
+  // the first MIDI port pair that answers as an FM-1 (ports named after the firmware first); a Link from makeLink(input, output).
+  // Never probe other gear with the identity query: only ports with an FM-1's usual names (fm1ports.js PORT_NAMES, but
+  // the update loader's "ota": a backup is never made from it), the ones in allowed (the user's picks, web/fm1ota.js's
+  // allow), and the ones that answer the screen reader's HELLO (every fm1-base firmware does; asked when no other
+  // port answers); with only, that one port
   const NAME_RE = new RegExp(NAME.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
-  async function find(access, makeLink) {
-    const ins = [...access.inputs.values()].filter((p) => p.state !== "disconnected" &&
-      (NAME_RE.test(p.name || "") || /fm-?1|felucca|composite|sinco|usb-midi/i.test(p.name || "")));   // never probe other gear
-    ins.sort((a, b) => NAME_RE.test(b.name) - NAME_RE.test(a.name));
-    const outs = [...access.outputs.values()];
-    const base = (s) => (s || "").replace(/\s+\d+$/, "");
+  const USUAL = PORT_NAMES.filter((n) => n !== "ota");
+  // never a Bluetooth MIDI port: an FM-1 paired over Bluetooth shows one beside its USB port and it never answers
+  const BLUETOOTH_RE = /bluetooth/i;
+  const askable = (name, allowed) => !BLUETOOTH_RE.test(name || "") &&
+    (NAME_RE.test(name || "") || usualName(name, USUAL) || allowed.includes(name));
+  // the input port names the page does not ask by itself, that have an output (for Try)
+  function others(access, allowed = []) {
+    return [...new Set(pairs(access).map((p) => p.name).filter((n) => !askable(n, allowed) && !BLUETOOTH_RE.test(n)))];
+  }
+  async function find(access, makeLink, allowed = [], only = null) {
     let other = null;
-    for (const input of ins) {
-      const same = outs.filter((o) => base(o.name) === base(input.name));
-      const output = outs.find((o) => o.name === input.name) || (same.length === 1 ? same[0] : null) || (outs.length === 1 ? outs[0] : null);
-      if (!output) continue;
-      try { await input.open(); await output.open(); } catch (_) { continue; }
-      const link = makeLink(input, output);
-      const id = await handshake(link);
-      if (id && id.startsWith(ID)) return { link, id, name: input.name };
-      if (id) other = other || id;
-      link.close();
+    const ask = async (ins) => {
+      for (const input of ins) {
+        const output = outputFor(access, input);
+        if (!output) continue;
+        try { await input.open(); await output.open(); } catch (_) { continue; }
+        const link = makeLink(input, output);
+        const id = await handshake(link);
+        if (id && id.startsWith(ID)) return { link, id, name: input.name };
+        if (id) other = other || id;
+        link.close();
+      }
+      return null;
+    };
+    const ins = livePorts(access.inputs).filter((p) => !BLUETOOTH_RE.test(p.name || "") &&
+      (only != null ? p.name === only : askable(p.name, allowed)));
+    ins.sort((a, b) => NAME_RE.test(b.name) - NAME_RE.test(a.name));
+    let dev = await ask(ins);
+    if (!dev && only == null) {
+      const heard = await askAll(access, { skip: (n) => askable(n, allowed) || BLUETOOTH_RE.test(n) });
+      dev = await ask(heard.map((h) => h.input));
     }
+    if (dev) return dev;
     if (other) throw fail("model", `The FM-1 runs other firmware (${other}), not ${NAME}. Install ${NAME} first.`);
     throw fail("notfound", `${NAME} not found. Plug the FM-1 in with a USB data cable, close other apps that use its MIDI, and try again.`);
   }
@@ -323,10 +423,13 @@ const PB = (() => {
     }
   }
 
-  return { HS_QUERY, RS_REQ, BU_REQ, BU_END, OK_ADDR, ASK_ADDR, FAIL_ADDR, VERSION, PLAYING, DECLINED, ID, NAME, MAGIC, DELAY, ERRORS,
-           pack7, unpack7, crc32, frame, parseFrame, response, parseRequest, parseIdentity, parse, summary, find, backup, restore };
+  return { HS_QUERY, HS_FULL, RS_REQ, BU_REQ, BU_END, OK_ADDR, ASK_ADDR, FAIL_ADDR, VERSION, PLAYING, DECLINED, ID, NAME, MAGIC, DELAY, ERRORS,
+           pack7, unpack7, crc32, frame, parseFrame, response, parseRequest, parseIdentity, parse, split, join, summary, find, others, backup,
+           restore };
 })();
 // --- backup protocol: end
+
+{{EXTRAS_JS}}
 
 // one MIDI in/out pair with a SysEx queue (as fm1ota.js)
 class Link {
@@ -377,8 +480,45 @@ function setBusy(on) {
   $("backup").disabled = on;
   $("restore").disabled = on || !picked;
   $("file").disabled = on;
+  if (on) $("ask").hidden = true;
 }
 window.addEventListener("beforeunload", (e) => { if (busy) { e.preventDefault(); e.returnValue = ""; } });
+
+/* ports the user picked although their names are none of the usual ones (Try): remembered in this browser, shared with
+   the install page (its "fm1-ports") */
+const PICKED = "fm1-ports";
+let ports = [];
+try { ports = JSON.parse(localStorage.getItem(PICKED) || "[]").filter((x) => typeof x === "string"); } catch (_) { /* none */ }
+/* after "not found": the ports the page did not ask, each with Try */
+function showPorts() {
+  const names = access ? PB.others(access, ports) : [];
+  $("portlist").replaceChildren(...names.map((n) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "quiet"; b.textContent = "Try";
+    b.setAttribute("aria-label", `Try ${n}`);
+    b.addEventListener("click", () => tryPort(n, b));
+    const li = document.createElement("li"), sp = document.createElement("span");
+    sp.textContent = n;
+    li.append(sp, b);
+    return li;
+  }));
+  if (!names.length) { const li = document.createElement("li"); li.textContent = "No other MIDI ports."; $("portlist").append(li); }
+  $("portpick").hidden = false;
+}
+async function tryPort(name, button) {
+  if (busy) return;
+  button.disabled = true;
+  $("pickstatus").textContent = "Asking…";
+  let dev = null, err = null;
+  try { dev = await PB.find(access, (i, o) => new Link(i, o), ports, name); } catch (e) { err = e; }
+  button.disabled = false;
+  if (dev) dev.link.close();
+  if (!dev && !(err && err.code === "model")) { $("pickstatus").textContent = `No FM-1 answered on ${name}.`; return; }
+  if (!ports.includes(name)) ports.push(name);
+  try { localStorage.setItem(PICKED, JSON.stringify(ports)); } catch (_) { /* until the page is closed */ }
+  showPorts();
+  $("pickstatus").textContent = dev ? `Found ${FW.name} on ${name}. This browser remembers it. Press Back up or Restore again.` : err.message;
+}
 
 let access = null;
 async function connect() {
@@ -388,7 +528,9 @@ async function connect() {
     catch (_) { throw Object.assign(new Error("MIDI with SysEx was not allowed. Allow MIDI in the site settings (the address bar), then try again."), { code: "denied" }); }
   }
   say(`Looking for ${esc(FW.name)}&hellip;`);
-  return PB.find(access, (i, o) => new Link(i, o));
+  $("portpick").hidden = true;
+  try { return await PB.find(access, (i, o) => new Link(i, o), ports); }
+  catch (e) { if (e.code === "notfound") showPorts(); throw e; }
 }
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
@@ -401,15 +543,25 @@ $("backup").addEventListener("click", async () => {
     say(`Receiving the backup from ${esc(FW.name)}&hellip;`);
     progress(0);
     const { image, flags } = await PB.backup(dev.link, (n) => { sayProgress(`Receiving the backup: ${n.toLocaleString("en")} bytes`); bar.removeAttribute("value"); });
+    const sections = [];
+    for (const ex of EXTRAS) {
+      say(`Receiving ${esc(ex.what)} from ${esc(FW.name)}&hellip;`);
+      lastPct = -100;
+      progress(0);
+      const data = await ex.backup(dev.link, (f) => { sayProgress(`Receiving ${esc(ex.what)}: ${Math.floor(f * 100)} percent`, Math.floor(f * 100)); progress(f * 100); });
+      sections.push({ tag: ex.tag, data, ex });
+    }
+    const file = PB.join(image, sections);
     const d = new Date(), pad = (v) => String(v).padStart(2, "0");
     const name = `${FW.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-backup-${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}.${FW.ext}`;
-    const url = URL.createObjectURL(new Blob([image], { type: "application/octet-stream" }));
+    const url = URL.createObjectURL(new Blob([file], { type: "application/octet-stream" }));
     const a = document.createElement("a");
     a.href = url; a.download = name;
     document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 60000);
     progress(null);
-    say(`Done. <b>${esc(name)}</b> is in your downloads. It holds ${esc(PB.summary(PB.parse(image).objs))}.` +
+    say(`Done. <b>${esc(name)}</b> is in your downloads. It holds ${esc(PB.summary(PB.parse(image).objs))}` +
+        sections.map((s) => `, and ${esc(s.ex.check(s.data))}`).join("") + "." +
         (flags & 1 ? `<br>${esc(FW.name)} was playing, so changes it hadn't saved yet aren't in it. To include them, stop ${esc(FW.name)} and back up again.` : ""));
   } catch (e) {
     progress(null);
@@ -420,17 +572,27 @@ $("backup").addEventListener("click", async () => {
   }
 });
 
+// iOS turns accept into file types and has none for our extension, so it greys the backup out in Files: no filter
+// there (a wrong file is said on choosing it). iPadOS calls itself MacIntel, with touch.
+if (/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1))
+  $("file").removeAttribute("accept");
+
 $("file").addEventListener("change", async (e) => {
   picked = null;
+  $("ask").hidden = true;
   const f = e.target.files && e.target.files[0];
   const info = $("fileInfo");
   info.hidden = true;
   if (f) {
     try {
-      const image = new Uint8Array(await f.arrayBuffer());
+      const { image, sections } = PB.split(new Uint8Array(await f.arrayBuffer()));
       const { flags, objs } = PB.parse(image);
-      picked = { image, name: f.name };
-      info.innerHTML = `<b>${esc(f.name)}</b>: ${esc(PB.summary(objs))}${flags & 1 ? `, taken while ${esc(FW.name)} was playing` : ""}.`;
+      const known = sections.map((s) => ({ ...s, ex: EXTRAS.find((ex) => ex.tag === s.tag) })).filter((s) => s.ex);
+      const said = known.map((s) => `, and ${s.ex.check(s.data)}`).join("");
+      const missing = EXTRAS.filter((ex) => !known.some((s) => s.ex === ex));
+      picked = { image, sections: known, name: f.name };
+      info.innerHTML = `<b>${esc(f.name)}</b>: ${esc(PB.summary(objs))}${esc(said)}${flags & 1 ? `, taken while ${esc(FW.name)} was playing` : ""}.` +
+        (missing.length ? ` It doesn't hold ${esc(missing.map((ex) => ex.what).join(" or "))}, so ${missing.length > 1 ? "those stay" : "they stay"} as they are.` : "");
       info.hidden = false;
       say(`Ready to restore. Stop ${esc(FW.name)} first, then press Restore.`);
     } catch (err) {
@@ -442,9 +604,16 @@ $("file").addEventListener("change", async (e) => {
   setBusy(false);
 });
 
-$("restore").addEventListener("click", async () => {
+$("restore").addEventListener("click", () => {
   if (busy || !picked) return;
-  if (!confirm(`Replace everything on ${FW.name} with ${picked.name}?\n\n${FW.name} asks too, on its screen.`)) return;
+  $("askText").innerHTML = `Replace everything on ${esc(FW.name)} with <b>${esc(picked.name)}</b>? ${esc(FW.name)} asks too, on its screen.`;
+  $("ask").hidden = false;
+  $("askYes").focus();
+});
+$("askNo").addEventListener("click", () => { $("ask").hidden = true; $("restore").focus(); });
+$("askYes").addEventListener("click", async () => {
+  if (busy || !picked) return;
+  $("ask").hidden = true;
   setBusy(true);
   let dev = null;
   try {
@@ -460,7 +629,20 @@ $("restore").addEventListener("click", async () => {
       }
     });
     progress(null);
-    if (code === 0) say(`Done. ${esc(FW.name)} restored the backup and reloaded everything.`);
+    if (code === 0 && picked.sections.length) {
+      for (const s of picked.sections) {
+        say(`Restored. Now sending ${esc(s.ex.what)}&hellip;`);
+        lastPct = -100;
+        progress(0);
+        try {
+          await s.ex.restore(dev.link, s.data, (f) => { sayProgress(`Sending ${esc(s.ex.what)}: ${Math.floor(f * 100)} percent`, Math.floor(f * 100)); progress(f * 100); });
+        } catch (e) {
+          throw new Error(`${FW.name} restored the backup, but not ${s.ex.what}: ${e.message} Restore again to send them.`);
+        }
+      }
+      progress(null);
+      say(`Done. ${esc(FW.name)} restored the backup and ${esc(picked.sections.map((s) => s.ex.what).join(" and "))}, and reloaded everything.`);
+    } else if (code === 0) say(`Done. ${esc(FW.name)} restored the backup and reloaded everything.`);
     else if (code === PB.PLAYING) say(`<b>STOP FIRST.</b> ${esc(FW.name)} is playing. Press <kbd>PLAY</kbd> on the FM-1 to stop it, then press Restore again. Nothing changed.`, "err");
     else if (code === PB.DECLINED) say("Not restored. Someone pressed <kbd>HOME</kbd> on the FM-1, or nobody answered within a minute. Nothing changed.", "err");
     else say(`Not restored. There was a problem with ${esc(PB.ERRORS[code] || "code " + code)}.` + (code === 12 ? "" : " Nothing changed. Try again."), "err");

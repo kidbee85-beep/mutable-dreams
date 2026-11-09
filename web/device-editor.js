@@ -11,7 +11,7 @@ class Device{
  constructor(link,id){this.link=link;this.id=id;this.seq=0;this.tail=Promise.resolve();this.pending=0;this.closed=false;}
  static async connect(access){
   const dev=await PB.find(access,(i,o)=>new Link(i,o));const d=new Device(dev.link,dev.id);
-  try{if(dev.id==='FM-1_710010000')throw Error('Mutable Dreams 1.0 detected. The live editor requires 1.4. Back up your current work and install 1.4 first, or use browser-only mode.');const cap=words(await d.call(7));if(cap[0]!==1||cap[1]!==9||cap[2]!==2288)throw Error('This FM-1 needs the matching Mutable Dreams 1.4 firmware.');await d.remote([5,1]);return d;}
+  try{if(dev.id==='FM-1_710010000')throw Error('Mutable Dreams 1.0 detected. The live editor requires a later firmware. Back up your current work and update first, or use browser-only mode.');const cap=words(await d.call(7));if(cap[0]!==1||cap[1]!==9||cap[2]!==2288)throw Error('This FM-1 needs the matching Mutable Dreams 1.5 firmware.');await d.remote([5,1]);return d;}
   catch(e){dev.link.close();throw e;}
  }
  exclusive(fn){
@@ -32,7 +32,7 @@ class Device{
   throw Error('No reply from the FM-1. A timed-out write is not retried; read the device before trying again.');
  }
  call(c,p=[]){return this.exclusive(()=>this._call(c,p));}
- command(c,t,v){if(!Number.isInteger(c)||c<0||c>=124||(c>=99&&c<120)||t<0||t>5||v< -8192||v>8191)throw Error('Invalid parameter.');const z=v+8192;return this.call(2,[c,t,z&127,z>>7]);}
+ command(c,t,v){if(!Number.isInteger(c)||c<0||c>=127||(c>=99&&c<120)||c===124||t<0||t>5||v< -8192||v>8191)throw Error('Invalid parameter.');const z=v+8192;return this.call(2,[c,t,z&127,z>>7]);}
  ui(c,t,v){const z=v+8192;return this.call(10,[c,t,z&127,z>>7]);}
  remote(p){return this.exclusive(async()=>{
   const head=[0xf0,0x7d,0x4c,0x43,p[0]];if(!this.link.send([0xf0,0x7d,0x4c,0x43,...p,0xf7]))throw Error('FM-1 disconnected.');

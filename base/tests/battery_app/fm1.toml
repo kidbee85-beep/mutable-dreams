@@ -1,0 +1,9 @@
+# The battery test app's build settings (tools/build.py): an app with APP_BATTERY_RAW (plat_battery_raw), for
+# tests/run_tests.sh in the host simulator (tests/battery_app/tests/battery.txt)
+name = "BATTEST"
+id_prefix = "FM-1_17"          # package identity: dev FM-1_1700
+usb_manufacturer = "fm1-base"
+usb_product = "BATTEST FM-1"
+o2 = []
+words = "words.tsv"
+licence = "MPL-2.0"

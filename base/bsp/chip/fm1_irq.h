@@ -34,6 +34,9 @@
 #define FM1_DBG_MSG (*(volatile uint32_t *)0x1EEE244u)
 #define FM1_DBG_MSG_CLR (*(volatile uint32_t *)0x1EEE248u)
 #define FM1_DBG_EN (*(volatile uint32_t *)0x1EEE340u)
+/* DBG_MSG's bits by core (Melodee's reading): CPU1's PC limit, bus and write errors, then CPU0's */
+#define FM1_DBG_C1 ((1u << 6) | (1u << 8) | (1u << 10) | (1u << 11) | (7u << 16))
+#define FM1_DBG_C0 ((1u << 7) | (1u << 9) | (1u << 12) | (1u << 13) | (7u << 19))
 
 enum { FM1_IRQ_EXCEPTION = 1, FM1_IRQ_ALNK0 = 11, FM1_IRQ_SPI1 = 16, FM1_IRQ_UART1 = 20,
        FM1_IRQ_SARADC = 24, FM1_IRQ_SPI2 = 37, FM1_IRQ_TIMER5 = 63, FM1_IRQ_SOFT0 = 120 };
@@ -42,6 +45,7 @@ static inline uint32_t fm1_icfg(void) { uint32_t v; __asm__ volatile("%0 = icfg"
 static inline void fm1_icfg_set(uint32_t v) { __asm__ volatile("icfg = %0" ::"r"(v) : "memory"); }
 static inline void fm1_irq_off(void) { __asm__ volatile("cli" ::: "memory"); }
 static inline void fm1_irq_on(void) { __asm__ volatile("csync\n\tsti" ::: "memory"); }
+static inline uint32_t fm1_cnum(void) { uint32_t v; __asm__ volatile("%0 = cnum" : "=r"(v)); return v; }   /* 0 / 1 */
 
 #define FM1_CRASH_MAGIC 0x43525348u          /* "CRSH" */
 typedef struct {
@@ -56,7 +60,9 @@ fm1_crash_t fm1_crash __attribute__((section(".noinit")));
 
 /* the registers at the last crashes, the oldest overwritten: which register held what when the CPU faulted (a
  * pointer one bit off with the memory it came from intact, sp a word off). count is the crash's fm1_crash.count */
-#define FM1_CRASH_CTX_N 4u
+#ifndef FM1_CRASH_CTX_N
+#define FM1_CRASH_CTX_N 4u                        /* a firmware short of .noinit may keep fewer (80 B each) */
+#endif
 typedef struct {
     uint32_t count, pc, r[16], usp, ssp;
 } fm1_crash_ctx_t;
@@ -102,14 +108,23 @@ static void fm1_irq_enable_all(void)
     fm1_irq_on();
 }
 
+#if FM1_CPU1
+static int fm1_cpu1_fault_c(const uint32_t *f);   /* fm1_cpu1.h: 1 = the second core's fault, handled */
+#endif
+
 /* called from fm1_fatal_common (fm1_vec.S) with the saved frame:
  * f[0..15] r0..r15, f[16] reti, f[17] rete, f[18] retx, f[19] stub+6,
- * f[20] psr, f[21] icfg, f[22] usp, f[23] ssp, f[24] sp, f[25] interrupted rets */
+ * f[20] psr, f[21] icfg, f[22] usp, f[23] ssp, f[24] sp, f[25] interrupted rets.
+ * Returns only to resume CPU0 after a fault of the second core's (FM1_CPU1) */
 void fm1_fault_c(uint32_t *f)
 {
     static volatile uint32_t in_fault;
     uint32_t i, count = fm1_crash.magic == FM1_CRASH_MAGIC ? fm1_crash.count : 0;
     uint32_t early = fm1_crash.magic == FM1_CRASH_MAGIC ? fm1_crash.early : 0;
+#if FM1_CPU1
+    if (fm1_cpu1_fault_c(f))
+        return;
+#endif
     fm1_irq_off();
     if (in_fault++)                           /* fault while reporting: reset at once */
         *(volatile uint32_t *)0x10000u |= 1u << 4;

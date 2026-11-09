@@ -13,15 +13,22 @@
 #define FELUCCA_OTA_DRYRUN 0
 #define FELUCCA_USB_PID 0x0002
 #define FELUCCA_ID "ota-FM-1_900"
+#define LDR_FAST_CHUNK 4096u           /* the fast install (ldr_core.c): one sector per read */
+#define OTA_FRAME_MAX 4200u            /* a decoded 4 KiB response (4111 B) */
 #define RING_PUBLISH() __asm__ volatile("" ::: "memory")
 #include "fm1_time.h"
 #include "fm1_sys.h"
-/* the loader may write the app area and erase update records; never the head, nor Felucca's store
- * [0x97000, 0xE0000) (user data, never a record: ldr_core.c) */
+/* the loader may write the app area and clear update records (program over one, or erase its own staging); never
+ * the head, nor Felucca's store [0x97000, 0xE0000) (user data, never a record: ldr_core.c) */
 #define FL_RANGE_OK(off, n) (FL_IN(off, n, 0x4000u, 0x97000u) || FL_IN(off, n, 0xE0000u, 0xFC000u))
 #include "fm1_flash.h"
 #include "../chip/libc.c"
 #include "../chip/usb.c"
+/* usb.c's SysEx queue (FELUCCA_SX_IN, the loader's default there) holds the fast install's reply whole: a 4 KiB read
+ * and its 15 bytes of frame, 7-bit packed, and the queue's length field */
+_Static_assert(((LDR_FAST_CHUNK + 15u) * 8u + 6u) / 7u + 2u <= FELUCCA_SX_IN, "FELUCCA_SX_IN: a 4 KiB reply whole");
+_Static_assert(LDR_FAST_CHUNK + 15u <= OTA_FRAME_MAX, "OTA_FRAME_MAX: a 4 KiB reply decoded");
+#include "ldr_screen.c"
 
 static uint32_t ldr_ms(void)   /* monotonic ms; survives the TIMER4 wrap (178.9 s) */
 {
@@ -34,7 +41,7 @@ static uint32_t ldr_ms(void)   /* monotonic ms; survives the TIMER4 wrap (178.9 
     return ms;
 }
 
-static void ldr_poll(void)                          /* USB at ~2 kHz, watchdog */
+static void ldr_poll(void)                          /* USB at ~2 kHz, watchdog; the screen counts silent polls */
 {
     static uint32_t last;
     uint32_t now = fm1_ticks();
@@ -42,12 +49,28 @@ static void ldr_poll(void)                          /* USB at ~2 kHz, watchdog *
     if (now - last >= 500u * FM1_TICKS_PER_US) {
         last = now;
         usb_poll();
+        if (sx_made != sx_taken || usb.ota_req)     /* (a frame waits in usb.c's queue) */
+            ldr_screen_heard();
+        else
+            ldr_screen_tick();
     }
 }
 
 /* ---- ota.c hooks (the SysEx frame hooks are in usb.c) ---- */
 static uint32_t ota_now_ms(void) { return ldr_ms(); }
-static void ota_idle(void) { ldr_poll(); }
+/* while it waits for a reply the loader has nothing else to do: EP1 is emptied as soon as a packet is there, not once
+ * per 0.5 ms poll (a 4 KiB reply is 98 USB packets: 49 ms at one per poll). usb_poll still runs every 0.5 ms for the
+ * rest (EP0, bus reset); ep1_rx returns at once when no packet waits */
+static void ota_idle(void)
+{
+    ldr_poll();
+    if (usb.config) {
+        ep1_rx();
+        ep1_tx();
+        if (sx_made != sx_taken)                    /* (taken before the next poll sees it) */
+            ldr_screen_heard();
+    }
+}
 /* step-1 hooks of ota.c: not used by the loader */
 static int ota_erase(uint32_t off) { (void)off; return -1; }
 static int ota_prog(uint32_t off, const void *p, uint32_t n) { (void)off; (void)p; (void)n; return -1; }
@@ -72,7 +95,26 @@ static void ldr_record_clear(void)
 {
     fm1_updata_parm_clear();                        /* CRC 0: the SPL ignores it on a warm reset */
 }
-static void ldr_progress(uint32_t done, uint32_t total) { (void)done; (void)total; ldr_poll(); }
+/* the erase while the sector comes in (ldr_core.c, the fast install): nothing touches the flash in between. Begin goes
+ * through fm1_flash.h's checks (regions, flash gate); end never gives the XIP back while the part is busy */
+static fl_saved_t ldr_er_saved;
+static uint32_t ldr_er_issued;
+static uint8_t ldr_er_on;
+static int ldr_erase_begin(uint32_t off)
+{
+    int rc = fl_erase4k_begin_ram(off, &ldr_er_saved, &ldr_er_issued);
+    ldr_er_on = rc == 0;
+    return rc;
+}
+static int ldr_erase_end(void)
+{
+    uint32_t took;
+    if (!ldr_er_on)
+        return -1;
+    ldr_er_on = 0;
+    return fl_erase4k_end_ram(&ldr_er_saved, ldr_er_issued, &took);
+}
+static void ldr_progress(uint32_t done, uint32_t total) { ldr_screen_progress(done, total); ldr_poll(); }
 #include "ldr_core.c"
 
 extern uint32_t _bss_start[], _bss_end[];
@@ -81,6 +123,7 @@ void ldr_main(void)
 {
     fm1_wdt_arm(0x0D);                              /* ~8 s, fed by ldr_poll */
     fm1_time_init();
+    ldr_screen_init();                              /* "UPDATING", "DO NOT UNPLUG", the bar, "0%" (~0.4 s) */
     usb_start();
     for (;;) {
         ldr_poll();
@@ -90,14 +133,17 @@ void ldr_main(void)
             fm1_delay_ms(30);
             fm1_enter_uboot();
         }
-        ota_service();                              /* handshake */
+        if (ota_service() == 10u && ota_dec[2] == LDR_FAST_CMD)   /* handshake; the fast install's word */
+            ldr_fast_hello();
         if (usb.ota_req) {
             usb.ota_req = 0;
+            ldr_screen_progress(0, 1);              /* an install: from here a silent host is a lost cable */
             if (ldr_session() == 0) {
+                ldr_screen_done();                  /* "DONE", "RESTARTING" */
                 fm1_delay_ms(200);                  /* the "success" reply leaves */
                 usb_detach();
                 fm1_delay_ms(30);
-                fm1_core_reset();                   /* the SPL boots the new app */
+                fm1_reboot();                       /* reset USB controller and radio as well as the core */
             }
         }
     }
@@ -108,6 +154,10 @@ void ldr_cstart(void)
     uint32_t *p;
     ldr_record_clear();                             /* first thing: a crash below cannot loop through a
                                                      * warm reset; resume after power loss uses the flash record */
+    FM1_FLASH_ICFG_WRITE(FM1_FLASH_ICFG_READ() & ~0x100u);   /* crt0_ldr.S's cli cleared bit 9; bit 8 too, whatever
+                                                     * the SPL left: the flash gate (fm1_flash_access.h) and the
+                                                     * loader's direct fl_*_ram calls, interrupts off throughout */
+    fm1_cpu1_stop();                                /* also cover direct SPL/ROM entry */
     for (p = _bss_start; p < _bss_end; p++)
         *p = 0;
     ldr_main();

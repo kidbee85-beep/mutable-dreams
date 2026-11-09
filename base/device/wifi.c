@@ -55,6 +55,7 @@ extern char wifi_get_rssi(void);
 extern int wifi_scan_req(void);
 extern struct wifi_scan_ssid_info *wifi_get_scan_result(u32 *ssid_cnt);
 extern void wifi_clear_scan_result(void);
+extern void free(void *p);                       /* (the shim's heap: wifi_get_scan_result's copy) */
 extern void wifi_set_tx_rate_control_tab(u32 tab);
 extern void lwip_get_netif_info(u8 is_wireless, struct netif_info *info);
 extern void wifi_set_frame_cb(void (*cb)(void *rxwi, void *wh, void *data, u32 len, void *priv), void *priv);
@@ -119,15 +120,24 @@ static void wifi_log_watch(const char *s)         /* radio.c shim_log: the first
     last = shim_ms();
 }
 
-/* the station's MAC: the BT address kept in syscfg (radio.c), made a locally administered unicast one; without it
- * the library joins as 00:00:00:00:00:00 */
+/* the station's MAC (without one the library joins as 00:00:00:00:00:00): made from the chip's unique ID, so the
+ * same every start, update and firmware (it was the BT address kept in syscfg, random and remade whenever the store
+ * was: a router's list filled with "new" FM-1s); no ID, the BT address. A locally administered unicast one */
 int init_net_device_mac_addr(char *macaddr, char ap_mode)
 {
-    const uint8_t *b = bt_get_mac_addr();
-    unsigned i;
+    const uint8_t *u = plat_chip_uid();
+    unsigned i = 1;
     (void)ap_mode;
-    for (i = 0; i < 6u; i++)
-        macaddr[i] = (char)b[i];
+    while (u && i < 16u && u[i] == u[0])          /* (a part that does not answer 0x4B: all FF or all 0) */
+        i++;
+    if (u && i < 16u) {
+        for (i = 0; i < 6u; i++)                  /* the ID's 16 bytes folded into 6 */
+            macaddr[i] = (char)(u[i] ^ u[i + 6u] ^ (i < 4u ? u[i + 12u] : 0));
+    } else {
+        const uint8_t *b = bt_get_mac_addr();
+        for (i = 0; i < 6u; i++)
+            macaddr[i] = (char)b[i];
+    }
     macaddr[0] = (char)(((uint8_t)macaddr[0] & 0xFC) | 0x02);
     macaddr[5] ^= 0x01;
     return 0;
@@ -209,21 +219,53 @@ static int8_t wifi_rssi;
 static int wifi_try;                              /* joining the saved networks: the one being tried */
 static volatile uint8_t wifi_join_due, wifi_scan_done;
 static uint32_t wifi_retry_at;                    /* all failed: the saved networks again then (0: none) */
+/* which saved network to join: a scan first, then the strongest saved one it heard (not the saved list in order: a
+ * network not around cost a 20 s attempt each, and the library refused every scan meanwhile, so the networks page
+ * showed nothing); none heard, the saved ones in turn. wifi_tried: this round's tries (a wrong password, a network
+ * that went: the next strongest) */
+static volatile uint8_t wifi_pick;                /* a scan of ours, to choose from */
+static uint32_t wifi_tried;
+static uint32_t wifi_scan_retry_at;               /* a scan the library refused: asked again then (0: none) */
+static uint8_t wifi_scan_tries;
 
-/* a join failed (or a dropped network's rejoin): the next saved network; when all have, failed, and again in 30 s
- * (a radio left on comes back when its network does) */
+static void wifi_failed(const char *why, uint32_t again_ms)
+{
+    wifi_st = WIFI_FAILED;
+    wifi_why = why;
+    wifi_retry_at = shim_ms() + again_ms;
+    if (!wifi_retry_at)
+        wifi_retry_at = 1;
+}
+
+static int wifi_scan_now(void)                    /* the library idle first: it refuses a scan while it joins */
+{
+    if (wifi_st == WIFI_JOINING || wifi_st == WIFI_FAILED)
+        wifi_enter_sta_mode("", "");
+    if (wifi_scan_req() == 0)
+        return 0;
+    wifi_scan_tries = 5;                          /* again each second, a few times */
+    wifi_scan_retry_at = shim_ms() + 1000u;
+    if (!wifi_scan_retry_at)
+        wifi_scan_retry_at = 1;
+    return -1;
+}
+
+static void wifi_pick_start(void)                 /* a scan, then the strongest saved network it heard */
+{
+    wifi_pick = 1;
+    wifi_scan_now();
+}
+
+/* a join failed (or a dropped network's rejoin): the next strongest saved network a new scan hears; when none is
+ * left, failed, and again in 30 s (a radio left on comes back when its network does) */
 static void wifi_next(const char *why)
 {
-    if (wifi_try + 1 < wf_nets_count()) {
-        wifi_try++;
-        wifi_join_due = 1;
-    } else {
-        wifi_st = WIFI_FAILED;
-        wifi_why = why;
-        wifi_retry_at = shim_ms() + 30000u;
-        if (!wifi_retry_at)
-            wifi_retry_at = 1;
+    wifi_why = why;
+    if (wifi_try >= WF_NET_N) {                   /* joined by hand: no going on to the saved ones */
+        wifi_failed(why, 30000u);
+        return;
     }
+    wifi_join_due = 3;                            /* (the main loop: the library's events come from its tasks) */
 }
 
 static void wifi_join(const char *ssid, const char *pass)
@@ -250,21 +292,26 @@ static int wifi_event_cb(void *ctx, int event)
         memset(&m, 0, sizeof m);
         m.mode = STA_MODE;
         wifi_try = 0;
-        if (wf_nets_count()) {
-            memcpy(m.ssid[0], wf_nets.n[0].ssid, sizeof m.ssid[0] - 1u);
-            memcpy(m.pwd[0], wf_nets.n[0].pass, sizeof m.pwd[0] - 1u);
-            wf_cpy(wifi_ssid, wf_nets.n[0].ssid, sizeof wifi_ssid);
-            wf_cpy(wifi_pass, wf_nets.n[0].pass, sizeof wifi_pass);
-        }
+        wifi_ssid[0] = 0;                         /* no network yet: a scan picks it (wifi_pick_start) */
         wifi_set_sta_connect_timeout(20);
         wifi_set_default_mode(&m, 1, 0);
         break;
     }
-    case WIFI_EVENT_MODULE_START:                 /* every rate allowed, 1M CCK .. MCS7, as the SDK's demo_wifi */
-        wifi_set_tx_rate_control_tab(0xFFFFFu);
+    case WIFI_EVENT_MODULE_START:                 /* the send rates allowed: every one, 1M CCK .. MCS7, as the SDK's
+                                                   * demo_wifi, unless the app keeps to fewer (APP_WIFI_TX_RATES, bit
+                                                   * 0 1M CCK .. bit 19 MCS7: the SDK's demo_audio lists them) */
+#ifndef APP_WIFI_TX_RATES
+#define APP_WIFI_TX_RATES 0xFFFFFu
+#endif
+        wifi_set_tx_rate_control_tab(APP_WIFI_TX_RATES);
         break;
     case WIFI_EVENT_STA_START:
-        wifi_st = wifi_ssid[0] ? WIFI_JOINING : WIFI_ON;
+        if (wifi_st == WIFI_STARTING) {
+            wifi_st = WIFI_ON;
+            wifi_tried = 0;
+            if (wf_nets_count())
+                wifi_join_due = 3;                /* the main loop: a scan, then the strongest saved network */
+        }
         break;
     case WIFI_EVENT_STA_SCAN_COMPLETED:
         wifi_scan_done = 1;
@@ -310,17 +357,23 @@ static int wifi_event_cb(void *ctx, int event)
 
 /* ---- the scan list */
 #define WF_SCAN_N 12
-typedef struct { char ssid[33]; int8_t rssi; uint8_t secured; } wf_scan_t;
+typedef struct { char ssid[33]; int8_t rssi; uint8_t secured, channel, missed; } wf_scan_t;
 static wf_scan_t wf_scan_list[WF_SCAN_N];
 static int wf_scan_n;
 static uint32_t wifi_scans;                       /* scans collected (plat_wifi_scans) */
 
 /* after WIFI_EVENT_STA_SCAN_COMPLETED (a scan of ours, or a join's): the results, strongest first, each network
- * once (the strongest of its access points) */
+ * once (the strongest of its access points); then the ones the last scans heard and this one missed, with their
+ * last signal, until three scans in a row miss them (a scan hears a channel ~100 ms: a weak network's beacon, lost
+ * now and then, took it off the list) */
+#define WF_SCAN_KEEP 3u
 static void wifi_scan_collect(void)
 {
     u32 n = 0, i;
     struct wifi_scan_ssid_info *r = wifi_get_scan_result(&n);
+    wf_scan_t old[WF_SCAN_N];
+    int old_n = wf_scan_n, o;
+    memcpy(old, wf_scan_list, sizeof old);
     wf_scan_n = 0;
     for (i = 0; r && i < n && wf_scan_n < WF_SCAN_N; i++) {
         wf_scan_t *s = &wf_scan_list[wf_scan_n];
@@ -337,6 +390,8 @@ static void wifi_scan_collect(void)
             continue;
         s->rssi = (int8_t)r[i].rssi;
         s->secured = r[i].enc != 0;
+        s->channel = (uint8_t)r[i].channel_number;
+        s->missed = 0;
         for (j = wf_scan_n; j > 0 && wf_scan_list[j - 1].rssi < s->rssi; j--) {
             wf_scan_t t = wf_scan_list[j];
             wf_scan_list[j] = wf_scan_list[j - 1];
@@ -344,8 +399,44 @@ static void wifi_scan_collect(void)
         }
         wf_scan_n++;
     }
-    if (r)
+    for (o = 0; o < old_n && wf_scan_n < WF_SCAN_N; o++) {   /* the missed ones, after */
+        int j;
+        if (old[o].missed + 1u > WF_SCAN_KEEP)
+            continue;
+        for (j = 0; j < wf_scan_n && !wf_eq(wf_scan_list[j].ssid, old[o].ssid); j++)
+            ;
+        if (j < wf_scan_n)
+            continue;
+        wf_scan_list[wf_scan_n] = old[o];
+        wf_scan_list[wf_scan_n].missed++;
+        wf_scan_n++;
+    }
+    if (wifi_pick) {                              /* the strongest saved network heard now, not tried this round */
+        int k, best = -1;
+        wifi_pick = 0;
+        for (k = 0; k < wf_scan_n && best < 0; k++) {
+            int s = wf_scan_list[k].missed ? -1 : wf_nets_find(wf_scan_list[k].ssid);
+            if (s >= 0 && s < 32 && !(wifi_tried >> s & 1u))
+                best = s;
+        }
+        for (k = 0; k < wf_nets_count() && best < 0; k++)   /* none heard: the saved ones in turn (a hidden network
+                                                             * is never in a scan; a weak one not in every one) */
+            if (!(wifi_tried >> k & 1u))
+                best = k;
+        if (best >= 0) {
+            wifi_try = best;
+            wifi_tried |= 1u << best;
+            wifi_join(wf_nets.n[best].ssid, wf_nets.n[best].pass);
+        } else {
+            wifi_failed(wifi_tried ? wifi_why : "not found", wifi_tried ? 30000u : 15000u);
+        }
+    }
+    if (r) {
         wifi_clear_scan_result();
+        free(r);                                  /* the results are a copy of the caller's (the SDK's demos free it
+                                                   * too): kept, every scan leaked 2.3 KB, and the library's own
+                                                   * scans while connected ran the heap out overnight */
+    }
     wifi_scans++;
 }
 
@@ -359,16 +450,31 @@ static void wifi_poll(void)
     radio_stuck_check();
     radio_settle(wifi_st >= WIFI_ON);
     if (wifi_st == WIFI_FAILED && wifi_retry_at && (int32_t)(shim_ms() - wifi_retry_at) >= 0 && wf_nets_count()) {
-        wifi_retry_at = 0;                        /* the saved networks again, from the most recent */
+        wifi_retry_at = 0;                        /* the saved networks again: a new round */
         wifi_try = 0;
-        wifi_join_due = 1;
+        wifi_tried = 0;
+        wifi_join_due = 3;
     }
-    if (wifi_join_due == 1 && wifi_try < wf_nets_count()) {
+    if (wifi_scan_retry_at && (int32_t)(shim_ms() - wifi_scan_retry_at) >= 0) {
+        wifi_scan_retry_at = 0;
+        if (wifi_scan_req() == 0) {
+            wifi_scan_tries = 0;
+        } else if (wifi_scan_tries && --wifi_scan_tries) {
+            wifi_scan_retry_at = shim_ms() + 1000u;
+        } else if (wifi_pick) {                   /* the library would not scan: no choice, try again later */
+            wifi_pick = 0;
+            wifi_failed("no scan", 15000u);
+        }
+    }
+    if (wifi_join_due == 3) {
         wifi_join_due = 0;
-        wifi_join(wf_nets.n[wifi_try].ssid, wf_nets.n[wifi_try].pass);
+        wifi_pick_start();
     } else if (wifi_join_due == 2) {
+        extern void shim_stacks_release(void);
         wifi_join_due = 0;
         wf_nets_front(wifi_ssid, wifi_pass);         /* joined: kept, the most recent first */
+        shim_stacks_release();                    /* and the last session's tasks, which ended after this one began,
+                                                   * their stacks back (~16 KB after a WiFi off and on) */
     }
     rx_second();
     if (wifi_st == WIFI_CONNECTED && wifi_is_on())
@@ -390,6 +496,10 @@ void plat_wifi_on(int on)
         wifi_why = "";
         wifi_rssi = 0;
         wifi_st = WIFI_STARTING;
+        {
+            extern void shim_stacks_release(void);
+            shim_stacks_release();                /* (the last session's ended tasks' stacks back: os.c) */
+        }
         radio_begin("WiFi: starting");
         if (first) {
             first = 0;
@@ -408,6 +518,7 @@ void plat_wifi_on(int on)
             wifi_off();
             shim_log("WiFi: off");
         }
+        radio_settle(1);                          /* off while starting: the interrupts back (radio.c) */
         radio_clean_exit();
     }
 }
@@ -416,7 +527,12 @@ const char *plat_wifi_why(void) { return wifi_st == WIFI_FAILED ? wifi_why : "";
 const char *plat_wifi_ssid(void) { return wifi_ssid; }
 uint32_t plat_wifi_ip(void) { return wifi_st == WIFI_CONNECTED ? wifi_ip : 0; }
 int plat_wifi_rssi(void) { return wifi_st == WIFI_CONNECTED ? wifi_rssi : 0; }
-int plat_wifi_scan(void) { return wifi_st >= WIFI_ON ? wifi_scan_req() : -1; }   /* (failed: the radio is still on) */
+int plat_wifi_scan(void)                         /* (failed: the radio is still on) */
+{
+    if (wifi_st < WIFI_ON)
+        return -1;
+    return wifi_scan_now() == 0 || wifi_scan_retry_at ? 0 : -1;   /* (refused now: asked again shortly) */
+}
 int plat_wifi_found(int i, char *ssid, int *rssi, int *secured)
 {
     if (i < 0 || i >= wf_scan_n)
@@ -429,6 +545,7 @@ int plat_wifi_found(int i, char *ssid, int *rssi, int *secured)
         *secured = wf_scan_list[i].secured;
     return 1;
 }
+int plat_wifi_found_channel(int i) { return i >= 0 && i < wf_scan_n ? wf_scan_list[i].channel : 0; }
 int plat_wifi_join(const char *ssid, const char *pass)
 {
     int i;

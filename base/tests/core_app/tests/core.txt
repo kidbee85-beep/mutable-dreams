@@ -1,0 +1,11 @@
+# The plat_core test app in the host simulator (tests/run_tests.sh): tools/build.py tests/core_app --host, then
+#   tests/core_app/build/host/coretest_host tests/core_app/tests/core.txt tests/core_app/build/host
+wait 300
+# the second core took the job: plat_core is 1 in it, 0 in the render around it and in the main loop
+expect cpu2_set 0
+expect renders >0
+expect jobs >0
+expect job_arg 256
+expect core_job 1
+expect core_render 0
+expect core_frame 0

@@ -22,12 +22,12 @@ static int dream_install_mode(const void *data,unsigned n,int edit){
 static int dream_install(const void *data,unsigned n){return dream_install_mode(data,n,0);}
 static int dream_install_edit(const void *data,unsigned n){return dream_install_mode(data,n,1);}
 int app_backup_validate(unsigned obj,const void *data,unsigned n){
- if(obj==OBJ_PANEL||obj>=OBJ_NOBJ)return 0;
+ if(obj==OBJ_PANEL||obj==OBJ_BLE||obj>=OBJ_NOBJ)return 0;
  if(!n)return 1; /* An empty record intentionally clears this saved object. */
  if(obj==OBJ_PREFS){
   md_preferences p={0};if(n!=12&&n!=16&&n!=sizeof p)return 0;memcpy(&p,data,n);
   if(p.magic!=0x4d445046||p.motion<0||p.motion>1||p.boot_sound<0||p.boot_sound>1||(n>=16&&(p.button_glow<0||p.button_glow>2)))return 0;
-  if(n==sizeof p){if(p.revision!=1||p.midi_macro>1||p.reserved)return 0;for(int i=0;i<6;i++)if(p.midi_route[i]>16)return 0;}
+  if(n==sizeof p){if(p.revision!=1||p.midi_macro>1||p.reserved>3)return 0;for(int i=0;i<6;i++)if(p.midi_route[i]>16)return 0;}
   return 1;
  }
  if(obj==OBJ_PATCH){
@@ -38,7 +38,7 @@ int app_backup_validate(unsigned obj,const void *data,unsigned n){
   if(user_biome_io.magic!=0x4d445542||!dream_name_valid(user_biome_io.name))return 0;
   return md_decode(&bank_patch_io,&user_biome_io.patch,n-28);
  }
- if(obj>=OBJ_TONES){
+ if(obj>=OBJ_TONES&&obj<OBJ_BLE){
   if(n!=sizeof(ToneBank))return 0;memcpy(&tone_bank_io,data,n);
   if(tone_bank_io.magic!=0x4d445442||(tone_bank_io.used&0xffff0000u))return 0;
   uint32_t f=plat_lock();bank_patch_io=*md_state();plat_unlock(f);
@@ -53,7 +53,7 @@ int app_backup_validate(unsigned obj,const void *data,unsigned n){
 }
 void app_backup_restored(void){
  uint32_t f=plat_lock();dream_reloading=1;plat_unlock(f);
- app_init();intro_pending=0;dream_dismiss_intro();bank_armed=-1;dream_store_hold=0;
+ app_init();plat_ble_enable(md_ble_at_boot());intro_pending=0;dream_dismiss_intro();bank_armed=-1;dream_store_hold=0;
  bank_kind=bank_slot=bank_char=0;memset(bank_name,0,sizeof bank_name);memcpy(bank_name,"MY BIOME",8);
  dream_ui.btn=plat_buttons();dream_ui.keys=plat_keys();dream_ui.held=dream_ui.btn;
  f=plat_lock();dream_reloading=0;plat_unlock(f);

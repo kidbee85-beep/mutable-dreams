@@ -123,7 +123,10 @@ DSP units built at -O2), `ble`, `ble_central`, `wifi`, `usb_audio_in` / `usb_aud
    listens on the FM-1 itself.
 
 Felucca's safety stays, from fm1-base: the boot guard (two failed starts: safe mode with USB on), the crash screen
-and record, the watchdog, OCT- and OCT+ held 5 s for update mode, and the installer's way back to M-VAVE's firmware.
+and record, the watchdog, the USB soft key into the chip's update mode, REC held at power-on for update mode (also in
+safe mode), and the installer's way back to M-VAVE's firmware. REC at power-on is m-bootloader's key too (which the
+installer offers, and which takes it first when installed): one key for update mode on any FM-1. Felucca's OCT- and
+OCT+ held 5 s is gone (OCT- + OCT+ held at power-on still opens the panel setup).
 
 ## What fm1-base has for features a fork may have added
 
@@ -139,8 +142,12 @@ Before writing a feature into the app, look for it in fm1-base (`include/plat.h`
 | room in the MIDI out queue, a new USB connection | `plat_midi_out_room(to)`, `plat_midi_out_link()` |
 | dim keys, PLAY's green LED | `plat_lights` |
 | USB audio at full level, MASTER for the speaker only | `plat_usb_audio_full` |
+| the computer's USB audio muted or turned down (usb_audio_out) | `plat_usb_play_gain` |
 | lower case in the big fonts | `font_full = ["L"]` |
 | its own exports in the browser build | `APP_WEB` (the app's `web.c`), and its own page in `app/web/emu/` |
+| its own second core (hardware code that cannot go into felucca-bsp: another licence, not tried there yet) | `asm = [...]` (its entry assembled), `vendored = [...]` (the register check leaves it), its RAM loop in section `.c1_text` (copied and guarded with `.ram_text`, left out of the RAM-calls check), `APP_CSTART` (held first thing at a start), `APP_FAULT` (a crash on it, or beside it) |
+| functions built for size by an IR pass (Melodee's `minsize`) | `ir_pass = "tools/size_fns.py"`: the build runs it on each unit's LLVM IR |
+| simulator commands with more words than four | `plat_host_line` in `app_host_cmd` |
 
 ## Comparing with the old simulator
 

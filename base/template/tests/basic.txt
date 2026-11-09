@@ -110,3 +110,50 @@ unsaid LOST
 midi USB 90 40 50
 wait 20
 expect midi_in_usb 5
+midi USB 80 40 00
+# Bluetooth's two links, the computer's and the device's: TO_BLE goes to both, each with its own room; their MIDI
+# comes in on PORT_BLE, and plat_midi_in_from says which link (MIDI thru sends it to every other)
+ble connect
+tap REC
+wait 700
+tap REC
+wait 500
+expect ble_dev 4
+expect room_ble 64
+expect room_ble_dev 64
+out
+key 7 down
+wait 50
+key 7 up
+wait 50
+expect_out BLE 80 48 00
+expect_out BLE-DEV 80 48 00
+midi BLE-DEV 90 3C 64
+wait 20
+expect note 60
+expect midi_in_from 8
+midi BLE 80 3C 00
+wait 20
+expect note -1
+expect midi_in_from 2
+midi TRS 90 3C 64
+wait 20
+expect midi_in_from 0
+midi USB 80 3C 00
+wait 20
+expect midi_in_from 1
+# the computer gone: the device's link alone
+ble disconnect
+expect room_ble 0
+expect room_ble_dev 64
+out
+key 7 down
+wait 50
+key 7 up
+wait 50
+expect_out BLE-DEV 80 48 00
+expect_no_out BLE 80 48 00
+tap REC
+wait 100
+expect ble_dev 0
+expect room_ble_dev 0
