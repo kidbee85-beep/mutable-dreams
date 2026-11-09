@@ -16,6 +16,8 @@ An external BLE central, such as a Mac, can connect to the FM-1 service and send
 
 Back up .mddb User Banks and export unsaved live JSON before installation. Use our browser or Python installer; official M-UPGRADE rejects custom Mutable Dreams packages. Read [recovery instructions](docs/release-1.5/Recovery-1.5.txt). The tested package identifies as `FM-1_710010500`; SHA-256 `ee5d410fc13b9861baa2336303821ccf66ec8c7143c167649886fad368198b52`.
 
+Mutable Dreams does not import projects or sample banks saved by stock firmware or other custom firmwares. Switching firmware can replace their storage formats; export the relevant project's backup first and keep its matching firmware/restore tool. A Mutable Dreams .mddb backup is for Mutable Dreams, not a universal FM-1 backup.
+
 The UC25HQ80 flash ID is included, but physical installation on that newer board is still unverified. Do not confuse static support with a tested update. This release is FM-1 only; an SMK-37 build is not included.
 
 ## Source and credits
@@ -23,3 +25,4 @@ The UC25HQ80 flash ID is included, but physical installation on that newer board
 All source is browsable in this repository and at tag v1.5. See [BUILDING.md](BUILDING.md), [release notes](docs/release-1.5/Release-Notes-1.5.md), [licensing](LICENSING-GPL.txt) and [development evidence](DEVELOPMENT-NOTES-BLE.md). Earlier release tags and downloads remain available.
 
 With gratitude to Émilie Gillet, Mutable Instruments, fm1-base and felucca-bsp contributors. Selected algorithms retain their original notices; other module-inspired features are independent interpretations. Mutable Dreams is unaffiliated with and not endorsed by Mutable Instruments or M-VAVE.
+
