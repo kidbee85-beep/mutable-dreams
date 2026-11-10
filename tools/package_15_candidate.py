@@ -14,7 +14,7 @@ s=(R/'base/web/installer.html').read_text()
 values={'NAME':'Mutable Dreams','REPO':'Mutable-Dreams-1.5-Source.zip','REPO_SHORT':'Download the complete source','LICENSE':'GPL-3.0 combined distribution; original MIT and MPL-2.0 notices retained','CREDITS':' With gratitude to Émilie Gillet and Mutable Instruments. An independent community project.','RES':'optional resources','RES_JA':'追加リソース'}
 for k,v in values.items():s=s.replace('{{'+k+'}}',v)
 def strip(x):return re.sub(r'^import .*?;\n','',re.sub(r'^export\s+','',x,flags=re.M),flags=re.M)
-lib='\n'.join(strip((R/'base/web'/n).read_text()) for n in ['fm1pkg.js','fm1ota.js'])
+lib='\n'.join(strip((R/'base/web'/n).read_text()) for n in ['fm1pkg.js','fm1ports.js','fm1ota.js'])
 meta={'version':'1.5-candidate','product':product,'sha256':hashlib.sha256(raw).hexdigest(),'data':base64.b64encode(raw).decode()}
 s=s.replace('/*LIB*/',lib).replace('/*META*/',json.dumps(meta)).replace('const APP = /*APP*/;', 'const APP = null;')
 s=s.replace('const r = await fetch(meta.pkg);\n    if (!r.ok) throw new Error(`${meta.pkg}: HTTP ${r.status}`);\n    const pkg = new Uint8Array(await r.arrayBuffer());', '''const pkg = Uint8Array.from(atob(meta.data), c => c.charCodeAt(0));
@@ -50,7 +50,7 @@ s=s.replace('async function run(img, product, isStock) {\n  let midi;', '''async
   writing=true;
   $("go").disabled=$("stockgo").disabled=$("reportgo").disabled=true;
   let midi;''')
-s=s.replace('catch (e) { sayK("denied"); return; }','catch (e) { writing=false; $("go").disabled=!image; $("stockgo").disabled=!stock; $("reportgo").disabled=false; sayK("denied"); return; }')
+s=s.replace('catch (e) { sayK("denied"); return; }','catch (e) { preparing=false; writing=false; $("go").disabled=!image; $("stockgo").disabled=!stock; $("reportgo").disabled=false; sayK("denied"); return; }')
 s=s.replace('sayK((await up.resume(img, step)) ? (isStock ? "stockdone" : "done") : "stopped");', '''if(!(await up.resume(img, step)))throw fail('stopped','The write did not finish.');
       sayK('reboot');
       await sleep(3000);
