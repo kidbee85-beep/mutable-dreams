@@ -70,7 +70,7 @@ assert not re.search(r'\{\{[A-Z_]+\}\}',s)
 out.write_text(s)
 kit=out.parent/'Mutable-Dreams-1.5-Installer-Kit.zip'
 with zipfile.ZipFile(kit,'w',zipfile.ZIP_DEFLATED) as z:
- for n in ['tools/fm1_install.py','LICENSE','CREDITS.md','LICENSING.md']:z.write(R/'base'/n,'Mutable-Dreams-Installer/'+Path(n).name)
+ for n in ['tools/fm1_install.py','tools/fm1ports.py','tools/fm1_resources.py','tools/fm1_backup.py','LICENSE','CREDITS.md','LICENSING.md']:z.write(R/'base'/n,'Mutable-Dreams-Installer/'+Path(n).name)
  z.writestr('Mutable-Dreams-Installer/requirements.txt','mido>=1.3,<2\npython-rtmidi>=1.5,<2\n')
  z.writestr('Mutable-Dreams-Installer/Read-Me.txt','MUTABLE DREAMS 1.5 — PRIVATE USB INSTALLER CANDIDATE\n\nPython 3.11 or later. Install dependencies with:\n  python3 -m pip install -r requirements.txt\n\nPlace the release firmware next to fm1_install.py, then:\n  python3 fm1_install.py --info\n  python3 fm1_install.py Mutable-Dreams-1.5.fwsc --yes\n\nExpected identity: FM-1_710010500. Read the Recovery Guide first.\nIf USB MIDI does not return after writing, power off, disconnect USB for five seconds, reconnect, and verify identity FM-1_710010500 before declaring success. Do not use --force for Mutable Dreams.\n\nFor stock recovery, use the verified official V15 and the browser installer, then reinstall 1.5 and restore .mddb; physical SEL is required.\nThis kit contains no firmware, private settings or manufacturer images.\n')
 print(out,product,meta['sha256'])
