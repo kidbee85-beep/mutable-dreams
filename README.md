@@ -4,7 +4,7 @@ A free, independent instrument for the M-VAVE FM-1 by **Kid Bunka**.
 
 **168 musical Biomes + Blank · 364 tone presets · BLE MIDI reception · six freely assigned synth tracks, or a Lo-Fi kit plus three synths.**
 
-[Play and edit in your browser](https://mutable-dreams.kidbee85.chatgpt.site/) · [Install / return to V15](https://mutable-dreams.kidbee85.chatgpt.site/Mutable-Dreams-1.5-Install.html) · [Illustrated update guide](https://mutable-dreams.kidbee85.chatgpt.site/Mutable-Dreams-1.5-Guide.pdf) · [Release downloads](https://github.com/kidbee85-beep/mutable-dreams/releases/tag/v1.5)
+[Play and edit in your browser](https://kidbee85-beep.github.io/mutable-dreams/) · [Install / return to V15](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-1.5-Install.html) · [Illustrated update guide](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-1.5-Guide.pdf) · [Release downloads](https://github.com/kidbee85-beep/mutable-dreams/releases/tag/v1.5)
 
 Version 1.5 adds twelve contrasting Biomes and twelve tones, a Wireless MIDI page, brighter organic display families, corrected echo bounds and an updater restart fix. Thank you for the community feedback that shaped these changes.
 
