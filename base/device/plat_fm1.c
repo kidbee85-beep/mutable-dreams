@@ -91,9 +91,11 @@ static int dim_lvl = -1;                            /* the glow's strength the s
 void plat_dim_ns(uint32_t ns)                       /* any width of the dim pulse (fm1_led_dim_ns clamps it) */
 {
     dim_ns = ns;
-    if (ns)
-        fm1_led_dim_ns(ns);
-    else if (dim_glow > 0) {
+    if (ns) {
+#if !defined(__wasm__)
+        fm1_led_dim_ns(ns);                         /* the hardware scan controls the pulse width */
+#endif
+    } else if (dim_glow > 0) {
         fm1_led_dim_level(dim_glow == 1 ? 1u : 0u); /* handed back: the glow's strength again */
         dim_lvl = (int)dim_glow;
     } else {
