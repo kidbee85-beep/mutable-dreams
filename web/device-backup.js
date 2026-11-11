@@ -5,6 +5,7 @@
 const FW = { name: "Mutable Dreams", id: "FM-1_710", magic: "MDDB", version: Number("1"), ext: "mddb" };
 const PB = (() => {
   const HS_QUERY = [0xF0, 0x00, 0x32, 0x45, 0x00, 0x00, 0x00, 0x40, 0x7F, 0xF7];   // fm1_install.py / fm1ota.js
+  const HS_FULL = frame(0x11, [1]);
   const RS_REQ = 0x41, BU_REQ = 0x42, BU_END = 0x43;
   const OK_ADDR = 0xC0000000, ASK_ADDR = 0xC1000000, FAIL_ADDR = 0xCF000000;
   const NAME = FW.name, MAGIC = [...FW.magic].map((c) => c.charCodeAt(0)), VERSION = FW.version;   // app.h's
@@ -84,10 +85,10 @@ const PB = (() => {
     return { fl: u[6], addr: u32(u, 7), len: u[11] | u[12] << 8 | u[13] << 16 };
   }
   function parseIdentity(pkt) {
-    if (pkt.length < 2 || pkt[0] !== 0xF0 || pkt[pkt.length - 1] !== 0xF7) return null;
-    const d = unpack7(pkt.slice(1, -1));
-    if (d.length !== 34 || d[0] !== 0 || d[1] !== 0x59 || d[2] !== 0x11) return null;
-    const txt = String.fromCharCode(...d.slice(6, 33)).replace(/\0+$/, "");
+    const f = parseFrame(pkt);
+    if (!f || f.cmd !== 0x11 || f.body.length !== 27) return null;
+    // The last three bytes are the flash chip ID. The name ends at its first zero.
+    const txt = String.fromCharCode(...f.body.slice(0,24)).split("\0",1)[0];
     return /^[^_]+_\d+$/.test(txt) ? txt : null;
   }
 
@@ -123,10 +124,10 @@ const PB = (() => {
     return `${used} of ${objs.length} parts with something saved (${total.toLocaleString("en")} bytes)`;
   }
 
-  async function handshake(link, tries = 2) {
+  async function handshake(link) {
     link.drain();
-    for (let t = 0; t < tries; t++) {
-      if (!link.send(HS_QUERY)) return null;
+    for (const query of [HS_FULL, HS_FULL, HS_QUERY]) {
+      if (!link.send(query)) return null;
       const end = Date.now() + DELAY.hs;
       while (Date.now() < end) {
         const p = await link.read(end - Date.now());
@@ -238,10 +239,18 @@ class Link {
   constructor(input, output) {
     this.input = input; this.output = output; this.q = []; this.waiter = null;
     input.onmidimessage = (ev) => {
-      if (ev.data[0] !== 0xF0) return;
-      this.q.push(Array.from(ev.data));
+      const bytes = ev.data;
+      if (bytes[0] !== 0xF0 || Link.isMirrorFrame(bytes)) return;
+      this.q.push(Array.from(bytes));
       if (this.waiter) { const w = this.waiter; this.waiter = null; w(); }
     };
+  }
+  static isMirrorFrame(bytes) {
+    // Packed 00 59 header, then the mirror command (0x50..0x54).
+    // Only the separate viewer needs the stream of display tiles and input reports.
+    if (bytes.length < 6 || bytes[1] !== 0 || bytes[2] !== 0x32 || (bytes[3] & 3) !== 1) return false;
+    const command = (bytes[3] >> 2) | ((bytes[4] & 7) << 5);
+    return command >= 0x50 && command <= 0x54;
   }
   get lost() { return this.input.state === "disconnected" || this.output.state === "disconnected"; }
   send(bytes) { try { this.output.send(bytes); return true; } catch (_) { return false; } }

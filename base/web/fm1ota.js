@@ -16,7 +16,7 @@
 // how far it compared with cmd 0x32 [sectors compared, all]. A loader that says nothing gets the classic protocol,
 // unchanged; a package without a Felucca loader (M-VAVE's firmware: M-VAVE's loader) never hears the hello.
 
-import { PORT_NAMES, usualName, livePorts, outputFor, pairs, askAll } from "./fm1ports.js";
+import { PORT_NAMES, usualName, livePorts, pairs, askAll } from "./fm1ports.js";
 
 const HS_QUERY = [0xF0, 0x00, 0x32, 0x45, 0x00, 0x00, 0x00, 0x40, 0x7F, 0xF7];
 // the handshake with the one-byte body 01 (00 59 11, length 1, 01, checksum FE): a firmware on felucca-bsp's chip/ota.c
@@ -332,9 +332,19 @@ export class Updater {
 
   // every in/out pair with the same port name that answers the handshake (only: the port called only)
   async find(filter, only) {
-    for (const input of livePorts(this.access.inputs)) {
-      if (IS_BLUETOOTH(input.name) || (only != null ? input.name !== only : !this.askable(input.name))) continue;
-      const output = outputFor(this.access, input);
+    const inputs = livePorts(this.access.inputs).filter((input) =>
+      !IS_BLUETOOTH(input.name) && (only != null ? input.name === only : this.askable(input.name)));
+    if (inputs.length > 1)
+      throw fail("ambiguous", "More than one possible FM-1 MIDI input. Disconnect the other device and retry.");
+    const outputs = livePorts(this.access.outputs);
+    const withoutNumber = (name) => (name || "").replace(/\s+\d+$/, "");
+    for (const input of inputs) {
+      const exact = outputs.filter((output) => output.name === input.name);
+      const matches = exact.length ? exact : outputs.filter((output) =>
+        withoutNumber(output.name) === withoutNumber(input.name));
+      if (matches.length > 1)
+        throw fail("ambiguous", "Duplicate MIDI outputs for the FM-1. Disconnect the duplicate and retry.");
+      const [output] = matches;
       if (!output) continue;
       try { await input.open(); await output.open(); } catch (_) { continue; }
       const link = new Link(input, output);

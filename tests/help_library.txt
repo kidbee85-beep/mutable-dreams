@@ -132,7 +132,7 @@ expect playing 0
 tap HOME
 expect help -1
 tap HOME
-spin PRESET 64
+scene 64
 wait 30
 expect biome 64
 tap EDIT
@@ -144,7 +144,9 @@ wait 30
 expect tone_preset 0
 expect model 0
 tap HOME
-spin PRESET -64
+scene 0
+wait 30
+tap SEL
 wait 30
 expect biome 0
 tap GLO

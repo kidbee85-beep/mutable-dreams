@@ -186,6 +186,9 @@ static void lcd_blit(uint32_t x, uint32_t y, uint32_t w, uint32_t h, const uint1
 }
 #include "plat.h"
 #include "app.h"                       /* before gfx.c: the app may size the canvas (APP_CANVAS_PX), as on the device */
+#ifdef APP_LOCAL_MONITOR
+#include "uac_mix.h"
+#endif
 #include "gfx.c"
 
 
@@ -204,7 +207,9 @@ uint32_t plat_ms(void);
 uint32_t plat_buttons(void);
 uint32_t plat_keys(void);
 #if FM1B_MIRROR
+#ifndef MRQ
 #define MRQ 4096u                               /* (felucca-bsp usb.c's mirror ring) */
+#endif
 #include "mirror.c"
 #else
 static uint32_t mirror_in_buttons(void) { return 0; }
@@ -2046,6 +2051,10 @@ static void sim_render(int32_t *blk)            /* one APP_BLOCK-frame block, as
         for (k = 0; k < 2u * APP_BLOCK; k++)
             blk[k] = (int32_t)((float)blk[k] * g);
     }
+#ifdef APP_LOCAL_MONITOR
+    static unsigned monitor_level;
+    local_monitor(blk, APP_BLOCK, &monitor_level, app_local_monitor_muted());
+#endif
     dt = now_ns() - t0;
     render_ns_total += dt;
     render_budget_ns_total += APP_BLOCK * 1e9 / 44100.0;

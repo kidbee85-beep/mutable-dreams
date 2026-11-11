@@ -11,7 +11,7 @@ s=(R/'base/web/installer.html').read_text()
 values={'NAME':'Mutable Dreams','REPO':'Mutable-Dreams-Source.zip','REPO_SHORT':'Download the complete source','LICENSE':'MIT application / MPL-2.0 platform','CREDITS':' With gratitude to Émilie Gillet and Mutable Instruments. An independent community project.'}
 for k,v in values.items():s=s.replace('{{'+k+'}}',v)
 def strip(x):return re.sub(r'^import .*?;\n','',re.sub(r'^export\s+','',x,flags=re.M),flags=re.M)
-lib='\n'.join(strip((R/'base/web'/n).read_text()) for n in ['fm1pkg.js','fm1ota.js'])
+lib='\n'.join(strip((R/'base/web'/n).read_text()) for n in ['fm1pkg.js','fm1ports.js','fm1ota.js'])
 meta={'version':'1.0','product':product,'sha256':hashlib.sha256(raw).hexdigest(),'data':base64.b64encode(raw).decode()}
 s=s.replace('/*LIB*/',lib).replace('/*META*/',json.dumps(meta))
 s=s.replace('const r = await fetch(meta.pkg);\n    if (!r.ok) throw new Error(`${meta.pkg}: HTTP ${r.status}`);\n    const pkg = new Uint8Array(await r.arrayBuffer());', '''const pkg = Uint8Array.from(atob(meta.data), c => c.charCodeAt(0));
@@ -27,7 +27,7 @@ s=s.replace('async function run(img, product, isStock) {\n  let midi;', '''async
   writing=true;
   $("go").disabled=$("stockgo").disabled=$("reportgo").disabled=true;
   let midi;''')
-s=s.replace('catch (e) { sayK("denied"); return; }','catch (e) { writing=false; $("go").disabled=!image; $("stockgo").disabled=!stock; $("reportgo").disabled=false; sayK("denied"); return; }')
+s=s.replace('catch (e) { sayK("denied"); return; }','catch (e) { preparing=false; writing=false; $("go").disabled=!image; $("stockgo").disabled=!stock; $("reportgo").disabled=false; sayK("denied"); return; }')
 s=s.replace('sayK((await up.resume(img, step)) ? (isStock ? "stockdone" : "done") : "stopped");', '''if(!(await up.resume(img, step)))throw fail('stopped','The write did not finish.');
       sayK('reboot');
       await sleep(3000);
@@ -45,7 +45,7 @@ assert not re.search(r'\{\{[A-Z_]+\}\}',s)
 out.write_text(s)
 kit=out.parent/'Mutable-Dreams-Installer-Kit.zip'
 with zipfile.ZipFile(kit,'w',zipfile.ZIP_DEFLATED) as z:
- for n in ['tools/fm1_install.py','LICENSE','CREDITS.md','LICENSING.md']:z.write(R/'base'/n,'Mutable-Dreams-Installer/'+Path(n).name)
+ for n in ['tools/fm1_install.py','tools/fm1ports.py','tools/fm1_resources.py','tools/fm1_backup.py','LICENSE','CREDITS.md','LICENSING.md']:z.write(R/'base'/n,'Mutable-Dreams-Installer/'+Path(n).name)
  z.writestr('Mutable-Dreams-Installer/requirements.txt','mido>=1.3,<2\npython-rtmidi>=1.5,<2\n')
  z.writestr('Mutable-Dreams-Installer/Read-Me.txt','MUTABLE DREAMS 1.0 — USB INSTALLER\n\nPython 3.11 or later. Install dependencies with:\n  python3 -m pip install -r requirements.txt\n\nPlace the release firmware next to fm1_install.py, then:\n  python3 fm1_install.py --info\n  python3 fm1_install.py Mutable-Dreams.fwsc --yes\n\nExpected identity: FM-1_710010000. Read the Recovery Guide first.\nKeep USB connected until the identity is confirmed. Do not use --force.\n\nFor stock recovery, download the official V15 .fwsc and use it instead.\nThis kit contains no firmware, private settings or manufacturer images.\n')
 print(out,product,meta['sha256'])

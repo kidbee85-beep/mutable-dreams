@@ -28,6 +28,10 @@ tap GLO
 tap GLO
 tap GLO
 tap GLO
+tap GLO
+tap GLO
+tap GLO
+tap GLO
 expect page 18
 press SEL
 wait 900

@@ -54,7 +54,9 @@ uint32_t plat_buttons(void) { return btn; }
 uint32_t plat_keys(void) { return keys; }
 uint32_t plat_master(void) { return master; }
 
+#ifndef MRQ
 #define MRQ 4096u
+#endif
 #include "../device/mirror.c"
 
 /* the ring (its room set by the test), the stream as the host receives it */
@@ -437,6 +439,30 @@ static void test_drops(void)
     redraw_fn = 0;
 }
 
+static void test_changes_during_repair(void)
+{
+    ring_cap = 1 << 20;
+    on();
+    redraw_fn = blit_all;
+    blit_all();
+    drain();
+    decode();
+    mr.ask_redraw = 0;
+    mr_rows_dirty(200, 1);
+    shown[5 * 240 + 7] ^= 0x0F0Fu;
+    shown[200 * 240 + 7] ^= 0x0F0Fu;
+    blit_all();
+    drain();
+    decode();
+    CHECK(diff_rows() == 1, "repair: only the newer already-known row should differ");
+    now += 100;
+    mirror_step();
+    drain();
+    decode();
+    CHECK(diff_rows() == 0, "repair: newer pixels were skipped after the last missing row arrived");
+    redraw_fn = 0;
+}
+
 static void test_input(void)
 {
     uint32_t n0;
@@ -720,6 +746,7 @@ int main(int argc, char **argv)
         for (int i = 2; i < argc; i++)
             test_change(argv[i - 1], argv[i]);
     test_drops();
+    test_changes_during_repair();
     test_input();
     test_off();
     test_remote();

@@ -125,8 +125,11 @@ static struct {                                      /* the host's hands (cmd 0x
 } mr_in;
 static uint32_t mr_seg[MR_H][MR_NSEG] PLAT_POOL;        /* what the viewer has: each row's segments' hashes */
 static uint32_t mr_mh[MR_MROWS][MR_NSEG];             /* the frame being coded: its rows' new hashes */
-static uint8_t mr_msg[6 + 5 + MR_CAP + MR_ROWMAX + 1] PLAT_POOL;
-static uint8_t mr_wire[2 + (sizeof mr_msg * 8u + 6u) / 7u] PLAT_POOL;
+#ifndef MR_SCRATCH_STORAGE
+#define MR_SCRATCH_STORAGE PLAT_POOL
+#endif
+static uint8_t mr_msg[6 + 5 + MR_CAP + MR_ROWMAX + 1] MR_SCRATCH_STORAGE;
+static uint8_t mr_wire[2 + (sizeof mr_msg * 8u + 6u) / 7u] MR_SCRATCH_STORAGE;
 
 static int mr_bit(const uint32_t *m, uint32_t r) { return (int)(m[r >> 5] >> (r & 31u) & 1u); }
 static void mr_set(uint32_t *m, uint32_t r, int on)
@@ -260,7 +263,12 @@ static int mr_span(const uint16_t *row, uint32_t yr, int full, uint32_t *sh, uin
 static void mirror_blit(uint32_t x, uint32_t y, uint32_t w, uint32_t h, const uint16_t *px)
 {
     uint32_t r = 0, sh[MR_NSEG], s0, s1, have = 0, ch = 0;
-    int full = x == 0 && w == MR_W, drop = 0;
+    int full = x == 0 && w == MR_W, drop = 0, repair = 0;
+    /* Seed/repair missing rows before spending the small ring on newer
+     * animations in rows the viewer already has. Otherwise animated upper
+     * bands can starve the lower half forever. No waiting and no framebuffer. */
+    if (full) for (uint32_t yr = 0; yr < MR_H; yr++)
+        if (!mr_bit(mr.known, yr)) { repair = 1; break; }
     if (!w || !h || x >= MR_W || y >= MR_H || w > MR_W)
         return;
     if (y + h > MR_H)
@@ -268,6 +276,15 @@ static void mirror_blit(uint32_t x, uint32_t y, uint32_t w, uint32_t h, const ui
     mr.px += w * h;
     while (r < h) {
         uint32_t r0, rows = 0, m0, m1, fx, fw;
+        if (repair && mr_bit(mr.known, y + r)) {
+            /* An already delivered row may have changed during repair.
+             * Schedule one more pass after the missing rows are seeded. */
+            mr.ask_redraw = 1;
+            mr.skipped++;
+            r++;
+            have = 0;
+            continue;
+        }
         if (!have) {
             ch = (uint32_t)mr_span(px + r * w, y + r, full, sh, &s0, &s1);
             have = 1;
@@ -295,7 +312,7 @@ static void mirror_blit(uint32_t x, uint32_t y, uint32_t w, uint32_t h, const ui
                 ch = (uint32_t)mr_span(px + r * w, y + r, full, sh, &s0, &s1);
                 have = 1;
             }
-            if (rows && (mr.pos - 11u > MR_CAP || !ch || (full && (s0 < m0 || s1 > m1))))
+            if (rows && ((repair && mr_bit(mr.known, y + r)) || mr.pos - 11u > MR_CAP || !ch || (full && (s0 < m0 || s1 > m1))))
                 break;                                /* full (the first row alone can pass MR_CAP: mr_msg has room
                                                        * for MR_CAP and one row more, not two rows), unchanged, or
                                                        * changed elsewhere: the next frame's */

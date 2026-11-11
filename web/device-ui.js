@@ -1,10 +1,36 @@
 // SPDX-License-Identifier: MIT OR GPL-3.0-only
 let hardwareDevice=null,hardwareBusy=false,hardwarePoll=null,hardwareAccess=null,browserWasReady=false;
+let legacyPatchModule;
+async function migratePatchForFM1(bytes,schema){
+ if(bytes.length===2604)return bytes;
+ legacyPatchModule??=WebAssembly.compile(Uint8Array.from(atob($('firmware').textContent.trim()),c=>c.charCodeAt(0)));
+ let memory;
+ const wasi={
+  clock_time_get:(id,precision,out)=>{new DataView(memory.buffer).setBigUint64(out,0n,true);return 0;},
+  fd_write:(fd,iov,count,out)=>{new DataView(memory.buffer).setUint32(out,0,true);return 0;},
+  proc_exit:()=>{}
+ };
+ const zero=()=>0;
+ const {exports:e}=await WebAssembly.instantiate(await legacyPatchModule,{
+  wasi_snapshot_preview1:new Proxy(wasi,{get:(target,name)=>target[name]??zero}),
+  env:new Proxy({},{get:()=>zero})
+ });
+ memory=e.memory;e._initialize?.();e.web_boot();
+ const size=e.dream_patch_size();
+ if(bytes.length>size)throw Error('Unsupported patch size.');
+ new Uint8Array(memory.buffer,e.dream_patch_buffer(),size).set(bytes);
+ if(!e.dream_patch_apply(bytes.length))throw Error('This patch contains invalid or unsupported values.');
+ const migrated=Array.from(new Uint8Array(memory.buffer,e.dream_patch_data(),size));
+ // The older editor used the same layout, before rules occupied step bits.
+ if(schema===11)migrated[4]=11;
+ return migrated;
+}
 let bankInfoKey='';
 let hardwareParams=new Map(),hardwareFlush=null,hardwareFlushTask=Promise.resolve();
 const deviceMessage=text=>{$('device-status').textContent=text;};
 const deviceError=e=>deviceMessage(e.message||String(e));
 function deviceDraw(m){
+ $('screen').style.filter=m.displayInverted?'invert(1)':'';
  cx.fillStyle='#0b1319';cx.fillRect(0,0,240,240);
  cx.strokeStyle='#304d47';cx.lineWidth=1;
  for(let j=0;j<7;j++){cx.beginPath();for(let x=0;x<240;x+=3){const y=45+j*24+8*Math.sin(x*.022+j+m.page*.4);x?cx.lineTo(x,y):cx.moveTo(x,y);}cx.stroke();}
@@ -26,12 +52,12 @@ function hardwarePost(m){
  const d=hardwareDevice;if(!d)return;
  const run=async()=>{
   if(m.type==='app'&&m.cmd==='command'){
-   if(m.c===113||m.c===114){await hardwareBank(m.c===114);return;}
+   if(m.c===113||m.c===114){await hardwareBank(m.c===114?'save':'load');return;}
    // Continuous knobs are coalesced. Ordered sequence edits and actions are never coalesced.
    if([1,2,3,4,5,9,11,14,15,22,23,24,28,29,37,38,39,40,41,42,44,46,47,48,49,50,51,54,55,56,57,58,94,122,123].includes(m.c)){
     hardwareParams.set(m.c+':'+m.t,[m.c,m.t,m.v]);if(!hardwareFlush)hardwareFlush=setTimeout(()=>flushHardwareParams().catch(deviceError),45);return;
    }
-   await flushHardwareParams();if(m.c>=100&&m.c<120)await d.ui(m.c,m.t,m.v);else await d.command(m.c,m.t,m.v);
+   await flushHardwareParams();if((m.c>=100&&m.c<120)||m.c===127)await d.ui(m.c,m.t,m.v);else await d.command(m.c,m.t,m.v);
   }else{
    await flushHardwareParams();
    if(m.type==='app'&&m.cmd==='page')await d.ui(100,0,m.v);
@@ -46,17 +72,25 @@ function hardwarePost(m){
  };
  run().catch(deviceError);
 }
-async function hardwareBank(save){
+async function hardwareBank(action){
+ if(hardwareBusy)throw Error('Wait for the bank transfer to finish.');
+ const save=action==='save';
  const d=hardwareDevice;if(!d)return;await flushHardwareParams();
  const state=await d.state();if(state.playing||state.clock)throw Error('Stop the FM-1 and choose internal clock before using User Banks.');
  const k=state.bankKind,s=state.bankSlot,t=state.track,name=$('bank-name').value;
+ if(action==='clear'){
+  if(!d.clearBank)throw Error('Clearing slots requires the matching FM-1 build.');
+  if(!confirm(`Clear FM-1 ${k?'sound':'Biome'} slot ${s+1}?`))return;
+  await d.bank(k,s,t,4);const message=`Cleared FM-1 user slot ${s+1}.`;deviceMessage(message);return message;
+ }
  try{await d.bank(k,s,t,save?2:1,name);}
  catch(e){if(!save||e.status!==5)throw e;
   if(!confirm(`Replace FM-1 ${k?'sound':'Biome'} slot ${s+1} with “${name}”?`))return;
   await d.bank(k,s,t,3,name);
  }
- bankInfoKey='';if(!save)$('bank-name').value=(await d.state()).bankName;
- deviceMessage(save?`Saved to FM-1 ${k?'sound':'Biome'} slot ${s+1}.`:`Loaded FM-1 user slot ${s+1}.`);
+ if(!save)$('bank-name').value=(await d.state()).bankName;
+ const message=save?`Saved to FM-1 ${k?'sound':'Biome'} slot ${s+1}.`:`Loaded FM-1 user slot ${s+1}.`;
+ deviceMessage(message);return message;
 }
 async function pollHardware(){
  const d=hardwareDevice;if(!d||hardwareBusy||d.pending||hardwareParams.size)return;
@@ -70,12 +104,15 @@ async function pollHardware(){
  catch(e){deviceError(e);if(d.link.lost)await disconnectHardware();}
 }
 function downloadDeviceFile(bytes,name,type){const url=URL.createObjectURL(new Blob([bytes],{type})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);}
+function syncSequencePageAvailability(d){
+ for(const p of [40,41,42])document.querySelector(`[data-page="${p}"]`).disabled=!!d&&d.pages<=p;
+}
 async function disconnectHardware(){
  const d=hardwareDevice;if(!d||hardwareBusy)return;clearInterval(hardwarePoll);clearTimeout(hardwareFlush);hardwareParams.clear();
- try{await d.close();}catch(e){deviceError(e);}hardwareDevice=null;ready=browserWasReady;playing=0;buttons=keys=0;
+ try{await d.close();}catch(e){deviceError(e);}hardwareDevice=null;$('screen').style.filter='';ready=browserWasReady;playing=0;buttons=keys=0;
  $('device-connect').disabled=false;$('device-disconnect').disabled=true;$('device-backup').disabled=$('device-restore').disabled=true;
  $('power').disabled=browserWasReady;$('play').disabled=!ready;$('export-patch').disabled=$('import-patch').disabled=!ready;
- $('load-dev-example').disabled=!ready;$('midi-connect').disabled=false;$('midi-input').disabled=false;$('device-target').textContent='BROWSER';
+ syncSequencePageAvailability(null);trackUI();$('load-dev-example').disabled=!ready;$('midi-connect').disabled=false;$('midi-input').disabled=false;$('device-target').textContent='BROWSER';
  if(ctx&&browserWasReady)await ctx.resume();deviceMessage('Browser instrument selected. Hardware banks remain on the FM-1.');if(page===30)macroUI();
 }
 $('device-connect').onclick=async()=>{
@@ -88,7 +125,7 @@ $('device-connect').onclick=async()=>{
   const d=await DreamsDevice.Device.connect(hardwareAccess);browserWasReady=ready;
   if(node){node.port.postMessage({type:'buttons',mask:0});node.port.postMessage({type:'keys',mask:0});node.port.postMessage({type:'app',cmd:'command',c:27,t:0,v:0});await new Promise(r=>setTimeout(r,70));}
   if(ctx)await ctx.suspend();hardwareDevice=d;ready=true;buttons=keys=0;
-  $('power').disabled=true;$('device-disconnect').disabled=false;$('device-backup').disabled=$('device-restore').disabled=false;
+  syncSequencePageAvailability(d);trackUI();$('power').disabled=true;$('device-disconnect').disabled=false;$('device-backup').disabled=$('device-restore').disabled=false;
   $('play').disabled=$('export-patch').disabled=$('import-patch').disabled=false;$('load-dev-example').disabled=false;
   $('midi-connect').disabled=$('midi-input').disabled=true;$('device-target').textContent='LIVE FM-1';
   deviceMessage('Connected to '+d.id+'. Listen through the FM-1. Controls edit its live patch; Save is explicit.');if(page===30)macroUI();
@@ -124,4 +161,7 @@ $('device-bank-file').onchange=async e=>{
   });
  }catch(err){deviceError(err);}
 };
-window.addEventListener('pagehide',()=>{const d=hardwareDevice;if(d&&!hardwareBusy){d.link.send([0xf0,0x7d,0x4c,0x43,1,0,0,0xf7]);d.link.send([0xf0,0x7d,0x4c,0x43,2,0,0,0,0,0xf7]);d.link.send([0xf0,0x7d,0x4c,0x43,4,1,32,0xf7]);}});
+window.addEventListener('pagehide',()=>{
+ const d=hardwareDevice;
+ if(d&&!hardwareBusy)d.link.send([0xf0,0x7d,0x4c,0x43,5,0,0xf7]);
+});

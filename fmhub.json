@@ -1,13 +1,12 @@
 {
-  "what": "Six assignable synth tracks, or a Lo-Fi kit plus three synths. Explore 168 musical Biomes, 364 sounds and thirteen scales; receive BLE MIDI notes, CC and clock, shape chord journeys and generative rhythms, and play or edit in your browser.",
+  "what": "A six-track generative synth for the M-VAVE FM-1. Play 272 Biomes, arrange up to eight sections with Journey, shape movement with Living Links and Drift, and record six mono voices plus the stereo mix over USB.",
   "author": "Kid Bunka",
   "kinds": [
-    "synth",
-    "groove",
-    "drums"
+    "synth"
   ],
-  "play": "https://kidbee85-beep.github.io/mutable-dreams/",
-  "editor": "https://kidbee85-beep.github.io/mutable-dreams/#device-editor",
-  "cheat": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-1.5-Guide.pdf",
-  "image": "docs/img/screen-1.5.png"
+  "play": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.0.html",
+  "editor": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.0.html#device-editor",
+  "cheat": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.0-Walkthrough.pdf",
+  "image": "docs/img/Mutable-Dreams-2.0-FM1.png",
+  "color": "#9BC9A5"
 }

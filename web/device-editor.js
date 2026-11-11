@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR GPL-3.0-only
-// One in-flight request, no automatic replay of a write after a lost acknowledgement.
+// One in-flight request. Only reads and explicitly replayable patch chunks can retry.
 (()=>{
 const {PB,Link}=globalThis.DreamsBackup;
 const delay=ms=>new Promise(r=>setTimeout(r,ms));
@@ -11,7 +11,17 @@ class Device{
  constructor(link,id){this.link=link;this.id=id;this.seq=0;this.tail=Promise.resolve();this.pending=0;this.closed=false;}
  static async connect(access){
   const dev=await PB.find(access,(i,o)=>new Link(i,o));const d=new Device(dev.link,dev.id);
-  try{if(dev.id==='FM-1_710010000')throw Error('Mutable Dreams 1.0 detected. The live editor requires a later firmware. Back up your current work and update first, or use browser-only mode.');const cap=words(await d.call(7));if(cap[0]!==1||cap[1]!==9||cap[2]!==2288)throw Error('This FM-1 needs the matching Mutable Dreams 1.5 firmware.');await d.remote([5,1]);return d;}
+  try{
+   if(dev.id==='FM-1_710010000')throw Error('Mutable Dreams 1.0 detected. The live editor requires a later firmware. Back up your current work and update first, or use browser-only mode.');
+   const cap=words(await d.call(7));
+   if(cap[0]!==1||![11,12].includes(cap[1])||cap[2]!==2604)throw Error('This FM-1 needs the matching private Mutable Dreams 2.0 firmware.');
+   d.schema=cap[1];d.pages=cap[3];d.tones=cap[6];d.biomes=cap[7];d.phraseExpression=false;d.replayUploadChunk=false;d.displayPolarity=false;d.clearBank=false;
+   if(d.schema===12){
+    try{const [features]=words(await d.call(21));d.phraseExpression=!!(features&1);d.replayUploadChunk=!!(features&2);d.displayPolarity=!!(features&4);d.clearBank=!!(features&8);}
+    catch(e){if(e.status!==1)throw e;}
+   }
+   await d.remote([5,1]);return d;
+  }
   catch(e){dev.link.close();throw e;}
  }
  exclusive(fn){
@@ -20,34 +30,57 @@ class Device{
   this.pending++;const p=this.tail.then(()=>{if(this.closed||this.link.lost)throw Error('The FM-1 is disconnected.');return fn();});
   this.tail=p.catch(()=>{}).finally(()=>this.pending--);return p;
  }
- async _call(c,p=[]){
+ async _call(c,p=[],timeout=3000){
   this.seq=(this.seq+1)&127;const head=[0xf0,0x7d,0x4d,0x44,c,this.seq];
   if(!this.link.send([...head,...p,0xf7]))throw Error('The FM-1 disconnected.');
-  const end=Date.now()+3000;
+  const end=Date.now()+timeout;
   while(Date.now()<end){const r=await this.link.read(Math.max(1,end-Date.now()));if(!r)continue;
    if(head.some((v,i)=>r[i]!==v)||r.at(-1)!==0xf7||r.length<8)continue;
    await delay(18);if(r[6]){const e=Error(({1:'Invalid editor request.',2:'The command queue is full.',3:'This user slot is empty.',4:'Stop playback and use internal clock first. Wait for any backup to finish.',5:'This slot is occupied. Confirm replacement.',6:'Invalid or unsupported data. Nothing loaded.',7:'The bank could not be saved.',8:'Unsaved Biome: choose Keep, Save or Discard on the panel.'})[r[6]]||'Device rejected the request.');e.status=r[6];throw e;}
    return unpack(r.slice(7,-1));
   }
-  throw Error('No reply from the FM-1. A timed-out write is not retried; read the device before trying again.');
+  const e=Error('No reply from the FM-1. Read the current device state before trying again.');
+  e.code='device-timeout';throw e;
  }
  call(c,p=[]){return this.exclusive(()=>this._call(c,p));}
- command(c,t,v){if(!Number.isInteger(c)||c<0||c>=127||(c>=99&&c<120)||c===124||t<0||t>5||v< -8192||v>8191)throw Error('Invalid parameter.');const z=v+8192;return this.call(2,[c,t,z&127,z>>7]);}
+ command(c,t,v){const valid=(c>=0&&c<=98)||(c>=120&&c<=123)||c===125||c===126||(c>=128&&c<=(this.phraseExpression?161:this.schema===12?160:158));if(!Number.isInteger(c)||!valid||!Number.isInteger(t)||t<0||t>(c>=136&&c<=143?15:c>=128&&c<=135?7:5)||!Number.isInteger(v)||v< -8192||v>8191)throw Error('Invalid parameter.');const z=v+8192;return c>=128?this.call(16,[c&127,c>>7,t,z&127,z>>7]):this.call(2,[c,t,z&127,z>>7]);}
  ui(c,t,v){const z=v+8192;return this.call(10,[c,t,z&127,z>>7]);}
  remote(p){return this.exclusive(async()=>{
   const head=[0xf0,0x7d,0x4c,0x43,p[0]];if(!this.link.send([0xf0,0x7d,0x4c,0x43,...p,0xf7]))throw Error('FM-1 disconnected.');
   const end=Date.now()+3000;while(Date.now()<end){const r=await this.link.read(end-Date.now());if(r&&r.length===6&&head.every((v,i)=>r[i]===v)){await delay(18);return;}}
   throw Error('No reply to panel control.');
  });}
- async state(){const b=await this.call(9),w=words(b.slice(0,184));return {type:'state',pending:b.length>=220?words(b.slice(208,220))[0]:-1,kitMode:b.length>=220?words(b.slice(208,220))[1]:0,bankPending:b.length>=220?words(b.slice(208,220))[2]:-1,buttonGlow:b.length>=224?words(b.slice(220,224))[0]:0,page:w[0],track:w[1],playing:w[2],octave:w[3],help:w[4],motion:w[5],biome:w[6],edited:w[7],tempo:w[8],locked:w[9],freeze:w[10],bootSound:w[11],bankSlot:w[12],bankKind:w[13],clock:w[14],quantize:w[15],models:w.slice(16,22),tones:w.slice(22,28),muted:w.slice(28,34),knobs:w.slice(34,38),raw:w.slice(38,42),macro:w.slice(42,46),bankName:String.fromCharCode(...b.slice(184,208)).split('\0')[0]};}
- snapshot(){return this.exclusive(async()=>{const h=words(await this._call(8)),b=new Uint8Array(h[0]);if(h[0]!==2288)throw Error('Unsupported patch size.');for(let off=0;off<b.length;off+=224){const part=await this._call(5,[off&127,off>>7,h[2]]);if(part.length!==Math.min(224,b.length-off))throw Error('Incomplete patch.');b.set(part,off);}if(PB.crc32(b)!==(h[1]>>>0))throw Error('The patch failed its checksum.');return Array.from(b);});}
+ async state(){const b=await this.call(9,this.displayPolarity?[1]:[]),w=words(b.slice(0,184)),x=words(await this.call(17)),look=b.length>=224?words(b.slice(220,224))[0]:0;return {type:'state',learnSlot:x[0],linkSlot:x[1],learnArmed:x[2],learnPicked:x[3],driftPosition:x[4],mappingGeneration:x[5],fill:x[6]||0,pending:b.length>=220?words(b.slice(208,220))[0]:-1,kitMode:b.length>=220?words(b.slice(208,220))[1]:0,bankPending:b.length>=220?words(b.slice(208,220))[2]:-1,buttonGlow:look&255,displayInverted:!!(look&256),page:w[0],track:w[1],playing:w[2],octave:w[3],help:w[4],motion:w[5],biome:w[6],edited:w[7],tempo:w[8],locked:w[9],freeze:w[10],bootSound:w[11],bankSlot:w[12],bankKind:w[13],clock:w[14],quantize:w[15],models:w.slice(16,22),tones:w.slice(22,28),muted:w.slice(28,34),knobs:w.slice(34,38),raw:w.slice(38,42),macro:w.slice(42,46),bankName:String.fromCharCode(...b.slice(184,208)).split('\0')[0]};}
+ snapshot(){return this.exclusive(async()=>{
+  const h=words(await this._call(8));
+  if(h[0]!==2604)throw Error('Unsupported patch size.');
+  const b=new Uint8Array(h[0]);
+  for(let off=0;off<b.length;off+=224){
+   const request=[off&127,off>>7,h[2]];
+   let part;
+   try{part=await this._call(5,request,1000);}
+   catch(e){if(e.code!=='device-timeout')throw e;part=await this._call(5,request);}
+   if(part.length!==Math.min(224,b.length-off))throw Error('Incomplete patch.');
+   b.set(part,off);
+  }
+  if(PB.crc32(b)!==(h[1]>>>0))throw Error('The patch failed its checksum.');
+  return Array.from(b);
+ });}
  upload(bytes){return this.exclusive(async()=>{
-  if(!Array.isArray(bytes)||bytes.length!==2288||bytes.some(v=>!Number.isInteger(v)||v<0||v>255))throw Error('Load older patches in the browser first, then transfer the current patch.');
+  if(!Array.isArray(bytes)||bytes.length!==2604||bytes.some(v=>!Number.isInteger(v)||v<0||v>255))throw Error('Load older patches in the browser first, then transfer the current patch.');
+  if(this.schema===11&&bytes[4]===12)throw Error('Step Rules patches need the matching firmware on the FM-1.');
   const token=(await this._call(11,pack([...u32(bytes.length),...u32(PB.crc32(bytes))])))[0];
-  try{for(let off=0;off<bytes.length;off+=196)await this._call(12,[token,off&127,off>>7,...pack(bytes.slice(off,off+196))]);await this._call(13,[token]);}
+  try{
+   for(let off=0;off<bytes.length;off+=196){
+    const chunk=[token,off&127,off>>7,...pack(bytes.slice(off,off+196))];
+    try{await this._call(12,chunk,this.replayUploadChunk?1000:3000);}
+    catch(e){if(!this.replayUploadChunk||e.code!=='device-timeout')throw e;await this._call(12,chunk);}
+   }
+   await this._call(13,[token]);
+  }
   catch(e){try{await this._call(14,[token]);}catch{}throw e;}
  });}
- bank(kind,slot,track,action,name=''){const b=Array.from({length:24},(_,i)=>i<23?(name.replace(/[^ -~]/g,'').charCodeAt(i)||0):0);return this.call(15,[kind,slot,track,action,...(action>=2?b:[])]);}
+ bank(kind,slot,track,action,name=''){const b=Array.from({length:24},(_,i)=>i<23?(name.replace(/[^ -~]/g,'').charCodeAt(i)||0):0);return this.call(15,[kind,slot,track,action,...((action===2||action===3)?b:[])]);}
  backup(progress){return this.exclusive(()=>PB.backup(this.link,progress));}
  restore(bytes,event){PB.parse(bytes);return this.exclusive(async()=>{const code=await PB.restore(this.link,bytes,event);if(code)throw Error(PB.ERRORS[code]||`Restore failed (${code}).`);});}
  async close(){if(this.closed)return;try{await this.remote([1,0,0]);await this.remote([2,0,0,0,0]);await this.remote([4,1,32]);await this.remote([5,0]);}finally{this.closed=true;this.link.close();}}

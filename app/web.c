@@ -7,28 +7,47 @@
 #else
 #define EXPORT static
 #endif
-EXPORT void dream_command(int c,int t,int v){dream_dismiss_intro();if(c==111){bank_slot=clamp(v,0,bank_kind?63:15);bank_armed=-1;}else if(c==112){bank_kind=clamp(v,0,1);bank_slot=clamp(bank_slot,0,bank_kind?63:15);bank_armed=-1;}else if(c==115)bank_char=clamp(v,0,22);else if(c==116){bank_name[bank_char]=clamp(v,0,126);bank_name[23]=0;}else if(c==113)bank_action(0);else if(c==114)bank_action(1);else if(c==103)dream_prefs.motion=clamp(v,0,1);else if(c==104)dream_prefs.boot_sound=clamp(v,0,1);else if(c==105)dream_intro();else if(c==106){cpu_peak=0;plat_audio_peak_reset();}else if(c==108)dream_prefs.button_glow=clamp(v,0,2);else dream_cmd(c,t,v);}
-EXPORT void dream_page(int p){dream_dismiss_intro();if(md_state()->kit.enabled&&dream_ui.track==3){if(p==SOUND||p==FILTER||p==ENVELOPE)p=KIT_PAD;if(p==SEQ_FLOW||p==SEQUENCE||p==STEP_DETAIL||p==RHYTHM||p==BASSLINE||p==PHRASE)p=KIT_SEQ;}dream_ui.page=clamp(p,0,30);dream_ui.help=-1;dream_ui.dirty=1;}
+EXPORT void dream_command(int c,int t,int v){dream_dismiss_intro();if(c==127&&t>=0&&t<4){if(dream_ui.page==SEQ_GRID||dream_ui.page==SEQ_TOOLS||dream_ui.page==SEQ_RULES)sequence_panel_set(dream_ui.page,t,v);}else if(c==110){learn_slot=clamp(v,0,15);}else if(c==117){link_slot=clamp(v,0,3);}else if(c==109){journey_edit=clamp(v,0,7);}else if(c==111){bank_slot=clamp(v,0,bank_kind?63:15);bank_armed=-1;}else if(c==112){bank_kind=clamp(v,0,1);bank_slot=clamp(bank_slot,0,bank_kind?63:15);bank_armed=-1;}else if(c==115)bank_char=clamp(v,0,22);else if(c==116){bank_name[bank_char]=clamp(v,0,126);bank_name[23]=0;}else if(c==113)bank_action(0);else if(c==114)bank_action(1);else if(c==103)dream_prefs.motion=clamp(v,0,1);else if(c==104)dream_prefs.boot_sound=clamp(v,0,1);else if(c==105)dream_intro();else if(c==106){cpu_peak=0;plat_audio_peak_reset();}else if(c==108)dream_prefs.button_glow=clamp(v,0,2);else dream_cmd(c,t,v);}
+EXPORT void dream_page(int p){dream_dismiss_intro();if(md_state()->kit.enabled&&dream_ui.track==3){if(p==SOUND||p==FILTER||p==ENVELOPE)p=KIT_PAD;if(p==SEQ_FLOW||p==SEQUENCE||p==STEP_DETAIL||p==RHYTHM||p==BASSLINE||p==PHRASE)p=KIT_SEQ;}dream_ui.page=clamp(p,0,DREAM_PAGE_COUNT-1);dream_ui.help=-1;dream_ui.dirty=1;}
 EXPORT void dream_track(int t){dream_ui.track=clamp(t,0,md_active_tracks()-1);dream_ui.dirty=1;}
-EXPORT int dream_value(int c,int t){const md_patch *p=md_state();const md_track *v=&p->track[clamp(t,0,5)];switch(c){case 200:return (dream_prefs.reserved&1)!=0;case 201:return (dream_prefs.reserved&2)!=0;case 124:return dream_prefs.button_glow;case MD_MIDI_ROUTE:return md_midi_route(clamp(t,0,5));case MD_MIDI_MACRO:return md_midi_macro_enabled();case 117:return md_pending_biome();case 118:return p->kit.enabled;case 119:return bank_pending;case 107:return dream_ui.octave;case 108:return dream_ui.help;case 109:return md_status()->last_note[clamp(t,0,5)];case 110:return md_status()->events[clamp(t,0,5)];case 100:return dream_ui.page;case 101:return dream_ui.track;case 102:return p->edited_mask;case 103:return dream_prefs.motion;case 104:return dream_prefs.boot_sound;case MD_SCENE:return p->biome_id;case MD_TONE_PRESET:return p->tone_preset[clamp(t,0,5)];case MD_MODEL:return v->model;case MD_MUTE:return v->mute;case MD_MACRO:return p->macro[clamp(t,0,3)];case MD_PLAY:return md_playing();case MD_TEMPO:return p->tempo;case MD_LOCK:return p->locked;case MD_FREEZE:return p->freeze;case MD_QUALITY:return p->quality;default:return 0;}}
+EXPORT int dream_value(int c,int t){const md_patch *p=md_state();const md_track *v=&p->track[clamp(t,0,5)];switch(c){case 209:return dream_inverted();case 208:return md_fill_status();case 206:return learn_slot;case 207:return link_slot;case 202:return md_learn_armed();case 203:return md_learn_picked(clamp(t,0,15));case 204:return md_drift_position();case 205:return md_mapping_generation();case 200:return (dream_prefs.reserved&1)!=0;case 201:return (dream_prefs.reserved&2)!=0;case 124:return dream_prefs.button_glow;case MD_MIDI_ROUTE:return md_midi_route(clamp(t,0,5));case MD_MIDI_MACRO:return md_midi_macro_enabled();case 117:return md_pending_biome();case 118:return p->kit.enabled;case 119:return bank_pending;case 107:return dream_ui.octave;case 108:return dream_ui.help;case 109:return md_status()->last_note[clamp(t,0,5)];case 110:return md_status()->events[clamp(t,0,5)];case 100:return dream_ui.page;case 101:return dream_ui.track;case 102:return p->edited_mask;case 103:return dream_prefs.motion;case 104:return dream_prefs.boot_sound;case MD_SCENE:return p->biome_id;case MD_TONE_PRESET:return p->tone_preset[clamp(t,0,5)];case MD_MODEL:return v->model;case MD_MUTE:return v->mute;case MD_MACRO:return p->macro[clamp(t,0,3)];case MD_PLAY:return md_playing();case MD_TEMPO:return p->tempo;case MD_LOCK:return p->locked;case MD_FREEZE:return p->freeze;case MD_QUALITY:return p->quality;default:return 0;}}
 
 EXPORT const char *dream_bank_name(void){return bank_name;}
+#ifdef PLAT_WEB
+EXPORT int dream_bank_browser(int action){
+ if(action!=BANK_LOAD&&action!=BANK_SAVE_ASK&&action!=BANK_SAVE_REPLACE&&action!=BANK_CLEAR)return 1;
+ dream_dismiss_intro();dream_ui.dirty=1;
+ return bank_action(action);
+}
+#endif
 EXPORT int dream_knob(int page,int track,int knob){
  const md_patch *p=md_state();const md_track *t=&p->track[clamp(track,0,5)];int k=clamp(knob,0,3);
  const md_extension *e=&p->ext[clamp(track,0,5)];
  int v[4]={0,0,0,0};switch(page){
+ case MIDI_LEARN:{const md_midi_mapping *m=md_mapping(learn_slot);v[0]=learn_slot;v[1]=m->target;v[2]=m->track;v[3]=md_learn_armed()==learn_slot;}break;
+ case MIDI_MAP:{const md_midi_mapping *m=md_mapping(learn_slot);v[0]=m->port;v[1]=m->channel;v[2]=m->cc;v[3]=m->enabled;}break;
+ case LIVING_LINKS:{const md_link *l=&p->links[link_slot];v[0]=link_slot;v[1]=l->source;v[2]=l->destination;v[3]=l->target;}break;
+ case LINK_MOTION:{const md_link *l=&p->links[link_slot];v[0]=link_slot;v[1]=l->signal;v[2]=l->depth;v[3]=l->release;}break;
+ case BIOME_DRIFT:v[0]=p->drift.mode;v[1]=p->drift.position;v[2]=p->drift.rate;v[3]=p->drift.depth;break;
+ case DRIFT_SCENES:v[0]=p->drift.captured&1;v[1]=(p->drift.captured>>1)&1;v[2]=p->drift.depth;v[3]=p->drift.mode;break;
+
+ case JOURNEY:v[0]=p->journey.mode;v[1]=journey_edit;v[2]=p->journey.section[journey_edit].biome==65535?-1:p->journey.section[journey_edit].biome;v[3]=p->journey.length;break;
+ case JOURNEY_TIME:v[0]=journey_edit;v[1]=p->journey.section[journey_edit].bars;v[2]=p->journey.section[journey_edit].repeats;v[3]=p->journey.section[journey_edit].transpose;break;
+ case JOURNEY_KEEP:v[0]=journey_edit;v[1]=track;v[2]=(p->journey.section[journey_edit].keep>>track)&1;v[3]=p->journey.mode;break;
  case KIT:v[0]=p->kit.enabled;v[1]=p->kit.bank;v[2]=p->kit.pad;v[3]=p->kit.hiss;break;
  case KIT_PAD:v[0]=p->kit.pads[p->kit.pad].tune;v[1]=p->kit.pads[p->kit.pad].level;v[2]=p->kit.pads[p->kit.pad].cutoff;v[3]=p->kit.pads[p->kit.pad].decay;break;
  case KIT_SEND:v[0]=p->kit.pad;v[1]=p->kit.pads[p->kit.pad].send;v[2]=p->ext[3].delay_send;v[3]=p->ext[3].reverb_send;break;
  case KIT_SEQ:v[0]=p->kit.step;v[1]=(p->kit.gates[p->kit.pad]>>p->kit.step)&1;v[2]=p->kit.length;v[3]=p->kit.generator;break;
  
  case SEQUENCE:{const md_sequence *q=&p->sequence[clamp(track,0,5)];v[0]=q->enabled;v[1]=q->edit;v[2]=q->steps[q->edit].note?q->steps[q->edit].note:23;v[3]=q->length;break;}
- case STEP_DETAIL:{const md_sequence *q=&p->sequence[clamp(track,0,5)];const md_step *s=&q->steps[q->edit];v[0]=s->velocity;v[1]=s->gate;v[2]=s->chance;v[3]=q->generator;break;}
+ case STEP_DETAIL:{const md_sequence *q=&p->sequence[clamp(track,0,5)];const md_step *s=&q->steps[q->edit];v[0]=s->velocity;v[1]=md_step_gate(s);v[2]=md_step_chance(s);v[3]=q->generator;break;}
+ case SEQ_GRID:case SEQ_TOOLS:case SEQ_RULES:return sequence_panel_value(page,clamp(track,0,5),k);
  case SEQ_FLOW:v[0]=p->motion.direction[clamp(track,0,5)];v[1]=p->motion.shift[clamp(track,0,5)];v[2]=p->motion.feel[clamp(track,0,5)];v[3]=p->sequence[clamp(track,0,5)].generator;break;
  case LFO_ROUTE2:v[0]=p->motion.target2[clamp(track,0,5)];v[1]=p->motion.wave2[clamp(track,0,5)];v[2]=p->motion.depth2[clamp(track,0,5)];v[3]=p->motion.rate2[clamp(track,0,5)];break;
  case LFO_ROUTE:v[0]=p->motion.target[clamp(track,0,5)];v[1]=p->motion.wave[clamp(track,0,5)];v[2]=e->tides;v[3]=e->tides_rate;break;
  case PROGRESSION:v[0]=p->chord_pattern;v[1]=p->chord_bars;v[2]=(p->chord_tracks>>clamp(track,0,5))&1;v[3]=p->motion.compact;break;
  case CLOUD:v[0]=p->grain_noise;v[1]=p->macro[3];v[2]=t->send;v[3]=p->freeze;break;
+ case USB_AUDIO:v[0]=app_local_monitor_muted();break;
  case MIDI:v[0]=md_clock_source();v[1]=md_midi_quantize();v[2]=md_midi_route(clamp(track,0,5));v[3]=md_midi_macro_enabled();break;
  case BT_PAGE:v[0]=(dream_prefs.reserved&1)!=0;v[1]=btdev_pick();v[2]=plat_ble_device();v[3]=(dream_prefs.reserved&2)!=0;break;
  case BANKS:v[0]=bank_slot;v[1]=bank_kind;break;
@@ -57,18 +76,30 @@ EXPORT int dream_raw_knob(int page,int track,int knob){
  const md_patch *p=md_state();const md_track *t=&p->track[clamp(track,0,5)];int k=clamp(knob,0,3);
  const md_extension *e=&p->ext[clamp(track,0,5)];
  int v[4]={0,0,0,0};switch(page){
+ case MIDI_LEARN:{const md_midi_mapping *m=md_mapping(learn_slot);v[0]=learn_slot;v[1]=m->target;v[2]=m->track;v[3]=md_learn_armed()==learn_slot;}break;
+ case MIDI_MAP:{const md_midi_mapping *m=md_mapping(learn_slot);v[0]=m->port;v[1]=m->channel;v[2]=m->cc;v[3]=m->enabled;}break;
+ case LIVING_LINKS:{const md_link *l=&p->links[link_slot];v[0]=link_slot;v[1]=l->source;v[2]=l->destination;v[3]=l->target;}break;
+ case LINK_MOTION:{const md_link *l=&p->links[link_slot];v[0]=link_slot;v[1]=l->signal;v[2]=l->depth;v[3]=l->release;}break;
+ case BIOME_DRIFT:v[0]=p->drift.mode;v[1]=p->drift.position;v[2]=p->drift.rate;v[3]=p->drift.depth;break;
+ case DRIFT_SCENES:v[0]=p->drift.captured&1;v[1]=(p->drift.captured>>1)&1;v[2]=p->drift.depth;v[3]=p->drift.mode;break;
+
+ case JOURNEY:v[0]=p->journey.mode;v[1]=journey_edit;v[2]=p->journey.section[journey_edit].biome==65535?-1:p->journey.section[journey_edit].biome;v[3]=p->journey.length;break;
+ case JOURNEY_TIME:v[0]=journey_edit;v[1]=p->journey.section[journey_edit].bars;v[2]=p->journey.section[journey_edit].repeats;v[3]=p->journey.section[journey_edit].transpose;break;
+ case JOURNEY_KEEP:v[0]=journey_edit;v[1]=track;v[2]=(p->journey.section[journey_edit].keep>>track)&1;v[3]=p->journey.mode;break;
  case KIT:v[0]=p->kit.enabled;v[1]=p->kit.bank;v[2]=p->kit.pad;v[3]=p->kit.hiss;break;
  case KIT_PAD:v[0]=p->kit.pads[p->kit.pad].tune;v[1]=p->kit.pads[p->kit.pad].level;v[2]=p->kit.pads[p->kit.pad].cutoff;v[3]=p->kit.pads[p->kit.pad].decay;break;
  case KIT_SEND:v[0]=p->kit.pad;v[1]=p->kit.pads[p->kit.pad].send;v[2]=p->ext[3].delay_send;v[3]=p->ext[3].reverb_send;break;
  case KIT_SEQ:v[0]=p->kit.step;v[1]=(p->kit.gates[p->kit.pad]>>p->kit.step)&1;v[2]=p->kit.length;v[3]=p->kit.generator;break;
  
  case SEQUENCE:{const md_sequence *q=&p->sequence[clamp(track,0,5)];v[0]=q->enabled;v[1]=q->edit;v[2]=q->steps[q->edit].note?q->steps[q->edit].note:23;v[3]=q->length;break;}
- case STEP_DETAIL:{const md_sequence *q=&p->sequence[clamp(track,0,5)];const md_step *s=&q->steps[q->edit];v[0]=s->velocity;v[1]=s->gate;v[2]=s->chance;v[3]=q->generator;break;}
+ case STEP_DETAIL:{const md_sequence *q=&p->sequence[clamp(track,0,5)];const md_step *s=&q->steps[q->edit];v[0]=s->velocity;v[1]=md_step_gate(s);v[2]=md_step_chance(s);v[3]=q->generator;break;}
+ case SEQ_GRID:case SEQ_TOOLS:case SEQ_RULES:return sequence_panel_value(page,clamp(track,0,5),k);
  case SEQ_FLOW:v[0]=p->motion.direction[clamp(track,0,5)];v[1]=p->motion.shift[clamp(track,0,5)];v[2]=p->motion.feel[clamp(track,0,5)];v[3]=p->sequence[clamp(track,0,5)].generator;break;
  case LFO_ROUTE2:v[0]=p->motion.target2[clamp(track,0,5)];v[1]=p->motion.wave2[clamp(track,0,5)];v[2]=p->motion.depth2[clamp(track,0,5)];v[3]=p->motion.rate2[clamp(track,0,5)];break;
  case LFO_ROUTE:v[0]=p->motion.target[clamp(track,0,5)];v[1]=p->motion.wave[clamp(track,0,5)];v[2]=e->tides;v[3]=e->tides_rate;break;
  case PROGRESSION:v[0]=p->chord_pattern;v[1]=p->chord_bars;v[2]=(p->chord_tracks>>clamp(track,0,5))&1;v[3]=p->motion.compact;break;
  case CLOUD:v[0]=p->grain_noise;v[1]=p->macro[3];v[2]=t->send;v[3]=p->freeze;break;
+ case USB_AUDIO:v[0]=app_local_monitor_muted();break;
  case MIDI:v[0]=md_clock_source();v[1]=md_midi_quantize();v[2]=md_midi_route(clamp(track,0,5));v[3]=md_midi_macro_enabled();break;
  case BT_PAGE:v[0]=(dream_prefs.reserved&1)!=0;v[1]=btdev_pick();v[2]=plat_ble_device();v[3]=(dream_prefs.reserved&2)!=0;break;
  case BANKS:v[0]=bank_slot;v[1]=bank_kind;break;
@@ -98,7 +129,7 @@ EXPORT void dream_input_edge(void){app_input_only();}
 
 /* Browser patch exchange. The AudioWorklet calls this between render quanta. */
 static md_patch browser_patch;
-EXPORT const void *dream_patch_data(void){return md_state();}
+EXPORT const void *dream_patch_data(void){return md_project_state();}
 EXPORT unsigned dream_patch_size(void){return sizeof(md_patch);}
 EXPORT void *dream_patch_buffer(void){return &browser_patch;}
 EXPORT int dream_patch_apply(unsigned n){

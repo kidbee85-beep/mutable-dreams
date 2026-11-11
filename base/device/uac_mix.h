@@ -13,6 +13,25 @@
 #define FM1B_UAC_MIX_H
 #include <stdint.h>
 
+/* Apply after recording and MASTER. No per-sample work in the normal ON state. */
+static inline void local_monitor(int32_t *o, uint32_t n, unsigned *level, int muted)
+{
+    enum { FADE = 128 };
+    const unsigned target = muted ? 0u : FADE;
+    while (n && *level != target) {
+        const float gain = (float)*level * (1.0f / FADE);
+        o[0] = (int32_t)((float)o[0] * gain);
+        o[1] = (int32_t)((float)o[1] * gain);
+        if (muted) --*level;
+        else ++*level;
+        o += 2;
+        --n;
+    }
+    if (muted)
+        for (uint32_t i = 0; i < 2u * n; i++)
+            o[i] = 0;
+}
+
 /* o: n stereo frames of the render (24-bit, as the I2S takes them; at 4096 when full, else at gain); gain: MASTER's gain
  * (APP_GAIN), put on after the tap when full; master: MASTER's position 0..4096; play_q12: the computer's audio's level,
  * 0 muted .. 4096 as sent */

@@ -1,0 +1,79 @@
+wait 3400
+page 1
+tap HOME
+tap HOME
+tap HOME
+expect live_view 2
+expect biome 0
+expect browse_biome 0
+spin K2 1
+expect browse_biome 1
+expect biome 0
+expect pending_biome -1
+spin K1 4
+expect browse_family 3
+expect browse_biome 1
+tap REC
+expect browse_favorite 1
+spin K1 63
+expect browse_biome 1
+expect browse_favorite 1
+wait 1500
+shot Biome-Favorites.png
+tap HOME
+spin K1 2
+wait 25
+expect unsaved 1
+tap HOME
+spin K4 7
+expect velocity_touch 35
+tap HOME
+expect browse_biome 1
+tap SEL
+wait 150
+expect pending_biome 1
+expect biome 0
+shot Biome-Unsaved-Guard.png
+tap HOME
+wait 25
+expect pending_biome -1
+expect biome 0
+expect unsaved 1
+tap SAVE
+reboot
+wait 3400
+expect biome 0
+expect velocity_touch 35
+tap HOME
+tap HOME
+spin K1 63
+expect browse_biome 1
+expect browse_favorite 1
+tap SEL
+wait 150
+expect biome 1
+tap REC
+expect browse_biome -1
+expect browse_favorite 0
+tap SEL
+expect biome 1
+wait 1500
+shot Biome-Empty-Favorites.png
+tap HOME
+tap HOME
+spin K4 -7
+expect velocity_touch 0
+tap HOME
+tap SAVE
+reboot
+wait 3400
+expect velocity_touch 0
+tap HOME
+tap HOME
+spin K1 63
+expect browse_biome -1
+tap GLO
+expect page 18
+expect patch_valid 1
+expect invalid 0
+expect queue_drops 0

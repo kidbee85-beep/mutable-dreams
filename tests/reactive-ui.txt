@@ -1,9 +1,5 @@
 wait 3400
-tap HOME
-tap GLO
-tap GLO
-tap GLO
-tap GLO
+page 11
 expect page 11
 spin K1 -1
 expect motion 0
@@ -35,10 +31,7 @@ wait 300
 expect field_density 1000
 expect field_size 1000
 shot long-grains.png
-tap GLO
-tap GLO
-tap GLO
-tap GLO
+page 11
 expect page 11
 spin K1 1
 expect motion 1

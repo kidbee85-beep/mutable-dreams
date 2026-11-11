@@ -1,0 +1,74 @@
+wait 3400
+tap HOME
+page 17
+tap GLO
+tap GLO
+spin K1 15
+spin K2 4
+spin K3 1
+spin K4 1
+wait 100
+expect page 34
+shot MIDI-Learn.png
+press GLO
+wait 900
+release GLO
+wait 50
+expect page 34
+shot MIDI-Learn-Help.png
+tap HOME
+tap GLO
+expect page 35
+spin K1 3
+spin K2 1
+spin K3 74
+spin K4 1
+wait 100
+shot MIDI-Mapping.png
+page 22
+tap FX
+spin K3 1
+tap FX
+expect page 37
+spin K3 20
+wait 100
+shot Link-Motion.png
+press FX
+wait 900
+release FX
+expect page 37
+shot Living-Links-Help.png
+tap HOME
+page 22
+tap FX
+shot Living-Links.png
+page 22
+tap FX
+tap FX
+tap FX
+tap FX
+spin K1 1
+page 1
+spin K1 -8
+page 22
+tap FX
+tap FX
+tap FX
+tap FX
+spin K2 1
+spin K4 2
+wait 100
+expect patch_valid 1
+shot Drift-Scenes.png
+page 22
+tap FX
+tap FX
+tap FX
+wait 600
+expect page 38
+shot Biome-Drift.png
+press FX
+wait 900
+release FX
+expect page 38
+shot Biome-Drift-Help.png

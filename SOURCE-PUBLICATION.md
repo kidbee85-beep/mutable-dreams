@@ -1,3 +1,5 @@
-# Source publication - 1.5
+# Mutable Dreams 2.0 source publication
 
-This complete, browsable source snapshot corresponds to release firmware SHA-256 `ee5d410fc13b9861baa2336303821ccf66ec8c7143c167649886fad368198b52`. Documentation and public URLs were finalized after user acceptance on 9 November 2026; DSP and device source are unchanged from the tested candidate. The archive excludes private backups, live patches, credentials, manufacturer firmware and generated build binaries. See SOURCE-SHA256.txt for the exact inventory. Original license notices are retained.
+This FM-1 source snapshot corresponds to build `4442417D`, package identity `FM-1_710020000` and firmware SHA-256 `dbf70502ec9b11bf9a45ec691639f7a823f27f4d4f83b481e5210b1a8a700390`. It is supplied as browsable repository source and as a ZIP. Run `python3 tools/verify_published_source.py` to verify the snapshot.
+
+The archive excludes user backups, live patches, stock firmware, credentials and local audio captures. The combined distribution is GPL-3.0-only. Component notices remain under their respective licences. See [BUILDING.md](BUILDING.md) and [LICENSING-GPL.txt](LICENSING-GPL.txt).

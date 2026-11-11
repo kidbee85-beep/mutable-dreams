@@ -57,18 +57,18 @@ int main(){
  // Old v1 data remains readable, with explicit neutral defaults for new features.
  struct OldPatch{uint32_t magic,version,seed;int32_t macro[4],tempo,locked,freeze,grain_size,grain_pos,feedback,quality;int32_t tracks[6][14];}old={};
  md_init();p=*md_state();memcpy(&old,&p,56);old.version=1;for(int i=0;i<6;i++)memcpy(old.tracks[i],&p.track[i],56);
- assert(md_import(&old,sizeof old));assert(md_state()->version==9&&md_state()->track[5].ratchet==1);assert(md_state()->duck_source==-1);old.tracks[0][7]=0;assert(!md_import(&old,sizeof old));
+ assert(md_import(&old,sizeof old));assert(md_state()->version==MD_PATCH_VERSION&&md_state()->track[5].ratchet==1);assert(md_state()->duck_source==-1);old.tracks[0][7]=0;assert(!md_import(&old,sizeof old));
  puts("PASS v1 patch migration and corrupt legacy rejection");
  // Import the exact v2 layout, preserving its parameter values and migration shape.
  struct V2Patch{uint32_t magic,version,seed;int32_t head[11];int32_t tracks[6][17];int32_t globals[9];}v2={};
  md_init();p=*md_state();memcpy(&v2,&p,56);v2.version=2;memcpy(v2.globals,&p.root,36);
  for(int i=0;i<6;i++){memcpy(v2.tracks[i],&p.track[i],68);v2.tracks[i][0]=3;v2.tracks[i][3]=777;}
- assert(md_import(&v2,sizeof v2));assert(md_state()->track[5].shape==777&&md_state()->track[5].decay==777&&md_state()->version==9);
+ assert(md_import(&v2,sizeof v2));assert(md_state()->track[5].shape==777&&md_state()->track[5].decay==777&&md_state()->version==MD_PATCH_VERSION);
  v2.tracks[0][0]=99;assert(!md_import(&v2,sizeof v2));puts("PASS v2 patch migration / corrupt model rejection");
 
  // Exact v3 prefix is preserved; unknown names remain explicitly custom.
  md_init();p=*md_state();unsigned char v3[620];memcpy(v3,&p,620);((uint32_t*)v3)[1]=3;
- assert(md_import(v3,sizeof v3));assert(md_state()->version==9&&md_state()->biome_id==-1&&md_state()->tone_preset[0]==-1);
+ assert(md_import(v3,sizeof v3));assert(md_state()->version==MD_PATCH_VERSION&&md_state()->biome_id==-1&&md_state()->tone_preset[0]==-1);
  assert(!memcmp((const unsigned char*)md_state()+8,v3+8,612));puts("PASS v3 migration preserves all 153 parameter words / marks custom names");
  // Every factory Biome must be valid, audible and genuinely different; Blank stays silent even after frozen tape.
  unsigned biome_hash[MD_BIOMES]={};

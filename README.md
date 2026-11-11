@@ -1,28 +1,21 @@
-# Mutable Dreams 1.5
+# Mutable Dreams 2.0 for the M-VAVE FM-1
 
-A free, independent instrument for the M-VAVE FM-1 by **Kid Bunka**.
+Mutable Dreams is an independent six-track instrument for generative ambient music, evolving soundscapes and rhythms, made by Kid Bunka.
 
-**168 musical Biomes + Blank · 364 tone presets · BLE MIDI reception · six freely assigned synth tracks, or a Lo-Fi kit plus three synths.**
+- Explore 272 factory Biome entries including Blank and 632 tone presets. Mix synth voices, lo-fi kits and hand percussion with shared effects and the granular bus.
+- Record and edit sequences, build chord progressions, and shape movement with Living Links and Biome Drift.
+- Use Journey to arrange up to eight sections. Chapel of Fog, Pearl Fern and Copper Step start with a Journey loop. The other factory Biomes start with Journey Off. Saved User Biomes keep their chosen mode.
+- Map external MIDI controls with MIDI Learn and mirror the actual FM-1 display over USB.
+- Record the stereo mix and six individual mono voices over USB at 44.1 kHz.
 
-[Play and edit in your browser](https://kidbee85-beep.github.io/mutable-dreams/) · [Install / return to V15](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-1.5-Install.html) · [Illustrated update guide](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-1.5-Guide.pdf) · [Release downloads](https://github.com/kidbee85-beep/mutable-dreams/releases/tag/v1.5)
+See [BUILDING.md](BUILDING.md) for source builds and [LICENSING-GPL.txt](LICENSING-GPL.txt) for licensing and third-party notices. This snapshot targets the FM-1. SMK-37 firmware is a separate build target and is currently unavailable.
 
-Version 1.5 adds twelve contrasting Biomes and twelve tones, a Wireless MIDI page, brighter organic display families, corrected echo bounds and an updater restart fix. Thank you for the community feedback that shaped these changes.
+## Installation and recovery
 
-## Wireless MIDI
+Export your saved User Banks as an `.mddb` file and any unsaved live Biome separately. The browser installer and Python USB-MIDI updater support the Mutable Dreams package. The manufacturer's M-UPGRADE utility accepts official stock files. A return to stock can erase User Banks and settings. After reinstalling Mutable Dreams, the editor can restore the bank file when you confirm with SEL on the device.
 
-An external BLE central, such as a Mac, can connect to the FM-1 service and send notes, controllers and transport/clock. Notes, CC74 and Start/Clock/Stop were tested on a physical FM-1, including reconnection after cold start. One BLE connection is supported. The opposite connection role, where the FM-1 links to a separate BLE peripheral, is experimental and still needs a controller test. USB and TRS input remain; physical TRS and BLE jitter measurements are not recorded in this cycle. Keyboard/sequencer MIDI output and arbitrary CC Learn are not new features of this release.
+The prior 2.0 candidate was exercised on the available FM-1 with the published 1.5 and stock V15 and V16. Build 4442417D adds the three factory arrangements. Offline flash and update tests cover JEDEC `B36014`. Installation, a save and cold start, and the stock recovery round trip with this exact build on a UC25HQ80 device are still awaiting confirmation.
 
-## Update and recovery
+Thanks to the players who tested builds and reported issues, and to the authors of the open-source DSP and platform code retained with their original notices.
 
-Back up .mddb User Banks and export unsaved live JSON before installation. Use our browser or Python installer; official M-UPGRADE rejects custom Mutable Dreams packages. Read [recovery instructions](docs/release-1.5/Recovery-1.5.txt). The tested package identifies as `FM-1_710010500`; SHA-256 `ee5d410fc13b9861baa2336303821ccf66ec8c7143c167649886fad368198b52`.
-
-Mutable Dreams does not import projects or sample banks saved by stock firmware or other custom firmwares. Switching firmware can replace their storage formats; export the relevant project's backup first and keep its matching firmware/restore tool. A Mutable Dreams .mddb backup is for Mutable Dreams, not a universal FM-1 backup.
-
-The UC25HQ80 flash ID is included, but physical installation on that newer board is still unverified. Do not confuse static support with a tested update. This release is FM-1 only; an SMK-37 build is not included.
-
-## Source and credits
-
-All source is browsable in this repository and at tag v1.5. See [BUILDING.md](BUILDING.md), [release notes](docs/release-1.5/Release-Notes-1.5.md), [licensing](LICENSING-GPL.txt) and [development evidence](DEVELOPMENT-NOTES-BLE.md). Earlier release tags and downloads remain available.
-
-With gratitude to Émilie Gillet, Mutable Instruments, fm1-base and felucca-bsp contributors. Selected algorithms retain their original notices; other module-inspired features are independent interpretations. Mutable Dreams is unaffiliated with and not endorsed by Mutable Instruments or M-VAVE.
-
+[Project website](https://kidbee85-beep.github.io/mutable-dreams/) · [Illustrated walkthrough](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.0-Walkthrough.pdf)

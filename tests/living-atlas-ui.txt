@@ -1,0 +1,78 @@
+wait 3400
+scene 213
+wait 150
+expect living_profile 1
+shot Understory-Cello-Still.png
+tap PLAY
+wait 1100
+shot Understory-Cello-Playing.png
+tap PLAY
+scene 226
+wait 150
+expect living_profile 2
+shot Apricot-Night-Bus-Still.png
+tap PLAY
+wait 150
+shot Apricot-Night-Bus-Playing.png
+tap PLAY
+scene 217
+wait 150
+expect living_profile 3
+shot Ochre-Observatory-Still.png
+tap PLAY
+wait 680
+shot Ochre-Observatory-Playing.png
+tap PLAY
+page 31
+journey 15 0 174
+journey 129 0 3
+journey 130 0 213
+journey 130 1 226
+journey 130 2 217
+journey 131 0 1
+journey 131 1 2
+journey 131 2 1
+journey 134 0 32
+journey 134 1 3
+journey 134 2 5
+journey 128 0 2
+wait 120
+expect timeline_next 0
+expect timeline_keep 32
+shot Journey-Arrange.png
+tap PLAY
+wait 100
+expect journey_at 0
+expect timeline_next 1
+expect timeline_keep 3
+shot Journey-First.png
+wait 1850
+expect journey_at 1
+expect timeline_next 2
+expect timeline_keep 5
+shot Journey-Playing.png
+wait 2550
+expect journey_at 2
+expect timeline_next 0
+expect timeline_keep 32
+shot Journey-Loop.png
+tap PLAY
+wait 80
+expect playing 0
+journey 130 2 101
+journey 134 2 63
+page 33
+wait 150
+expect timeline_next 2
+expect timeline_keep 7
+shot Journey-Three-Synth-Anchors.png
+tap HOME
+tap HOME
+tap HOME
+wait 1800
+expect live_view 2
+expect tiles_skipped 1
+shot Biome-Browser.png
+expect patch_valid 1
+expect invalid 0
+expect queue_drops 0
