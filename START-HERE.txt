@@ -1,0 +1,35 @@
+MUTABLE DREAMS 1.1
+
+Thank you for the music, feedback and enthusiasm that helped this instrument grow.
+With gratitude to Emilie Gillet and Mutable Instruments, and to the FM-1 community.
+
+Six freely assignable tracks. Twelve sound engines. 224 factory tones and 76
+musical Biomes plus a Blank starting point. Warmer bass and ambient voices,
+shared delay and room, granular texture, mixer and sends, remembered variation,
+cyclic motion and ring blending. Sixteen editable steps for each track.
+
+Keep your work in sixteen named User Biomes and sixty-four User Sound slots.
+The browser instrument uses the same application/DSP source as the FM-1.
+Its local banks are separate. Connect FM-1 to edit hardware parameters live;
+sound then comes from the FM-1. Export one live Biome as JSON or back up all
+saved device banks as .mddb. Full restore needs physical SEL confirmation.
+
+Open Mutable-Dreams-1.1.html to play, edit and install. Chrome or Edge with
+Web MIDI SysEx is needed for hardware connection/installation. Read
+Recovery-1.1.txt before changing firmware. Direct update from Mutable Dreams
+1.0 is supported; returning to Stock V15 first is unnecessary. An original
+V15 install/return route is also documented. V15 erases the new User Banks:
+keep .mddb and unsaved-live JSON backups before returning to stock.
+
+Hold a function button for contextual help. APPEARANCE offers reduced motion
+and startup-sound options. Save while stopped and using internal clock.
+
+These are selected original Plaits/Rings/Elements algorithms and original
+Mutable Dreams engines. Marbles, Tides and Warps functions are inspirations,
+not complete module ports. This is an independent community project.
+
+DEVICE-TEST-REPORT.txt records exact test coverage. Physical TRS MIDI was
+deferred; USB MIDI was tested. No MPE, MIDI output or live MIDI recording.
+The 1.1 product film uses calm male English narration and real FM-1 music.
+The original 1.0 tutorial remains separately labeled. Source and original
+license notices are included.

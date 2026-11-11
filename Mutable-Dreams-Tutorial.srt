@@ -1,0 +1,250 @@
+1
+00:00:02,000 --> 00:00:03,552
+Welcome to Mutable Dreams.
+
+2
+00:00:03,552 --> 00:00:10,538
+A six voice instrument for the M Vave F M one, and a
+playable instrument in your browser.
+
+3
+00:00:10,538 --> 00:00:15,582
+Its roots are in the generous work of Émilie Gillet
+and Mutable Instruments.
+
+4
+00:00:15,582 --> 00:00:21,404
+Selected Plaits voices and a Rings resonator meet
+our own choir, rhythms, and granular cloud.
+
+5
+00:00:21,404 --> 00:00:23,732
+Let us begin with a Biome.
+
+6
+00:00:24,732 --> 00:00:27,289
+Start the instrument, then press Play.
+
+7
+00:00:27,289 --> 00:00:33,680
+The Atlas holds sixty four musical Biomes, from soft
+atmospheres to dub, percussion, and melody.
+
+8
+00:00:33,680 --> 00:00:36,663
+Search by name or choose a landscape.
+
+9
+00:00:36,663 --> 00:00:38,793
+Each Biome is completely editable.
+
+10
+00:00:38,793 --> 00:00:44,332
+Blank Biome clears the patterns and cloud, leaving
+space for your own composition.
+
+11
+00:00:44,332 --> 00:00:47,315
+Save your work before choosing another world.
+
+12
+00:00:48,315 --> 00:00:51,045
+Select any of the six tracks.
+
+13
+00:00:51,045 --> 00:00:55,139
+Choose a sound preset, or choose its engine
+directly.
+
+14
+00:00:55,139 --> 00:00:59,688
+There are one hundred and twenty eight sounds to
+explore.
+
+15
+00:00:59,688 --> 00:01:08,786
+Every track can be a kick, snare, hi hat, F M voice,
+virtual analogue oscillator, resonator, harmonic
+voice, or choir.
+
+16
+00:01:08,786 --> 00:01:12,881
+Sound presets preserve your rhythm, notes, level,
+and send.
+
+17
+00:01:12,881 --> 00:01:17,885
+The keyboard plays the selected voice; octave
+buttons move its range.
+
+18
+00:01:18,885 --> 00:01:22,000
+Home brings you to the live controls.
+
+19
+00:01:22,000 --> 00:01:24,225
+Density adds or removes events.
+
+20
+00:01:24,225 --> 00:01:26,006
+Motion varies melodic notes.
+
+21
+00:01:26,006 --> 00:01:28,231
+Colour moves brightness and overtones.
+
+22
+00:01:28,231 --> 00:01:30,901
+Space brings the granular cloud forward.
+
+23
+00:01:30,901 --> 00:01:34,906
+Start with small movements, and let the pattern
+breathe.
+
+24
+00:01:34,906 --> 00:01:45,142
+On the instrument, Select chooses a track, Algo
+chooses its engine, and Preset chooses a Biome from
+Home, or a sound from Edit.
+
+25
+00:01:46,142 --> 00:01:49,483
+Sequence opens hits, length, rotation, and chance.
+
+26
+00:01:49,483 --> 00:01:55,209
+Tap it again for swing, repeats, accents, and each
+track's clock division.
+
+27
+00:01:55,209 --> 00:01:59,981
+These let a simple pulse become a slowly shifting
+conversation.
+
+28
+00:01:59,981 --> 00:02:03,798
+Global opens harmony: root, scale, transpose, and
+tempo.
+
+29
+00:02:03,798 --> 00:02:07,139
+Eight shared scales keep melodic voices together.
+
+30
+00:02:07,139 --> 00:02:14,297
+Arp locks the seed, Record creates a variation, and
+Envelope returns to the previous variation.
+
+31
+00:02:15,297 --> 00:02:18,534
+Edit cycles through sound, filter, envelope, and
+mix.
+
+32
+00:02:18,534 --> 00:02:25,818
+Shape your tone and harmonics, soften it with a low
+pass filter, or try the low pass gate.
+
+33
+00:02:25,818 --> 00:02:27,842
+Breathe adds slow filter movement.
+
+34
+00:02:27,842 --> 00:02:31,889
+Melodic voices offer a gentle attack and a long
+decay.
+
+35
+00:02:31,889 --> 00:02:36,340
+Mix sets the grain send, base note, pan, and clock
+division.
+
+36
+00:02:36,340 --> 00:02:38,768
+Select's button mutes the selected track.
+
+37
+00:02:39,768 --> 00:02:41,854
+Effects opens the granular bus.
+
+38
+00:02:41,854 --> 00:02:43,523
+Space sets its level.
+
+39
+00:02:43,523 --> 00:02:49,364
+Grain size shapes the fragments; position explores
+the sound memory; feedback lets them linger.
+
+40
+00:02:49,364 --> 00:02:51,033
+Larger grains overlap smoothly.
+
+41
+00:02:51,033 --> 00:02:59,378
+Tap Effects again to transpose or reverse the tape,
+and choose a track to duck the other voices and
+cloud.
+
+42
+00:02:59,378 --> 00:03:02,298
+L F O freezes the recorded material.
+
+43
+00:03:02,298 --> 00:03:05,219
+Listen as the rhythm continues around it.
+
+44
+00:03:06,219 --> 00:03:09,642
+Hold any function button for its help page.
+
+45
+00:03:09,642 --> 00:03:13,494
+Release it, then tap once to close the page.
+
+46
+00:03:13,494 --> 00:03:16,490
+Global also leads to System and Look.
+
+47
+00:03:16,490 --> 00:03:20,770
+Choose Eco or Full quality; heavier combinations
+automatically use Eco.
+
+48
+00:03:20,770 --> 00:03:24,622
+Reset the CPU peak when measuring a new patch.
+
+49
+00:03:24,622 --> 00:03:29,329
+Look controls animation, the optional startup sound,
+and replaying the introduction.
+
+50
+00:03:30,329 --> 00:03:34,795
+Stop playback and press Save to keep your patch and
+preferences.
+
+51
+00:03:34,795 --> 00:03:37,230
+There is one personal patch slot.
+
+52
+00:03:37,230 --> 00:03:41,696
+Factory Biomes remain available, and browser saves
+stay in that browser.
+
+53
+00:03:41,696 --> 00:03:48,191
+Panic stops playback and clears the cloud; on the F
+M one, use Record from System.
+
+54
+00:03:48,191 --> 00:03:53,062
+Begin quietly, take your time, and make these small
+worlds your own.
+
+55
+00:03:53,062 --> 00:03:55,092
+With gratitude to Mutable Instruments.

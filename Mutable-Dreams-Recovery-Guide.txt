@@ -1,0 +1,80 @@
+MUTABLE DREAMS 1.0 — INSTALLATION, UPDATES AND RETURN TO STOCK
+
+For the M-VAVE FM-1. Keep a separate copy of your own saved project before
+changing firmware. Factory sounds, stored projects and display preferences
+are different kinds of data; a firmware change is not a project backup.
+
+INSTALL FROM THE ORIGINAL FIRMWARE
+Start with the original M-VAVE FM-1 V15. If you use M-VAVE Open firmware,
+restore the checked original V15 first; do not try to skip that step.
+
+BROWSER INSTALLER (desktop Chrome / Edge)
+Open Mutable-Dreams-Installer.html from the extracted release folder, or
+from the HTTPS release website. The exact release package is embedded;
+no local server is required. Connect the FM-1 directly by USB, click
+Install, and allow MIDI / SysEx when the browser asks. The installer
+checks the package fingerprint and confirms the identity after reboot.
+No installation begins when you simply open the page.
+
+UPDATE AN EXISTING MUTABLE DREAMS INSTALLATION
+Download the complete current release, open its installer and click
+Install. Use a separate backup before every change. Browser patch files
+belong to the browser instrument; they do not back up the hardware.
+For a device patch backup, the Source package includes the read-only
+tools/project_backup.py diagnostic export. There is no general hardware
+patch-upload interface in this release. Do not assume any firmware keeps
+another firmware's stored data.
+
+PYTHON ALTERNATIVE
+The separate Mutable-Dreams-Installer-Kit.zip contains the updater and
+its requirements. Extract it, install the requirements, and place the
+.fwsc release file beside the updater.
+
+Use the fm1_install.py tool included in Mutable-Dreams-Source.zip under
+Mutable-Dreams/base/tools/. It checks the device model, installs the update
+loader and package, and checks the identity after restart.
+Python dependencies: mido and python-rtmidi.
+
+  python3 fm1_install.py --info
+  python3 fm1_install.py Mutable-Dreams.fwsc --yes
+
+Keep the USB cable connected and the computer awake until the tool reports
+completion. Do not bypass its model or identity checks.
+Expected identity for this release: FM-1_710010000.
+
+The USB-MIDI port name can change when switching firmware. Let the updater
+discover the device. If you manually selected a port, select its current
+name again after the restart.
+
+RETURN TO THE MANUFACTURER'S FIRMWARE
+Manufacturer downloads: https://www.m-vave.com/download
+Reference firmware URL:
+https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/FM-1.fwsc
+
+The reference tested here was V15, identity FM-1_015, 699956 bytes.
+SHA-256: db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a
+The manufacturer's URL may later deliver a different version. Check the
+file before treating it as the V15 reference described here.
+
+The browser installer also provides a stock-file picker. Select the
+downloaded original V15 file; its SHA-256 must match before the button
+becomes available. Alternatively use the Python updater:
+
+  python3 fm1_install.py FM-1-V15.fwsc --yes
+
+The exact 1.0 release was physically verified in a 1.0 -> V15 -> 1.0
+round trip, with firmware identity checks after both restarts. Same-version
+1.0 updates also preserved the patch, animation and start-sound settings.
+These physical tests used the Python USB updater; the browser installer
+was checked with simulated flows and real package validation.
+Its saved Mutable Dreams patch survived that round trip; display/startup
+preferences reset. This is not a guarantee that every firmware preserves
+another firmware's stored data. The ROM rescue route was prepared but was
+not tested by deliberately corrupting the device.
+
+This public release package contains no owner's private device backups.
+
+If the instrument does not start, follow the upstream ROM recovery
+instructions: https://github.com/hugelton/felucca-bsp/tree/main/tools
+The manufacturer M-UPGRADE updater is available on its download page.
+Do not disconnect power while any updater is writing.

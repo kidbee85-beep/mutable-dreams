@@ -1,0 +1,45 @@
+MUTABLE DREAMS / BIOME ATLAS
+
+On the FM-1: turn the master to a modest level, then press PLAY.
+On HOME, turn the preset encoder to choose a Biome.
+On an EDIT page, it chooses a sound for the selected track.
+SELECT chooses one of six freely assignable tracks; ALGO chooses its engine.
+
+EDIT cycles Sound > Filter > Envelope > Mix.
+FX cycles Granular > Tape. Grain Size changes fragment duration, with overlapping windows.
+For a clear sound, open FILTER or choose OFF. For warmth, lower the cutoff or use LPG.
+SYSTEM K2 selects ECO/FULL; dense FULL patches enter ECO automatically.
+The granular tape holds 2.97 seconds at 44.1 kHz.
+
+Hold any function button for about 0.85 seconds to see its current controls.
+Release, then tap to close help. That first tap only closes help.
+GLO three times: LOOK. K1 live motion, K2 startup sound, K3 intro replay.
+
+Stop PLAY, then SAVE. There is one personal patch slot; factory Biomes remain available.
+Choosing a Biome replaces all tracks and clears the cloud. Granular audio is not saved.
+The saved patch loads at restart. Browser storage is separate from the FM-1.
+
+Browser: open Mutable-Dreams.html, choose Start instrument, then Play.
+No network is required for the instrument; the original-source links need Internet access.
+
+Measured scope and limits: Mutable-Dreams-Validation.html.
+Installation and return to stock: Mutable-Dreams-Recovery-Guide.txt.
+
+For a gentler sound: FILTER resonance 0, LP12, a moderate cutoff, and low BREATHE.
+Harmonic TONE near the bottom favours the fundamental. Rings TONE and DECAY
+control bright ringing; shorten DECAY for a softer, more percussive response.
+The first Biomes now use calmer motion, consonant pitches and balanced levels.
+
+The guided English tutorial is Mutable-Dreams-Tutorial.mp4 (3 minutes 56 seconds).
+
+BROWSER EDITOR / PATCH FILES
+Start instrument, then select any of the six voices. All twelve pages
+change the actual synthesis engine. Export patch downloads all voice,
+rhythm and effect settings as a .mutable-dreams.json file. Stop before
+Import patch. SAVE keeps one local patch; exported files provide your
+own library. They contain no audio from the live granular buffer.
+Browser editing does not send patches to the FM-1.
+
+Enable the typing-key checkbox to play one octave with:
+A W S E D R F G Y H U J (F through E). OCT changes the range.
+The on-screen keyboard has all 27 chromatic keys.

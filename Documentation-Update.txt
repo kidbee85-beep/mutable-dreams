@@ -1,0 +1,25 @@
+MUTABLE DREAMS 1.1 - DOCUMENTATION AND BROWSER ADDENDUM
+25 October 2026
+
+The new English user guide has 23 illustrated pages, clickable contents,
+bookmarks, all 19 device pages, MIDI, User Banks, backup/restore and update paths.
+https://mutable-dreams.sugarypixie10.chatgpt.site/#guide
+
+The published website/browser HTML had been packaged with unexpanded template
+markers. The supplemental Mutable-Dreams-1.1-Browser.html includes the existing
+1.1 WebAssembly engine and support scripts correctly, plus clearer page help
+and a dark background beneath the coloured editor fields for readable controls.
+It is a browser packaging/documentation repair, not new device firmware.
+
+For browser use, choose the current website or this standalone HTML file rather
+than the HTML inside the original offline Release.zip. Existing release archives,
+device firmware binaries, source ZIP and v1.0 assets remain unchanged. Online
+links/media in the standalone page still need an internet connection. Browser
+banks belong to the profile and origin; export JSON before moving between them.
+
+Open the PDF locally or use the guide area on the website. Keep the PDF beside
+the standalone HTML if using its relative guide link offline.
+
+Firmware 1.1 identity: FM-1_710010100
+Firmware SHA-256:
+8e039bb0e9681fbbb0504e9b7d251895958fd88ae97f11ff0342b4aef38143d2

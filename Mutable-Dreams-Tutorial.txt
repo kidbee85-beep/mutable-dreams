@@ -1,0 +1,37 @@
+MUTABLE DREAMS — A GUIDED TOUR
+
+Small worlds, slowly unfolding
+
+Welcome to Mutable Dreams. A six voice instrument for the M Vave F M one, and a playable instrument in your browser. Its roots are in the generous work of Émilie Gillet and Mutable Instruments. Selected Plaits voices and a Rings resonator meet our own choir, rhythms, and granular cloud. Let us begin with a Biome.
+
+Choose a world, or make your own
+
+Start the instrument, then press Play. The Atlas holds sixty four musical Biomes, from soft atmospheres to dub, percussion, and melody. Search by name or choose a landscape. Each Biome is completely editable. Blank Biome clears the patterns and cloud, leaving space for your own composition. Save your work before choosing another world.
+
+Six voices, freely chosen
+
+Select any of the six tracks. Choose a sound preset, or choose its engine directly. There are one hundred and twenty eight sounds to explore. Every track can be a kick, snare, hi hat, F M voice, virtual analogue oscillator, resonator, harmonic voice, or choir. Sound presets preserve your rhythm, notes, level, and send. The keyboard plays the selected voice; octave buttons move its range.
+
+Four gestures for a living pattern
+
+Home brings you to the live controls. Density adds or removes events. Motion varies melodic notes. Colour moves brightness and overtones. Space brings the granular cloud forward. Start with small movements, and let the pattern breathe. On the instrument, Select chooses a track, Algo chooses its engine, and Preset chooses a Biome from Home, or a sound from Edit.
+
+Rhythm, harmony, and intention
+
+Sequence opens hits, length, rotation, and chance. Tap it again for swing, repeats, accents, and each track's clock division. These let a simple pulse become a slowly shifting conversation. Global opens harmony: root, scale, transpose, and tempo. Eight shared scales keep melodic voices together. Arp locks the seed, Record creates a variation, and Envelope returns to the previous variation.
+
+Warmth, shape, and space
+
+Edit cycles through sound, filter, envelope, and mix. Shape your tone and harmonics, soften it with a low pass filter, or try the low pass gate. Breathe adds slow filter movement. Melodic voices offer a gentle attack and a long decay. Mix sets the grain send, base note, pan, and clock division. Select's button mutes the selected track.
+
+Fragments becoming a cloud
+
+Effects opens the granular bus. Space sets its level. Grain size shapes the fragments; position explores the sound memory; feedback lets them linger. Larger grains overlap smoothly. Tap Effects again to transpose or reverse the tape, and choose a track to duck the other voices and cloud. L F O freezes the recorded material. Listen as the rhythm continues around it.
+
+A little help, always nearby
+
+Hold any function button for its help page. Release it, then tap once to close the page. Global also leads to System and Look. Choose Eco or Full quality; heavier combinations automatically use Eco. Reset the CPU peak when measuring a new patch. Look controls animation, the optional startup sound, and replaying the introduction.
+
+Keep what you discover
+
+Stop playback and press Save to keep your patch and preferences. There is one personal patch slot. Factory Biomes remain available, and browser saves stay in that browser. Panic stops playback and clears the cloud; on the F M one, use Record from System. Begin quietly, take your time, and make these small worlds your own. With gratitude to Mutable Instruments.

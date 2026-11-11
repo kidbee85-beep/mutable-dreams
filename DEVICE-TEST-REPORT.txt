@@ -1,0 +1,110 @@
+MUTABLE DREAMS 1.1 — RELEASE BUILD QUALIFICATION
+25 October 2026. Qualification record; publication receipts are tracked separately.
+
+Firmware: Mutable-Dreams-1.1.0.fwsc
+SHA256: 8e039bb0e9681fbbb0504e9b7d251895958fd88ae97f11ff0342b4aef38143d2
+USB identity: FM-1_710010100. MIDI port: X0X FM-1.
+Size: 610136 bytes. Application: 308972 bytes.
+Static RAM 71768 / 98304; pool 334800 / 344064 (9264 bytes spare).
+Audio callback 256 frames / 5804 us; DSP processing tiles 64 frames.
+
+WHAT CHANGED AFTER THE LONG QUALIFICATION
+The System page now says MUTABLE DREAMS 1.1. APP_VERSION is 1.1.0 instead of
+1.1.0-DEV. Of 368 application/platform source files compared, only that one
+display string differs. All twelve separately compiled DSP object files and
+the 6980-byte update loader are byte-identical to the qualified 427a build.
+Web/recovery copy, package names and export metadata carry the release version.
+No DSP, preset parameters, MIDI protocol, storage layout or OTA code changed.
+
+EXACT FINAL FILE — DIRECT 1.0 UPDATE
+The unchanged published 1.0 (SHA256
+75008881683cbeb3515e24cfd7830136b90eb293f0752dc66b203b7f2ee7cd9f)
+was installed on the actual FM-1. A known custom Biome was saved/read back in
+legacy v4 format, and this final 1.1 file was installed directly, without V15.
+First boot migrated to v6: all original parameter bytes matched exactly.
+The other 21 saved objects survived. The deliberately changed startup project
+was then restored via normal import + SAVE; all 22 original objects and the
+separate unsaved user live patch matched the fresh private backup exactly.
+First boot reported zero timing events; the stopped restoration of the saved
+project added one. That counter remained unchanged during the playback windows
+below. This is recorded separately from audio-compute overloads and was not reset
+or hidden. Flash writes can delay the audio interrupt even while stopped.
+
+EXACT FINAL FILE — PLAYBACK / EDITOR / BANKS
+Six Harmonic + effects + editor + backup: 60.5 s, peak callback 84.67%, PASS.
+Six mixed engines + effects + editor + backup: 60.4 s, peak callback 79.60%, PASS.
+Mellow Canopy: 25.3 s, peak callback 59.75%, PASS.
+Satin River: 25.3 s, peak callback 60.73%, PASS.
+Velour Dawn: 25.2 s, peak callback 60.67%, PASS.
+
+Both dense six-track tests moved through all nineteen pages, varied Grain Size
+through 19/20/21 and larger values, and read the complete bank backup during
+playback. All six tracks triggered. USB audio was finite, audible and complete.
+Zero new xruns, overloads, nonfinite samples, dropped commands, automatic quality
+reductions or host capture overruns in these measured playback windows.
+An existing named User Biome was loaded and re-saved with precisely its original
+payload/name. Readback passed. The final complete backup still matches all 22
+objects. The original unsaved live patch was restored; HOME, stopped, internal
+clock, physical keys and master released. No private backup is distributed.
+
+The initial bench process could not open its CoreAudio input after the two
+firmware re-enumerations (PortAudio -9986 / AUHAL invalid property). No playback
+test had begun. Reopening the bench in a fresh process, without reflashing or
+changing firmware, restored capture. The first failure log is retained; the
+successful playback measurements above come from the fresh process.
+
+BUILD / OFFLINE CHECKS
+Device compiler and memory/register/ROM checks passed without warnings/errors.
+Rebuilt WASM: nineteen pages, legacy import, malformed-file rejection, live JSON
+roundtrip, User Biome/Sound bank save-load/overwrite guard/restart, all 64 added
+warm tones. Sanitized native editor/actual storage-map tests passed, including
+130 simulated interrupted-write positions. These are simulations, not 130
+physical power cuts. Packaged HTML/JS syntax, the Density focus regression,
+binary packing, CRC/corrupt file handling, command serialization and transfer
+locking passed. Installer tests check the embedded exact firmware/hash,
+permission refusal and resumed-update identity checks with a fake updater.
+
+INHERITED EVIDENCE — EXPLICIT SCOPE
+Functional predecessor 427a34eedd2cc625b7833f3f953436bc1db1845f94cde695d8eed47332d09534
+passed an actual Stock V15 roundtrip and physically confirmed full-bank restore,
+physical cold start, two five-minute dense six-track tests and 64800 USB MIDI
+messages. The eight earlier untimestamped events were investigated: stopped
+flash maintenance reproduced timing events, while cold-start playback tests
+remained at zero. Saving/restoring is a stopped/internal-clock operation, not
+seamless audio-time flash writing. Detailed historical reports remain in source.
+
+The V15 roundtrip was not repeated on this label-only build. The update loader,
+platform/storage sources and all DSP objects are identical; direct upgrade and
+the playback/storage checks above were repeated on the exact final file.
+Do not relabel the 427a V15 measurements as a new exact-file V15 test.
+
+VISIBLE BROWSER CHECKS
+The owner confirmed browser audio/controls/User Biome save-load, live connection,
+bidirectional Density, JSON/.mddb downloads, disconnect, and successful browser
+reinstallation of 427a. Independent readback found all saved data unchanged.
+Final package only changes release copy/metadata and the app's version text;
+editor/installer protocol logic is unchanged. New package JS/embedding checks
+passed. No automated rendered-GUI test is claimed: local URL access was denied
+and was not bypassed. On 25 October the owner also confirmed completion of the
+remaining browser Import and Restore checks. This is an owner report; no new
+automated GUI recording or independent per-dialog readback is claimed.
+TRS MIDI input is implemented and retained in this release at the owner's
+request. The physical TRS connection remains untested. USB success does not
+certify TRS wiring. End-to-end latency/all possible patch combinations unmeasured.
+
+RELEASE / MEDIA
+Published 1.0 and the developer handoff remain unchanged.
+The completed English 1.1 product film uses calm male narration, seven real-device
+audio recordings and clearly labeled native Mutable Dreams 1.1
+firmware views rendered from source. No stock-firmware photograph is shown. It is not a camera recording of device operation. The
+film is embedded in the staged release page. A portrait Instagram reel is
+packaged separately. Published URLs are recorded separately after deployment.
+
+FINAL-BUILD MUSIC CAPTURES
+Seven new real-FM-1 recordings (275.78 seconds)
+were captured from this exact release file, including warm ambient, bass/dub,
+percussion and Grain Size 20/21/50/100. No new device faults or host capture
+overruns occurred. Raw 44.1-kHz stereo WAVs retain their original level; the
+24-bit container does not imply 24-bit source precision. The user live patch
+was restored and no saved bank was written. Audio production files are separate
+from firmware downloads; the completed product film is supplied separately.

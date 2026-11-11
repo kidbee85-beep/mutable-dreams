@@ -1,0 +1,175 @@
+WEBVTT
+
+00:00:04.000 --> 00:00:08.565
+Thank you for making Mutable Dreams part of your music.
+
+00:00:08.565 --> 00:00:14.872
+Your recordings, questions, and thoughtful feedback have shaped this update.
+
+00:00:14.872 --> 00:00:21.927
+You asked for warmer sounds, more room to compose, and a way to keep your own Biomes.
+
+00:00:21.927 --> 00:00:28.567
+Version one point one brings those ideas together, on the same small instrument.
+
+00:00:35.083 --> 00:00:39.581
+Begin with Mellow Canopy, Satin River, or Velour Dawn.
+
+00:00:39.581 --> 00:00:43.996
+Each of the six tracks can use any of twelve engines.
+
+00:00:43.996 --> 00:00:51.659
+Explore a soft Satin texture, a drifting melodic voice, a round bass, or a struck resonator.
+
+00:00:51.659 --> 00:00:55.075
+Bring the cutoff down for a quieter tone.
+
+00:00:55.075 --> 00:01:00.072
+Let the attack open slowly, and give the notes time to fade.
+
+00:01:00.072 --> 00:01:07.069
+Warmth comes from the source, the filter, the envelope, and the space between notes.
+
+00:01:07.069 --> 00:01:17.065
+The library now offers two hundred and twenty-four tones, and seventy-six musical Biomes, with Blank for your own ideas.
+
+00:01:23.583 --> 00:01:26.364
+The tracks are freely assignable.
+
+00:01:26.364 --> 00:01:33.609
+Build six melodic voices, an entire percussion ensemble, or a balance between the two.
+
+00:01:33.609 --> 00:01:43.551
+In the mixer, set a level for each voice and choose how much reaches the granular bus, the shared delay, and the room.
+
+00:01:43.551 --> 00:01:49.112
+A simple bass phrase gives an evolving texture a clear foundation.
+
+00:01:49.112 --> 00:01:54.419
+Add a few percussive events, and the same world begins to move.
+
+00:02:01.000 --> 00:02:05.630
+The granular bus listens to the voices you send into it.
+
+00:02:05.630 --> 00:02:12.245
+Change the fragment length and position to find another rhythm inside the sound.
+
+00:02:12.245 --> 00:02:15.717
+Freeze a moment, or reverse its direction.
+
+00:02:15.717 --> 00:02:21.670
+Keep some of the original signal present, and bring the cloud in gently.
+
+00:02:21.670 --> 00:02:28.533
+Shared delay and room connect the voices without hiding their individual character.
+
+00:02:28.533 --> 00:02:36.470
+Here, the fragment length moves from twenty, through twenty-one, to fifty, and then one hundred.
+
+00:02:36.470 --> 00:02:39.777
+Listen to the texture between the notes.
+
+00:03:23.333 --> 00:03:28.328
+New modulation tools give a repeating idea room to breathe.
+
+00:03:28.328 --> 00:03:35.186
+Marbles-inspired remembered variation keeps a relationship with what came before.
+
+00:03:35.186 --> 00:03:39.927
+Tides-inspired cyclic movement slowly changes the voice.
+
+00:03:39.927 --> 00:03:45.768
+Warps-inspired ring blending adds a different shade when you want it.
+
+00:03:45.768 --> 00:03:52.710
+These are our own interpretations, rather than complete replicas of those modules.
+
+00:03:52.710 --> 00:03:55.081
+Small amounts can be enough.
+
+00:03:55.081 --> 00:04:00.160
+A living pattern does not need to change everything at once.
+
+00:04:06.667 --> 00:04:11.208
+Blank Biome is a starting point for your own arrangement.
+
+00:04:11.208 --> 00:04:15.909
+Choose a voice, then write a phrase of up to sixteen steps.
+
+00:04:15.909 --> 00:04:24.434
+Add notes and rests, adjust the track's length and probability, and listen to how it meets the other parts.
+
+00:04:24.434 --> 00:04:30.410
+When you want to keep the result, stop playback and use the internal clock.
+
+00:04:30.410 --> 00:04:33.836
+Name your Biome and save it to a user slot.
+
+00:04:33.836 --> 00:04:38.776
+There are sixteen Biome slots and sixty-four user sound slots.
+
+00:04:38.776 --> 00:04:43.237
+A Biome keeps the six tracks, phrases, mix, and effects.
+
+00:04:43.237 --> 00:04:48.416
+Hold a function key whenever you need a reminder of its controls.
+
+00:04:54.917 --> 00:05:03.801
+You can explore Mutable Dreams in the browser, or connect the F M one and edit the instrument directly.
+
+00:05:03.801 --> 00:05:07.424
+In live mode, the F M one makes the sound.
+
+00:05:07.424 --> 00:05:11.996
+Changes on the device and in the editor stay in step.
+
+00:05:11.996 --> 00:05:17.431
+USB MIDI can play the six tracks and provide an external clock.
+
+00:05:17.431 --> 00:05:22.089
+Export a live Biome as JSON to keep its current edits.
+
+00:05:22.089 --> 00:05:25.194
+The bank backup is a different file.
+
+00:05:25.194 --> 00:05:30.283
+It contains the saved project, preferences, and user banks.
+
+00:05:30.283 --> 00:05:34.855
+Keep both when you have work you do not want to lose.
+
+00:05:41.417 --> 00:05:46.869
+If you use Mutable Dreams one point zero, you can update directly.
+
+00:05:46.869 --> 00:05:52.321
+Stop and save first, and follow the version-specific backup guide.
+
+00:05:52.321 --> 00:05:58.020
+You can also start from the original M VAVE version fifteen firmware.
+
+00:05:58.020 --> 00:06:03.225
+Keep USB connected until installation and restart are complete.
+
+00:06:03.225 --> 00:06:09.090
+Returning to version fifteen erases the new user banks and preferences.
+
+00:06:09.090 --> 00:06:18.754
+Restoring a bank backup after reinstalling one point one needs confirmation with the Select button on the instrument.
+
+00:06:25.333 --> 00:06:38.317
+Mutable Dreams exists with deep gratitude to Émilie Gillet and Mutable Instruments, and to the open-source contributors whose work makes this possible.
+
+00:06:38.317 --> 00:06:42.272
+Some engines use selected original algorithms.
+
+00:06:42.272 --> 00:06:47.689
+Other tools are our own interpretations, inspired by that work.
+
+00:06:47.689 --> 00:06:51.214
+This is an independent community project.
+
+00:06:51.214 --> 00:06:55.857
+Thank you for listening, sharing, and helping it grow.
+
+00:06:55.857 --> 00:07:00.070
+We look forward to hearing the Biomes you create.

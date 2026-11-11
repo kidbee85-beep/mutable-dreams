@@ -1,0 +1,28 @@
+MUTABLE DREAMS 1.1 — ENGLISH TRANSCRIPT
+
+Thank you
+Thank you for making Mutable Dreams part of your music. Your recordings, questions, and thoughtful feedback have shaped this update. You asked for warmer sounds, more room to compose, and a way to keep your own Biomes. Version one point one brings those ideas together, on the same small instrument.
+
+Warmer voices
+Begin with Mellow Canopy, Satin River, or Velour Dawn. Each of the six tracks can use any of twelve engines. Explore a soft Satin texture, a drifting melodic voice, a round bass, or a struck resonator. Bring the cutoff down for a quieter tone. Let the attack open slowly, and give the notes time to fade. Warmth comes from the source, the filter, the envelope, and the space between notes. The library now offers two hundred and twenty-four tones, and seventy-six musical Biomes, with Blank for your own ideas.
+
+A shared space
+The tracks are freely assignable. Build six melodic voices, an entire percussion ensemble, or a balance between the two. In the mixer, set a level for each voice and choose how much reaches the granular bus, the shared delay, and the room. A simple bass phrase gives an evolving texture a clear foundation. Add a few percussive events, and the same world begins to move.
+
+Inside the grain
+The granular bus listens to the voices you send into it. Change the fragment length and position to find another rhythm inside the sound. Freeze a moment, or reverse its direction. Keep some of the original signal present, and bring the cloud in gently. Shared delay and room connect the voices without hiding their individual character. Here, the fragment length moves from twenty, through twenty-one, to fifty, and then one hundred. Listen to the texture between the notes.
+
+Movement with intention
+New modulation tools give a repeating idea room to breathe. Marbles-inspired remembered variation keeps a relationship with what came before. Tides-inspired cyclic movement slowly changes the voice. Warps-inspired ring blending adds a different shade when you want it. These are our own interpretations, rather than complete replicas of those modules. Small amounts can be enough. A living pattern does not need to change everything at once.
+
+Your phrase, your Biome
+Blank Biome is a starting point for your own arrangement. Choose a voice, then write a phrase of up to sixteen steps. Add notes and rests, adjust the track's length and probability, and listen to how it meets the other parts. When you want to keep the result, stop playback and use the internal clock. Name your Biome and save it to a user slot. There are sixteen Biome slots and sixty-four user sound slots. A Biome keeps the six tracks, phrases, mix, and effects. Hold a function key whenever you need a reminder of its controls.
+
+Two worlds, one instrument
+You can explore Mutable Dreams in the browser, or connect the F M one and edit the instrument directly. In live mode, the F M one makes the sound. Changes on the device and in the editor stay in step. USB MIDI can play the six tracks and provide an external clock. Export a live Biome as JSON to keep its current edits. The bank backup is a different file. It contains the saved project, preferences, and user banks. Keep both when you have work you do not want to lose.
+
+Keep your worlds safe
+If you use Mutable Dreams one point zero, you can update directly. Stop and save first, and follow the version-specific backup guide. You can also start from the original M VAVE version fifteen firmware. Keep USB connected until installation and restart are complete. Returning to version fifteen erases the new user banks and preferences. Restoring a bank backup after reinstalling one point one needs confirmation with the Select button on the instrument.
+
+With gratitude
+Mutable Dreams exists with deep gratitude to Émilie Gillet and Mutable Instruments, and to the open-source contributors whose work makes this possible. Some engines use selected original algorithms. Other tools are our own interpretations, inspired by that work. This is an independent community project. Thank you for listening, sharing, and helping it grow. We look forward to hearing the Biomes you create.

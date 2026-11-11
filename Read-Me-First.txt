@@ -1,0 +1,22 @@
+MUTABLE DREAMS 1.0
+Six voices. Small worlds, endlessly unfolding.
+
+Extract this whole folder. Open index.html or Mutable-Dreams.html.
+Choose Start instrument, then Play. All six voices and twelve pages run
+the actual firmware engine. Export and import your own patch files in
+the browser editor. SAVE stores one patch locally. Browser editing does
+not change a connected FM-1. Desktop Chrome was tested.
+
+The guided tutorial, English subtitles and downloads live alongside it.
+Mutable-Dreams-Installer.html installs from original M-VAVE V15, updates
+Mutable Dreams and offers a checked return to V15. Read the Recovery
+Guide first. A Python installer kit is included as an alternative.
+
+The device identity is FM-1_710010000. It passed the final physical
+device suite, ten-minute soak, saved-state persistence and V15 return
+with reinstallation. Read the Validation report for measured coverage.
+The Audio folder contains unmastered 1.0 recordings from the FM-1.
+
+Source and licenses are in Mutable-Dreams-Source.zip.
+With gratitude to Emilie Gillet and Mutable Instruments.
+An independent community project, without affiliation or endorsement.
