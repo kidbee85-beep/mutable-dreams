@@ -1,0 +1,12 @@
+MUTABLE DREAMS 1.0 — FROM THE FM-1
+
+Eight twelve-second stereo recordings of the opening Biomes, captured from
+an actual M-VAVE FM-1 over USB: 44.1 kHz, 16-bit PCM.
+
+These are unmastered examples at one controlled master setting. No gain
+normalization, equalization or other processing was applied after capture.
+Their levels vary with the arrangement and the number of sounding voices.
+Recordings.json contains the measured levels and exact firmware SHA-256.
+
+For an editable, longer audition, open Mutable-Dreams.html in the parent
+folder, start the instrument and select the matching Biome.
