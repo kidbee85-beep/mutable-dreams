@@ -1,0 +1,15 @@
+{
+  "version": "1.0",
+  "identity": "FM-1_710010000",
+  "firmware_sha256": "75008881683cbeb3515e24cfd7830136b90eb293f0752dc66b203b7f2ee7cd9f",
+  "firmware_bytes": 610136,
+  "firmware": "Mutable-Dreams.fwsc",
+  "fixed_release_file": "Mutable-Dreams-1.0.fwsc",
+  "hardware_check_of_release_binary": "passed",
+  "engine_sources_match_hardware_tested_baseline": true,
+  "browser_editor": true,
+  "patch_file_format": "mutable-dreams-patch",
+  "patch_file_version": 1,
+  "stock_identity": "FM-1_015",
+  "stock_sha256": "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a"
+}

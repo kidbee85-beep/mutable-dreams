@@ -1,0 +1,3 @@
+afadbb7446907b7c0ea13e04953ea6a679e6226ed30b57bd7ddea7750ae6b029  Mutable-Dreams-1.1-User-Guide.pdf
+f288bed479bb8f15c8f8ebc3198ad0619508292a0e33e331b37dde1748bd73f7  Mutable-Dreams-1.1-Browser.html
+1c4cc4795ee47f70ac285eb602fdf29b4c40f06836c03638d0ce309419b5a750  Documentation-Update.txt
