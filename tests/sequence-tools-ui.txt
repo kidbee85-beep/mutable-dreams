@@ -1,0 +1,54 @@
+wait 3400
+scene 64
+journey 64 0 1
+journey 71 0 5
+journey 66 0 60
+journey 65 0 2
+journey 66 0 67
+journey 65 0 4
+journey 66 0 72
+journey 65 0 0
+wait 50
+page 27
+tap SEQ
+expect page 40
+expect track 0
+shot Six-Tracks.png
+tap SEQ
+expect page 41
+tap SEL
+wait 70
+expect selected_muted 0
+shot Phrase-Copy.png
+spin SELECT 1
+expect track 1
+spin K4 1
+tap SEL
+wait 70
+shot Phrase-Paste.png
+spin K4 1
+spin K3 -12
+tap SEL
+wait 70
+shot Phrase-Transpose.png
+tap ENV
+wait 70
+expect patch_valid 1
+press SEQ
+wait 900
+expect help 9
+expect help_context 1
+release SEQ
+wait 80
+expect page 41
+shot Phrase-Help.png
+tap SEL
+tap SEQ
+expect page 42
+tap SEQ
+expect page 31
+page 40
+tap SEL
+expect page 19
+expect queue_drops 0
+expect invalid 0

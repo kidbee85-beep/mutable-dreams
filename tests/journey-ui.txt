@@ -1,0 +1,78 @@
+wait 3400
+tap HOME
+scene 169
+journey 15 0 120
+wait 50
+page 31
+spin K1 1
+spin K4 1
+spin K2 1
+spin K3 172
+wait 100
+expect page 31
+expect patch_valid 1
+shot Journey-Arrange.png
+tap SEQ
+expect page 32
+spin K2 -3
+spin K3 1
+spin K4 -2
+spin K1 -1
+spin K2 -3
+wait 100
+shot Journey-Timing.png
+tap SEQ
+expect page 33
+spin K1 1
+spin K2 1
+spin K3 1
+wait 100
+shot Journey-Anchors.png
+press SEQ
+wait 900
+expect help 9
+expect help_context 1
+release SEQ
+wait 50
+expect page 33
+shot Journey-Help.png
+tap HOME
+page 18
+spin K1 15
+tap SAVE
+wait 50
+expect unsaved 0
+scene 170
+wait 50
+expect biome 170
+page 18
+spin K3 1
+wait 50
+expect biome 169
+expect patch_valid 1
+page 31
+tap PLAY
+wait 2200
+expect playing 1
+expect journey_active 1
+expect journey_at 1
+expect biome 171
+expect unsaved 0
+shot Journey-Playing.png
+tap HOME
+wait 50
+shot Journey-Live.png
+tap PLAY
+wait 50
+expect playing 0
+expect biome 169
+expect unsaved 0
+reboot
+wait 3500
+page 18
+spin K3 1
+wait 50
+expect patch_valid 1
+expect biome 169
+page 31
+shot Journey-Restored.png

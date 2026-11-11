@@ -1,9 +1,9 @@
-# Build Mutable Dreams 1.5 development candidate
+# Build Mutable Dreams 2.0 for the FM-1
 
-Use the browsable repository source tree or the versioned source bundle. No Git submodule download is needed. The application, selected Mutable Instruments code, fm1-base platform and felucca-bsp are vendored with their original notices.
+Use the browsable repository source tree or the 2.0 source bundle. No Git submodule download is needed. The application, selected Mutable Instruments code, fm1-base platform and felucca-bsp are vendored with their original notices.
 
 ```sh
-cd /path/to/Mutable-Dreams-1.5-Source
+cd /path/to/Mutable-Dreams-2.0-Source
 ```
 
 ## Source map
@@ -33,7 +33,7 @@ python -m pip install Pillow
 # macOS only: use the SDK installed on your machine.
 export SDKROOT="$(xcrun --show-sdk-path)"
 
-python tools/verify_published_source.py
+python tools/check_palette_20.py
 python tools/generate_lofi.py
 python tools/generate_presets.py
 python tools/build_local.py host --sanitize
@@ -90,17 +90,17 @@ The vendored download helpers document their upstream locations: [toolchain](bas
 export JIELI_TOOLCHAIN=/absolute/path/to/jieli-linux-toolchains-20260730.1
 export AC79_SDK=/absolute/path/to/AC79/sdk
 export PYTHON=/absolute/path/to/python3
-sh tools/build_device.sh
+sh tools/build_device.sh --fm1-test-candidate
 ```
 
-`JIELI_TOOLCHAIN` must contain `pi32v2/` and `common/`; `AC79_SDK` must directly contain `cpu/`. The builder creates the application, update loader and `.fwsc` package under `app/build/`. Building does not flash a device.
+`JIELI_TOOLCHAIN` must contain `pi32v2/` and `common/`; `AC79_SDK` must directly contain `cpu/`. The explicit private flag creates a 2.0.0-dev FM-1 application, update loader and local `.fwsc` under `app/build/`. Running the wrapper without it is refused. Building does not flash or publish. SMK-37 targets remain compile-time rejected and are deferred until FM-1 acceptance.
 
 For Apple Silicon, read [the tested build environment repair](docs/development/BUILD-ENVIRONMENT-FIX.txt) and [the preserved Blink patch](tools/toolchain-patches/blink-macos-guest-pages.patch). The qualified setup used the corrected Blink guest-page handling and interpreter mode (`-m -j`); the accelerated path failed in that setup. Do not assume a different emulator/container is qualified merely because compilation starts.
 
 ## Version and provenance
 
-The v1.5 candidate source archive contains the full tree and a SHA-256 manifest. Run `python3 tools/verify_published_source.py` to check these files. The device/DSP sources are identical to the qualified build; release documentation and browser packaging were updated afterwards. Toolchain differences can change binary outputs, so file identity alone is not a bit-for-bit build reproducibility claim.
+The 2.0 source archive contains the build tree and a SHA-256 manifest. Run `python3 tools/verify_published_source.py` to check these files. The device and DSP sources correspond to build 4442417D. Toolchain differences can change binary outputs. The manifest verifies the source snapshot.
 
-Published v1.0 through v1.4 tags/assets remain unchanged. Their automatic GitHub source downloads describe their historical repository commits. Use their named source ZIPs for the original frozen snapshots.
+Use the named source ZIPs attached to the published v1.0 through v1.5 releases for those historical snapshots.
 
 See the [1.5 development evidence](DEVELOPMENT-NOTES-BLE.md), [historical 1.4 qualification](docs/release-1.4/DEVICE-TEST-REPORT-1.4.txt), historical [1.2 qualification](docs/release-1.2/QUALIFICATION.txt), [licensing](LICENSING-GPL.txt), platform credits and component/font notices.

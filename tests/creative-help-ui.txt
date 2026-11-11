@@ -1,0 +1,878 @@
+wait 3400
+tap HOME
+page 34
+press FX
+wait 900
+expect help 0
+expect help_context 0
+release FX
+wait 20
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+press SEL
+wait 900
+expect help 1
+expect help_context 0
+release SEL
+wait 20
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+press ENV
+wait 900
+expect help 2
+expect help_context 0
+release ENV
+wait 20
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+press LFO
+wait 900
+expect help 3
+expect help_context 0
+release LFO
+wait 20
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+press EDIT
+wait 900
+expect help 4
+expect help_context 0
+release EDIT
+wait 20
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+press GLO
+wait 900
+expect help 5
+expect help_context 1
+release GLO
+wait 20
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+press HOME
+wait 900
+expect help 6
+expect help_context 0
+release HOME
+wait 20
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+press SAVE
+wait 900
+expect help 7
+expect help_context 0
+release SAVE
+wait 20
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+press ARP
+wait 900
+expect help 8
+expect help_context 0
+release ARP
+wait 20
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+press SEQ
+wait 900
+expect help 9
+expect help_context 0
+release SEQ
+wait 20
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+press PLAY
+wait 900
+expect help 10
+expect help_context 0
+release PLAY
+wait 20
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+press REC
+wait 900
+expect help 11
+expect help_context 1
+release REC
+wait 20
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+press OCT-
+wait 900
+expect help 12
+expect help_context 0
+release OCT-
+wait 20
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+press OCT+
+wait 900
+expect help 13
+expect help_context 0
+release OCT+
+wait 20
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+press GLO
+wait 900
+shot Creative-Help-34.png
+release GLO
+tap HOME
+page 35
+press FX
+wait 900
+expect help 0
+expect help_context 0
+release FX
+wait 20
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+press SEL
+wait 900
+expect help 1
+expect help_context 0
+release SEL
+wait 20
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+press ENV
+wait 900
+expect help 2
+expect help_context 0
+release ENV
+wait 20
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+press LFO
+wait 900
+expect help 3
+expect help_context 0
+release LFO
+wait 20
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+press EDIT
+wait 900
+expect help 4
+expect help_context 0
+release EDIT
+wait 20
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+press GLO
+wait 900
+expect help 5
+expect help_context 1
+release GLO
+wait 20
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+press HOME
+wait 900
+expect help 6
+expect help_context 0
+release HOME
+wait 20
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+press SAVE
+wait 900
+expect help 7
+expect help_context 0
+release SAVE
+wait 20
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+press ARP
+wait 900
+expect help 8
+expect help_context 0
+release ARP
+wait 20
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+press SEQ
+wait 900
+expect help 9
+expect help_context 0
+release SEQ
+wait 20
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+press PLAY
+wait 900
+expect help 10
+expect help_context 0
+release PLAY
+wait 20
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+press REC
+wait 900
+expect help 11
+expect help_context 1
+release REC
+wait 20
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+press OCT-
+wait 900
+expect help 12
+expect help_context 0
+release OCT-
+wait 20
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+press OCT+
+wait 900
+expect help 13
+expect help_context 0
+release OCT+
+wait 20
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+press GLO
+wait 900
+shot Creative-Help-35.png
+release GLO
+tap HOME
+page 36
+press FX
+wait 900
+expect help 0
+expect help_context 1
+release FX
+wait 20
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+press SEL
+wait 900
+expect help 1
+expect help_context 0
+release SEL
+wait 20
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+press ENV
+wait 900
+expect help 2
+expect help_context 0
+release ENV
+wait 20
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+press LFO
+wait 900
+expect help 3
+expect help_context 0
+release LFO
+wait 20
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+press EDIT
+wait 900
+expect help 4
+expect help_context 0
+release EDIT
+wait 20
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+press GLO
+wait 900
+expect help 5
+expect help_context 0
+release GLO
+wait 20
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+press HOME
+wait 900
+expect help 6
+expect help_context 0
+release HOME
+wait 20
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+press SAVE
+wait 900
+expect help 7
+expect help_context 0
+release SAVE
+wait 20
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+press ARP
+wait 900
+expect help 8
+expect help_context 0
+release ARP
+wait 20
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+press SEQ
+wait 900
+expect help 9
+expect help_context 0
+release SEQ
+wait 20
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+press PLAY
+wait 900
+expect help 10
+expect help_context 0
+release PLAY
+wait 20
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+press REC
+wait 900
+expect help 11
+expect help_context 1
+release REC
+wait 20
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+press OCT-
+wait 900
+expect help 12
+expect help_context 0
+release OCT-
+wait 20
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+press OCT+
+wait 900
+expect help 13
+expect help_context 0
+release OCT+
+wait 20
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+press FX
+wait 900
+shot Creative-Help-36.png
+release FX
+tap HOME
+page 37
+press FX
+wait 900
+expect help 0
+expect help_context 1
+release FX
+wait 20
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+press SEL
+wait 900
+expect help 1
+expect help_context 0
+release SEL
+wait 20
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+press ENV
+wait 900
+expect help 2
+expect help_context 0
+release ENV
+wait 20
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+press LFO
+wait 900
+expect help 3
+expect help_context 0
+release LFO
+wait 20
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+press EDIT
+wait 900
+expect help 4
+expect help_context 0
+release EDIT
+wait 20
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+press GLO
+wait 900
+expect help 5
+expect help_context 0
+release GLO
+wait 20
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+press HOME
+wait 900
+expect help 6
+expect help_context 0
+release HOME
+wait 20
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+press SAVE
+wait 900
+expect help 7
+expect help_context 0
+release SAVE
+wait 20
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+press ARP
+wait 900
+expect help 8
+expect help_context 0
+release ARP
+wait 20
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+press SEQ
+wait 900
+expect help 9
+expect help_context 0
+release SEQ
+wait 20
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+press PLAY
+wait 900
+expect help 10
+expect help_context 0
+release PLAY
+wait 20
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+press REC
+wait 900
+expect help 11
+expect help_context 1
+release REC
+wait 20
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+press OCT-
+wait 900
+expect help 12
+expect help_context 0
+release OCT-
+wait 20
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+press OCT+
+wait 900
+expect help 13
+expect help_context 0
+release OCT+
+wait 20
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+press FX
+wait 900
+shot Creative-Help-37.png
+release FX
+tap HOME
+page 38
+press FX
+wait 900
+expect help 0
+expect help_context 1
+release FX
+wait 20
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+press SEL
+wait 900
+expect help 1
+expect help_context 0
+release SEL
+wait 20
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+press ENV
+wait 900
+expect help 2
+expect help_context 0
+release ENV
+wait 20
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+press LFO
+wait 900
+expect help 3
+expect help_context 0
+release LFO
+wait 20
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+press EDIT
+wait 900
+expect help 4
+expect help_context 0
+release EDIT
+wait 20
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+press GLO
+wait 900
+expect help 5
+expect help_context 0
+release GLO
+wait 20
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+press HOME
+wait 900
+expect help 6
+expect help_context 0
+release HOME
+wait 20
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+press SAVE
+wait 900
+expect help 7
+expect help_context 0
+release SAVE
+wait 20
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+press ARP
+wait 900
+expect help 8
+expect help_context 0
+release ARP
+wait 20
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+press SEQ
+wait 900
+expect help 9
+expect help_context 0
+release SEQ
+wait 20
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+press PLAY
+wait 900
+expect help 10
+expect help_context 0
+release PLAY
+wait 20
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+press REC
+wait 900
+expect help 11
+expect help_context 1
+release REC
+wait 20
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+press OCT-
+wait 900
+expect help 12
+expect help_context 0
+release OCT-
+wait 20
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+press OCT+
+wait 900
+expect help 13
+expect help_context 0
+release OCT+
+wait 20
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+press FX
+wait 900
+shot Creative-Help-38.png
+release FX
+tap HOME
+page 39
+press FX
+wait 900
+expect help 0
+expect help_context 1
+release FX
+wait 20
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+press SEL
+wait 900
+expect help 1
+expect help_context 0
+release SEL
+wait 20
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+press ENV
+wait 900
+expect help 2
+expect help_context 0
+release ENV
+wait 20
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+press LFO
+wait 900
+expect help 3
+expect help_context 0
+release LFO
+wait 20
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+press EDIT
+wait 900
+expect help 4
+expect help_context 0
+release EDIT
+wait 20
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+press GLO
+wait 900
+expect help 5
+expect help_context 0
+release GLO
+wait 20
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+press HOME
+wait 900
+expect help 6
+expect help_context 0
+release HOME
+wait 20
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+press SAVE
+wait 900
+expect help 7
+expect help_context 0
+release SAVE
+wait 20
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+press ARP
+wait 900
+expect help 8
+expect help_context 0
+release ARP
+wait 20
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+press SEQ
+wait 900
+expect help 9
+expect help_context 0
+release SEQ
+wait 20
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+press PLAY
+wait 900
+expect help 10
+expect help_context 0
+release PLAY
+wait 20
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+press REC
+wait 900
+expect help 11
+expect help_context 1
+release REC
+wait 20
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+press OCT-
+wait 900
+expect help 12
+expect help_context 0
+release OCT-
+wait 20
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+press OCT+
+wait 900
+expect help 13
+expect help_context 0
+release OCT+
+wait 20
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+press FX
+wait 900
+shot Creative-Help-39.png
+release FX
+tap HOME

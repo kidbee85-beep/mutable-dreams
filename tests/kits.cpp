@@ -9,11 +9,11 @@ static double render(unsigned frames){double e=0;while(frames){unsigned n=frames
 static void cmd(int c,int t,int v){assert(md_command(c,t,v));render(1);}
 static void select(int id){cmd(MD_SCENE,0,id);if(md_pending_biome()>=0)cmd(MD_SCENE_CONFIRM,0,1);assert(md_state()->biome_id==id);}
 int main(){
- static_assert(offsetof(md_patch,kit)==2100,"v7 prefix");static_assert(sizeof(md_patch)==2288,"v8 contract");static_assert(sizeof(md_patch)+28<=3840,"Biome sector capacity");static_assert(MD_COMMAND_COUNT<128,"UI command namespace");
+ static_assert(offsetof(md_patch,kit)==2100,"v7 prefix");static_assert(sizeof(md_patch)==2604,"v8 contract");static_assert(sizeof(md_patch)+28<=3840,"Biome sector capacity");static_assert(MD_JOURNEY_MODE==128,"Extended command namespace");
  md_init();assert(!md_unsaved());cmd(MD_PLAY,0,1);render(44100);assert(!md_unsaved());cmd(MD_SEQ_STEP,0,3);assert(!md_unsaved());cmd(MD_KIT_PAD,3,4);assert(!md_unsaved());
  cmd(MD_MACRO,0,600);assert(md_unsaved());md_patch edited=*md_state();cmd(MD_SCENE,0,1);assert(md_pending_biome()==1&&!memcmp(&edited,md_state(),sizeof edited));assert(md_playing());cmd(MD_SCENE_CONFIRM,0,0);assert(md_pending_biome()==-1&&!memcmp(&edited,md_state(),sizeof edited));cmd(MD_MACRO,0,500);assert(!md_unsaved());cmd(MD_MACRO,0,620);md_mark_saved();assert(!md_unsaved());select(1);assert(!md_unsaved());cmd(MD_MACRO,0,777);select(2);assert(md_state()->biome_id==2&&!md_unsaved());cmd(MD_PLAY,0,0);md_patch edit=*md_state();edit.track[0].tone=333;assert(md_import_edit(&edit,sizeof edit));assert(md_unsaved());
  puts("PASS sound recall keeps unsaved Biome baseline");puts("PASS unsaved guard, cancellation, explicit discard, revert, saved baseline and cursor exclusions");
- cmd(MD_PLAY,0,0);unsigned char v7[2100];memcpy(v7,md_state(),2100);((uint32_t*)v7)[1]=7;md_patch migrated;assert(md_decode(&migrated,v7,sizeof v7));assert(migrated.version==9&&!migrated.kit.enabled);assert(!memcmp((char*)&migrated+8,v7+8,2092));assert(md_import(v7,sizeof v7));puts("PASS v7 migration preserves complete saved synth/sequence/FX prefix; kit disabled");
+ cmd(MD_PLAY,0,0);unsigned char v7[2100];memcpy(v7,md_state(),2100);((uint32_t*)v7)[1]=7;md_patch migrated;assert(md_decode(&migrated,v7,sizeof v7));assert(migrated.version==MD_PATCH_VERSION&&!migrated.kit.enabled);assert(!memcmp((char*)&migrated+8,v7+8,2092));assert(md_import(v7,sizeof v7));puts("PASS v7 migration preserves complete saved synth/sequence/FX prefix; kit disabled");
  select(64);md_patch base=*md_state();for(auto &t:base.track)t.mute=1;base.track[3].mute=0;base.track[3].level=900;base.track[3].speed=1;base.track[3].prob=1000;base.kit.enabled=1;base.macro[3]=0;base.fx_level=0;memset(base.kit.gates,0,sizeof base.kit.gates);
  for(int bank=0;bank<5;bank++)for(int pad=0;pad<8;pad++)for(int pitch=-12;pitch<=12;pitch+=12){md_init();base.kit.bank=bank;base.kit.pads[pad].tune=pitch;assert(md_load(&base));cmd(MD_KIT_TRIGGER,3,pad);double e=render(MD_RATE);printf("SAMPLE bank=%d pad=%d pitch=%d energy=%g\n",bank,pad,pitch,e);assert(e>.001);assert(render(MD_RATE)<1e-8);assert(!md_status()->nonfinite);}
  md_init();base.kit.bank=0;assert(md_load(&base));cmd(MD_KIT_TRIGGER,3,7);render(441);cmd(MD_KIT_BANK,3,4);assert(render(441)>.0001);puts("PASS kit bank switching preserves the previous sample tail");
@@ -28,11 +28,11 @@ int main(){
   md_init();select(id);assert(md_validate(md_state()));
   if(id>=93){
    cmd(MD_PLAY,0,1);assert(render(MD_RATE*8)>.01);
-   const bool kit=(id>=101&&id<MD_V13_BIOMES)||(id>=MD_V13_BIOMES&&(id-MD_V13_BIOMES)%8==4);
+   const bool kit=(id>=101&&id<MD_V13_BIOMES)||(id>=MD_V13_BIOMES&&id<157&&(id-MD_V13_BIOMES)%8==4)||id==161||id==174||id==182||id==187||id==200||id==208;
    assert(md_state()->kit.enabled==kit);
   }
  }
- puts("PASS all 157 factory patches validate; kit mode and synth allocation agree");
+ puts("PASS every current factory patch validates; historical and appended kit allocation agrees");
  bool seen[MD_BIOMES]={};int cursor=md_biome_step(-1,1);
  for(int i=0;i<MD_BIOMES;i++){
   assert(cursor>=0&&cursor<MD_BIOMES&&!seen[cursor]);seen[cursor]=true;

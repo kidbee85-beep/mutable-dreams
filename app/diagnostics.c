@@ -27,8 +27,9 @@ int app_sysex(const uint8_t *p,uint32_t n){
   words[46]=s->element_modes;words[47]=ui_frames;words[48]=ui_frame_peak_ms;plat_unlock(f);len=49*4;memcpy(raw,words,len);
  }else if(p[3]==2&&n>=9&&n<=69&&(n-5)%4==0){
   uint32_t count=(n-5)/4,f=plat_lock();
-  for(unsigned k=5;k<n;k+=4)if(p[k]>=MD_COMMAND_COUNT||(p[k]>=99&&p[k]<120))tx[6]=1;
+  for(unsigned k=5;k<n;k+=4)if(!md_command_valid(p[k]))tx[6]=1;
   if(md_command_space()<count)tx[6]=2;
+  for(unsigned k=5;k<n;k+=4)if(!md_command_allowed(p[k]))tx[6]=4;
   if(!tx[6])for(unsigned k=5;k<n;k+=4){int c=p[k],t=p[k+1],v=(int)(p[k+2]|p[k+3]<<7)-8192;
    if(c==MD_MIDI_ROUTE)v=clamp(v,0,16);
    if(c==MD_MIDI_MACRO)v=clamp(v,0,1);
@@ -39,6 +40,32 @@ int app_sysex(const uint8_t *p,uint32_t n){
   plat_unlock(f);
  }
  else if(p[3]==3&&n==5){uint32_t f=plat_lock();cpu_peak=ui_frame_peak_ms=0;plat_audio_peak_reset();plat_unlock(f);}
+ else if(p[3]==19&&n==5){
+  uint32_t levels=0,pulses=0,grains=0;
+  for(unsigned i=0;i<6;i++){if(living.level[i])levels|=1u<<i;if(living.age[i]<160)pulses|=1u<<i;}
+  for(unsigned i=0;i<4;i++)if(living.window[i])grains|=1u<<i;
+  uint32_t w[]={display_tiles_sent,display_tiles_skipped,living.profile,levels,pulses,grains,
+                (uint32_t)timeline.section,timeline.step,(uint32_t)timeline.next,timeline.keep};
+  memcpy(raw,w,sizeof w);len=sizeof w;
+ }
+ else if(p[3]==20&&n==5){
+  int32_t w[12];uint32_t lock=plat_lock();
+  w[6]=0;
+  for(unsigned i=0;i<MD_TRACKS;i++){
+   int hit;
+   w[i]=md_sequence_playhead(i,&hit);
+   w[6]|=hit<<i;
+  }
+  w[7]=md_sequence_clipboard();w[8]=md_sequence_notice();
+  plat_unlock(lock);
+  w[9]=seq_scope;w[10]=seq_interval;w[11]=seq_action;
+  memcpy(raw,w,sizeof w);len=sizeof w;
+ }
+ else if(p[3]==21&&n==5){
+  /* Phrase Tools (bit 0), exact replay (bit 1), polarity (bit 2), clear slot (bit 3). */
+  const uint32_t features=15u;
+  memcpy(raw,&features,sizeof features);len=sizeof features;
+ }
  else if(p[3]==4&&n==7){unsigned off=p[5]|p[6]<<7;if(off>=sizeof(md_patch))tx[6]=1;else{len=sizeof(md_patch)-off;if(len>224)len=224;uint32_t f=plat_lock();memcpy(raw,((const uint8_t*)md_state())+off,len);plat_unlock(f);}}
  else if(p[3]==6&&(n==5||n==6)){
   md_stored_size=0;md_stored_generation=(md_stored_generation+1)&127;
@@ -49,7 +76,14 @@ int app_sysex(const uint8_t *p,uint32_t n){
    else{md_stored_size=(uint32_t)size;memcpy(raw,&md_stored_size,4);memcpy(raw+4,md_stored_snapshot,8);len=12;}}
  }
  else if(p[3]==5&&(n==7||n==8)){unsigned off=p[5]|p[6]<<7;if((n==8&&p[7]!=md_stored_generation)||off>=md_stored_size)tx[6]=3;else{len=md_stored_size-off;if(len>224)len=224;memcpy(raw,md_stored_snapshot+off,len);}}
- else if(p[3]>=7&&p[3]<=15)tx[6]=editor_reply(p,n,raw,&len);
+ else if(p[3]==16&&n>=10&&n<=85&&(n-5)%5==0){
+  unsigned count=(n-5)/5;uint32_t f=plat_lock();
+  for(unsigned k=5;k<n;k+=5){int c=p[k]|p[k+1]<<7;if(!md_command_valid(c)||c<128)tx[6]=1;else if(!md_command_allowed(c))tx[6]=4;}
+  if(md_command_space()<count)tx[6]=2;
+  if(!tx[6])for(unsigned k=5;k<n;k+=5)md_command(p[k]|p[k+1]<<7,p[k+2],(int)(p[k+3]|p[k+4]<<7)-8192);
+  plat_unlock(f);
+ }
+ else if((p[3]>=7&&p[3]<=15)||p[3]==17||p[3]==18)tx[6]=editor_reply(p,n,raw,&len);
  else tx[6]=1;
  for(unsigned i=0;i<len;){unsigned k=len-i;if(k>7)k=7;uint8_t mask=0;for(unsigned j=0;j<k;j++)mask|=(raw[i+j]>>7)<<j;tx[at++]=mask;for(unsigned j=0;j<k;j++)tx[at++]=raw[i+j]&127;i+=k;}
  tx[at++]=0xf7;plat_sysex_send(tx,at);return 1;

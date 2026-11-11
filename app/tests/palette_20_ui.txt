@@ -1,0 +1,50 @@
+wait 3400
+tap HOME
+scene 169
+wait 500
+expect biome 169
+expect patch_valid 1
+shot Felt-Observatory.png
+scene 170
+wait 500
+expect biome 170
+expect patch_valid 1
+shot Willow-Cloister.png
+scene 171
+wait 500
+expect biome 171
+expect patch_valid 1
+shot Lowland-Dub.png
+scene 172
+wait 500
+expect biome 172
+expect patch_valid 1
+shot Paper-Constellation.png
+scene 173
+wait 500
+expect biome 173
+expect patch_valid 1
+shot Violet-Harmonics.png
+scene 174
+wait 500
+expect biome 174
+expect patch_valid 1
+shot Dustlight-Caravan.png
+scene 175
+wait 500
+expect biome 175
+expect patch_valid 1
+shot Woolen-Steps.png
+scene 176
+wait 500
+expect biome 176
+expect patch_valid 1
+shot Tidepool-Choir.png
+press HOME
+wait 900
+expect help 6
+shot Home-Help.png
+release HOME
+expect page 0
+expect invalid 0
+expect queue_drops 0

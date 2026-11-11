@@ -78,13 +78,14 @@ expect help_context 1
 release FX
 tap HOME
 tap HOME
+# Wheel position 77 now maps to stable Biome ID 7 in the curated 2.0 atlas.
 spin PRESET 77
 wait 100
-expect pending_biome 77
+expect pending_biome 7
 expect biome 0
 tap SEL
 wait 100
-expect biome 77
+expect biome 7
 tap PLAY
 wait 3000
 shot new-biome.png

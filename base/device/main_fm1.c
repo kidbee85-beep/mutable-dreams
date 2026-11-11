@@ -54,6 +54,10 @@ int plat_bta_streams(void) { return 0; }
 #endif
 static void render_block(int32_t *o)                /* ALNK0: one half, measured */
 {
+#ifdef APP_LOCAL_MONITOR
+    static unsigned monitor_level;
+    const int monitor_muted = app_local_monitor_muted();
+#endif
     uint32_t t0 = fm1_ticks(), us, budget = HALF_FRAMES * 1000000u / FS;
     fm1b_dbg.in_audio = 1;
 #if FELUCCA_UAC
@@ -98,6 +102,9 @@ static void render_block(int32_t *o)                /* ALNK0: one half, measured
                 for (i = 0; i < 2u * REND_FRAMES; i++)
                     o[2u * k + i] = 0;
             }
+#endif
+#ifdef APP_LOCAL_MONITOR
+            local_monitor(o + 2u * k, REND_FRAMES, &monitor_level, monitor_muted);
 #endif
         }
     }
@@ -838,11 +845,24 @@ static int log_frame(const uint8_t *p, uint32_t n)
     return 1;
 }
 
+static uint32_t remote_lease_at;
+static uint8_t remote_leased;
+
+static void remote_release(void)
+{
+    remote_leased = 0;
+    remote.btn = remote.keys = 0;
+    remote.master = -1;
+    for (unsigned i = 0; i < NE; i++)
+        remote.enc[i] = 0;
+}
+
 /* remote control: F0 7D 4C 43 ("LC") op ... F7, 7-bit bytes:
  *   1 b0 b1          the buttons held (B_* bits: b0 the low seven, b1 the next seven)
  *   2 k0 k1 k2 k3    the keys held (bit k = key k, seven bits a byte, low first)
  *   3 role delta     an encoder turned (EN_*; delta - 64 detents)
  *   4 lo hi          MASTER's position (0..4096, seven bits a byte; 4097 or more: the pot's own again)
+ *   5 on             browser session (1 starts/renews, 0 releases controls)
  * Each is added to the panel's own input (plat_fm1.c remote); the answer is F0 7D 4C 43 op F7. */
 static int remote_frame(const uint8_t *p, uint32_t n)
 {
@@ -850,6 +870,14 @@ static int remote_frame(const uint8_t *p, uint32_t n)
     if (n < 4u || p[0] != 0x7Du || p[1] != 0x4Cu || p[2] != 0x43u)
         return 0;
     switch (p[3]) {
+    case 5:
+        if (n != 5u || p[4] > 1u)
+            return 1;
+        if (p[4])
+            remote_leased = 1;
+        else
+            remote_release();
+        break;
     case 1:
         if (n >= 6u)
             remote.btn = ((uint32_t)p[4] | (uint32_t)p[5] << 7) & ((1u << NB) - 1u);
@@ -872,6 +900,8 @@ static int remote_frame(const uint8_t *p, uint32_t n)
     default:
         return 1;
     }
+    if (remote_leased)
+        remote_lease_at = fm1_ms;
     ack[4] = p[3];
     ota_wire_send(ack, sizeof ack);
     return 1;
@@ -1072,6 +1102,8 @@ static void usb_cmd(uint32_t d)
 #endif
 }
 
+#include "sysex_dispatch.h"
+
 static void fm1_fault(const fm1_crash_t *c)
 {
     char b[12];
@@ -1176,10 +1208,12 @@ static void safe_main(void)
         {   /* the log readout works here too: what crashed is the question safe mode raises */
             const uint8_t *p;
             uint32_t n;
-            if (ota_frame_get(&p, &n) && (log_frame(p, n) || CL_REQUEST(p, n) || DS_REQUEST(p, n)))
-                ota_frame_done();
-            else
-                ota_service();                      /* (only at a frame the log didn't take) */
+            if (ota_frame_get(&p, &n)) {
+                if (log_frame(p, n) || CL_REQUEST(p, n) || DS_REQUEST(p, n))
+                    ota_frame_done();
+                else
+                    ota_service();                  /* the same frame the log didn't take */
+            }
         }
         if (usb.ota_req) {
             usb.ota_req = 0;
@@ -1216,7 +1250,6 @@ static void fm1_main(void)
     int32_t knob = 512 * 16;
     uint32_t batt_t = 0;                            /* (the battery's last reading, fm1_ms) */
     uint32_t last_frame = 0;
-    int took;                                       /* a SysEx frame taken this pass (not the updater's) */
     {
         uint32_t f = irq_save();
 #if FM1B_CRASHLOG
@@ -1355,6 +1388,8 @@ static void fm1_main(void)
         usb_host_task(fm1_ms);                      /* the host's mode change and connecting (plat_usb_host) */
 #endif
         usb_retry(fm1_ms);
+        if (remote_leased && (!usb.config || usb.suspended || fm1_ms - remote_lease_at >= 1800u))
+            remote_release();
         if (fm1_ms > 30000u && bootguard.pending) {     /* a crash or hang in the first 30 s counts */
             bootguard.pending = 0;
             bootguard.failed = 0;
@@ -1387,34 +1422,8 @@ static void fm1_main(void)
 #ifdef APP_LOOP
         app_loop();                                 /* the app's background (a radio's tasks) */
 #endif
-        {   /* a screen reader's SysEx (announce.c), before the updater looks; the updater only at a frame none took
-             * (the next one waiting, else, would be its own, dropped if not) */
-            const uint8_t *p;
-            uint32_t n;
-            took = 0;
-            if (ota_frame_get(&p, &n) && (ann_frame(p, n, fm1_ms) || log_frame(p, n) || CL_REQUEST(p, n) ||
-                                          DS_REQUEST(p, n) || remote_frame(p, n)
-#if FM1B_WIFI
-                                          || wifi_frame(p, n)
-#endif
-#if FM1B_BT_AUDIO
-                                          || bta_frame(p, n)
-#endif
-#if FM1B_BLE_OWN && FM1B_BLE_CENTRAL
-                                          || dev_frame(p, n)
-#endif
-#ifdef APP_SYSEX
-                                          || app_sysex(p, n)
-#endif
-                                          )) {
-                ota_frame_done();
-                took = 1;
-            }
-        }
         fm1b_dbg.stage = 4;
-        if (!took)
-            usb_cmd(ota_service());                 /* M-UPGRADE handshake; the commands in its framing (backup,
-                                                     * mirror, the app's); other SysEx is dropped */
+        fm1_dispatch_sysex(fm1_ms);
 #if FM1B_BACKUP
         bu_step();                                  /* a backup streaming to the host */
 #endif

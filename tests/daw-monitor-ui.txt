@@ -1,0 +1,45 @@
+wait 3400
+expect local_monitor_muted 0
+page 17
+tap GLO
+expect page 43
+press GLO
+wait 880
+expect help 5
+release GLO
+tap HOME
+expect help -1
+expect page 43
+master 2500
+tap PLAY
+wait 800
+wav local-on.wav
+usbwav usb-on.wav
+wait 1000
+wavstop
+usbwavstop
+spin K1 -1
+expect local_monitor_muted 1
+wait 40
+wav local-muted.wav
+usbwav usb-muted.wav
+wait 1000
+wavstop
+usbwavstop
+tap SAVE
+expect store_writes 0
+tap PLAY
+tap SAVE
+expect store_writes 1
+reboot
+wait 3400
+expect local_monitor_muted 1
+page 43
+spin K1 1
+expect local_monitor_muted 0
+tap SAVE
+reboot
+wait 3400
+expect local_monitor_muted 0
+expect invalid 0
+expect queue_drops 0

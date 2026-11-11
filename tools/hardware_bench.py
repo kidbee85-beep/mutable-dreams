@@ -50,9 +50,9 @@ class Device:
  def command(self,c,t,v):
   assert -8192<=v<=8191
   z=v+8192
-  try:self.call(2,[c,t,z&127,z>>7])
+  try:self.call(16,[c&127,c>>7,t,z&127,z>>7]) if c>=128 else self.call(2,[c,t,z&127,z>>7])
   except TimeoutError:
-   if c in [18,26]:raise
+   if c in [18,26] or c>=128:raise
    self.retries+=1;print('RETRY absolute command',c,t,v,flush=True);time.sleep(.1);self.call(2,[c,t,z&127,z>>7])
   time.sleep(.03)
  def status(self):
@@ -76,7 +76,7 @@ class Device:
    time.sleep(.04)
  def patch(self):
   first=self.call(4,[0,0]);magic,version=struct.unpack_from('<II',first);assert magic==0x4D445231
-  size={1:392,2:500,3:620,4:652,5:1292,6:1292,7:2100,8:2220,9:2288}[version]
+  size={1:392,2:500,3:620,4:652,5:1292,6:1292,7:2100,8:2220,9:2288,10:2356,11:2604,12:2604}[version]
   data=first+b''.join(self.call(4,[off&127,off>>7]) for off in range(224,size,224));assert len(data)==size
   return data
  def remote(self,p):

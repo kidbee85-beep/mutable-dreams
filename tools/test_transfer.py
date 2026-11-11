@@ -4,6 +4,7 @@ from pathlib import Path
 import os,subprocess,sys
 r=Path(__file__).resolve().parents[1];o=r/'app/build/san'
 f=['-O1','-g','-DPLAT_HOST','-DTEST','-fsanitize=address,undefined','-fno-omit-frame-pointer']
+if 'mirror = true' in (r/'app/fm1.toml').read_text():f+=['-DFM1B_MIRROR=1']
 if sys.platform=='darwin':f+=['-isysroot',os.environ.get('SDKROOT','/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk')]
 f +=[f'-I{r/p}' for p in ['app','base/host','base/device','base/include','base/lib','app/build/gen','app/third_party']]
 subprocess.run(['clang',*f,'-Wno-unknown-attributes','-c',str(r/'tests/editor_transfer_test.c'),'-o',str(o/'editor_transfer_test.o')],check=True)

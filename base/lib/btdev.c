@@ -41,7 +41,10 @@ const char *btdev_name(void) { return bd.name; }
 
 void btdev_page(int up)
 {
-    int d = plat_ble_device(), c = plat_ble_connected();
+    /* A central may send MIDI writes without subscribing to our notifications.
+     * Track the physical link so that its loss releases notes and controllers,
+     * even for a write-only sender. Listening describes MIDI output readiness. */
+    int d = plat_ble_device(), c = plat_ble_linked();
     if (d != bd.was_dev) {               /* a device connected, given up or lost */
         if (d == BLE_DEV_READY)
             bd_put(BTDEV_CONNECTED);

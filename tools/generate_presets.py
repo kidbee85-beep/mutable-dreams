@@ -523,14 +523,26 @@ for j,(name,family,models,tempo,root,scale,hits,speeds) in enumerate(listening_w
  biomes.append(b)
 assert len(tones)==364 and len(biomes)==169
 
+from palette_20 import extend_palette
+extend_palette(tones,biomes,tone_fields)
+from atlas_20 import extend_atlas
+extend_atlas(tones,biomes,tone_fields)
+from percussion_20 import extend_percussion
+extend_percussion(tones,biomes,tone_fields)
+from worlds_20 import extend_worlds
+extend_worlds(tones,biomes,tone_fields)
+
 # Curated wheel order changes navigation, never stored IDs. Alternate sonic
 # families and keep the six-voice signatures distinct at every adjacent step.
+def visual_family(b):
+ x=(b["seed"]^((b["id"]+1)*0x9e3779b9))&0xffffffff;x^=x>>16;x=(x*0x85ebca6b)&0xffffffff;return (x^(x>>13))%10
+
 def browse_score(prev,candidate,recent):
  a=biomes[prev];b=biomes[candidate]
  am=[t['model'] for t in a['tracks']];bm=[t['model'] for t in b['tracks']]
  overlap=sum(min(am.count(m),bm.count(m)) for m in set(am+bm))
  density=lambda x:sum(t['hits']/max(t['speed'],1) for t in x['tracks'])
- return (20 if a['family']!=b['family'] else -15)-3*overlap \
+ return (20 if a['family']!=b['family'] else -15)-3*overlap+(8 if visual_family(a)!=visual_family(b) else -12) \
         +min(abs(a['tempo']-b['tempo']),60)/12 \
         +min(abs(density(a)-density(b)),12)/3 \
         -(10 if b['family'] in [biomes[k]['family'] for k in recent[-2:]] else 0)
@@ -541,21 +553,193 @@ while remaining:
  # world appears after the four familiar starting points.
  new_only=(len(browse_order)-4)%3==0
  candidates=[k for k in remaining if (k>=157)==new_only]
+ if new_only and any(k>=197 for k in remaining):candidates=[k for k in remaining if k>=197]
  if not candidates:candidates=list(remaining)
  chosen=max(candidates,key=lambda k:(browse_score(browse_order[-1],k,browse_order),-k))
  browse_order.append(chosen);remaining.remove(chosen)
 browse_order.append(64)
+from warm_collection_20 import extend_warm_collection
+legacy_count=len(biomes)
+extend_warm_collection(tones,biomes,tone_fields)
+# Insert a new world every few turns without moving any existing Biome
+# relative to another. The four familiar entry points and Blank stay put.
+new_ids=set(range(legacy_count,len(biomes)))
+old_order=browse_order;browse_order=[]
+for i,old_id in enumerate(old_order):
+ if new_ids and i>=4 and (i-4)%10==0:
+  last=browse_order[-1]
+  chosen=max(new_ids,key=lambda k:(browse_score(last,k,browse_order)+browse_score(k,old_id,[last,k]),-k))
+  browse_order.append(chosen);new_ids.remove(chosen)
+ browse_order.append(old_id)
+assert not new_ids
+from step_worlds_20 import FAMILIES, SHORT, FELT_FAMILY, FELT_SHORT, extend_step_worlds, extend_felt_worlds
+rule_start=len(biomes)
+extend_step_worlds(tones,biomes,tone_fields)
+# This palette is append-only so stored patches and MIDI programs retain their
+# meaning. Keep the mallets useful both dry and through the shared grain bus.
+assert len(tones)==516
+for name,model,tone,harm,shape,attack,decay,cutoff,breathe in [
+ ('Wool Marimba',20,160,620,170,25,480,630,0),
+ ('Rain on Glass',20,510,920,630,45,720,725,90),
+ ('Cork Mallet',20,55,150,0,15,300,520,0),
+ ('Porcelain Notes',20,340,390,440,60,570,650,60),
+ ('Velvet Sub',8,30,930,270,55,660,440,0),
+ ('Voltage Stab',10,300,590,80,24,295,605,40),
+ ('Maple Harmonics',15,165,650,350,35,685,730,0),
+ ('Satin Drone',11,360,150,725,680,925,620,295),
+ ('Hush Piano',12,180,280,290,25,560,645,0),
+ ('Distant Reeds',16,365,780,160,530,840,565,230),
+ ('Bowed Amber',18,170,185,310,580,850,650,180),
+ ('Flute at Dusk',19,105,280,180,325,705,615,210),
+ ('Tide Foam',14,300,950,65,610,845,680,420),
+ ('Brushed Clay',17,205,750,440,0,215,710,0),
+ ('Palm Tumba',17,120,130,785,0,480,620,0),
+ ('Soft Bronze',5,160,420,490,0,670,680,0),
+ ('Wool Bell',20,180,435,150,22,625,610,80),
+ ('Muted Rosewood',20,120,200,90,16,440,535,0),
+ ('Porcelain Air',20,395,780,465,60,720,695,180),
+ ('Kiln Tap',20,260,340,625,18,390,635,0),
+ ('Glass Undertow',20,310,900,675,70,810,655,130),
+ ('Smoked Sub',8,65,800,375,50,630,450,0),
+ ('Kiln Palm',17,155,175,765,0,465,615,0),
+ ('Low Wool Keys',12,95,205,240,42,675,595,120),
+]:
+ tones.append(dict(id=len(tones),name=name,model=model,tone=tone,harm=harm,shape=shape,
+  attack=attack,decay=decay,cutoff=cutoff,resonance=0,filter=1,breathe=breathe))
+order=[]
+new_ids=list(range(rule_start,len(biomes)))
+for i,old_id in enumerate(browse_order):
+ if new_ids and i>=4 and (i-4)%16==0:
+  order.append(new_ids.pop(0))
+ order.append(old_id)
+assert not new_ids
+browse_order=order
+felt_start=len(biomes)
+extend_felt_worlds(tones,biomes,tone_fields)
+for index,biome in zip((9,81,161),range(felt_start,len(biomes))):
+ browse_order.insert(index,biome)
+from ensemble_worlds_20 import FAMILIES as ENSEMBLE_FAMILIES, SHORT as ENSEMBLE_SHORT, extend_ensemble
+ensemble_start=len(biomes)
+extend_ensemble(tones,biomes,tone_fields)
+for index,biome in zip((13,45,97,126,177,217,232,240,256),range(ensemble_start,len(biomes))):
+ browse_order.insert(index,biome)
+from vowel_worlds_20 import FAMILY as VOWEL_FAMILY, SHORT as VOWEL_SHORT, extend_vowel
+vowel_start=len(biomes)
+extend_vowel(tones,biomes,tone_fields,len(family_names)+2+len(FAMILIES)+1+len(ENSEMBLE_FAMILIES))
+for index,biome in zip((19,73,155,222),range(vowel_start,len(biomes))):
+ browse_order.insert(index,biome)
+from soft_collection_20 import FAMILY as SOFT_FAMILY, SHORT as SOFT_SHORT, extend_soft_collection
+families=family_names+['Your own world','Lo-Fi & Warmth']+FAMILIES+[FELT_FAMILY]+ENSEMBLE_FAMILIES+[VOWEL_FAMILY]
+short_names=family_short+['BLANK','LO-FI']+SHORT+[FELT_SHORT]+ENSEMBLE_SHORT+[VOWEL_SHORT]
+soft_start=len(biomes)
+extend_soft_collection(tones,biomes,tone_fields,len(families))
+for index,biome in zip((8,37,67,105,144,184,223,253),range(soft_start,len(biomes))):
+ browse_order.insert(index,biome)
+from living_layers_20 import FAMILY as LAYERS_FAMILY, SHORT as LAYERS_SHORT, extend_living_layers
+families.append(SOFT_FAMILY)
+short_names.append(SOFT_SHORT)
+layers_start=len(biomes)
+extend_living_layers(tones,biomes,tone_fields,len(families))
+for index,biome in zip((12,86,163),range(layers_start,len(biomes))):
+ browse_order.insert(index,biome)
+# A few 2.0 pieces have an authored loop. Each starts on the chosen Biome;
+# later sections use related ensembles and keep the indicated voice slots.
+biome_by_name={b['name']:b for b in biomes}
+for name,sections in (
+ ('Chapel of Fog',((None,4,0x08),('Understory Cello',4,0x08),('Felt Observatory',4,0x08))),
+ ('Pearl Fern',((None,3,0x10),('Hands Into Clouds',3,0x10))),
+ ('Copper Step',((None,4,0x03),('Night Valve',4,0x03))),
+):
+ b=biome_by_name[name]
+ assert b['introduced']=='2.0' and 2<=len(sections)<=3 and sections[0][0] is None
+ journey=[]
+ for target,bars,keep in sections:
+  other=biome_by_name[target] if target else b
+  assert (other['root'],other['scale'])==(b['root'],b['scale'])
+  assert 1<=bars<=64 and 0<=keep<64
+  journey.append(dict(biome=other['id'] if target else None,bars=bars,keep=keep))
+ b['journey']=dict(mode='loop',sections=journey)
 assert sorted(browse_order)==list(range(len(biomes)))
 assert all([t['model'] for t in biomes[a]['tracks']]!=[t['model'] for t in biomes[b]['tracks']]
            for a,b in zip(browse_order,browse_order[1:]))
-catalog=dict(version='private development',families=family_names+['Your own world','Lo-Fi & Warmth'],family_short=family_short+['BLANK','LO-FI'],tone_fields=tone_fields,tones=tones,biomes=biomes,browse_order=browse_order)
+catalog=dict(version='private development',families=families+[LAYERS_FAMILY],family_short=short_names+[LAYERS_SHORT],tone_fields=tone_fields,tones=tones,biomes=biomes,browse_order=browse_order)
+assert all(0<=b['family']<len(catalog['family_short']) for b in biomes), 'Factory family outside label table'
 (R/'presets/catalog.json').write_text(json.dumps(catalog,indent=2,ensure_ascii=False)+'\n')
-lines=['/* Generated by tools/generate_presets.py; MIT. Flash-resident factory atlas. */','struct TonePreset { const char *name; int32_t '+','.join(tone_fields)+'; };','static const TonePreset tone_bank[MD_TONE_PRESETS]={']
-for t in tones:lines.append('{'+json.dumps(t['name'])+','+','.join(str(t[k]) for k in tone_fields)+'},')
-lines+=['};','struct FactoryPatch {\n uint32_t magic,version,seed; int32_t macro[4],tempo,locked,freeze,grain_size,grain_pos,feedback,quality;\n md_track track[MD_TRACKS];\n int32_t root,scale,transpose,swing,grain_pitch,reverse,duck_source,duck_amount,duck_release;\n int32_t biome_id,tone_preset[6]; uint32_t edited_mask;\n};\nstatic_assert(sizeof(FactoryPatch)==offsetof(md_patch,ext),"factory prefix layout");\nstruct BiomePreset { const char *name; unsigned family; FactoryPatch patch; };','static const char *biome_families[]={'+','.join(json.dumps(x) for x in catalog['family_short'])+'};','static const BiomePreset biome_bank[MD_BIOMES]={']
+# Pack the fields used together on recall into three aligned 32-bit words.
+# Keep model in the low bits so browsing by engine needs only one read.
+tone_words=(
+ (('model',5),('filter',2),('tone',10),('harm',10)),
+ (('decay',10),('attack',10),('shape',10)),
+ (('cutoff',10),('resonance',10),('breathe',10)),
+)
+assert sorted(key for word in tone_words for key,_ in word)==sorted(tone_fields)
+
+def pack_fields(values):
+ packed=shift=0
+ for value,width in values:
+  assert isinstance(value,int) and 0<=value<1<<width, (value,width)
+  packed|=value<<shift
+  shift+=width
+ assert shift<=32
+ return packed
+
+lines=['/* Generated by tools/generate_presets.py; MIT. Flash-resident factory atlas. */',
+       'struct TonePreset { const char *name; uint32_t identity, contour, colour; };',
+       'static const TonePreset tone_bank[MD_TONE_PRESETS]={']
+for t in tones:
+ words=[pack_fields((t[key],width) for key,width in word) for word in tone_words]
+ lines.append('{'+json.dumps(t['name'])+','+','.join(f'0x{word:08x}u' for word in words)+'},')
+# Store the observed range of each factory field once. Each Biome is an
+# independent row so loading a scene only reads its own data.
+factory_values=[]
 for b in biomes:
- head=[0x4D445231,4,b['seed']];tail=[b[k] for k in ['tempo','locked','freeze','grain_size','grain_pos','feedback','quality']];gl=[b[k] for k in ['root','scale','transpose','swing','grain_pitch','reverse','duck_source','duck_amount','duck_release']]
- p=','.join(map(str,head))+',{'+','.join(map(str,b['macro']))+'},'+','.join(map(str,tail))+',{'+','.join('{'+','.join(str(t[k]) for k in fields)+'}' for t in b['tracks'])+'},'+','.join(map(str,gl))+','+str(b['id'])+',{'+','.join(map(str,b['tones']))+'},0'
- lines.append('{'+json.dumps(b['name'])+','+str(b['family'])+',{'+p+'}},')
-lines+=['};','static const uint16_t biome_browse_order[MD_BIOMES]={'+','.join(map(str,browse_order))+'};'];(R/'app/dsp/preset_bank.inc').write_text('\n'.join(lines)+'\n')
+ values=b['macro']+[b[k] for k in ['tempo','locked','freeze','grain_size','grain_pos','feedback','quality']]+[t[k] for t in b['tracks'] for k in fields]+[b[k] for k in ['root','scale','transpose','swing','grain_pitch','reverse','duck_source','duck_amount','duck_release']]+[b['id']]+b['tones']+[0]
+ assert len(values)==160 and all(-32768<=v<=32767 for v in values)
+ factory_values.append(values)
+columns=list(zip(*factory_values))
+minimums=[min(column) for column in columns]
+widths=[(max(column)-lo).bit_length() for column,lo in zip(columns,minimums)]
+row_bytes=(sum(widths)+7)//8
+lines+=['};',
+        'static_assert(offsetof(md_patch,ext)==652,"factory prefix layout");',
+        'static const int16_t factory_minimums[]={'+','.join(map(str,minimums))+'};',
+        'static const uint8_t factory_widths[]={'+','.join(map(str,widths))+'};',
+        f'struct BiomePreset {{ const char *name; uint8_t family,tempo,root,scale; uint32_t seed; uint8_t values[{row_bytes}]; }};',
+        'static const char *biome_families[]={'+','.join(json.dumps(x) for x in catalog['family_short'])+'};',
+        'static const BiomePreset biome_bank[MD_BIOMES]={']
+for b,values in zip(biomes,factory_values):
+ packed=shift=0
+ for value,minimum,width in zip(values,minimums,widths):
+  packed|=(value-minimum)<<shift
+  shift+=width
+ payload=packed.to_bytes(row_bytes,'little')
+ info=','.join(str(b[key]) for key in ('family','tempo','root','scale','seed'))
+ lines.append('{'+json.dumps(b['name'])+','+info+',{'+','.join(map(str,payload))+'}},')
+lines+=['};','static const uint16_t biome_browse_order[MD_BIOMES]={'+','.join(map(str,browse_order))+'};',
+        'struct WarmScene { uint16_t mix,room,delay,feedback; uint8_t chord,phrase,lead; };',
+        'static const WarmScene warm_scenes[MD_RULE_FIRST_BIOME-MD_WARM_FIRST_BIOME]={']
+for b in biomes[legacy_count:rule_start]:lines.append('{'+','.join(map(str,b['warm_fx']))+'},')
+lines+=['};',
+ 'struct RuleScene { uint16_t mix,room,delay,feedback,noise,first; uint8_t count,lengths[6]; };',
+ 'static const RuleScene rule_scenes[MD_BIOMES-MD_RULE_FIRST_BIOME]={']
+events=[]
+for b in biomes[rule_start:]:
+ ev=b['rule_events']
+ lines.append('{'+','.join(map(str,[*b['rule_fx'],len(events),len(ev)]))+',{'+','.join(map(str,b['rule_lengths']))+'}},')
+ events.extend(ev)
+lines+=['};','static const uint32_t rule_events[]={']
+for ev in events:lines.append(f'0x{pack_fields(zip(ev,(3,5,7,7,7,2))):08x}u,')
+lines+=['};',
+ 'struct FactoryJourney { uint16_t biome; uint8_t length; md_journey_section section[3]; };',
+ 'static const FactoryJourney factory_journeys[]={']
+for b in biomes:
+ if 'journey' not in b:continue
+ sections=b['journey']['sections']
+ rows=[]
+ for section in sections:
+  target=65535 if section['biome'] is None else section['biome']
+  rows.append(f"{{{target},{section['bars']},1,{section['keep']},0,{{0,0}}}}")
+ lines.append(f"{{{b['id']},{len(sections)},{{{','.join(rows)}}}}}, // {b['name']}")
+lines.append('};');(R/'app/dsp/preset_bank.inc').write_text('\n'.join(lines)+'\n')
 print(f'{len(biomes)} Biomes / {len(tones)} tone presets generated')
+print(f'Factory values: {len(biomes)*row_bytes} packed bytes plus 480 bytes of field ranges')

@@ -12,6 +12,9 @@ release GLO
 tap HOME
 expect help -1
 tap GLO
+tap GLO
+tap GLO
+tap GLO
 expect page 18
 spin K1 2
 spin K4 1
@@ -25,7 +28,7 @@ release SAVE
 tap HOME
 expect help -1
 tap HOME
-spin PRESET 65
+scene 65
 wait 100
 expect biome 65
 tap PLAY

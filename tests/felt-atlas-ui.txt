@@ -1,0 +1,65 @@
+wait 3400
+scene 233
+wait 160
+expect living_profile 4
+shot Bowed-Still.png
+tap PLAY
+wait 900
+shot Bowed-Playing.png
+tap PLAY
+scene 236
+wait 160
+expect living_profile 5
+shot Dub-Still.png
+tap PLAY
+wait 520
+shot Dub-Playing.png
+tap PLAY
+scene 239
+wait 160
+expect living_profile 6
+shot Clay-Still.png
+tap PLAY
+wait 360
+shot Clay-Playing.png
+tap PLAY
+scene 242
+wait 160
+expect living_profile 7
+shot Horizon-Still.png
+tap PLAY
+wait 2400
+shot Horizon-Playing.png
+tap PLAY
+page 11
+spin K1 -1
+expect motion 0
+page 0
+tap PLAY
+wait 200
+shot Motion-Off-A.png
+wait 900
+shot Motion-Off-B.png
+tap PLAY
+page 11
+spin K1 1
+page 0
+scene 245
+wait 160
+expect living_profile 8
+shot Wool-Lanterns.png
+scene 246
+wait 160
+expect living_profile 9
+shot Kiln-Dub.png
+scene 247
+wait 160
+expect living_profile 10
+shot Porcelain-Tide.png
+journey 45 0 516
+page 1
+wait 160
+shot Felt-Mallet.png
+expect patch_valid 1
+expect invalid 0
+expect queue_drops 0

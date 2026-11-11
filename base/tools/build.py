@@ -1279,9 +1279,9 @@ def build_id():
     (fm1_cpu1_bar_build) is lifted for a new build, and each crash record in the flash history names the build that
     kept it (device/crashlog.c; printed by every build: tools/fm1_remote.py crashes shows it)"""
     h = hashlib.sha1((VERSION or "").encode())
-    for d in (APP, SRC / "device", SRC / "include", BSP / "chip"):
+    for d in (APP, SRC / "device", SRC / "include", SRC / "lib", SRC / "bt", SRC / "ble", BSP / "chip", BSP / "boards" / "fm1"):
         for f in sorted(d.rglob("*")):
-            if f.suffix in (".c", ".h", ".S", ".toml", ".ld") and "build" not in f.relative_to(d).parts:
+            if f.suffix in (".c", ".cc", ".cpp", ".cxx", ".h", ".hpp", ".inc", ".S", ".toml", ".ld") and "build" not in f.relative_to(d).parts:
                 h.update(str(f.relative_to(d)).encode())
                 h.update(f.read_bytes())
     return int.from_bytes(h.digest()[:4], "little")

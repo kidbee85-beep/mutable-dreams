@@ -144,7 +144,7 @@ const TEXT = {
     bricklink: "起動しない FM-1 の復旧（英語）",
     back: "公式ファームウェアに戻すには、このページ下の「純正ファームウェアに戻す」か、M-VAVE 公式のアップデーター M-UPGRADE（Downloads → PC Software → M-UPGRADE）を使います。M-UPGRADE 3.11 はこのページのバージョンを見つけますが、それより古いバージョンは見つけられません（「A USB MIDI device is present but did not answer」と表示されます）。その場合はこのページ下のボタンを使ってください。",
     stockh: "純正ファームウェアに戻す",
-    stockwhy: "M-VAVE の FM-1 ファームウェアを、{{NAME}}（またはそのセーフモード）から同じ USB ケーブルで書き込みます。{{NAME}} で保存したものは消えることがあります。",
+    stockwhy: "M-VAVE の FM-1 ファームウェアを、{{NAME}}（またはそのセーフモード）から同じ USB ケーブルで書き込みます。V15 または V16 に戻すと、ユーザーバンクと設定が消去されます。先に保存データをバックアップし、編集中の Biome は別途書き出してください。",
     stock1: "M-VAVE の FM-1 ファームウェアをダウンロード:",
     stock2: "ダウンロードしたファイルを選ぶ:",
     stock3: "FM-1 を USB で接続し、下のボタンを押す。",
@@ -211,7 +211,7 @@ const TEXT = {
     bricklink: "recovering an FM-1 that won't start",
     back: "To go back to the official firmware, use \"Back to the stock firmware\" below, or M-VAVE's own updater, M-UPGRADE (Downloads → PC Software → M-UPGRADE). M-UPGRADE 3.11 finds the version on this page, not older ones (it says \"A USB MIDI device is present but did not answer\"): use the button below for those.",
     stockh: "Back to the stock firmware",
-    stockwhy: "This writes M-VAVE's own FM-1 firmware back, from {{NAME}} (or its safe mode, or another firmware with the same update entry) over the same USB cable. What {{NAME}} saved may be lost.",
+    stockwhy: "This writes M-VAVE's own FM-1 firmware back, from {{NAME}} (or its safe mode, or another firmware with the same update entry) over the same USB cable. On this FM-1, returning to V15 or V16 removes User Banks and preferences. Back up saved objects and export any unsaved live Biome separately before continuing.",
     stock1: "Download M-VAVE's FM-1 firmware:",
     stock2: "Choose the file you downloaded:",
     stock3: "Connect the FM-1 by USB and press the button below.",
@@ -459,6 +459,7 @@ function confirmed(withBoot) {
 }
 
 async function run(img, product, isStock, sha256) {
+  if (writing || !img) return;
   const withBoot = !isStock && !!boot && $("mboot").checked;
   if (!(await confirmed(withBoot))) return;
   let midi;
@@ -471,6 +472,7 @@ async function run(img, product, isStock, sha256) {
     if (appState === false) return;
   }
   writing = true;
+  $("bar").value = 0;
   $("portpick").hidden = true;
   $("go").disabled = $("stockgo").disabled = true;
   let installed = false, up = null;
@@ -516,8 +518,7 @@ async function run(img, product, isStock, sha256) {
       installed = true;
     }
   } catch (e) {
-    if (isStock && e && e.code === "mismatch") { $("bar").value = 100; sayK("stockdone"); }   /* stock names itself its own way */
-    else if (e && e.code && TEXT[lang][e.code]) sayK(e.code, e.detail || "");
+    if (e && e.code && TEXT[lang][e.code]) sayK(e.code, e.detail || "");
     else sayK("error", e && e.message);
     if (e && e.code === "notfound") showPorts(midi);
     log(String(e && e.stack || e));
