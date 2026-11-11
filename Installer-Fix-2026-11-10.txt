@@ -1,0 +1,16 @@
+MUTABLE DREAMS 1.5 — BROWSER INSTALLER CORRECTION
+10 November 2026
+
+The standalone HTML installer omitted fm1ports.js, a dependency of the updated USB-MIDI updater. Constructing the updater therefore threw "PORT_NAMES is not defined" before sending update commands. Include this shared port-detection library in the standalone bundle.
+
+Also release the preparation lock when MIDI permission is denied, allowing a retry after permission is granted. The unversioned installer link now opens the current 1.5 installer.
+
+The firmware package is unchanged:
+Identity: FM-1_710010500
+SHA-256: ee5d410fc13b9861baa2336303821ccf66ec8c7143c167649886fad368198b52
+
+If you saw this missing-name error before installation started, reload the corrected installer in Chrome or Edge on a computer, allow MIDI/SysEx and try again. Back up your work first. This correction requires no special recovery or forced update.
+
+Verification: regression reproduced from the original release HTML; corrected shipped HTML tested with simulated Web MIDI, stock V15 identity detection, no-device handling, denied permission/retry, and embedded firmware hash verification. These software tests are not a new physical V15 round-trip qualification.
+
+The optional Python installer kit also omitted its local port/resource/backup helper modules. All four required Python modules are now included. Isolated ZIP extraction, CLI --help and optional-resource imports pass without creating a MIDI client.

@@ -28,3 +28,9 @@ Thank you for the feedback and careful listening that keep shaping this instrume
 
 Firmware identity: FM-1_710010500
 SHA-256: ee5d410fc13b9861baa2336303821ccf66ec8c7143c167649886fad368198b52
+
+## Browser installer correction — 10 November 2026
+
+The standalone installer now includes its shared MIDI-port detection library, fixing `PORT_NAMES is not defined` before installation. MIDI permission denial no longer blocks retry. The firmware remains byte-identical to the original 1.5 release. See [installer correction notes](Installer-Fix-2026-11-10.txt).
+
+The optional Python installer kit also omitted its local port/resource/backup helper modules. All four required Python modules are now included. Isolated ZIP extraction, CLI --help and optional-resource imports pass without creating a MIDI client.
