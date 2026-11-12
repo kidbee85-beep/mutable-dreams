@@ -1,0 +1,443 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mutable Dreams 2.0 | Full manual</title><meta name="description" content="The complete illustrated Mutable Dreams 2.0 user manual for the M-VAVE FM-1.">
+<style>
+:root{color-scheme:light;--ink:#172f29;--muted:#3f5950;--line:#c3d0bd;--paper:#f5f2e8;--forest:#122a24;--accent:#cce6b6}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:1.02rem/1.58 system-ui,sans-serif}header{background:var(--forest);color:#f4f5e8;padding:4rem 1.4rem}header div,main{max-width:60rem;margin:auto}h1,h2{font-family:Georgia,serif;font-weight:500;line-height:1.08}h1{font-size:clamp(2.8rem,8vw,5.2rem);margin:.24em 0}h2{font-size:clamp(2rem,5vw,2.8rem);margin:0 0 .6rem}h3{margin:.12em 0;font-size:1.12rem}.eyebrow,.route{font-size:.76rem;font-weight:750;letter-spacing:.12em;text-transform:uppercase}header .eyebrow{color:var(--accent)}p{margin:.5rem 0}header p{max-width:36rem}.actions{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1.4rem}.button{display:inline-block;padding:.65rem .95rem;border:1px solid var(--accent);border-radius:.3rem;color:var(--forest);background:var(--accent);font-weight:700;text-decoration:none}.button.secondary{color:var(--accent);background:transparent}main{padding:1.6rem 1.35rem 4rem}nav{padding:1rem 0 2rem;border-bottom:1px solid var(--line)}nav ol{columns:2;padding-left:1.2rem;margin:.45rem 0}nav li{break-inside:avoid;margin:.25rem 0}a{color:#225b44;text-underline-offset:.2em}section{scroll-margin-top:1rem;padding:2.5rem 0;border-bottom:1px solid var(--line)}section article{max-width:46rem;margin:1rem 0 1.25rem}.route{color:var(--muted)}.controls{font-weight:650;color:#275245}.shots{display:flex;gap:1rem;flex-wrap:wrap;margin:1rem 0 1.5rem}.shots figure{max-width:10rem;margin:0}.shots img{display:block;width:100%;border-radius:.4rem;image-rendering:pixelated}.shots figcaption{font-size:.8rem;color:var(--muted);margin-top:.35rem}footer{padding-top:1.6rem;color:var(--muted)}@media(max-width:36rem){nav ol{columns:1}}
+</style></head><body><header><div><p class="eyebrow">Kid Bunka / M-VAVE FM-1</p><h1>Mutable Dreams 2.0</h1><p>Full user manual. Start with a playable Biome, then build a pattern, shape the sound and save or record your work.</p><div class="actions"><a class="button" href="Mutable-Dreams-2.0-Manual.pdf">Download the full PDF</a><a class="button secondary" href="./#guide">Back to the project</a></div></div></header><main><nav aria-label="Contents"><b>Contents</b><ol>
+<li><a href="#chapter-01">Start here</a></li>
+<li><a href="#chapter-02">Home and performance</a></li>
+<li><a href="#chapter-03">Shape and mix voices</a></li>
+<li><a href="#chapter-04">Rhythm and melodic patterns</a></li>
+<li><a href="#chapter-05">Program and record steps</a></li>
+<li><a href="#chapter-06">Phrase edits, fills and harmony</a></li>
+<li><a href="#chapter-07">Arrange a Journey</a></li>
+<li><a href="#chapter-08">Granular and spatial effects</a></li>
+<li><a href="#chapter-09">LFOs and interactions</a></li>
+<li><a href="#chapter-10">Drift and lo-fi kits</a></li>
+<li><a href="#chapter-11">System and MIDI</a></li>
+<li><a href="#chapter-12">MIDI Learn and recordings</a></li>
+<li><a href="#chapter-13">User Banks and browser editor</a></li>
+<li><a href="#chapter-14">Install, recover and diagnose</a></li>
+<li><a href="#chapter-15">Sound engines and scale choices</a></li>
+<li><a href="#chapter-16">Engine reference</a></li>
+<li><a href="#chapter-17">MIDI messages and shortcuts</a></li>
+</ol></nav>
+<section id="chapter-01"><p class="eyebrow">Chapter 01</p><h2>Start here</h2>
+<div class="shots"><figure><img loading="lazy" src="assets/atlas.png" alt="FM-1 display showing Atlas"><figcaption>Atlas</figcaption></figure><figure><img loading="lazy" src="assets/browser.png" alt="FM-1 display showing Browser"><figcaption>Browser</figcaption></figure></div>
+<article>
+<h3>From the first note to a saved sound</h3>
+<ol><li>Turn MASTER down, connect power or USB, then bring the volume up gently.</li><li>Tap HOME to reach BIOMES. Turn K1 for a family and K2 or PRESET to browse. Press SEL to load Saltglass Drift, then PLAY.</li><li>Return to Live Atlas with HOME. Raise Space a little and listen for the shared granular cloud. Try Motion and Density one at a time.</li><li>Open Tracks with HOME. Turn SELECT to highlight a voice, play the keys and press SEL to mute or unmute that voice.</li><li>Press PLAY to stop, select Internal clock in MIDI / Performance, then save an edited copy to an empty User Biome slot.</li></ol>
+</article>
+<article>
+<h3>What the instrument stores</h3>
+<p>A Biome includes sounds, rhythm, harmony, effects, modulation and Journey settings. A Tone is one sound preset. Save the full Biome to keep the relationships between its tracks. Captured audio in the granular buffer is temporary.</p>
+</article>
+<article>
+<h3>How to read this manual</h3>
+<p>K1 to K4 are the four parameter knobs on the current screen. SELECT is the track encoder. SEL is the confirmation or mute button. Tap a function key repeatedly to cycle its screens. Hold a function key for on-device help. Menu names below match the firmware. All routes apply to Mutable Dreams 2.0 for the M-VAVE FM-1.</p>
+</article>
+</section>
+<section id="chapter-02"><p class="eyebrow">Chapter 02</p><h2>Home and performance</h2>
+<div class="shots"><figure><img loading="lazy" src="assets/atlas.png" alt="FM-1 display showing Atlas"><figcaption>Atlas</figcaption></figure><figure><img loading="lazy" src="assets/browser.png" alt="FM-1 display showing Browser"><figcaption>Browser</figcaption></figure></div>
+<article>
+<div class="route">HOME</div>
+<h3>LIVE ATLAS / 2.0</h3>
+<p class="controls">K1 Density · K2 Motion · K3 Colour · K4 Space</p>
+<p>Density changes how often events occur. Motion increases note movement. Colour shifts brightness. Space controls the granular return. Active voices animate the Atlas. Use PLAY to start or stop the transport and MASTER for output level.</p>
+</article>
+<article>
+<div class="route">HOME</div>
+<h3>LARGE TRACKS</h3>
+<p class="controls">SELECT voice · SEL mute · K4 Touch on supported voices</p>
+<p>Muted voices dim. Use K4 to adjust how Willow Bow, Aero Flute and Felt Mallet respond to playing strength. The keyboard plays the selected voice. OCT− and OCT+ shift only the live keyboard. SAVE with transport stopped keeps the setting.</p>
+</article>
+<article>
+<div class="route">HOME</div>
+<h3>BIOME BROWSER</h3>
+<p class="controls">K1 family or Favorites · K2 or PRESET Biome · SEL load · REC favorite</p>
+<p>Browsing lets you inspect candidates. The change guard asks before discarding unsaved edits. SEL confirms, HOME cancels, and SAVE takes you toward saving. Stop and SAVE to retain favorites. PRESET from the Atlas is also a Biome shortcut.</p>
+</article>
+<article>
+<h3>Make and undo variations</h3>
+<p>ARP locks or unlocks the random seed. Tap REC on the Atlas to vary the patch. ENV returns to the previous variation. Stop leaves effect tails to decay. REC on System or MIDI / Performance is Panic and clears notes and tails. REC has other roles on recording, bank and mapping screens.</p>
+</article>
+</section>
+<section id="chapter-03"><p class="eyebrow">Chapter 03</p><h2>Shape and mix voices</h2>
+<div class="shots"><figure><img loading="lazy" src="assets/mixer.png" alt="FM-1 display showing Mixer"><figcaption>Mixer</figcaption></figure></div>
+<article>
+<div class="route">EDIT</div>
+<h3>SOUND</h3>
+<p class="controls">K1 Tone · K2 Harmonics · K3 Shape or Decay · K4 Level</p>
+<p>Select a voice, then turn ALGO for its synthesis model or PRESET for a Tone. Tone and Harmonics shape colour and overtones. Shape controls the character of models that offer it. Drum models use Decay. The on-device help changes for several models.</p>
+</article>
+<article>
+<div class="route">EDIT</div>
+<h3>VELVET FILTER</h3>
+<p class="controls">K1 Cutoff · K2 Resonance · K3 Filter mode · K4 Breathe</p>
+<p>Low-pass modes LP12 and LP24 soften brightness. LPG darkens as the sound decays. Off bypasses the filter. Breathe adds slow filter movement. Start with little resonance on bright sounds.</p>
+</article>
+<article>
+<div class="route">EDIT</div>
+<h3>ENVELOPE / BLOOM</h3>
+<p class="controls">K1 Attack · K2 Decay · K3 Level · K4 Granular send</p>
+<p>Attack controls the onset and Decay controls the tail. Melodic voices can sustain from MIDI. Percussive models also shape the tail internally. Increase Attack on pads and lower it on plucks.</p>
+</article>
+<article>
+<div class="route">EDIT</div>
+<h3>MIX / NOTES</h3>
+<p class="controls">K1 Granular send · K2 Base note · K3 Pan · K4 Clock division</p>
+<p>Set the voice position in stereo and its pitch centre. The division slows the selected voice independently. The granular send feeds the shared buffer.</p>
+</article>
+<article>
+<div class="route">EDIT</div>
+<h3>GLOBAL MIXER</h3>
+<p class="controls">K1 Level · K2 Granular send · K3 Delay send · K4 Reverb send</p>
+<p>Turn SELECT to move between tracks. SEL mutes or unmutes the selection. Sends follow the voice level. The shared effects also need an audible return on their own pages.</p>
+</article>
+</section>
+<section id="chapter-04"><p class="eyebrow">Chapter 04</p><h2>Rhythm and melodic patterns</h2>
+<div class="shots"><figure><img loading="lazy" src="assets/grid.png" alt="FM-1 display showing Grid"><figcaption>Grid</figcaption></figure></div>
+<article>
+<div class="route">SEQ</div>
+<h3>RHYTHM</h3>
+<p class="controls">K1 Hits · K2 Length · K3 Rotation · K4 Probability</p>
+<p>The Euclidean generator distributes hits through the pattern. Length sets the cycle. Rotation moves accents around it. Probability makes eligible hits intermittent. Try five hits over twelve steps against a sixteen-step track.</p>
+</article>
+<article>
+<div class="route">SEQ</div>
+<h3>GROOVE / REPEATS</h3>
+<p class="controls">K1 Global swing · K2 Repeats · K3 Accent · K4 Clock division</p>
+<p>Swing delays alternate subdivisions. Ratchets divide one hit into one to four repeats. Accent changes its emphasis. The division belongs to the selected track.</p>
+</article>
+<article>
+<div class="route">SEQ</div>
+<h3>BASS / MOTIFS</h3>
+<p class="controls">K1 Off / Euclid / Step · K2 Motif · K3 Glide · K4 Base note</p>
+<p>Use Euclid to play the motif with generated hits. Step lets the phrase drive playback. Glide smooths the movement between pitches. Any synth voice can use this mode.</p>
+</article>
+<article>
+<div class="route">SEQ</div>
+<h3>PHRASE / NOTES</h3>
+<p class="controls">K1 Phrase step · K2 Note offset or rest · K3 Accent · K4 Probability</p>
+<p>Edit one of sixteen phrase positions. A rest leaves the position empty. Scale snapping still applies. This page sets the track’s accent and probability. Use Step Expression for per-step dynamics in the 32-step sequencer.</p>
+</article>
+</section>
+<section id="chapter-05"><p class="eyebrow">Chapter 05</p><h2>Program and record steps</h2>
+<div class="shots"><figure><img loading="lazy" src="assets/grid.png" alt="FM-1 display showing Grid"><figcaption>Grid</figcaption></figure></div>
+<article>
+<div class="route">SEQ</div>
+<h3>SEQUENCE / 32 STEPS</h3>
+<p class="controls">K1 Enable · K2 Edit step · K3 Note or rest · K4 Length</p>
+<p>Each synth track has its own sequence. The display shows a rest at the bottom of the note selector. Tap REC to cycle Step entry, Live overdub and Off. In Step, play the keyboard or routed MIDI to enter notes. In Live, start PLAY and play into the moving sequence.</p>
+</article>
+<article>
+<div class="route">SEQ</div>
+<h3>STEP / EXPRESSION</h3>
+<p class="controls">K1 Velocity · K2 Gate · K3 Chance · K4 Generator</p>
+<p>Velocity changes emphasis. Gate changes duration. Chance governs the selected step. Generator choices such as Sparse, Arp, Pulse and Drift replace this track’s sequence. ENV can undo the edit.</p>
+</article>
+<article>
+<div class="route">SEQ</div>
+<h3>SEQUENCE / FLOW</h3>
+<p class="controls">K1 Direction · K2 Offset · K3 Velocity variation · K4 Generator</p>
+<p>Try Forward, Reverse, Pendulum, Orbit or Seed. Offset changes which step is heard first while keeping the stored order. Feel adds velocity variation. REC enters the sounding step while live recording.</p>
+</article>
+<article>
+<div class="route">SEQ</div>
+<h3>SEQUENCER / GRID</h3>
+<p class="controls">K1 Track · K2 Step · K3 Note or kit pad · K4 Length</p>
+<p>Compare the six rows, then press SEL to open the selected track’s editor. REC cycles recording. In Rack Mode, the kit row opens its pad sequencer. Tap SEQ again for Phrase Tools.</p>
+</article>
+</section>
+<section id="chapter-06"><p class="eyebrow">Chapter 06</p><h2>Phrase edits, fills and harmony</h2>
+<div class="shots"><figure><img loading="lazy" src="assets/grid.png" alt="FM-1 display showing Grid"><figcaption>Grid</figcaption></figure></div>
+<article>
+<div class="route">SEQ</div>
+<h3>SEQUENCER / TOOLS</h3>
+<p class="controls">K1 Step or Phrase · K2 Position · K3 Amount · K4 Action</p>
+<p>Set the scope before choosing an action. Copy and Paste transfer the chosen scope between synth tracks. Transpose shifts pitches. Phrase scope adds Reverse, Accent and Articulate to change order, velocity and gate lengths. Open a track before recording. Press SEL to apply the chosen tool and ENV to undo the last operation.</p>
+</article>
+<article>
+<div class="route">SEQ</div>
+<h3>SEQUENCER / FILL</h3>
+<p class="controls">K1 Track · K2 Step · K3 Rule · K4 Note</p>
+<p>Rules decide which passes can play the step, including First, Every second and Fill. During playback press SEL to queue a single fill bar. Press SEL again before it starts to cancel it. Fill steps play only inside that bar.</p>
+</article>
+<article>
+<div class="route">GLO</div>
+<h3>HARMONY / GLOBAL</h3>
+<p class="controls">K1 Root · K2 Scale · K3 Transpose · K4 Tempo</p>
+<p>Root and scale set the pitch pool, transpose moves the whole patch, and tempo sets the internal clock. Choose a related scale when you want the same rhythmic idea to feel different. External sync can drive playback independently of the internal BPM.</p>
+</article>
+<article>
+<div class="route">GLO</div>
+<h3>CHORD JOURNEY</h3>
+<p class="controls">K1 Progression · K2 Bars per chord · K3 Follow or Stay · K4 Root movement</p>
+<p>Pick a four-chord progression and allow one to sixteen bars for each chord. Set Follow on the selected voice to move it with the chords. Use Stay on percussion or a held drone. K4 switches the root movement between Nearby and Original. Set the root and scale on Harmony. This progression works with Journey Arrange Off.</p>
+</article>
+</section>
+<section id="chapter-07"><p class="eyebrow">Chapter 07</p><h2>Arrange a Journey</h2>
+<div class="shots"><figure><img loading="lazy" src="assets/journey.png" alt="FM-1 display showing Journey"><figcaption>Journey</figcaption></figure><figure><img loading="lazy" src="assets/timing.png" alt="FM-1 display showing Timing"><figcaption>Timing</figcaption></figure></div>
+<article>
+<div class="route">SEQ</div>
+<h3>JOURNEY / ARRANGE</h3>
+<p class="controls">K1 Off / Once / Loop · K2 Section · K3 Biome · K4 Section count</p>
+<p>Stop playback to edit. Choose up to eight sections. THIS BIOME takes its source from the current saved sounds. Other positions can recall factory Biomes. PLAY starts the first section. Once finishes after the last section. Loop returns to the start.</p>
+</article>
+<article>
+<div class="route">SEQ</div>
+<h3>JOURNEY / TIMING</h3>
+<p class="controls">K1 Section · K2 Bars · K3 Repeats · K4 Pitch offset</p>
+<p>Set one to sixty-four bars per section. A bar is sixteen sixteenth notes. Repeats extend that section. The pitch offset is ±24 semitones. All sections follow the home tempo.</p>
+</article>
+<article>
+<div class="route">SEQ</div>
+<h3>JOURNEY / ANCHORS</h3>
+<p class="controls">K1 Section · K2 Track · K3 Carry · K4 Journey mode</p>
+<p>Carry preserves the selected incoming voice and its pattern. The new root and scale still apply. Across kit changes, only tracks 1–3 can be carried. Live mutes and macros reset on Stop.</p>
+</article>
+<article>
+<h3>Reproduce the factory example</h3>
+<p>Load Pearl Fern, press PLAY and hear Hands Into Clouds enter while track 5 carries the bass. Pearl Fern, Chapel of Fog and Copper Step ship with Loop. The other 269 factory entries, including Blank, ship with Off. Save any preference and section edits to a User Biome.</p>
+</article>
+</section>
+<section id="chapter-08"><p class="eyebrow">Chapter 08</p><h2>Granular and spatial effects</h2>
+<div class="shots"><figure><img loading="lazy" src="assets/grains.png" alt="FM-1 display showing Grains"><figcaption>Grains</figcaption></figure><figure><img loading="lazy" src="assets/mixer.png" alt="FM-1 display showing Mixer"><figcaption>Mixer</figcaption></figure></div>
+<article>
+<div class="route">FX</div>
+<h3>GRANULAR BUS</h3>
+<p class="controls">K1 Return / Space · K2 Grain size · K3 Position · K4 Feedback</p>
+<p>This is one shared audio buffer. A track send changes how much of that track goes in. Size changes each fragment’s length, Position chooses where to read, and Feedback recirculates material. Press LFO to freeze, then press it again to resume input.</p>
+</article>
+<article>
+<div class="route">FX</div>
+<h3>TAPE / MOTION</h3>
+<p class="controls">K1 Grain pitch · K2 Direction · K3 Duck source · K4 Duck amount</p>
+<p>Transpose the grains by up to two octaves and choose forward or reverse playback. Ducking reduces the other tracks when the chosen source plays. Choose 0 to turn the duck source off. Set its release in System.</p>
+</article>
+<article>
+<div class="route">FX</div>
+<h3>SHARED SPACE</h3>
+<p class="controls">K1 Delay time · K2 Echo feedback · K3 Reverb tail · K4 Shared return</p>
+<p>The delay spans 40–350 ms. Feedback adds repeats. Reverb tail controls decay. Use the Mixer to choose which voices feed delay or reverb. Start low and raise the return gradually.</p>
+</article>
+<article>
+<div class="route">FX</div>
+<h3>CLOUD / AIR</h3>
+<p class="controls">K1 Noise into tape · K2 Granular return · K3 Selected voice send · K4 Freeze</p>
+<p>Add a little noise to the shared buffer for texture. The selected track’s send remains separate. Freeze holds the recorded buffer and stops new noise and track inputs from entering.</p>
+</article>
+</section>
+<section id="chapter-09"><p class="eyebrow">Chapter 09</p><h2>LFOs and interactions</h2>
+<div class="shots"><figure><img loading="lazy" src="assets/links.png" alt="FM-1 display showing Links"><figcaption>Links</figcaption></figure></div>
+<article>
+<div class="route">FX</div>
+<h3>MARBLES / TIDES / WARPS</h3>
+<p class="controls">K1 Marbles · K2 Tides depth · K3 Tides cycle · K4 Warps blend</p>
+<p>Marbles adds remembered variation to phrases in Euclid or Step. Tides moves the selected LFO A target. Warps blends nonlinear colour. Start with one low-depth change to hear each contribution.</p>
+</article>
+<article>
+<div class="route">FX</div>
+<h3>TIDAL / LFO A</h3>
+<p class="controls">K1 Target · K2 Wave · K3 Depth · K4 Cycle</p>
+<p>Assign slow movement to a synth voice. Try a soft swell on level or gentle motion on pan or filter. The cycle spans 0.5–20 seconds. Grain, FX and Warps targets need the corresponding base signal.</p>
+</article>
+<article>
+<div class="route">FX</div>
+<h3>TIDAL / LFO B</h3>
+<p class="controls">K1 Target · K2 Wave · K3 Depth · K4 Cycle</p>
+<p>Set an independent movement for the same voice. Use a different cycle from A to avoid repeating the same motion together. Soft Swell keeps the peak within the original level. Kit pads use their own controls.</p>
+</article>
+<article>
+<div class="route">FX</div>
+<h3>LIVING / LINKS</h3>
+<p class="controls">K1 Slot · K2 Source voice · K3 Destination voice · K4 Target</p>
+<p>Set up one of four connections. For example, choose a percussion track as the source, a sustained track as destination and Pan as target.</p>
+</article>
+<article>
+<div class="route">FX</div>
+<h3>LINK / MOTION</h3>
+<p class="controls">K1 Slot · K2 Signal · K3 Signed depth · K4 Hit release</p>
+<p>Select Hit, Envelope or LFO A/B from the source. Raise depth from zero and listen. Negative depth reverses motion. Hit release sets how quickly a hit fades from the destination. Muted sources stop sending motion.</p>
+</article>
+</section>
+<section id="chapter-10"><p class="eyebrow">Chapter 10</p><h2>Drift and lo-fi kits</h2>
+<div class="shots"><figure><img loading="lazy" src="assets/drift.png" alt="FM-1 display showing Drift"><figcaption>Drift</figcaption></figure></div>
+<article>
+<div class="route">FX</div>
+<h3>BIOME / DRIFT</h3>
+<p class="controls">K1 Off / Manual / Auto · K2 Position · K3 Cycle · K4 Depth</p>
+<p>Drift blends captured sound parameters from A to B. In Manual, move K2. In Auto, set a 10–300 second round trip. Lower depth for a smaller change. Capture both scenes first.</p>
+</article>
+<article>
+<div class="route">FX</div>
+<h3>DRIFT / SCENES</h3>
+<p class="controls">K1 Capture A · K2 Capture B · K3 Depth · K4 Mode</p>
+<p>Turn Drift Off. Capture A, change tone, filter, decay, mix or macros, and capture B. Turn Drift on afterwards. ENV can undo the last capture.</p>
+</article>
+<article>
+<div class="route">GLO</div>
+<h3>LO-FI / RACK MODE</h3>
+<p class="controls">K1 Rack mode · K2 Kit · K3 Pad · K4 Hiss</p>
+<p>Rack mode provides three synths and an eight-pad kit on track 4. Play its pads on the keyboard. The eight pads repeat across the keys. REC auditions the selected pad from kit edit screens.</p>
+</article>
+<article>
+<div class="route">EDIT (track 4)</div>
+<h3>KIT / PAD COLOUR</h3>
+<p class="controls">K1 Tune · K2 Level · K3 Filter · K4 Tail</p>
+<p>Set pad pitch up to ±12 semitones. Adjust the selected pad’s level, low-pass filter and sample decay. Each pad stores independent settings.</p>
+</article>
+<article>
+<div class="route">EDIT (track 4)</div>
+<h3>KIT / SENDS</h3>
+<p class="controls">K1 Pad · K2 Pad granular send · K3 Kit delay · K4 Kit reverb</p>
+<p>The pad feeds the same granular tape as the synths. Track 4’s Mixer send sets the overall kit contribution. Delay and reverb sends apply to the kit.</p>
+</article>
+<article>
+<div class="route">SEQ (track 4)</div>
+<h3>KIT / 32 STEPS</h3>
+<p class="controls">K1 Step · K2 Hit · K3 Length · K4 Generator</p>
+<p>Choose the pad with PRESET. Each pad has its own rhythm gates. REC cycles step entry, live overdub and Off. Save the full Biome to keep the kit and patterns.</p>
+</article>
+</section>
+<section id="chapter-11"><p class="eyebrow">Chapter 11</p><h2>System and MIDI</h2>
+<div class="shots"><figure><img loading="lazy" src="assets/usb.png" alt="FM-1 display showing Usb"><figcaption>Usb</figcaption></figure></div>
+<article>
+<div class="route">GLO</div>
+<h3>QUALITY / SYSTEM</h3>
+<p class="controls">K1 Tempo · K2 ECO / FULL · K3 Duck release · K4 Reset peak</p>
+<p>ECO uses lighter processing on dense sounds. FULL allows more resonator modes and grains. The CPU display shows the observed peak. REC is Panic. System shares its tempo with Harmony.</p>
+</article>
+<article>
+<div class="route">GLO</div>
+<h3>LOOK / STARTUP</h3>
+<p class="controls">K1 Motion · K2 Startup sound · K3 Replay intro · K4 LEDs</p>
+<p>Motion controls display and light movement. K2 toggles the startup chime, K3 replays the animation, and K4 selects OFF, DIM or FLOW for button lighting. SEL switches colour polarity. Stop and SAVE to keep preferences.</p>
+</article>
+<article>
+<div class="route">GLO</div>
+<h3>MIDI / PERFORMANCE</h3>
+<p class="controls">K1 Clock · K2 Scale snap · K3 Track input channel · K4 Macro shortcut</p>
+<p>Select Internal, USB, TRS or BLE clock. With an external clock, send MIDI Clock and Start from the source. Set each selected track to Off or channels 1–16. Input scale snap constrains played notes. CH16 CC16–19 can control the four live macros.</p>
+</article>
+<article>
+<div class="route">GLO</div>
+<h3>WIRELESS MIDI</h3>
+<p class="controls">K1 BLE on/off · K2 Discover/select · K3 Connect/release · K4 MIDI thru</p>
+<p>Stop before enabling the radio. To connect to a BLE MIDI peripheral, turn K2 to scan or browse, then K3 right to connect. For a phone or computer connecting to the FM-1, leave discovery mode and use its Bluetooth MIDI panel. Enable thru only when routing is intentional to avoid MIDI loops.</p>
+</article>
+</section>
+<section id="chapter-12"><p class="eyebrow">Chapter 12</p><h2>MIDI Learn and recordings</h2>
+<div class="shots"><figure><img loading="lazy" src="assets/usb.png" alt="FM-1 display showing Usb"><figcaption>Usb</figcaption></figure></div>
+<article>
+<div class="route">GLO</div>
+<h3>MIDI / LEARN</h3>
+<p class="controls">K1 Slot · K2 Target · K3 Track · K4 Arm</p>
+<p>Choose a slot, then turn K4 right and move a controller. Cross the current value to pick it up without a jump. REC clears the selected slot. Stop and SAVE to store the sixteen mappings.</p>
+</article>
+<article>
+<div class="route">GLO</div>
+<h3>MIDI / MAPPING</h3>
+<p class="controls">K1 Port · K2 Channel · K3 CC · K4 Enable</p>
+<p>Restrict the mapping to USB, BLE, TRS or Any. Channel 0 means Any. Reserved CCs are skipped. Disable a mapping to preserve it without using it, or press REC to clear it.</p>
+</article>
+<article>
+<div class="route">GLO</div>
+<h3>USB AUDIO</h3>
+<p class="controls">K1 Local monitoring</p>
+<p>Turn K1 left to mute speaker and headphones or right to restore them. USB recording continues. MASTER sets the stereo USB level. SAVE on this page keeps the preference with transport stopped and Internal clock selected.</p>
+</article>
+<article>
+<h3>Record six separate tracks in Logic or another DAW</h3>
+<p>Choose Mutable Dreams FM-1 as input and set the project to 44.1 kHz. Create six mono audio tracks, one each on inputs 3–8. Enable recording on all six, press PLAY and record. Inputs 1–2 give the effected stereo mix. The mono tracks are taken before pan and shared effects and use a fixed USB level. With Rack Mode on, input 6 carries the kit and inputs 7–8 are silent. Set MIDI input channels separately when using the FM-1 as a controller.</p>
+</article>
+</section>
+<section id="chapter-13"><p class="eyebrow">Chapter 13</p><h2>User Banks and browser editor</h2>
+<div class="shots"><figure><img loading="lazy" src="assets/browser.png" alt="FM-1 display showing Browser"><figcaption>Browser</figcaption></figure></div>
+<article>
+<div class="route">GLO from Tracks or Biomes</div>
+<h3>USER BANKS</h3>
+<p class="controls">K1 Slot · K2 Biomes / Sounds · K3 Recall · K4 Name cursor</p>
+<p>Stop and use Internal clock. Pick one of sixteen Biome slots or sixty-four sound slots. K4 moves the cursor and PRESET changes its character. SAVE stores to an empty slot. On an occupied slot, check the prompt and confirm with SEL to overwrite. REC requests clear and SEL confirms. Turn K3 right to recall. The factory library remains available.</p>
+</article>
+<article>
+<h3>Browser instrument and live editing</h3>
+<p>Open the 2.0 Browser Instrument in desktop Chrome or Edge. Start Instrument opens the independent browser synth. Use browser user banks for its own local storage. To edit the FM-1 instead, stop the standalone instrument, click Connect FM-1, allow MIDI and choose the device. The device editor sends changes to the FM-1. Disconnect when finished.</p>
+</article>
+<article>
+<h3>Export, import, back up and restore</h3>
+<p>Export the live patch as JSON for edits and transfer of the active sound. Use the editor’s import to load a compatible patch, then save it to the desired bank on the hardware. Use Back up all device banks for a .mddb file. Restore device banks checks and stages the file, then waits for SEL on the FM-1. HOME cancels the device prompt. A full restore replaces the stored user data, so back up the destination device first.</p>
+</article>
+<article>
+<h3>USB Screen Mirror</h3>
+<p>Open the mirror page in Chrome or Edge, connect with a data USB cable and grant Web MIDI. Choose the FM-1. Use the mirrored image as a window source in OBS and take audio from the device or DAW. If a transfer stalls, close the mirror and retry with the editor alone.</p>
+</article>
+</section>
+<section id="chapter-14"><p class="eyebrow">Chapter 14</p><h2>Install, recover and diagnose</h2>
+<article>
+<h3>Before any firmware change</h3>
+<p>Save a .mddb bank backup and a separate JSON of the live patch. Keep the official stock firmware for your specific FM-1. Use a direct USB data connection and leave power connected until the installer confirms restart. Check the release page for the current UC25HQ80 test status. The SMK-37 version uses a separate build.</p>
+</article>
+<article>
+<h3>Browser installer, command line and M-UPGRADE</h3>
+<p>Use the 2.0 project installer in desktop Chrome or Edge, grant MIDI and select the FM-1. Follow its update and restart prompts. The release also supplies a Python USB-MIDI updater for the Mutable Dreams package. Use M-UPGRADE with supported official stock files. Follow the instructions supplied with each download.</p>
+</article>
+<article>
+<h3>Return to stock and restore</h3>
+<p>Choose the installer’s stock-return route and the official stock file that works on that unit. Returning to stock can erase saved Mutable Dreams data. After reinstalling a compatible Mutable Dreams build, restore .mddb via the Live Device Editor and press SEL on the FM-1. Recall a known User Biome to check the restore.</p>
+</article>
+<article>
+<h3>Troubleshoot by symptom</h3>
+<p>No sound: turn up MASTER, use Internal clock, unmute the chosen voice and turn on local monitoring. Unexpected section changes: check Journey Arrange. No MIDI device: try a data cable, allow MIDI, close other editor or mirror sessions and reconnect. Stereo only in the DAW: select separate mono inputs 3–8. Startup click: switch off the optional chime in Look / Startup and compare speaker and headphones on a cold start. A click at the power switch can come from the analogue circuit.</p>
+</article>
+</section>
+<section id="chapter-15"><p class="eyebrow">Chapter 15</p><h2>Sound engines and scale choices</h2>
+<article>
+<h3>Choose a sound by how you want to play it</h3>
+<p>Start with Felt Mallet for a soft strike, Bow or Aero for sustained voices, and Skin Percussion for hand percussion. Use ALGO to change the selected voice’s engine. PRESET changes its Tone. The next section groups the algorithms by musical use. Hold EDIT on Sound to see that engine’s knob roles.</p>
+</article>
+<article>
+<h3>Play in a different scale</h3>
+<p>Harmony offers Chromatic, Minor, Major, Dorian, Minor Pentatonic, Major Pentatonic, Whole Tone, Phrygian, Ukrainian Dorian, Harmonic Minor, Double Harmonic Minor, Harmonic Major and Double Harmonic Major. Choose the root before shaping a chord progression. Try Ukrainian Dorian for a raised fourth against a minor third. Harmonic Minor adds a leading tone. Harmonic Major lowers the sixth against a major third.</p>
+</article>
+<article>
+<h3>A practical sound design pass</h3>
+<p>With effects low, audition a single voice at a modest level. Set its envelope, pitch, filter and pan. Raise just one send, listen in the full mix and make room for the next track. Save a Tone to reuse the voice and a Biome to preserve the whole mix.</p>
+</article>
+</section>
+<section id="chapter-16"><p class="eyebrow">Chapter 16</p><h2>Engine reference</h2>
+<article>
+<h3>Percussion and strikes</h3>
+<p>PLAITS KICK makes a pitched low drum. PLAITS SNARE combines body and noise. PLAITS HAT makes short metallic ticks. SKIN PERCUSSION moves from palm to rim with Tone and Harmonics shaping the skin and its overtones. FELT MALLET softens the initial strike while its pitched body rings.</p>
+</article>
+<article>
+<h3>Resonators and strings</h3>
+<p>RINGS MODAL produces pitched, ringing partials. ELEMENTS STRIKE excites a resonating body with mallet, plectrum or particles. CEDAR STRING gives you a woody pluck with separate brightness, body and plectrum settings. WILLOW BOW sustains a string with bow pressure. COPPER BLOOM mixes ringing sidebands into a strike.</p>
+</article>
+<article>
+<h3>Oscillators and keys</h3>
+<p>PLAITS FM creates sidebands around a carrier. PLAITS VA covers classic oscillator colours. PLAITS HARMONIC balances a harmonic stack. SINE CHOIR layers gentle partials. ROUND BASS gives a soft low foundation. VELVET KEYS makes a rounded melodic attack. REED ORGAN adds pipe and reed harmonics, with gentle beating.</p>
+</article>
+<article>
+<h3>Pads, air and ensembles</h3>
+<p>MELLOW DRIFT makes a slowly moving soft voice. SATIN MORPH moves between smooth timbres. SPECTRAL BLOOM develops a spread of partials. BREATH TEXTURE adds airy noise. AERO FLUTE balances pipe overtones and breath. SILK ENSEMBLE spreads and drifts two side voices. VOWEL BLOOM sweeps through oo, ah and ee.</p>
+</article>
+</section>
+<section id="chapter-17"><p class="eyebrow">Chapter 17</p><h2>MIDI messages and shortcuts</h2>
+<article>
+<h3>Performance messages</h3>
+<p>The assigned track accepts Note On/Off with velocity, Pitch Bend and CC64 sustain. CC11 controls expression. RPN 0,0 adjusts bend range up to ±24 semitones using CC6 and CC38. Reset All Controllers is CC121. CC120 silences the assigned voice and CC123 releases its notes. Keyboard and MIDI recording use the selected sequence and routed channel.</p>
+</article>
+<article>
+<h3>Direct control and recall</h3>
+<p>CC7 volume, CC10 pan, CC74 filter cutoff, CC71 resonance, CC91 reverb send, CC12 delay send, CC13 grain send and CC5 glide. On CH16 with the macro shortcut enabled, CC16–19 provide coarse Density, Motion, Colour and Space. Optional CC48–51 add fine resolution. Bank Select MSB CC0 plus Program Change selects a factory Tone for the routed track outside an active Journey. The slot index is bank × 128 + program. Use zero-based numbers as sent on the wire.</p>
+</article>
+<article>
+<h3>External timing and connection</h3>
+<p>Select USB, TRS or BLE in MIDI / Performance, then send Clock and Start, Continue or Stop over that input. Select Internal for standalone playback and saving. Enable BLE MIDI in Wireless MIDI before pairing. If notes double or hang, turn thru off, check channel assignments and use Panic on System or MIDI / Performance.</p>
+</article>
+<article>
+<h3>Navigation in one glance</h3>
+<p>HOME cycles Atlas, Tracks and Biomes. EDIT cycles sound shaping and mixing. SEQ cycles rhythm, patterns, tools and arrangement. FX cycles grain, spatial effects and movement. GLO cycles harmony, settings, MIDI, storage and Rack Mode. Holding a function key displays its help without applying the tap action.</p>
+</article>
+</section>
+<footer><a href="./#guide">Illustrated walkthrough, tools and downloads</a> · <a href="https://github.com/kidbee85-beep/mutable-dreams/releases/tag/v2.0">2.0 release notes</a></footer></main></body></html>
