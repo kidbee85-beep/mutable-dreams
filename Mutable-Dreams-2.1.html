@@ -123,7 +123,392 @@ main{--fern-text:#c3d9cb;--fern-line:#acc7b04d}
   <p id="workspace-detail" aria-live="polite"></p>
 </section>
 <section data-views="hardware" class="patch-library" id="device-editor" aria-labelledby="device-heading"><div><h2 id="device-heading">Two worlds, one instrument</h2><p>Shape sounds here, or connect your FM-1 and edit it live. <strong id="device-target">BROWSER</strong></p></div><div class="patch-actions"><button id="device-connect">Connect FM-1</button><button id="device-disconnect" disabled>Return to browser</button><button id="device-backup" disabled>Back up all device banks</button><button id="device-restore" disabled>Restore device banks</button><input id="device-bank-file" type="file" accept=".mddb" hidden></div><p id="device-status" role="status">The browser and FM-1 keep separate User Banks. Connect with USB to use the hardware banks.</p><p class="patch-note">Hardware editing needs a compatible Mutable Dreams firmware and Web MIDI with SysEx (Chrome or Edge). Audio comes from the FM-1 while connected; the small display is a live parameter view. Export / Import below transfers one complete live Biome as a file. SAVE keeps it on the selected instrument. Full .mddb backups contain the saved project, preferences and all User Banks; unsaved live edits, granular audio and calibration are excluded. A full restore requires STOP, internal clock, and physical SEL confirmation. Save changes before backing up, or export the live patch separately.</p></section><div class="toolbar"><button id="power" class="primary">Start instrument</button><button id="play" data-hw="10" disabled>▶ Play</button><select id="scene" aria-label="Biome"><option value="0">Velvet Mist · Ambient</option><option value="1">Soft Machines · Techno</option><option value="2">Six Kicks · All kicks</option><option value="3">Resonant Field · All resonators</option></select><span id="status" class="status">Play the instrument here · Explore it on your FM-1</span></div>
-<div class="workspace-listen" data-views="demo"><strong>Try a Biome</strong><button id="silk-start">Silk Estuary</button> <button id="vowel-start">Chapel of Fog</button> <button id="mellow-start">Cedar After Rain</button> <button id="kit-start">Lo-Fi Kit</button> </div><nav class="release-links" aria-label="Release navigation"><a href="#browser-itinera">Itinera dreams ↓</a><a href="#editor">Play and edit ↓</a><a href="Projektseite.html#listen">Hear the examples ↓</a><a href="Projektseite.html#install">Install and recover ↓</a><a href="Journey-Guide.html">Journey quick guide ↗</a><a href="Journey-Demo.mp3">Hear the Journey demo ↗</a><a href="https://kidbee85-beep.github.io/mutable-dreams/">Current public release ↗</a></nav><details class="atlas" id="atlas" open><summary><span>BIOME ATLAS</span><strong id="biome-title">Velvet Mist</strong><span class="atlas-count">271 Biomes + Blank ↗</span></summary><div class="atlas-tools"><input id="biome-search" type="search" placeholder="Find a Biome …" aria-label="Find a Biome"><select id="biome-family" aria-label="Biome family"><option value="-1">All landscapes</option></select><button id="blank">＋ Blank Biome</button><button id="star-biome" aria-pressed="false" title="Favorites are stored in this browser">☆ Favorite current Biome</button></div><div id="atlas-status" class="atlas-hint" role="status"></div><div class="biome-grid" id="biome-grid"></div>
+<div class="workspace-listen" data-views="demo"><strong>Try a Biome</strong><button id="silk-start">Silk Estuary</button> <button id="vowel-start">Chapel of Fog</button> <button id="mellow-start">Cedar After Rain</button> <button id="kit-start">Lo-Fi Kit</button> </div><nav class="release-links" aria-label="Release navigation"><a href="#fm1-surface">Your FM-1 ↓</a><a href="#browser-itinera">Itinera dreams ↓</a><a href="#editor">Play and edit ↓</a><a href="Projektseite.html#listen">Hear the examples ↓</a><a href="Projektseite.html#install">Install and recover ↓</a><a href="Journey-Guide.html">Journey quick guide ↗</a><a href="Journey-Demo.mp3">Hear the Journey demo ↗</a><a href="https://kidbee85-beep.github.io/mutable-dreams/">Current public release ↗</a></nav><!-- fm1-surface:begin -->
+<style>/* Mutable Dreams · FM-1 surface (Kid Bunka). Black body, mint keys, the firmware's own screen. */
+#fm1-surface{--fm1-body:#141617;--fm1-tray:#0b0c0d;--fm1-knob:#1d2022;--fm1-btn:#222628;--fm1-ink:#e6efe9;--fm1-mint:#a8e6c9;--fm1-mint-dark:#79c8a5;--fm1-lit:#c9f7df;--fm1-glow:#e9fff4;--fm1-held:#f2b36b;
+  margin:0 0 26px;padding:20px 22px 18px;border-radius:28px 9px 28px 9px;background:radial-gradient(ellipse at 15% 0%,#2c4a3e,#16241f 55%,#101716);color:#eaf3ec;border:1px solid #3d5a4c;scroll-margin-top:24px}
+#fm1-surface .fm1-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;margin:0 0 14px}
+#fm1-surface h2{font:italic 29px Georgia,serif;margin:0;color:#f3f7ef}
+#fm1-surface .fm1-head p{margin:0;font-size:13px;color:#b9cfc1;flex:1 1 20rem}
+#fm1-surface .fm1-badge{font-size:11px;letter-spacing:.14em;padding:5px 10px;border-radius:999px;border:1px solid #6f9a84;color:#cfeedd;white-space:nowrap}
+#fm1-surface.on-device .fm1-badge{background:#a8e6c9;color:#11261d;border-color:#a8e6c9;font-weight:700}
+#fm1-surface .fm1-stage{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}
+#fm1-surface .fm1-device{position:relative;width:100%;max-width:1000px;margin:0 auto;aspect-ratio:1000/640;filter:drop-shadow(0 18px 30px #0008);touch-action:none;user-select:none;-webkit-user-select:none}
+#fm1-surface svg.fm1-panel{position:absolute;inset:0;width:100%;height:100%;display:block}
+#fm1-surface .fm1-device canvas.fm1-screen{position:absolute;left:30.8%;top:8.125%;width:22%;height:34.375%;border-radius:4%;image-rendering:pixelated;background:#04080d;pointer-events:none}
+#fm1-surface .fm1-big{display:none}
+#fm1-surface .fm1-foot{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:12px;font-size:12.5px;color:#b9cfc1}
+#fm1-surface .fm1-foot button{background:#a8e6c9;color:#11261d;border:0;border-radius:8px;padding:9px 14px;font-weight:700}
+#fm1-surface .fm1-foot button:hover{background:#c9f7df}
+#fm1-surface.on-device .fm1-foot button{display:none}
+#fm1-surface .fm1-foot kbd{font:11px ui-monospace,monospace;border:1px solid #557563;border-radius:4px;padding:1px 4px;color:#dcefe4}
+#fm1-status{flex:1 1 22rem;min-height:1.4em}
+#fm1-surface .fm1-rotate{display:none;margin:10px 0 0;font-size:12px;color:#cfeedd;text-align:center}
+@media(max-width:760px) and (orientation:portrait){#fm1-surface .fm1-rotate{display:block}}
+@media(max-height:500px) and (orientation:landscape){#fm1-surface .fm1-big{display:none}#fm1-surface .fm1-device{max-width:calc((100vh - 40px)*1000/640)}}
+/* the drawing */
+#fm1-surface .body{fill:var(--fm1-body);stroke:#2b3033;stroke-width:2}
+#fm1-surface .sheen{fill:url(#fm1-sheen);pointer-events:none}
+#fm1-surface .tray{fill:var(--fm1-tray)}
+#fm1-surface .bezel{fill:#050607;stroke:#2a2f31;stroke-width:2}
+#fm1-surface .brand{fill:#7f9d8e;font:600 15px 'Barlow Semi Condensed','Arial Narrow',Arial,sans-serif;letter-spacing:.32em}
+#fm1-surface text.lbl{fill:var(--fm1-ink);font-family:'Barlow Semi Condensed','Arial Narrow',Arial,sans-serif;font-weight:600;letter-spacing:.05em}
+#fm1-surface .knobface{fill:var(--fm1-knob);stroke:#3b4245;stroke-width:2}
+#fm1-surface .ind{stroke:var(--fm1-mint);stroke-width:3.5;stroke-linecap:round}
+#fm1-surface .ring{stroke:var(--fm1-mint);stroke-width:3;opacity:0}
+#fm1-surface .ring.pulse{animation:fm1pulse .5s ease-out}
+#fm1-surface .delta{fill:var(--fm1-mint);font:700 17px 'Barlow Semi Condensed',Arial,sans-serif;opacity:0}
+#fm1-surface .delta.show{animation:fm1delta .9s ease-out}
+@keyframes fm1pulse{from{opacity:.9}to{opacity:0}}
+@keyframes fm1delta{from{opacity:1}to{opacity:0}}
+#fm1-surface .btnface{fill:var(--fm1-btn);stroke:#3a4144;stroke-width:1.5;transition:fill .06s}
+#fm1-surface .keyface{transition:fill .06s}
+#fm1-surface .keyface.white{fill:var(--fm1-mint)}
+#fm1-surface .keyface.black{fill:var(--fm1-mint-dark)}
+#fm1-surface g.ctl{cursor:pointer;outline:none}
+#fm1-surface .lit .btnface{fill:var(--fm1-lit)}
+#fm1-surface .lit text.lbl{fill:#10251c}
+#fm1-surface .button.red.lit .btnface{fill:#f08a6c}
+#fm1-surface .lit .keyface.white,#fm1-surface .lit .keyface.black{fill:var(--fm1-glow);filter:drop-shadow(0 0 6px #c9f7df)}
+#fm1-surface .held .btnface,#fm1-surface .held .keyface.white,#fm1-surface .held .keyface.black{fill:var(--fm1-held)}
+#fm1-surface .held text.lbl{fill:#2a1608}
+#fm1-surface .knob.held .knobface{stroke:var(--fm1-mint)}
+#fm1-surface g.ctl:focus-visible .btnface,#fm1-surface g.ctl:focus-visible .knobface,#fm1-surface g.ctl:focus-visible .keyface{stroke:var(--fm1-held);stroke-width:5}
+@media(prefers-reduced-motion:reduce){#fm1-surface .ring.pulse,#fm1-surface .delta.show{animation:none}#fm1-surface .btnface,#fm1-surface .keyface{transition:none}}
+/* phones: the screen also large above the panel */
+@media(max-width:760px){
+  #fm1-surface{padding:16px 12px 14px}
+  #fm1-surface h2{font-size:25px}
+  #fm1-surface .fm1-big{display:block;width:min(100%,300px);aspect-ratio:1;margin:0 auto;border-radius:14px;border:6px solid #050607;image-rendering:pixelated;background:#04080d}
+  #fm1-surface .fm1-device{filter:none}
+  #fm1-surface .fm1-foot{font-size:12px}
+  #fm1-surface .fm1-foot .fm1-keys-hint{display:none}
+}
+</style>
+<section id="fm1-surface" aria-labelledby="fm1-surface-title" tabindex="-1">
+ <div class="fm1-head"><h2 id="fm1-surface-title">Your FM-1</h2>
+  <p>Play it like the hardware: the same firmware, the same screen and controls. Connect your FM-1 and this panel mirrors it and plays it.</p>
+  <span class="fm1-badge" id="fm1-target">BROWSER</span></div>
+ <div class="fm1-stage">
+  <canvas class="fm1-screen fm1-big" width="240" height="240" aria-hidden="true"></canvas>
+  <div class="fm1-device">
+   <svg class="fm1-panel" viewBox="0 0 1000 640" role="group" aria-label="FM-1 controls">
+    <defs><linearGradient id="fm1-sheen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".07"/><stop offset=".35" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs>
+   </svg>
+   <canvas class="fm1-screen" width="240" height="240" role="img" aria-label="FM-1 display"></canvas>
+  </div>
+ </div>
+ <p class="fm1-rotate">Turn your phone sideways for larger controls.</p>
+ <div class="fm1-foot"><span id="fm1-status" role="status"></span><span class="fm1-keys-hint">Keys: <kbd>A</kbd>–<kbd>;</kbd> · knobs: drag, scroll or arrow keys</span><button type="button" data-fm1-connect>Connect FM-1</button></div>
+</section>
+<script>// SPDX-License-Identifier: MPL-2.0
+// Mutable Dreams · FM-1 surface for the Web Studio (Kid Bunka).
+// The panel drawing is adapted from fm1-base web/fm1panel.js and the mirror decoder from fm1-base web/mirror
+// (Copyright (C) 2026 Charles Vestal, MPL-2.0). Colours, interaction and the Web Studio bridge are new.
+//
+// One surface, two targets:
+//  - Browser: every press goes to the same WASM firmware the FM-1 runs (post / hardware / keyEdge of the page).
+//  - Connected FM-1 (Connect FM-1 in the Web Studio): presses go to the device through the editor's remote,
+//    and the device's real screen, held controls and lights come back through the USB mirror.
+const fm1SurfaceInit = () => {
+  "use strict";
+  const root = document.getElementById("fm1-surface");
+  if (!root) return;
+  const $id = (id) => document.getElementById(id);
+  const BTN = { FX: 0, SEL: 1, ENV: 2, LFO: 3, EDIT: 4, GLO: 5, HOME: 6, SAVE: 7, ARP: 8, SEQ: 9, PLAY: 10, REC: 11, "OCT-": 12, "OCT+": 13 };
+  const ENC = { SELECT: 0, ALGORITHM: 1, PRESETS: 2, KNOB1: 3, KNOB2: 4, KNOB3: 5, KNOB4: 6 };
+  const WHITE_K = [0, 2, 4, 6, 7, 9, 11, 12, 14, 16, 18, 19, 21, 23, 24, 26];
+  const BLACK_K = [1, 3, 5, 8, 10, 13, 15, 17, 20, 22, 25];
+  const BLACK_AFTER = [0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 14];
+  const ROW1 = ["FX", "SEL", "ENV", "LFO", "EDIT", "GLO"], ROW2 = ["HOME", "SAVE", "ARP", "SEQ", "PLAY", "REC"];
+  const HELP = { FX: "Effects pages", SEL: "Select / mute track", ENV: "Envelope · undo", LFO: "LFO · freeze", EDIT: "Sound pages",
+    GLO: "Global pages", HOME: "Home: Live, Biomes, Itinera", SAVE: "Store", ARP: "Arp · lock seed", SEQ: "Sequencer pages",
+    PLAY: "Play / stop", REC: "Record · variation", "OCT-": "Octave down", "OCT+": "Octave up" };
+
+  // ------------------------------------------------------------ drawing (fm1-base fm1panel.js, Kid Bunka palette)
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = root.querySelector("svg.fm1-panel");
+  function el(tag, attrs, parent = svg) {
+    const e = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+    parent.appendChild(e);
+    return e;
+  }
+  function text(parent, x, y, s, size, cls = "lbl") {
+    const t = el("text", { x, y, "text-anchor": "middle", "font-size": size, class: cls, "pointer-events": "none" }, parent);
+    t.textContent = s;
+    return t;
+  }
+  el("rect", { x: 4, y: 4, width: 992, height: 632, rx: 44, class: "body" });
+  el("rect", { x: 4, y: 4, width: 992, height: 632, rx: 44, class: "sheen" });
+  text(svg, 418, 312, "MUTABLE DREAMS", 15, "brand");
+  const knobs = {}, byRole = [];
+  function knob(x, y, r, label, role, name) {
+    const g = el("g", { class: "ctl knob", tabindex: 0, role: "slider", "aria-label": name || label });
+    el("circle", { cx: x, cy: y, r: r + 5, class: "tray" }, g);
+    const ring = el("circle", { cx: x, cy: y, r: r + 9, class: "ring", fill: "none" }, g);
+    el("circle", { cx: x, cy: y, r, class: "knobface" }, g);
+    const ind = el("line", { x1: x, y1: y - r + 5, x2: x, y2: y - r + 15, class: "ind" }, g);
+    text(g, x, y - r - 12, label, 17);
+    el("circle", { cx: x, cy: y, r: r + 16, fill: "transparent" }, g);
+    const k = { g, ind, ring, x, y, r, angle: 0, role, label };
+    knobs[label] = k;
+    if (typeof role === "number") byRole[role] = k;
+    return k;
+  }
+  knob(105, 100, 24, "MASTER", "master", "Master volume");
+  knob(215, 100, 24, "SELECT", ENC.SELECT);
+  knob(105, 205, 24, "PRESETS", ENC.PRESETS);
+  knob(215, 205, 24, "ALGORITHM", ENC.ALGORITHM);
+  for (let i = 0; i < 4; i++) knob(610 + i * 104, 100, 22, `K${i + 1}`, ENC[`KNOB${i + 1}`], `Knob ${i + 1}`);
+  const buttons = [];
+  function button(x, y, w, h, label, two) {
+    const g = el("g", { class: "ctl button", tabindex: 0, role: "button", "aria-label": `${label}${two ? " " + two : ""}: ${HELP[label]}` });
+    el("rect", { x, y, width: w, height: h, rx: 9, class: "btnface" }, g);
+    if (two) { text(g, x + w / 2, y + h / 2 - 1, label, 12); text(g, x + w / 2, y + h / 2 + 12, two, 12); }
+    else text(g, x + w / 2, y + h / 2 + 5, label, 15);
+    const t = el("title", {}, g); t.textContent = HELP[label];
+    buttons[BTN[label]] = { g, bit: BTN[label], label };
+  }
+  el("rect", { x: 58, y: 258, width: 210, height: 58, rx: 14, class: "tray" });
+  button(72, 268, 82, 38, "OCT-"); button(170, 268, 82, 38, "OCT+");
+  el("rect", { x: 300, y: 44, width: 236, height: 236, rx: 26, class: "bezel" });
+  el("rect", { x: 568, y: 160, width: 400, height: 140, rx: 18, class: "tray" });
+  for (let i = 0; i < 6; i++) button(582 + i * 63, 174, 54, 48, ROW1[i]);
+  for (let i = 0; i < 6; i++) button(582 + i * 63, 236, 54, 48, ROW2[i], ROW2[i] === "PLAY" ? "STOP" : undefined);
+  const keys = [];
+  (function keybed(x0, y0, w, h) {
+    el("rect", { x: x0, y: y0, width: w, height: h, rx: 18, class: "tray" });
+    const pitch = (w - 24) / 16, kw = pitch * 0.78;
+    BLACK_AFTER.forEach((a, k) => {
+      const g = el("g", { class: "ctl key", role: "button", "aria-label": `Key ${BLACK_K[k] + 1}` });
+      el("rect", { x: x0 + 12 + (a + 1) * pitch - kw / 2, y: y0 + h * 0.06, width: kw, height: h * 0.33, rx: kw / 2, class: "keyface black" }, g);
+      keys[BLACK_K[k]] = { g };
+    });
+    for (let i = 0; i < 16; i++) {
+      const g = el("g", { class: "ctl key", role: "button", "aria-label": `Key ${WHITE_K[i] + 1}` });
+      el("rect", { x: x0 + 12 + i * pitch + (pitch - kw) / 2, y: y0 + h * 0.43, width: kw, height: h * 0.52, rx: kw / 2, class: "keyface white" }, g);
+      keys[WHITE_K[i]] = { g };
+    }
+  })(36, 340, 928, 270);
+  for (const k of Object.values(knobs)) k.delta = el("text", { x: k.x + k.r + 12, y: k.y + 7, class: "delta", "text-anchor": "start" }, k.g);
+
+  // ------------------------------------------------------------ state shown on the surface
+  let litB = 0, litK = 0, heldB = 0, heldK = 0, devB = 0, devK = 0, playRed = false;
+  function paintLights() {
+    buttons.forEach((b, i) => {
+      b.g.classList.toggle("lit", !!(litB & (1 << i)));
+      b.g.classList.toggle("held", !!((heldB | devB) & (1 << i)));
+      b.g.setAttribute("aria-pressed", (heldB | devB) & (1 << i) ? "true" : "false");
+    });
+    buttons[BTN.PLAY].g.classList.toggle("red", playRed);
+    keys.forEach((k, i) => {
+      k.g.classList.toggle("lit", !!(litK & (1 << i)));
+      k.g.classList.toggle("held", !!((heldK | devK) & (1 << i)));
+    });
+  }
+  function restart(e, cls) { e.classList.remove(cls); void e.getBoundingClientRect(); e.classList.add(cls); }
+  function turned(k, n) {
+    const now = performance.now();
+    k.sum = now - (k.t || 0) < 700 ? (k.sum || 0) + n : n;
+    k.t = now;
+    k.angle = (k.angle + n * 18) % 360;
+    k.ind.setAttribute("transform", `rotate(${k.angle} ${k.x} ${k.y})`);
+    k.delta.textContent = (k.sum > 0 ? "+" : "−") + Math.abs(k.sum);
+    restart(k.ring, "pulse"); restart(k.delta, "show");
+  }
+  function showMaster(v) {
+    const m = knobs.MASTER, pos = Math.max(0, Math.min(1, v / 4096));
+    m.ind.setAttribute("transform", `rotate(${-135 + 270 * pos} ${m.x} ${m.y})`);
+    m.g.setAttribute("aria-valuenow", String(Math.round(pos * 100)));
+  }
+
+  // ------------------------------------------------------------ to the page's instrument (browser engine or FM-1)
+  const status = $id("fm1-status");
+  // mirrorLink is set by connected() and cleared by disconnected(), so the badge follows the button at once.
+  const target = () => (typeof hardwareDevice !== "undefined" && hardwareDevice && mirrorLink ? "fm1" : "browser");
+  const isReady = () => typeof ready !== "undefined" && ready;
+  function ensureStarted() {
+    if (isReady()) return true;
+    if (target() === "browser" && !$id("power").disabled) { $id("power").click(); say("Starting the instrument… press again in a moment."); }
+    return false;
+  }
+  function pressButton(bit, down) { if (down && !ensureStarted()) return; heldB = down ? heldB | (1 << bit) : heldB & ~(1 << bit); paintLights(); hardware(bit, down); }
+  function pressKey(k, down) { if (down && !ensureStarted()) return; heldK = down ? heldK | (1 << k) : heldK & ~(1 << k); paintLights(); keyEdge(k, down); }
+  function turn(role, n) { if (!n || !ensureStarted()) return; post({ type: "enc", role, n }); turned(byRole[role], n); }
+  function setMaster(v) {
+    v = Math.max(0, Math.min(4096, Math.round(v)));
+    const r = $id("master"); if (r) r.value = v;
+    showMaster(v);
+    if (isReady()) post({ type: "master", value: v });
+  }
+  showMaster(+($id("master")?.value || 2700));
+  $id("master")?.addEventListener("input", (e) => showMaster(+e.target.value));
+
+  // pointer: buttons and keys are held while pressed (several fingers at once), knobs turn by dragging or the wheel
+  function holdable(g, press) {
+    let id = null;
+    g.addEventListener("pointerdown", (e) => { e.preventDefault(); if (id !== null) return; id = e.pointerId; g.setPointerCapture(id); press(true); });
+    const up = (e) => { if (e.pointerId !== id) return; id = null; press(false); };
+    g.addEventListener("pointerup", up); g.addEventListener("pointercancel", up); g.addEventListener("lostpointercapture", up);
+    g.addEventListener("keydown", (e) => { if ((e.key === " " || e.key === "Enter") && !e.repeat) { e.preventDefault(); press(true); } });
+    g.addEventListener("keyup", (e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); press(false); } });
+  }
+  buttons.forEach((b, i) => holdable(b.g, (d) => pressButton(i, d)));
+  keys.forEach((k, i) => holdable(k.g, (d) => pressKey(i, d)));
+  for (const k of Object.values(knobs)) {
+    let startY = 0, acc = 0, base = 0, dragging = null;
+    k.g.addEventListener("pointerdown", (e) => {
+      e.preventDefault(); dragging = e.pointerId; k.g.setPointerCapture(e.pointerId);
+      startY = e.clientY; acc = 0; base = +($id("master")?.value || 0);
+      k.g.classList.add("held");
+    });
+    k.g.addEventListener("pointermove", (e) => {
+      if (e.pointerId !== dragging) return;
+      const dy = startY - e.clientY;
+      if (k.role === "master") { setMaster(base + dy * 16); return; }
+      const steps = Math.trunc(dy / 9) - acc;              // one detent every 9 px of travel
+      if (steps) { acc += steps; turn(k.role, steps); }
+    });
+    const end = (e) => { if (e.pointerId === dragging) { dragging = null; k.g.classList.remove("held"); } };
+    k.g.addEventListener("pointerup", end); k.g.addEventListener("pointercancel", end);
+    let wheel = 0;
+    k.g.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      if (k.role === "master") { setMaster(+($id("master")?.value || 0) - e.deltaY * 4); return; }
+      wheel += e.deltaY;
+      while (Math.abs(wheel) >= 40) { turn(k.role, wheel < 0 ? 1 : -1); wheel -= Math.sign(wheel) * 40; }
+    }, { passive: false });
+    k.g.addEventListener("keydown", (e) => {
+      const n = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1, PageUp: 5, PageDown: -5 }[e.key];
+      if (!n) return;
+      e.preventDefault();
+      if (k.role === "master") setMaster(+($id("master")?.value || 0) + n * 128); else turn(k.role, n);
+    });
+  }
+
+  // computer keyboard while the surface has focus: A W S E D F T G Y H U J K … play the keys
+  const KB = "awsedftgyhujkolp;'";
+  root.addEventListener("keydown", (e) => {
+    if (e.target.closest?.("g.ctl") || e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
+    const i = KB.indexOf(e.key.toLowerCase()); if (i < 0) return;
+    e.preventDefault(); pressKey(i, true);
+  });
+  root.addEventListener("keyup", (e) => { const i = KB.indexOf(e.key.toLowerCase()); if (i >= 0 && heldK & (1 << i)) pressKey(i, false); });
+  window.addEventListener("blur", () => { for (let i = 0; i < 14; i++) if (heldB & (1 << i)) pressButton(i, false); for (let i = 0; i < 27; i++) if (heldK & (1 << i)) pressKey(i, false); });
+
+  // ------------------------------------------------------------ the screen: browser engine or the FM-1's mirror
+  const main = $id("screen"), canvases = [...root.querySelectorAll("canvas.fm1-screen")];
+  const outs = canvases.map((c) => c.getContext("2d"));
+  let visible = true;
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(root);
+  (function copy() {
+    if (visible && main) for (const o of outs) o.drawImage(main, 0, 0);
+    requestAnimationFrame(copy);
+  })();
+
+  // mirror decoder (fm1-base web/mirror): F0 pack7(00 59 cmd len24 body ~sum8) F7
+  const MR_REQ = 0x50, MR_RECT = 0x51, MR_FILL = 0x52, MR_INPUT = 0x53;
+  const pack7 = (bytes) => { const out = []; let acc = 0, nb = 0; for (const b of bytes) { acc |= b << nb; nb += 8; while (nb >= 7) { out.push(acc & 0x7F); acc >>= 7; nb -= 7; } } if (nb) out.push(acc & 0x7F); return out; };
+  const unpack7 = (src) => { const out = []; let acc = 0, nb = 0; for (const b of src) { acc |= (b & 0x7F) << nb; nb += 7; if (nb >= 8) { out.push(acc & 0xFF); acc >>= 8; nb -= 8; } } return out; };
+  const mrRequest = (op) => Uint8Array.from([0xF0, ...pack7([0x00, 0x59, MR_REQ, 1, 0, 0, op, ~op & 0xFF]), 0xF7]);
+  const hash = (c) => (Math.imul(c, 40503) >>> 10) & 63;
+  const fb = new Uint16Array(240 * 240), img = new ImageData(240, 240);
+  const R5 = Array.from({ length: 32 }, (_, i) => Math.round(i * 255 / 31)), G6 = Array.from({ length: 64 }, (_, i) => Math.round(i * 255 / 63));
+  let seq = -1, mirrorAt = 0, mirrorDirty = false, keepAlive = null, mirrorLink = null;
+  function rect(b) {
+    const x = b[0], y = b[1], w = b[2], h = b[3], total = w * h, cache = new Uint16Array(64);
+    let i = 5, p = 0, cur = 0;
+    if (!w || !h || x + w > 240 || y + h > 240) return false;
+    const put = (c, n) => { if (p + n > total) return false; for (let k = 0; k < n; k++, p++) fb[(y + (p / w | 0)) * 240 + x + p % w] = c; return true; };
+    while (i < b.length) {
+      const op = b[i++];
+      if (op < 0x80) { if (!put(cur, op + 1)) return false; }
+      else if (op < 0xC0) { cur = cache[op & 63]; if (!put(cur, 1)) return false; }
+      else { if (i + 2 > b.length) return false; cur = b[i] << 8 | b[i + 1]; i += 2; cache[hash(cur)] = cur; if (!put(cur, (op & 63) + 1)) return false; }
+    }
+    return p === total;
+  }
+  function blit(x, y, w, h) {
+    const d = img.data;
+    for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) {
+      const p = j * 240 + i, v = fb[p], o = p * 4;
+      d[o] = R5[v >> 11]; d[o + 1] = G6[(v >> 5) & 63]; d[o + 2] = R5[v & 31]; d[o + 3] = 255;
+    }
+    if (!mirrorDirty) { mirrorDirty = true; requestAnimationFrame(() => { mirrorDirty = false; main.getContext("2d").putImageData(img, 0, 0); }); }
+  }
+  function mirrorFrame(sysex) {
+    const m = unpack7(Array.from(sysex).slice(1, -1));
+    if (m.length < 7 || m[0] !== 0 || m[1] !== 0x59) return;
+    const n = m[3] | m[4] << 8 | m[5] << 16;
+    let sum = 0; for (let i = 6; i < 6 + n; i++) sum += m[i];
+    if (n + 7 !== m.length || (~sum & 0xFF) !== m[6 + n]) return;
+    const cmd = m[2], b = m.slice(6, 6 + n);
+    mirrorAt = performance.now();
+    if (cmd === MR_RECT || cmd === MR_FILL) {
+      if (seq >= 0 && b[4] !== seq) mirrorSend(2);           // a lost tile: ask for the whole screen again
+      seq = (b[4] + 1) & 255;
+    }
+    if (cmd === MR_RECT) { if (rect(b)) blit(b[0], b[1], b[2], b[3]); else mirrorSend(2); }
+    else if (cmd === MR_FILL && n >= 7) {
+      const c = b[5] << 8 | b[6], x = b[0], y = b[1], w = b[2], h = b[3];
+      for (let j = y; j < Math.min(240, y + h); j++) fb.fill(c, j * 240 + x, j * 240 + Math.min(240, x + w));
+      blit(x, y, Math.min(w, 240 - x), Math.min(h, 240 - y));
+    } else if (cmd === MR_INPUT && n >= 21) {
+      const u32 = (o) => (b[o] | b[o + 1] << 8 | b[o + 2] << 16 | b[o + 3] << 24) >>> 0;
+      const lit = b[15] | b[16] << 8;
+      devB = b[0] | b[1] << 8; devK = u32(2);
+      litB = lit & 0x7FFF; playRed = !!(lit & 0x8000); litK = u32(17);
+      Array.from(b.slice(6, 13), (v) => (v << 24) >> 24).forEach((d, r) => { if (d && byRole[r]) turned(byRole[r], d); });
+      const master = b[13] | b[14] << 8;                     // gain = position²: the knob's position back
+      showMaster(4096 * Math.min(1, Math.sqrt(master * 256) / 1023));
+      paintLights();
+    }
+  }
+  function mirrorSend(op) { try { mirrorLink?.output.send(mrRequest(op)); } catch { /* unplugged */ } }
+  // The Web Studio's device link hands mirror frames here (see the hook in DreamsDevice Link).
+  window.fm1Surface = {
+    mirror: (bytes) => mirrorFrame(bytes),
+    mirrorLive: () => performance.now() - mirrorAt < 3000,
+    engine(m) {                                            // browser engine frames: lights
+      if (m.type !== "frame") return;
+      litB = m.buttons >>> 0; litK = m.keys >>> 0; playRed = false; paintLights();
+    },
+    connected(link) {                                      // Connect FM-1 pressed in the Web Studio
+      mirrorLink = link; seq = -1; litB = litK = devB = devK = 0; paintLights();
+      mirrorSend(1); mirrorSend(2);
+      clearInterval(keepAlive);
+      keepAlive = setInterval(() => { mirrorSend(window.fm1Surface.mirrorLive() ? 1 : 2); updateTarget(); }, 2000);
+      root.classList.add("on-device"); updateTarget();
+    },
+    disconnected() {
+      mirrorSend(0); clearInterval(keepAlive); keepAlive = null; mirrorLink = null; mirrorAt = 0;
+      devB = devK = litB = litK = 0; paintLights(); root.classList.remove("on-device"); updateTarget();
+    },
+  };
+  function say(t) { if (status) status.textContent = t; }
+  function updateTarget() {
+    const badge = $id("fm1-target");
+    if (target() === "fm1") {
+      badge.textContent = window.fm1Surface.mirrorLive() ? "LIVE FM-1 · MIRRORED" : "LIVE FM-1";
+      say(window.fm1Surface.mirrorLive()
+        ? "This panel is your FM-1: its screen, buttons and lights are mirrored, and every press here plays the device."
+        : "Connected. Presses here play the FM-1. Its screen appears here once the firmware answers the mirror.");
+    } else {
+      badge.textContent = "BROWSER";
+      say(isReady() ? "Playing in this browser. The same firmware as on the FM-1 runs here. Drag or scroll the knobs."
+        : "Press any control or Start instrument to wake the browser FM-1.");
+    }
+  }
+  updateTarget();
+  $id("power")?.addEventListener("click", () => setTimeout(updateTarget, 1500));
+  root.querySelector("[data-fm1-connect]")?.addEventListener("click", () => $id("device-connect")?.click());
+  paintLights();
+};
+// The surface sits above the instrument in the page: wait until its screen and controls exist.
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fm1SurfaceInit); else fm1SurfaceInit();
+</script>
+<!-- fm1-surface:end --><details class="atlas" id="atlas" open><summary><span>BIOME ATLAS</span><strong id="biome-title">Velvet Mist</strong><span class="atlas-count">271 Biomes + Blank ↗</span></summary><div class="atlas-tools"><input id="biome-search" type="search" placeholder="Find a Biome …" aria-label="Find a Biome"><select id="biome-family" aria-label="Biome family"><option value="-1">All landscapes</option></select><button id="blank">＋ Blank Biome</button><button id="star-biome" aria-pressed="false" title="Favorites are stored in this browser">☆ Favorite current Biome</button></div><div id="atlas-status" class="atlas-hint" role="status"></div><div class="biome-grid" id="biome-grid"></div>
 <nav class="atlas-pagination" aria-label="Biome pages">
   <button type="button" id="atlas-prev" aria-controls="biome-grid">Previous</button>
   <output id="atlas-page" aria-live="polite"></output>
@@ -375,7 +760,7 @@ class Link {
     this.input = input; this.output = output; this.q = []; this.waiter = null;
     input.onmidimessage = (ev) => {
       const bytes = ev.data;
-      if (bytes[0] !== 0xF0 || Link.isMirrorFrame(bytes)) return;
+      if (bytes[0] !== 0xF0) return; if (Link.isMirrorFrame(bytes)) { globalThis.fm1Surface?.mirror(bytes); return; }
       this.q.push(Array.from(bytes));
       if (this.waiter) { const w = this.waiter; this.waiter = null; w(); }
     };
@@ -66310,7 +66695,7 @@ $('dream-start').onclick=()=>{
  $('dream-status').textContent='Use Play / Stop above to end the dream.';
  $('screen').scrollIntoView({block:'nearest'});
 };
-$('power').onclick=async()=>{try{$('power').disabled=true;ctx=new AudioContext({sampleRate:44100,latencyHint:'interactive'});if(ctx.sampleRate!==44100)throw new Error('This browser cannot provide 44.1 kHz audio here.');await ctx.audioWorklet.addModule('data:text/javascript;base64,'+btoa(unescape(encodeURIComponent(WORKLET))));node=new AudioWorkletNode(ctx,'fm1',{numberOfInputs:0,numberOfOutputs:1,outputChannelCount:[2]});node.onprocessorerror=()=>{$('notice').textContent='Audio stopped unexpectedly. Reload the page to restart.';};analyser=ctx.createAnalyser();node.connect(analyser);analyser.connect(ctx.destination);node.port.onmessage=({data:m})=>{if(!hardwareDevice)receiveEngine(m)};const bytes=Uint8Array.from(atob($('firmware').textContent.trim()),c=>c.charCodeAt(0));let store={};try{store=JSON.parse(localStorage.getItem('mutable-dreams-2.0-dev')??localStorage.getItem('mutable-dreams-1.5')??localStorage.getItem('mutable-dreams-1.4')??localStorage.getItem('mutable-dreams-1.3')??localStorage.getItem('mutable-dreams-1.2')??'{}');}catch{store=null;}node.port.postMessage({type:'load',wasm:bytes.buffer,master:+$('master').value,store},[bytes.buffer]);await ctx.resume();window.dreamsDebug={node,ctx,analyser,get ready(){return ready}};}catch(e){$('notice').textContent='Could not start: '+e.message;$('power').disabled=false;}};
+$('power').onclick=async()=>{try{$('power').disabled=true;ctx=new AudioContext({sampleRate:44100,latencyHint:'interactive'});if(ctx.sampleRate!==44100)throw new Error('This browser cannot provide 44.1 kHz audio here.');await ctx.audioWorklet.addModule('data:text/javascript;base64,'+btoa(unescape(encodeURIComponent(WORKLET))));node=new AudioWorkletNode(ctx,'fm1',{numberOfInputs:0,numberOfOutputs:1,outputChannelCount:[2]});node.onprocessorerror=()=>{$('notice').textContent='Audio stopped unexpectedly. Reload the page to restart.';};analyser=ctx.createAnalyser();node.connect(analyser);analyser.connect(ctx.destination);node.port.onmessage=({data:m})=>{if(!hardwareDevice){receiveEngine(m);window.fm1Surface?.engine(m);}};const bytes=Uint8Array.from(atob($('firmware').textContent.trim()),c=>c.charCodeAt(0));let store={};try{store=JSON.parse(localStorage.getItem('mutable-dreams-2.0-dev')??localStorage.getItem('mutable-dreams-1.5')??localStorage.getItem('mutable-dreams-1.4')??localStorage.getItem('mutable-dreams-1.3')??localStorage.getItem('mutable-dreams-1.2')??'{}');}catch{store=null;}node.port.postMessage({type:'load',wasm:bytes.buffer,master:+$('master').value,store},[bytes.buffer]);await ctx.resume();window.dreamsDebug={node,ctx,analyser,get ready(){return ready}};}catch(e){$('notice').textContent='Could not start: '+e.message;$('power').disabled=false;}};
 bindRange($('tempo'));
 $('panic').onclick=()=>cmd(27,0,0);$('scene').onchange=()=>chooseBiome(+$('scene').value);$('tempo').oninput=()=>cmd(15,0,+$('tempo').value);$('master').oninput=()=>post({type:'master',value:+$('master').value});
 window.addEventListener('blur',()=>{buttons=keys=0;document.querySelectorAll('[data-key]').forEach(b=>b.classList.remove('pressed'));if(node||hardwareDevice){post({type:'buttons',mask:0});post({type:'keys',mask:0});}});
@@ -66417,7 +66802,7 @@ let hardwareParams=new Map(),hardwareFlush=null,hardwareFlushTask=Promise.resolv
 const deviceMessage=text=>{$('device-status').textContent=text;};
 const deviceError=e=>deviceMessage(e.message||String(e));
 function deviceDraw(m){
- $('screen').style.filter=m.displayInverted?'invert(1)':'';
+ $('screen').style.filter=m.displayInverted?'invert(1)':'';if(window.fm1Surface?.mirrorLive())return;
  cx.fillStyle='#0b1319';cx.fillRect(0,0,240,240);
  cx.strokeStyle='#304d47';cx.lineWidth=1;
  for(let j=0;j<7;j++){cx.beginPath();for(let x=0;x<240;x+=3){const y=45+j*24+8*Math.sin(x*.022+j+m.page*.4);x?cx.lineTo(x,y):cx.moveTo(x,y);}cx.stroke();}
@@ -66496,7 +66881,7 @@ function syncSequencePageAvailability(d){
 }
 async function disconnectHardware(){
  const d=hardwareDevice;if(!d||hardwareBusy)return;clearInterval(hardwarePoll);clearTimeout(hardwareFlush);hardwareParams.clear();
- try{await d.close();}catch(e){deviceError(e);}hardwareDevice=null;$('screen').style.filter='';ready=browserWasReady;playing=0;buttons=keys=0;
+ window.fm1Surface?.disconnected();try{await d.close();}catch(e){deviceError(e);}hardwareDevice=null;$('screen').style.filter='';ready=browserWasReady;playing=0;buttons=keys=0;
  $('device-connect').disabled=false;$('device-disconnect').disabled=true;$('device-backup').disabled=$('device-restore').disabled=true;
  $('power').disabled=browserWasReady;$('play').disabled=!ready;$('export-patch').disabled=$('import-patch').disabled=!ready;
  syncSequencePageAvailability(null);trackUI();$('load-dev-example').disabled=!ready;$('midi-connect').disabled=false;$('midi-input').disabled=false;$('device-target').textContent='BROWSER';
@@ -66516,7 +66901,7 @@ $('device-connect').onclick=async()=>{
   $('play').disabled=$('export-patch').disabled=$('import-patch').disabled=false;$('load-dev-example').disabled=false;
   $('midi-connect').disabled=$('midi-input').disabled=true;$('device-target').textContent='LIVE FM-1';
   deviceMessage('Connected to '+d.id+'. Listen through the FM-1. Controls edit its live patch; Save is explicit.');if(page===30)macroUI();
-  await pollHardware();$('bank-name').value=values.bankName||'MY BIOME';hardwarePoll=setInterval(pollHardware,450);
+  await pollHardware();$('bank-name').value=values.bankName||'MY BIOME';hardwarePoll=setInterval(pollHardware,450);window.fm1Surface?.connected(d.link);
  }catch(e){$('device-connect').disabled=false;deviceError(e);}
 };
 $('device-disconnect').onclick=disconnectHardware;
