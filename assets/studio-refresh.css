@@ -94,7 +94,8 @@
 .md-studio .atlas-pagination button:disabled {opacity:.5}
 .md-studio .atlas-hint {font-size:12px;color:#52665a;margin-top:10px}
 .md-studio .patch-library {border-radius:19px 6px 19px 6px}
-.md-studio .instrument {background:radial-gradient(ellipse at 8% 0%,#3c6250,#233c35 46%,#202e35);border-color:#748f7e}
+/* Dark base colour stays visible when the page tint replaces background-image (2.1 fix). */
+.md-studio .instrument {background-color:#233c35;background-image:radial-gradient(ellipse at 8% 0%,#3c6250,#233c35 46%,#202e35);border-color:#748f7e}
 .md-studio .section-label {font-size:12px;color:#4e6656;letter-spacing:.03em}
 .md-studio .release-links {margin:10px 0 20px}
 @media(max-width:880px){
