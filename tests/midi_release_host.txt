@@ -1,0 +1,38 @@
+# Host script (mutable-dreams-host): held MIDI ends when its transport goes away.
+# P-4: the USB cable pulled while a note, the pedal and a bend are held.
+wait 300
+midi USB B0 40 7F
+midi USB E0 00 60
+midi USB 90 3C 64
+wait 12
+expect midi_held_port 0
+usb unplug
+wait 20
+expect midi_held_port -1
+# Plugged in again, USB plays and holds as before.
+usb plug
+wait 20
+midi USB 90 3E 64
+wait 12
+expect midi_held_port 0
+midi USB 80 3E 00
+midi USB B0 40 00
+wait 12
+expect midi_held_port -1
+# P-5: the connected Bluetooth MIDI device let go with K3 on the Bluetooth page.
+page 30
+turn K1 1
+wait 1900
+# First K3: no device known yet, the FM-1 scans. Second K3: connect to it.
+turn K3 1
+wait 1500
+turn K3 1
+wait 1200
+expect ble_dev 4
+midi BLE-DEV 90 3C 64
+wait 12
+expect midi_held_port 1
+turn K3 1
+wait 400
+expect midi_held_port -1
+expect queue_drops 0

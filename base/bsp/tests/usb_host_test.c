@@ -358,7 +358,9 @@ static void fm1_delay_ms(uint32_t ms) { (void)ms; }
 #define FELUCCA_USB_HOST TEST_HOST
 #define FELUCCA_UAC_48K TEST_48K
 #define FELUCCA_UAC_OUT TEST_OUT
+#ifndef HALF_FRAMES
 #define HALF_FRAMES 128u
+#endif
 static volatile uint32_t render_peak;
 static volatile uint8_t render_busy;
 static uint8_t sx_seen[8];                              /* FELUCCA_SYSEX_BYTE: the bytes the hook saw */
@@ -1157,11 +1159,16 @@ int main(void)
 /* The packets' pacing: renders of HALF_FRAMES on the FM-1's I2S clock (6 MHz / 136, its crystal ppm off), a packet a
  * ms on the host's. The stream must hold (no underrun, no overrun), carry the I2S clock's frames, and never steer two
  * packets in a row: a host that follows an asynchronous device's rate closely (iOS's Camera) filled the 5..6 short
- * packets of the old steering with silence. Time in 1/60 GHz: a ms is 60,000,000, a render 174,080,000 */
+ * packets of the old steering with silence. Time in 1/60 GHz: a ms is 60,000,000. */
 static void test_uac_pace(int r48, int32_t ppm)
 {
-    const uint64_t MS = 60000000u, REND = 174080000u + (uint64_t)((int64_t)174080 * ppm / 1000);
-    uint64_t t_r = REND / 3u, t_p = 0;
+    const uint64_t MS = 60000000u, REND = HALF_FRAMES * (1360000u + 1360 * ppm / 1000);
+    uint64_t t_r = REND / 3u, t_p = 0, t_done = UINT64_MAX;
+#ifdef FELUCCA_UAC_PREFILL
+    const uint64_t render_time = 9u * MS / 2u;
+#else
+    const uint64_t render_time = 0;
+#endif
     uint32_t pkts = 0, adj_prev = 0, adjs = 0, runs = 0, lo_n = 99, hi_n = 0, base = r48 ? 48u : 44u;
     uint32_t under0 = 0, over0 = 0;
     uint64_t sent = 0, made = 0;
@@ -1178,14 +1185,17 @@ static void test_uac_pace(int r48, int32_t ppm)
 #endif
     ua_w = ua_r = 0;
     while (pkts < 61000u) {
-        if (t_r <= t_p) {                               /* the audio interrupt: a render */
+        if (t_done <= t_p) {                            /* publish at the end of the render */
             uint32_t k;
-            uac_render_start();
             for (k = 0; k < 2u * HALF_FRAMES; k++)
                 out[k] = 1000 << 8;
             uac_tap(out, HALF_FRAMES);
             if (pkts >= 1000u)
                 made += HALF_FRAMES;
+            t_done = UINT64_MAX;
+        } else if (t_r <= t_p) {
+            uac_render_start();
+            t_done = t_r + render_time;
             t_r += REND;
         } else {                                        /* the host's IN token, once a ms */
             uint32_t a0 = uac.adj_up + uac.adj_down, n = uac_packet(pk), adj;
@@ -1236,7 +1246,7 @@ static void test_uac_channels(void)
         at += x[0];
     }
     assert(term == FELUCCA_UAC_CH && fmt == FELUCCA_UAC_CH && ep == 46u * 2u * FELUCCA_UAC_CH && ep <= 1023u);
-    assert(UA_N % HALF_FRAMES == 0 && UA_WRAP % UA_N == 0);
+    assert(UA_WRAP % UA_N == 0);
     usb.config = 1;
     uac.alt = 1;
     uac.flowing = 1;
@@ -1271,7 +1281,8 @@ static void test_uac_channels(void)
             }
         }
     }
-    assert(got > 20u * HALF_FRAMES && ua_w < 8192u && !uac.underruns && !uac.overruns);
+    assert(got > 20u * HALF_FRAMES && !uac.underruns && !uac.overruns);
+    assert(ua_w == 40u * HALF_FRAMES + UA_PRIME - 3u * UA_N - 17u);
     uac.alt = 0;
     usb.config = 0;
     printf("USB audio, %u channels: the format, a %u-byte endpoint, %u frames through a %u-frame ring and the wrap: OK\n",

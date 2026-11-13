@@ -190,6 +190,7 @@ uint32_t plat_sysex_room(void)
 }
 uint32_t plat_sysex_queued(void) { return (so_w - so_r) * 3u; }
 uint32_t plat_usb_session(void) { return usb.config ? usb.resets + 1u : 0u; }   /* (usb.c counts the bus resets) */
+int plat_usb_awake(void) { return usb.config && !usb.suspended; }   /* (usb.c: 100 ms without a frame, or a suspend) */
 /* a stream: usb.c's SysEx ring held (sx_busy: ep1_tx sends no note, ann_wire_send waits) from begin to end, a USB-MIDI
  * packet into it each 3 bytes (CIN 4: more follow; 5..7: the last, with F7) */
 static struct {

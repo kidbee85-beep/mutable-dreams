@@ -37,7 +37,11 @@ static int bank_action(int action){
  const int clear=action>=BANK_CLEAR_ASK;
  if(!clear&&bank_kind&&md_state()->kit.enabled&&dream_ui.track==3){app_say("SAVE KITS AS USER BIOMES","");return 6;}
  int obj=bank_object(),exists=plat_store_size(obj)>0;
- if(action==BANK_LOAD&&!bank_kind&&exists&&!bank_allow_load&&md_unsaved()){bank_pending=bank_slot;return 8;}
+ if(action==BANK_LOAD&&!bank_kind&&exists&&!bank_allow_load){
+  // The audio owner may apply MIDI edits; read the fingerprint under the lock.
+  uint32_t f=plat_lock();const int unsaved=md_unsaved();plat_unlock(f);
+  if(unsaved){bank_pending=bank_slot;return 8;}
+ }
  if(bank_kind){int r=bank_read_tones(obj);if(r<0){app_say("BANK FORMAT NOT SUPPORTED","");return 6;}exists=r&&(bank_io.tones.used&(1u<<(bank_slot%16)));}
  int arm=obj*64+bank_slot+(clear?BANK_CLEAR_ARM:0);
  if(exists&&(action==BANK_CLEAR_ASK||(action==BANK_SAVE_ASK&&
@@ -62,7 +66,7 @@ static int bank_action(int action){
   if(bank_kind){memcpy(bank_io.tones.tone[bank_slot%16].name,bank_name,24);bank_io.tones.tone[bank_slot%16].track=bank_patch_io.track[dream_ui.track];bank_io.tones.tone[bank_slot%16].ext=bank_patch_io.ext[dream_ui.track];bank_io.tones.used|=1u<<(bank_slot%16);failed=plat_store_save(obj,&bank_io.tones,sizeof bank_io.tones);}
   else {bank_io.biome.magic=0x4d445542;memcpy(bank_io.biome.name,bank_name,24);bank_io.biome.patch=bank_patch_io;failed=plat_store_save(obj,&bank_io.biome,sizeof bank_io.biome);}
   if(!failed&&!bank_kind){
-   uint32_t f=plat_lock();md_mark_saved();plat_unlock(f);
+   uint32_t f=plat_lock();md_mark_saved_from(&bank_patch_io);plat_unlock(f);
    bank_pending=-1;
    if(md_pending_biome()>=0)dream_cmd(MD_SCENE_CONFIRM,0,0);
   }

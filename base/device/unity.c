@@ -215,6 +215,10 @@ struct bootguard_s { uint32_t magic, failed, pending; };
 extern struct bootguard_s bootguard;
 /* (no OTA_FLASH_ID: the identity reply's bytes 24..26 stay 0. Installers that strip only trailing zeros, as The
  * Firmware Hub's, take a reply with the flash ID for no FM-1 at all: "No FM-1 found", 2026-11-06) */
+#if FM1B_BACKUP
+static int rs_pending(void);    /* backup.c: a restore's journal waits for the next boot; an update would erase it */
+#define OTA_STAGE_REFUSED() rs_pending()
+#endif
 #include "ota.c"
 static uint32_t ota_now_ms(void) { return fm1_ms; }
 static void ota_idle(void) { fm1_wdt_feed(); }
@@ -243,7 +247,7 @@ static void ota_show(uint32_t step, int32_t code)
         sys_box(0, 124, 240, SYS_S, STEP[step < 6u ? step : 0], C_HI, 1);
         return;
     }
-    sys_box(0, 124, 240, SYS_S, code == 1 ? "DRY RUN OK" : "FAILED", C_HI, 1);
+    sys_box(0, 124, 240, SYS_S, code == 1 ? "DRY RUN OK" : code == OTA_E_REFUSED ? "RESTART FIRST" : "FAILED", C_HI, 1);
     fm1_delay_ms(1500);
 }
 static void radio_clean_exit(void);

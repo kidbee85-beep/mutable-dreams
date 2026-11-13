@@ -250,5 +250,28 @@ int main(void){
  assert(!app_backup_validate(OBJ_PREFS,&extended_prefs,sizeof extended_prefs));
  puts("PASS extended preferences restore, stable old prefix, favorites and velocity touch; corrupt trailer rejected.");
  test_display_polarity();test_user_bank_workflow();
+ {/* Editor names (command 116): 0 ends the name, control characters are spaces, earlier gaps spaces; a restore
+   * still takes a backup whose older names carry control characters. */
+  for(int i=0;i<23;i++){dream_command(115,0,i);dream_command(116,0,i<2?"AB"[i]:0);}
+  assert(!memcmp(bank_name,"AB",3)&&dream_name_valid(bank_name));
+  dream_command(115,0,1);dream_command(116,0,7);assert(bank_name[1]==' '&&dream_name_valid(bank_name));
+  dream_command(115,0,5);dream_command(116,0,'Z');assert(!memcmp(bank_name,"A    Z",7)&&dream_name_valid(bank_name));
+  dream_command(115,0,3);dream_command(116,0,0);assert(!memcmp(bank_name,"A  ",4)&&!bank_name[5]&&dream_name_valid(bank_name));
+  dream_command(115,0,0);dream_command(116,0,300);assert(bank_name[0]=='~'&&dream_name_valid(bank_name));
+  static UserBiome legacy_name;memset(&legacy_name,0,sizeof legacy_name);legacy_name.magic=0x4d445542;memcpy(legacy_name.name,"OLD\001NAME",8);legacy_name.patch=*md_state();
+  assert(!dream_name_valid(legacy_name.name)&&app_backup_validate(OBJ_USER,&legacy_name,sizeof legacy_name));
+  legacy_name.name[20]='x';assert(!app_backup_validate(OBJ_USER,&legacy_name,sizeof legacy_name));
+  puts("PASS editor bank names stay printable and terminated; restore keeps older names, rejects unterminated ones.");}
+ {/* app_overload runs in the audio interrupt: it queues ECO and nothing else, not even the main loop's
+   * "STOP JOURNEY" message when the queue is full during a Journey. */
+  dream_cmd(MD_JOURNEY_MODE,0,1);dream_cmd(MD_QUALITY,0,1);run_ms(20);dream_cmd(MD_PLAY,0,1);run_ms(20);assert(md_journey_active());
+  dream_ui.msg[0]=0;uint32_t before=overloads,drops=md_status()->dropped_commands;
+  while(md_command_space())assert(md_command(MD_LEVEL,0,500));
+  app_overload();
+  // F-3: ECO for the render at once, nothing queued, the saved quality kept
+  assert(overloads==before+1&&!dream_ui.msg[0]&&md_status()->dropped_commands==drops&&!md_quality_active()&&md_state()->quality==1);
+  run_ms(20);app_overload();run_ms(20);assert(!md_quality_active()&&md_state()->quality==1&&!dream_ui.msg[0]);
+  dream_cmd(MD_PLAY,0,0);run_ms(20);
+  puts("PASS overload from the audio interrupt: ECO for the render, no message or announcer, nothing queued, the saved quality kept.");}
  puts("PASS editor capabilities/state, atomic snapshot, bounded upload, CRC/version/range/timeout/busy rejection, all 16/64 slots, overwrite guard, backup save lock, saved-state reload, LED preference and legacy settings");return 0;
 }

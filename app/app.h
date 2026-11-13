@@ -20,7 +20,10 @@ void app_redraw(void);
 /* Private multichannel profile. Keep the regular audio and mirror buffers. */
 #define DREAM_TILE_ROWS 20u
 #define FM1B_UAC_RING_POOL 1
-#define FELUCCA_UAC_RING_FRAMES 480u
+/* 8 x 16-bit: keep enough queued for a full audio callback and the next USB
+ * packet. The 600-frame ring leaves the existing 8 KiB DSP reserve intact. */
+#define FELUCCA_UAC_RING_FRAMES 600u
+#define FELUCCA_UAC_PREFILL 274u
 #else
 #define DREAM_TILE_ROWS 30u
 #endif
@@ -35,6 +38,9 @@ int md_ble_at_boot(void);
 #define APP_SPLASH
 void app_splash(void);
 #define APP_OVERLOAD
+/* A Bluetooth bond waits to be written until the transport stops (bt_own.c): no erase under a playing render. */
+#define APP_BLE_SAVE_LATER() app_ble_save_later()
+int app_ble_save_later(void);
 #define APP_LOCAL_MONITOR
 int app_local_monitor_muted(void);
 #define APP_SYSEX

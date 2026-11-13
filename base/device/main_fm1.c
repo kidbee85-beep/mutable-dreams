@@ -193,15 +193,21 @@ void fm1_timer5_irq(void)
                 t5_late++;
         }
 #if FM1B_MIDI_STAMP
-        /* what came in since the last tick came in, on the average, half way since: within 0.05 ms at 10 kHz (a tick
-         * held up by a lock: half the gap). Every tick, the render's too: the poll below waits for the render, the
-         * stamps do not. One SIE read and a look at the jack's ring */
+        /* what came in since the last peek came in, on the average, half way since: within 0.05 ms at 10 kHz (a tick
+         * held up by a lock: half the gap). The render's ticks peek too (the poll below waits for the render, the
+         * stamps do not), but only every 5th: 2 kHz, within 0.25 ms. One SIE read and a look at the jack's ring each,
+         * which at every tick of a render cost an FM-1 about 11 % of the audio budget (CF055B70, measured) */
         {
-            uint32_t t = t5_prev ? now - (now - t5_prev) / 2u : now;
-            usb_midi_peek(t);
+            static uint32_t peek_prev, peek_skip;
+            if (!fm1b_dbg.in_audio || ++peek_skip >= 5u) {
+                uint32_t t = peek_prev ? now - (now - peek_prev) / 2u : now;
+                peek_skip = 0;
+                peek_prev = now;
+                usb_midi_peek(t);
 #if FM1B_TRS
-            uart_midi_peek(t);
+                uart_midi_peek(t);
 #endif
+            }
         }
 #endif
         t5_prev = now;

@@ -399,7 +399,12 @@ static void ble_poll(void)
         own_diag_line();
     }
 #endif
-    if (own_dirty && !(plat_ble_connected() && plat_midi_count(PORT_BLE, 0) && plat_midi_ago(PORT_BLE, 0) < 2000u)) {
+#ifndef APP_BLE_SAVE_LATER
+#define APP_BLE_SAVE_LATER() 0
+#endif
+    /* (and kept while the app asks: a write erases with the interrupts off and silences a playing render) */
+    if (own_dirty && !APP_BLE_SAVE_LATER() &&
+        !(plat_ble_connected() && plat_midi_count(PORT_BLE, 0) && plat_midi_ago(PORT_BLE, 0) < 2000u)) {
         own_dirty = 0;                            /* (kept once MIDI from Bluetooth pauses: a write holds the CPU) */
 #ifdef APP_BLE_STORE
         if (own_save())

@@ -41,10 +41,19 @@ enum { OBJ_PROJ, OBJ_PANEL, OBJ_SONGS, OBJ_PAT0, OBJ_KEYS = OBJ_PAT0 + 16, OBJ_N
 #endif
 #define APP_BACKUP_MAGIC 0x42545354u     /* "TSTB" */
 #define APP_BACKUP_VERSION 3u
+/* the app's own check of a record (plat.h): a payload starting 0xEE is one this "build" cannot use */
+#define APP_BACKUP_VALIDATE
+static int validated;
+static int app_backup_validate(unsigned obj, const void *p, unsigned n)
+{
+    (void)obj;
+    validated++;
+    return !n || ((const uint8_t *)p)[0] != 0xEEu;
+}
 
 static uint8_t nor[0x100000];
-static int fails, cut_at = -1, ops, fetch_left = -1, flip_at = -1, playing, play_after = -1, answer = 1;
-static int reloads, flushes, holding, asks, begins, fetches;
+static int fails, cut_at = -1, fail_at = -1, ops, fetch_left = -1, flip_at = -1, playing, play_after = -1, answer = 1;
+static int reloads, flushes, holding, asks, begins, fetches, flip_asked;   /* flip_asked: flip only once asked */
 static jmp_buf cut;
 static uint32_t notes[8], nnotes;
 
@@ -78,6 +87,10 @@ static int st_prog(uint32_t off, const void *src, uint32_t n)
         printf("program outside the objects: %#x+%u\n", off, n);
         exit(1);
     }
+    if (fail_at >= 0 && cut_at >= 0 && ops == fail_at) {   /* a program the flash refuses: nothing written */
+        ops++;
+        return -1;
+    }
     if (cut_at >= 0 && ops == cut_at) {           /* torn: half of it written */
         for (uint32_t i = 0; i < n / 2; i++)
             nor[off + i] &= s[i];
@@ -96,11 +109,14 @@ static void ota_frame_done(void) {}
 static uint32_t t_ms;                             /* the clock (the backup's stall limit) */
 static uint32_t ota_now_ms(void) { return t_ms; }
 static void ota_idle(void) {}
-static int ota_erase(uint32_t off) { (void)off; return -1; }
+static int ota_erases, ota_code;                  /* an update's erases of its staging area; its last result shown */
+static int ota_erase(uint32_t off) { (void)off; ota_erases++; return -1; }
 static int ota_prog(uint32_t off, const void *p, uint32_t n) { (void)off; (void)p; (void)n; return -1; }
 static int ota_fread(uint32_t off, void *p, uint32_t n) { (void)off; (void)p; (void)n; return -1; }
-static void ota_show(uint32_t step, int32_t code) { (void)step; (void)code; }
+static void ota_show(uint32_t step, int32_t code) { (void)step; ota_code = code; }
 static void ota_commit(const uint8_t *parm) { (void)parm; }
+static int rs_pending(void);                      /* as the firmware does (unity.c): no update over a pending journal */
+#define OTA_STAGE_REFUSED() rs_pending()
 #include "../bsp/chip/ota.c"
 
 #ifdef BACKUP_TEST_APPBUF                /* the app lends its scratch buffer to a restore (plat.h APP_BACKUP_BUF) */
@@ -138,7 +154,7 @@ static int rs_fetch(uint32_t addr, uint8_t *dst, uint32_t n)
     memset(dst, 0, n);
     if (addr < img_n)
         memcpy(dst, img + addr, addr + n <= img_n ? n : img_n - addr);
-    if (flip_at >= 0 && (uint32_t)flip_at >= addr && (uint32_t)flip_at < addr + n)
+    if (flip_at >= 0 && (!flip_asked || asks) && (uint32_t)flip_at >= addr && (uint32_t)flip_at < addr + n)
         dst[flip_at - (int)addr] ^= 0x04;
     return 0;
 }
@@ -465,6 +481,73 @@ int main(int argc, char **argv)
                                                                          notes[0] == RS_ASK_ADDR &&
                                                                          notes[1] == (RS_FAIL_ADDR | RS_E_NO));
     check("... nothing changed, nothing reloaded", same(&now, &set_b) && reloads == 0);
+    {   /* nothing erased before the answer: every previous copy kept, the flash byte for byte */
+        static uint8_t before[sizeof nor];
+        save(OBJ_PROJ, 140, 4);                   /* (saved again: each previous copy a valid one, worth keeping) */
+        save(OBJ_SONGS, 3000, 5);
+        save(OBJ_PAT0 + 1, 2000, 6);
+        save(OBJ_PAT0 + 4, 100, 7);
+        save(OBJ_PAT0 + 15, 3840, 8);
+        memcpy(before, nor, sizeof nor);
+        answer = 0;
+        rc = restore();
+        check("... HOME: the flash byte for byte as before (the previous copies kept)",
+              rc == RS_E_NO && !memcmp(before, nor, sizeof nor));
+#ifndef APP_STORE_POOL
+        {   /* yes, then the cable cut at each read of the second pass, or the file changed meanwhile */
+            int n_first, n_all, all = 1;
+            answer = 1;
+            rc = restore();                       /* (to count the reads of both passes) */
+            n_all = fetches;
+            memcpy(nor, before, sizeof nor);
+            answer = 0;
+            restore();
+            n_first = fetches;
+            answer = 1;
+            for (int k = n_first; k < n_all; k++) {
+                fetch_left = k;
+                asks = reloads = 0;
+                rc = restore();
+                snap(&now);
+                all &= rc == RS_E_FETCH && asks == 1 && reloads == 0 && same(&now, &set_b) && nor[RS_REC] == 0xFF;
+            }
+            fetch_left = -1;
+            printf("  %d reads before the question, %d after it\n", n_first, n_all - n_first);
+            check("yes, then the cable cut at each read after it: RS_E_FETCH, the old set current", all && n_all > n_first);
+            flip_asked = 1;
+            flip_at = BU_HEAD + BU_REC + 30;      /* the project's payload, changed after the question */
+            rc = restore();
+            flip_at = -1;
+            flip_asked = 0;
+            snap(&now);
+            check("... the file changed after the question: RS_E_CRC, the old set current",
+                  rc == RS_E_CRC && same(&now, &set_b) && nor[RS_REC] == 0xFF);
+        }
+#endif
+    }
+    {   /* a record whose CRCs are right but whose content the app cannot use (APP_BACKUP_VALIDATE) */
+        static uint8_t keep[sizeof img];
+        uint32_t pos = BU_HEAD, i, n = 0, tail = img_n - 4u;
+        memcpy(keep, img, img_n);
+        for (i = 0; i < BU_NOBJ; i++) {           /* the first record that holds something */
+            n = bu_rd16(img + pos + 2);
+            if (n)
+                break;
+            pos += BU_REC + n;
+        }
+        img[pos + BU_REC] = 0xEE;
+        bu_wr32(img + pos + 4, bu_crc(0, img + pos + BU_REC, n));
+        bu_wr32(img + tail, bu_crc(0, img, tail));
+        answer = 1;
+        asks = reloads = validated = 0;
+        rc = restore();
+        snap(&now);
+        check("a record the app refuses (right CRCs): RS_E_OBJ, never asked", rc == RS_E_OBJ && asks == 0 && validated > 0 &&
+                                                                       nnotes == 1 && notes[0] == (RS_FAIL_ADDR | RS_E_OBJ));
+        check("... nothing changed, nothing reloaded, no journal", same(&now, &set_b) && reloads == 0 && nor[RS_REC] == 0xFF);
+        memcpy(img, keep, img_n);
+        validated = 0;
+    }
 
     /* ---- SEL: restored */
     answer = 1;
@@ -562,6 +645,51 @@ int main(int argc, char **argv)
 #endif
         check("... the panel's calibration untouched through all of it", panel_same());
     }
+#ifndef APP_STORE_POOL
+    {   /* a commit whose header write the flash refused, a save after it, then the boot: the save is kept */
+        static uint8_t before[sizeof nor];
+        static uint8_t want[ST_PAYLOAD_MAX], got5[ST_PAYLOAD_MAX];
+        int total, n5, again;
+        uint32_t obj5 = bu_obj(5);
+        save(OBJ_PROJ, 140, 4);
+        save(OBJ_SONGS, 3000, 5);
+        save(OBJ_PAT0 + 1, 2000, 6);
+        save(OBJ_PAT0 + 4, 100, 7);
+        save(OBJ_PAT0 + 15, 3840, 8);
+        memcpy(before, nor, sizeof nor);
+        ops = 0;
+        cut_at = 1 << 30;                         /* counting only */
+        answer = 1;
+        restore();
+        total = ops;
+        memcpy(nor, before, sizeof nor);
+        ops = 0;
+        fail_at = total - 1 - (int)BU_NOBJ + 5;   /* the 6th header (the headers: the writes before the record's erase) */
+        rc = restore();
+        fail_at = -1;
+        cut_at = -1;
+        check("a header write refused: RS_E_COMMIT, the journal kept for the boot", rc == RS_E_COMMIT && nor[RS_REC] != 0xFF);
+        ota_erases = ota_code = 0;
+        rc = ota_session();
+        check("... an update meanwhile: refused (RESTART FIRST), its staging area untouched",
+              rc == OTA_E_REFUSED && ota_code == OTA_E_REFUSED && ota_erases == 0 && nor[RS_REC] != 0xFF);
+        fill(want, 777, 99);
+        save(obj5, 777, 99);                      /* the app saves on: into the copy the journal staged */
+        n5 = st_load(obj5, got5, sizeof got5);
+        check("... a save after it is current", n5 == 777 && !memcmp(got5, want, 777));
+        rs_boot();                                /* the next power-on */
+        n5 = st_load(obj5, got5, sizeof got5);
+        check("... the boot: the newer save kept, never programmed over", n5 == 777 && !memcmp(got5, want, 777));
+        check("... the stale journal dropped", nor[RS_REC] == 0xFF);
+        ota_erases = ota_code = 0;
+        rc = ota_session();
+        check("... an update may stage again (here: no host, it fails and cleans up)", rc != OTA_E_REFUSED && ota_erases > 0);
+        again = rs_boot();
+        n5 = st_load(obj5, got5, sizeof got5);
+        check("... a second boot: nothing to do, the save still there", again == 0 && n5 == 777 && !memcmp(got5, want, 777));
+        check("... the panel's calibration untouched", panel_same());
+    }
+#endif
     printf("%s\n", fails ? "BACKUP TEST FAILED" : "backup test passed");
     return fails != 0;
 }

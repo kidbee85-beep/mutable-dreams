@@ -197,7 +197,13 @@ static struct {
 #define UA_N 512u
 #define UA_DEEP 0u
 #endif
-#if HALF_FRAMES > 128u           /* 256-frame halves: the band X0X measured for them */
+#if defined(FELUCCA_UAC_PREFILL)
+/* Keep the band at least one typical packet wide so the fill correction does
+ * not chase normal changes in the phase between USB and the audio render. */
+#define UA_PRIME FELUCCA_UAC_PREFILL
+#define UA_LO (UA_PRIME - 22u)
+#define UA_HI (UA_PRIME + 22u)
+#elif HALF_FRAMES > 128u         /* 256-frame halves: the band X0X measured for them */
 #define UA_PRIME (128u + UA_DEEP)
 #define UA_LO (96u + UA_DEEP)
 #define UA_HI (160u + UA_DEEP)

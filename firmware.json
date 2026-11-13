@@ -16,7 +16,7 @@
     "ambient",
     "generative"
   ],
-  "install": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.0-Install.html",
+  "install": "https://kidbee85-beep.github.io/mutable-dreams/",
   "site": "https://kidbee85-beep.github.io/mutable-dreams/",
   "source": "https://github.com/kidbee85-beep/mutable-dreams",
   "screenshot": "docs/img/Mutable-Dreams-2.0-FM1.png",
@@ -42,5 +42,5 @@
     }
   },
   "credits": "Created by Kid Bunka; inspired by the open source work of Mutable Instruments, built with fm1-base and felucca-bsp. Independent from Mutable Instruments and M-VAVE.",
-  "version": "2.0"
+  "version": "2.1"
 }

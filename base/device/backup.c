@@ -23,13 +23,14 @@
  * FIRST). Else, as an update does, the device pulls the image with read requests (ota_read; addresses are the image's
  * offsets) and
  *   1. checks the head, then each record: its id, its length, its payload's CRC-32, the image's CRC-32 (the tail and
- *      the host's), the length;
- *   2. stages each object as it comes into the copy storage.c would save it to next (the other of its A/B pair:
- *      erased, the payload programmed, read back and checked) WITHOUT its header: storage.c's header is the commit
- *      record of a copy, so a copy without one does not exist for st_load: the current set stays in charge;
- *   3. everything received and verified (a cut cable, a changed byte, a refused write: stops here, nothing changed):
- *      asks on the screen, RESTORE FROM USB? SEL yes / HOME no (60 s: no), stopped only;
- *   4. yes: commits. A journal record (RS_REC, in the update's staging area, unused but by an update) lists the
+ *      the host's), the length, and the app's own check of each record (APP_BACKUP_VALIDATE);
+ *   2. everything received and verified (a cut cable, a changed byte, a refused record: stops here, nothing
+ *      written): asks on the screen, RESTORE FROM USB? SEL yes / HOME no (60 s: no), stopped only;
+ *   3. yes: fetches the image again and stages each object (its id, length and CRC as the first pass saw them) into
+ *      the copy storage.c would save it to next (the other of its A/B pair: erased, the payload programmed, read back
+ *      and checked) WITHOUT its header: storage.c's header is the commit record of a copy, so a copy without one does
+ *      not exist for st_load: the current set stays in charge. Nothing is erased before the answer;
+ *   4. then commits. A journal record (RS_REC, in the update's staging area, unused but by an update) lists the
  *      headers to write; written and read back first, then the headers, then the record erased. A power loss after
  *      the record is valid is finished at the next boot (rs_boot: the headers written again, idempotent on NOR);
  *      before it, nothing happened. So the set changes whole or not at all.
@@ -339,10 +340,26 @@ static int rs_rec_valid(void)
            rs_rec.crc == bu_crc(0, (const uint8_t *)&rs_rec, sizeof rs_rec - 4u);
 }
 
-/* the staged copies' headers (the record's), each written unless already there; 0 = all there */
+/* the staged copies' headers (the record's), each written unless already there; 0 = all there, -1 a write or read
+ * failed (the record stays: the next boot tries again), -2 the record is stale. Stale: a staged copy holds bytes a
+ * program cannot turn into its header (a program only clears bits), i.e. a save after a commit that failed took
+ * that copy. Programming over it would AND two headers together and lose that newer save, at every boot again; so
+ * nothing is programmed then and the caller drops the record. A header cut short by a power loss is still a subset
+ * of the bits to clear and is finished as before. */
 static int rs_heads(void)
 {
     int rc = 0;
+    for (uint32_t i = 0; i < BU_NOBJ; i++) {          /* first: may every header still be written? */
+        st_hdr_t h, f;
+        const rs_ent_t *e = &rs_rec.e[i];
+        const uint8_t *fb = (const uint8_t *)&f, *hb = (const uint8_t *)&h;
+        rs_head(e, &h);
+        if (st_read(st_sector(e->obj, e->copy), &f, sizeof f))
+            return -1;
+        for (uint32_t k = 0; k < sizeof h; k++)
+            if ((fb[k] & hb[k]) != hb[k])
+                return -2;
+    }
     for (uint32_t i = 0; i < BU_NOBJ; i++) {
         st_hdr_t h, f;
         const rs_ent_t *e = &rs_rec.e[i];
@@ -360,6 +377,17 @@ static int rs_heads(void)
             rc = -1;
     }
     return rc;
+}
+
+/* a valid journal record (a commit whose headers a write refused) waits for the next boot's rs_boot: 1. An update's
+ * staging erases the whole area 0xE0000..0xE4FFF and with it the record, which would leave that restore half
+ * committed for good: ota.c asks this first (OTA_STAGE_REFUSED). A record that cannot be read: 0, an update stays
+ * possible (it is also the way out of a flash that misbehaves) */
+static int rs_pending(void)
+{
+    if (rs_rec_read(0, &rs_rec, sizeof rs_rec))
+        return 0;
+    return rs_rec_valid();
 }
 
 /* boot: a commit cut short (a power loss after its record was written) finished: 1; 0 none; -1 failed */
@@ -383,9 +411,9 @@ static int rs_boot(void)
             return 0;
         }
     rc = rs_heads();
-    if (rc == 0)
+    if (rc == 0 || rc == -2)                          /* done, or stale: never written over a newer save */
         rs_rec_erase();
-    return rc ? -1 : 1;
+    return rc == 0 ? 1 : rc == -2 ? 0 : -1;
 }
 
 /* every object staged: the record, the headers, the record gone. 0 = the new set is current */
@@ -409,8 +437,13 @@ static int rs_commit(void)
             return RS_E_VERIFY;
         }
     }
-    if (rs_heads())                                   /* (the record stays: the next boot tries again) */
-        return RS_E_COMMIT;
+    {
+        int heads = rs_heads();
+        if (heads == -2)                              /* (a staged copy changed under us: commit nothing more) */
+            rs_rec_erase();
+        if (heads)                                    /* (-1: the record stays, the next boot tries again) */
+            return RS_E_COMMIT;
+    }
     rs_rec_erase();
     return 0;
 }
@@ -515,11 +548,16 @@ static int restore_rx(uint32_t len, uint32_t crc, int *begun_out)
             rc = RS_E_CRC;
             goto out;
         }
-#ifndef APP_STORE_POOL
-        if ((rc = rs_stage(e)) != 0)
+#ifdef APP_BACKUP_VALIDATE
+        /* the app's own check (plat.h): a record whose CRC is right but whose content this build cannot use (an
+         * edited file, another layout behind the same backup version) refuses the whole restore before anything is
+         * staged or asked; an empty record (the object absent) is the app's to accept */
+        if (!app_backup_validate(e->obj, bu_buf, e->len)) {
+            rc = RS_E_OBJ;
             goto out;
+        }
 #endif
-        rs_show((i + 1u) * 90u / BU_NOBJ);
+        rs_show((i + 1u) * 45u / BU_NOBJ);        /* (staged only after the question: the previous copies stay) */
     }
     {
         uint8_t t[4];
@@ -545,6 +583,44 @@ static int restore_rx(uint32_t len, uint32_t crc, int *begun_out)
         rc = RS_E_PLAYING;
         goto out;
     }
+#ifndef APP_STORE_POOL
+    /* yes: the image again, each record as the first pass saw it (id, length, CRC), into the copy each object's
+     * next save would take. Before the answer nothing was erased: HOME, a cut cable or a refused record leave every
+     * object's previous copy as it was */
+    pos = BU_HEAD;
+    for (i = 0; i < BU_NOBJ; i++) {
+        rs_ent_t *e = &rs_rec.e[i];
+        uint8_t r[BU_REC];
+        if (rs_fetch(pos, r, BU_REC)) {
+            rc = RS_E_FETCH;
+            goto out;
+        }
+        pos += BU_REC;
+        if (bu_rd16(r) != e->obj || bu_rd16(r + 2) != e->len || bu_rd32(r + 4) != e->crc) {
+            rc = RS_E_OBJ;                            /* (the host's file changed since the first pass) */
+            goto out;
+        }
+        for (k = 0; k < e->len; k += 512u) {
+            uint32_t n = e->len - k > 512u ? 512u : e->len - k;
+            if (rs_fetch(pos + k, bu_buf + k, n)) {
+                rc = RS_E_FETCH;
+                goto out;
+            }
+        }
+        pos += e->len;
+        if (bu_crc(0, bu_buf, e->len) != e->crc) {
+            rc = RS_E_CRC;
+            goto out;
+        }
+        if ((rc = rs_stage(e)) != 0)
+            goto out;
+        rs_show(50u + (i + 1u) * 40u / BU_NOBJ);
+    }
+    if (rs_playing()) {                               /* (started during the second pass: still nothing committed) */
+        rc = RS_E_PLAYING;
+        goto out;
+    }
+#endif
     rs_show(95);
 #ifdef APP_STORE_POOL
     if ((rc = rs_rewrite()) != 0) {

@@ -6,6 +6,7 @@
  * cmd 6 snapshots the saved project (stopped only), returns size/magic/version;
  * optional one-byte object ID selects a named user Biome or tone bank for backup.
  * cmd 5 reads chunks of that immutable snapshot. This can preserve a foreign saved object.
+ * cmd 22 reports the USB audio packets, buffer errors and minimum/maximum fill.
  * ACK for cmd 2 means queued, not applied: verify with subsequent snapshot.
  */
 static uint8_t md_stored_snapshot[3840];
@@ -19,12 +20,12 @@ int app_sysex(const uint8_t *p,uint32_t n){
  if(p[3]==1&&n==5){
   uint32_t words[49]={0},f=plat_lock();const md_stats *s=md_status();const md_patch *v=md_state();
   words[0]=2;words[1]=plat_ms();words[2]=plat_cpu_pct();words[3]=cpu_peak;words[4]=plat_xruns();words[5]=overloads;
-  words[6]=s->frames;words[7]=s->nonfinite;words[8]=s->dropped_commands;words[9]=v->quality;words[10]=md_playing();
+  words[6]=s->frames;words[7]=s->nonfinite;words[8]=s->dropped_commands;words[9]=md_quality_active(); /* F-3: what the render does now */words[10]=md_playing();
   for(int i=0;i<6;i++){words[11+i]=s->events[i];words[17+i]=v->track[i].model;words[23+i]=v->track[i].filter;}
   words[29]=md_memory_bytes();words[30]=v->version;words[31]=s->grain_writes;words[32]=v->freeze;
-  memcpy(&words[33],&s->peak,4);words[34]=s->voice_quanta;words[35]=s->skipped_quanta;words[36]=v->tempo;words[37]=plat_audio_peak_us();words[38]=APP_BLOCK*1000000u/MD_RATE;words[39]=plat_master();words[40]=s->quality_reductions;
+  memcpy(&words[33],&s->peak,4);words[34]=s->voice_quanta;words[35]=s->skipped_quanta;words[36]=md_tempo_now();words[37]=plat_audio_peak_us();words[38]=APP_BLOCK*1000000u/MD_RATE;words[39]=plat_master();words[40]=s->quality_reductions;
   words[41]=dream_prefs.motion;words[42]=dream_prefs.boot_sound;words[43]=dream_ui.page;words[44]=(uint32_t)dream_ui.help;words[45]=intro_active&&(uint32_t)(plat_ms()-intro_start)<3200;
-  words[46]=s->element_modes;words[47]=ui_frames;words[48]=ui_frame_peak_ms;plat_unlock(f);len=49*4;memcpy(raw,words,len);
+  words[46]=s->element_modes;words[47]=ui_frames;words[48]=ui_frame_peak_ms;plat_unlock(f);len=sizeof words;memcpy(raw,words,len);
  }else if(p[3]==2&&n>=9&&n<=69&&(n-5)%4==0){
   uint32_t count=(n-5)/4,f=plat_lock();
   for(unsigned k=5;k<n;k+=4)if(!md_command_valid(p[k]))tx[6]=1;
@@ -66,11 +67,20 @@ int app_sysex(const uint8_t *p,uint32_t n){
   const uint32_t features=15u;
   memcpy(raw,&features,sizeof features);len=sizeof features;
  }
+#if defined(FELUCCA_UAC) && FELUCCA_UAC
+ else if(p[3]==22&&n==5){
+  uint32_t lock=plat_lock();
+  uint32_t w[]={uac.pkts,uac.underruns,uac.overruns,uac.missed,uac.stalls,uac.fill_lo,uac.fill_hi};
+  plat_unlock(lock);
+  memcpy(raw,w,sizeof w);len=sizeof w;
+ }
+#endif
  else if(p[3]==4&&n==7){unsigned off=p[5]|p[6]<<7;if(off>=sizeof(md_patch))tx[6]=1;else{len=sizeof(md_patch)-off;if(len>224)len=224;uint32_t f=plat_lock();memcpy(raw,((const uint8_t*)md_state())+off,len);plat_unlock(f);}}
  else if(p[3]==6&&(n==5||n==6)){
   md_stored_size=0;md_stored_generation=(md_stored_generation+1)&127;
   unsigned obj=n==6?p[5]:OBJ_PATCH;
-  if(obj!=OBJ_PATCH&&(obj<OBJ_USER||obj>=OBJ_NOBJ))tx[6]=1;
+  /* Bluetooth bond keys (OBJ_BLE) never leave the FM-1 over SysEx. */
+  if(obj!=OBJ_PATCH&&(obj<OBJ_USER||obj>=OBJ_BLE))tx[6]=1;
   else if(md_playing()||md_clock_source())tx[6]=4;else{int size=plat_store_size(obj);if(size<12||size>(int)sizeof md_stored_snapshot)tx[6]=3;
    else if(plat_store_load(obj,md_stored_snapshot,(uint32_t)size)!=size)tx[6]=3;
    else{md_stored_size=(uint32_t)size;memcpy(raw,&md_stored_size,4);memcpy(raw+4,md_stored_snapshot,8);len=12;}}

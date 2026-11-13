@@ -410,6 +410,9 @@ int plat_sysex_end(void);              /* the last packet out, the ring free aga
 uint32_t plat_usb_session(void);       /* 0: no computer has set the FM-1 up; else a number that changes at every new
                                         * one (a bus reset, the cable out and in): what an app keeps for a connection
                                         * (a client's session) it drops when this changes */
+int plat_usb_awake(void);              /* 1 while a computer has the FM-1 set up and the bus is awake; 0 with the cable
+                                        * out, the bus suspended or no configuration. Unlike plat_usb_session it drops
+                                        * when the cable is pulled: what the computer held (a note, a pedal) ends there */
 /* the resource region (fm1.toml resources = FILE, FM1B_RES; app.h APP_RES_BASE, APP_RES_SECTORS: device/res.c):
  * the file's bytes read in place, *len their count; 0 (and *len 0) while the FM-1 does not hold this build's (not
  * yet written after an update, torn, another build's): the app does without. The host writes it
@@ -611,7 +614,10 @@ int app_stats_quiet(void);
  *   APP_YIELD       void app_yield(void)          from plat_yield, inside long work
  *   APP_BLE_PEERS   app_ble_scan_report, app_ble_device_keys   the devices one by one (plat_ble_connect_peer, above):
  *                   each advertising report a scan hears, a pairing's keys
- *   APP_OVERLOAD    void app_overload(void)       the render took over 90 % of its time (shed voices)
+ *   APP_OVERLOAD    void app_overload(void)       the render took over 90 % of its time (shed voices); from the
+ *                   audio interrupt: no screen, no announcer, no SysEx from it
+ *   APP_BLE_SAVE_LATER  int app_ble_save_later(void)   1: the radio's keys, once changed, wait to be saved (the
+ *                   app plays: a flash erase would silence it); main loop
  *   APP_SPLASH      void app_splash(void)         the first screen at boot, instead of the name
  *   APP_GAIN(m)     the render's gain from MASTER's position m (0..4096; default the square, m * m >> 12)
  *   APP_BATTERY_RAW (no function) plat_battery_raw is built (the battery's reading, for an app's own volts)
@@ -654,6 +660,9 @@ int app_stats_quiet(void);
  *   APP_BACKUP_OBJS {OBJ_PROJ, ...}   the objects, in order (not OBJ_PANEL: the calibration is the unit's)
  *   APP_BACKUP_MAGIC 0x...u           its image's magic (4 ASCII bytes, little-endian), APP_BACKUP_VERSION its format
  *   APP_BACKUP_WHAT "replaces all songs"   the restore question's second line
+ *   APP_BACKUP_VALIDATE               optional: int app_backup_validate(unsigned obj, const void *p, unsigned n),
+ *                                     1 = this build can use the record (n 0: absent); a restore asks it for each
+ *                                     record after its CRC, and one 0 refuses the restore before anything is staged
  *   APP_BACKUP_BUF io_buf             optional: the app's own buffer of at least 3840 B (uint8_t name[], not static,
  *                                     4-aligned) lent to a restore, which then needs none of its own (3840 B of the
  *                                     pool); a scratch buffer the app fills and empties within a call (a restore runs

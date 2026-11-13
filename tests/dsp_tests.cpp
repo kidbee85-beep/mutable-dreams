@@ -156,7 +156,7 @@ int main(){
   md_command(MD_GRAIN_PITCH,0,quality?24:-24);md_command(MD_REVERSE,0,quality);md_command(MD_DUCK_SOURCE,0,3);md_command(MD_DUCK,0,1000);md_command(MD_SWING,0,600);md_command(MD_QUALITY,0,quality);md_command(MD_FEEDBACK,0,850);md_command(MD_MACRO,3,1000);md_command(MD_TEMPO,0,220);md_command(MD_PLAY,0,1);
   auto start=std::chrono::steady_clock::now();render(20672);double sec=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
   assert(md_status()->nonfinite==0);assert(md_status()->dropped_commands==0);for(int t=0;t<6;t++){assert(md_state()->track[t].model==m);assert(md_status()->events[t]>100);}
-  printf("PASS 60s six model %d requested quality %d actual %d; host CPU %.2f%% peak %.5f\n",m,quality,md_state()->quality,100*sec/60,md_status()->peak);
+  printf("PASS 60s six model %d requested quality %d actual %d; host CPU %.2f%% peak %.5f\n",m,quality,md_quality_active(),100*sec/60,md_status()->peak);
  }
  // The larger tape clears logically in constant time; stale samples must never leak after Panic.
  md_init();md_command(MD_PLAY,0,1);render(2500);md_command(MD_PANIC,0,0);md_command(MD_FREEZE,0,1);md_command(MD_MACRO,3,1000);
@@ -183,25 +183,25 @@ int main(){
  puts("PASS ECO pitch compensation / odd fragment continuity");
  for(int voices=2;voices<=3;voices++){
   md_init();p=*md_state();p.quality=1;for(int i=0;i<6;i++){p.track[i].model=MD_RINGS;p.track[i].mute=i>=voices;p.track[i].hits=p.track[i].length;p.track[i].prob=1000;p.track[i].speed=1;}
-  assert(md_load(&p));md_command(MD_PLAY,0,1);render(1);assert(md_state()->quality==(voices==2));assert(md_status()->quality_reductions==(unsigned)(voices==3));
+  assert(md_load(&p));md_command(MD_PLAY,0,1);render(1);assert(md_quality_active()==(voices==2)&&md_state()->quality==1&&!md_unsaved());assert(md_status()->quality_reductions==(unsigned)(voices==3));
  }
  puts("PASS FULL admission guard keeps 2 Rings / sends 3 Rings to ECO before render");
  for(int model : {MD_FM,MD_HARMONIC})for(int count : {4,5}){
   md_init();p=*md_state();p.quality=1;p.fx_level=0; // Explicitly test the dry engine budget, independent of factory defaults.
 for(int i=0;i<6;i++){p.track[i].model=model;p.track[i].mute=i>=count;p.track[i].hits=p.track[i].length;p.track[i].prob=1000;p.track[i].speed=1;}
-  assert(md_load(&p));md_command(MD_PLAY,0,1);render(1);assert(md_state()->quality==(count==4));assert(md_status()->quality_reductions==(unsigned)(count==5));
+  assert(md_load(&p));md_command(MD_PLAY,0,1);render(1);assert(md_quality_active()==(count==4)&&md_state()->quality==1&&!md_unsaved());assert(md_status()->quality_reductions==(unsigned)(count==5));
  }
  puts("PASS measured FULL limits: 4 FM/Harmonic stay FULL, 5 use ECO before render");
  for(int model : {MD_FM,MD_HARMONIC})for(int count : {3,4}){
   md_init();p=*md_state();p.quality=1;p.fx_level=500;
   for(int i=0;i<6;i++){p.track[i].model=model;p.track[i].mute=i>=count;p.track[i].hits=p.track[i].length;p.track[i].prob=1000;p.track[i].speed=1;}
-  assert(md_load(&p));md_command(MD_PLAY,0,1);render(1);assert(md_state()->quality==(count==3));assert(md_status()->quality_reductions==(unsigned)(count==4));
+  assert(md_load(&p));md_command(MD_PLAY,0,1);render(1);assert(md_quality_active()==(count==3)&&md_state()->quality==1&&!md_unsaved());assert(md_status()->quality_reductions==(unsigned)(count==4));
  }
  puts("PASS FULL admission counts shared effects: 3 FM/Harmonic stay FULL, 4 use ECO");
  for(int kind=0;kind<2;kind++){
   md_init();p=*md_state();p.quality=1;const int techno[6]={0,2,1,3,5,0};
   for(int i=0;i<6;i++){p.track[i].model=kind?techno[i]:MD_SNARE;p.track[i].hits=p.track[i].length;p.track[i].prob=1000;p.track[i].speed=1;}
-  assert(md_load(&p));md_command(MD_PLAY,0,1);render(1);assert(md_state()->quality==0&&md_status()->quality_reductions==1);
+  assert(md_load(&p));md_command(MD_PLAY,0,1);render(1);assert(!md_quality_active()&&md_state()->quality==1&&!md_unsaved()&&md_status()->quality_reductions==1);
  }
  puts("PASS full-rate tape admission: six snares and dense techno use ECO before rendering");
  md_init();unsigned seed=5678;

@@ -52,12 +52,23 @@ static int16_t room[4][1201];
 // Two short input allpasses soften discrete room echoes without more voices.
 static float room_diffusion[2][181];static unsigned diffusion_head[2];
 static bool fx_active;
+// K-4: the room lines' slow read movement during Itinera (phase 0..1 each).
+static float room_mod_phase[4];
 static unsigned echo_head,room_head[4];
 static float echo_lp,room_lp[4],fx_smooth,delay_smooth=8820,fx_highpass_in,fx_highpass_out;
 static float diffuse_room(float x){
  static const unsigned length[2]={113,181};
  for(unsigned j=0;j<2;j++){float delayed=room_diffusion[j][diffusion_head[j]];float y=delayed-.62f*x;room_diffusion[j][diffusion_head[j]]=x+.62f*y;x=y;if(++diffusion_head[j]>=length[j])diffusion_head[j]=0;}
  return x;
+}
+/* O-3: with the effect return at zero and its smoothing below -140 dB, the
+ * echo and room stop running: their lines are cleared (so a later return
+ * starts from silence, never from an old tail) and the per-sample effect
+ * work is skipped until a return is set again. The echo keeps its time. */
+static void rest_fx(){
+ fx_active=false;fx_smooth=0;
+ memset(room_diffusion,0,sizeof room_diffusion);memset(echo,0,sizeof echo);memset(room,0,sizeof room);memset(room_lp,0,sizeof room_lp);
+ echo_lp=fx_highpass_in=fx_highpass_out=0;
 }
 static void reset_fx(){fx_active=false;memset(room_diffusion,0,sizeof room_diffusion);memset(diffusion_head,0,sizeof diffusion_head);memset(echo,0,sizeof echo);memset(room,0,sizeof room);memset(room_head,0,sizeof room_head);memset(room_lp,0,sizeof room_lp);echo_head=0;echo_lp=fx_smooth=fx_highpass_in=fx_highpass_out=0;delay_smooth=8820;}
 static void creative_defaults(md_patch &p){p.version=MD_PATCH_VERSION;memset(p.links,0,sizeof p.links);for(auto &l:p.links)l.release=300;memset(&p.drift,0,sizeof p.drift);p.drift.depth=1000;p.drift.rate=250;}
@@ -102,17 +113,37 @@ static float journey_gain(unsigned i,unsigned k,unsigned n);
 static uint32_t saved_hash[2];static int pending_biome=-1;
 // Canonical fingerprint ignores navigation cursors and the descriptive edit flag.
 // Compute only on a change request or successful save, never in the sample loop.
-static void patch_hash(uint32_t out[2]){
- const uint8_t *b=(const uint8_t*)(journey_active?&journey_home:&patch);uint32_t a=2166136261u,c=5381;
- for(unsigned j=0;j<sizeof patch;j++){
-  if(j>=offsetof(md_patch,edited_mask)&&j<offsetof(md_patch,ext))continue;
-  bool cursor=false;for(unsigned i=0;i<6;i++)if((j>=offsetof(md_patch,ext)+i*sizeof(md_extension)+offsetof(md_extension,edit_step)&&j<offsetof(md_patch,ext)+i*sizeof(md_extension)+offsetof(md_extension,edit_step)+4)||j==offsetof(md_patch,sequence)+i*sizeof(md_sequence)+offsetof(md_sequence,edit))cursor=true;
-  if(cursor||j==offsetof(md_patch,kit)+offsetof(md_kit,pad)||j==offsetof(md_patch,kit)+offsetof(md_kit,step))continue;
-  a=(a^b[j])*16777619u;c=(c*33u)^b[j];
+// The same bytes as the former per-byte test, as ascending skipped ranges: one
+// pass without six range checks per byte (it runs in the callback).
+static void patch_hash_of(const md_patch &q,uint32_t out[2]){
+ unsigned skip[15][2],n=0;
+ skip[n][0]=offsetof(md_patch,edited_mask);skip[n++][1]=offsetof(md_patch,ext);
+ for(unsigned i=0;i<6;i++){const unsigned at=offsetof(md_patch,ext)+i*sizeof(md_extension)+offsetof(md_extension,edit_step);skip[n][0]=at;skip[n++][1]=at+4;}
+ for(unsigned i=0;i<6;i++){const unsigned at=offsetof(md_patch,sequence)+i*sizeof(md_sequence)+offsetof(md_sequence,edit);skip[n][0]=at;skip[n++][1]=at+1;}
+ skip[n][0]=offsetof(md_patch,kit)+offsetof(md_kit,pad);skip[n++][1]=offsetof(md_patch,kit)+offsetof(md_kit,pad)+1;
+ skip[n][0]=offsetof(md_patch,kit)+offsetof(md_kit,step);skip[n++][1]=offsetof(md_patch,kit)+offsetof(md_kit,step)+1;
+ // F-1: four bytes a step where a whole aligned word lies between the skipped
+ // ranges (single bytes at a range's edges). The value is only ever compared
+ // with itself (never saved), so the faster mix needs no compatibility.
+ const uint8_t *b=(const uint8_t*)&q;uint32_t a=2166136261u,c=5381;unsigned j=0;
+ for(unsigned r=0;r<=n;r++){
+  const unsigned end=r<n?skip[r][0]:sizeof q;
+  for(;j<end&&(j&3u);j++){a=(a^b[j])*16777619u;c=(c*33u)^b[j];}
+  for(;j+4<=end;j+=4){uint32_t w;memcpy(&w,b+j,4);a=(a^w)*16777619u;c=(c*33u)^w;}
+  for(;j<end;j++){a=(a^b[j])*16777619u;c=(c*33u)^b[j];}
+  if(r<n&&skip[r][1]>j)j=skip[r][1];
  }out[0]=a;out[1]=c;
 }
+static void patch_hash(uint32_t out[2]){patch_hash_of(journey_active?journey_home:patch,out);}
 
 static md_stats stats;
+/* F-3: ECO taken by the admission guard or an overload is the render's own
+ * state, not the project's: the saved quality stays as the player set it, the
+ * project stays unchanged. A new or restored project, a Journey scene, RETURN or
+ * an explicit quality setting start from the project's own setting again. */
+static bool runtime_eco;
+static bool quality_on(){return patch.quality&&!runtime_eco;}
+static void eco_settle(){for(unsigned i=0;i<6;i++){voices[i].eco_phase=0;voices[i].eco_previous=voices[i].eco_next=0;voices[i].fade=0;}}
 static unsigned writehead,grainclock,tape_valid;
 static float feedback_lp,dcx[2],dcy[2],smooth[4],grain_noise_smooth,grain_noise_lp;
 static float seq_gate[6];
@@ -123,6 +154,17 @@ static float untilstep,duckenv;
 static int playing;
 static int clock_source,midi_quantize,clock_pulse;
 static unsigned clock_age,clock_last;static float clock_interval;
+// F-2: the last beat of clock pulses (sample positions), for a steady tempo.
+static uint32_t clock_hist[24];static unsigned clock_seen;
+/* F-6: the tempo an external clock gives is the transport's, not the project's:
+ * it times steps, swing, gates and fades while that clock leads, and the saved
+ * tempo stays as set (taken over only by an explicit MD_TEMPO). 0: none yet. */
+static int clock_tempo;
+static int tempo_now(){return clock_source&&clock_tempo?clock_tempo:patch.tempo;}
+// F-2: MIDI placed in this callback's block by its arrival time (frames from
+// the block's start), played where it falls instead of at the block's start.
+struct MidiAt{uint32_t frame;uint8_t st,a,b;int8_t port;};
+static MidiAt midi_at[32];static unsigned midi_at_n,block_pos;
 static int held[6],held_port[6],sustain[6],midi_bank[6];
 static uint8_t midi_route[6],midi_macro_enabled,velocity_touch;
 static float note_touch[MD_TRACKS];
@@ -150,7 +192,8 @@ static float clip(float x) { float a=fabsf(x);if(a<=.8f)return x;float y=.8f+.2f
 // Keep existing warm settings up to 90%; open the final tenth to 18 kHz.
 static float filter_q(float resonance) { return .707f+2.0f*resonance*resonance; }
 static float cutoff_hz(float u) { return 60.0f*stmlib::SemitonesToRatio(u*84.0f+fmaxf(0.0f,u-.9f)*147.458f); }
-static float tape_at(unsigned i){i&=GM;return (i<tape_valid?tape[i]:0)*(1.0f/32768.0f);}
+// O-5: once the tape has been filled, every index is valid: no test per point.
+static float tape_at(unsigned i){i&=GM;if(tape_valid==GN)return tape[i]*(1.0f/32768.0f);return (i<tape_valid?tape[i]:0)*(1.0f/32768.0f);}
 static float tape_read(float pos){
  unsigned a=(unsigned)pos;float t=pos-a;
  float xm=tape_at(a-1),x0=tape_at(a),x1=tape_at(a+1),x2=tape_at(a+2);
@@ -180,13 +223,23 @@ static void reset_voice(unsigned i) {
 }
 #include "preset_bank.inc"
 #if defined(FM1B_UAC_CH) && FM1B_UAC_CH == 8
+// K-6: the stems' own noise source; the mix never draws from it.
+static uint32_t stem_rng=0x2545f491u;
 static inline void write_stem(const md_usb_stems &stems,unsigned frame,unsigned track,float sample){
  if(!stems.first)return;
  int16_t *out=frame<stems.first_frames?stems.first+frame*8:stems.wrapped+(frame-stems.first_frames)*8;
  // Match the mix's nominal gain and soft ceiling while keeping stems dry.
- out[track]=(int16_t)(clip(sample*1.9f)*32767.f);
+ // K-6: triangular dither of one LSB and rounding, instead of truncation, so
+ // that quiet tails fade into noise instead of breaking into steps.
+ uint32_t r=stem_rng;r^=r<<13;r^=r>>17;r^=r<<5;const float a=(r>>8)*(1.f/16777216.f);
+ r^=r<<13;r^=r>>17;r^=r<<5;const float b=(r>>8)*(1.f/16777216.f);stem_rng=r;
+ const float v=clip(sample*1.9f)*32767.f+a-b;
+ const int q=(int)floorf(v+.5f);
+ out[track]=(int16_t)(q>32767?32767:q<-32768?-32768:q);
 }
 #endif
+// K-1: the kit's share of an Itinera scene's staggered end (1: none).
+static float kit_scene_gain=1.f,kit_scene_step=0.f;
 #include "lofi_kit.inc"
 static void clear_audio() {
  fill_state=0;
@@ -477,7 +530,7 @@ static void factory_scene(md_patch &patch,int id) {
  }
 }
 static void scene(int id) {
- journey_active=journey_prepared=0;factory_scene(patch,id);
+ journey_active=journey_prepared=0;runtime_eco=false;factory_scene(patch,id);
 
 
  clear_audio();for(int i=0;i<6;i++){reset_voice(i);}for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);
@@ -544,7 +597,7 @@ static void capture_note(unsigned i,int note,float velocity){
 }
 static void capture_off(unsigned i,int note){
  if(record_mode==2&&i==(unsigned)record_track&&record_step>=0&&record_note==note){
-  float duration=MD_RATE*60.0f/(patch.tempo*4.0f)*patch.track[i].speed;
+  float duration=MD_RATE*60.0f/(tempo_now()*4.0f)*patch.track[i].speed;
   // Convert before multiplication: the integer product overflowed after a
   // sixteen-minute hold, occasionally turning a long note into a tiny gate.
   float percent=(float)(stats.frames-record_start)*100.f/duration;
@@ -657,8 +710,12 @@ static void sequence_visit(unsigned track,unsigned step){
 static void apply(Command e);
 #include "creative.inc"
 #include "midi_learn.inc"
+static void itinera_enter_first();
+#include "itinera.inc"
 static void apply(Command e) {
  if(!md_command_allowed(e.c))return;
+ if(itinera.active&&e.c==MD_PLAY&&e.v)return;
+ if(e.c==MD_ITINERA_START){itinera_begin(e.t,e.v);return;}
  if(e.c>=MD_SEQ_COPY&&e.c<=MD_SEQ_MIRROR){sequence_tool(e.c,bound(e.t,0,MD_TRACKS-1),e.v);return;}
  if(e.c==MD_SEQ_EXPRESSION){sequence_expression(e.t,e.v);return;}
  if(e.c==MD_FILL){
@@ -714,7 +771,7 @@ static void apply(Command e) {
  case MD_PLAY:if(!v){fill_state=0;journey_stop();}else if(!playing)journey_start();playing=!!v;if(!playing){record_mode=0;record_note=record_step=-1;}memset(repeats,0,sizeof repeats);if(playing){step=0;untilstep=0;seqrng=patch.seed;sequence_rewind();}break;
  case MD_LOCK:patch.locked=!!v;break;
  case MD_MUTATE: previous=patch;patch.edited_mask|=1u;patch.seed=random_word(seqrng)|1;for(unsigned j=0;j<6;j++)patch.track[j].rotate=random_word(seqrng)%patch.track[j].length;break;
- case MD_RETURN:record_mode=0;record_note=record_step=-1;patch=previous;seqrng=patch.seed;for(unsigned j=0;j<6;j++){repeats[j].remaining=0;if(voices[j].model!=patch.track[j].model)reset_voice(j);}break;
+ case MD_RETURN:runtime_eco=false;record_mode=0;record_note=record_step=-1;patch=previous;seqrng=patch.seed;for(unsigned j=0;j<6;j++){repeats[j].remaining=0;if(voices[j].model!=patch.track[j].model)reset_voice(j);}break;
  case MD_SCENE:v=bound(v,0,MD_BIOMES-1);if(md_unsaved())pending_biome=v;else scene(v);break;
  case MD_SCENE_CONFIRM:if(v==1&&pending_biome>=0)scene(pending_biome);else pending_biome=-1;break;
  case MD_KIT_MODE:if(patch.kit.enabled!=!!v){patch.kit.enabled=!!v;kit_reset();for(int j=3;j<6;j++)reset_voice(j);record_mode=0;}break;
@@ -762,7 +819,7 @@ static void apply(Command e) {
  case MD_GRAIN_SIZE:patch.grain_size=bound(v,0,1000);break;
  case MD_GRAIN_POS:patch.grain_pos=bound(v,0,1000);break;
  case MD_FEEDBACK:patch.feedback=bound(v,0,850);break;
- case MD_QUALITY:if(patch.quality!=bound(v,0,1)){patch.quality=bound(v,0,1);for(unsigned j=0;j<6;j++){voices[j].eco_phase=0;voices[j].eco_previous=voices[j].eco_next=0;voices[j].fade=0;}}break;
+ case MD_QUALITY:{const bool was=quality_on();runtime_eco=false;patch.quality=bound(v,0,1);if(was!=quality_on())eco_settle();}break;
  case MD_TRIGGER:if(patch.kit.enabled&&i==3){kit_fire(kit_note(v),.8f);stats.events[3]++;break;}capture_note(i,bound(v,24,96),.8f);fire(i,(float)(t.model>=MD_FM?md_quantize(v+patch.transpose,patch.root,patch.scale):bound(v,24,96)),.8f);break;
  case MD_NOTE_OFF:if(patch.kit.enabled&&i>=3)break;capture_off(i,bound(v,24,96));break;
  case MD_ATTACK:t.attack=bound(v,0,1000);break;
@@ -788,7 +845,7 @@ static void apply(Command e) {
  case MD_DELAY_FB:patch.delay_fb=bound(v,0,800);break;
  case MD_REVERB_TIME:patch.reverb_time=bound(v,0,850);break;
  case MD_FX_LEVEL:patch.fx_level=bound(v,0,1000);break;
- case MD_CLOCK_SOURCE:clock_source=bound(v,0,3);fill_state=0;playing=0;record_mode=0;record_note=record_step=-1;clock_pulse=0;clock_age=clock_last=0;clock_interval=0;break;
+ case MD_CLOCK_SOURCE:clock_seen=0;clock_tempo=0;clock_source=bound(v,0,3);fill_state=0;playing=0;record_mode=0;record_note=record_step=-1;clock_pulse=0;clock_age=clock_last=0;clock_interval=0;break;
  case MD_MIDI_QUANTIZE:midi_quantize=!!v;break;
  case MD_BASS_MODE:patch.ext[i].bass_mode=bound(v,0,2);break;
  case MD_BASS_PATTERN:{static const int motifs[4][16]={{0,-1,0,-1,7,-1,0,-1,0,-1,3,-1,7,-1,10,-1},{0,0,-1,7,0,-1,3,-1,0,0,7,-1,10,-1,7,-1},{0,-1,-1,-1,0,-1,7,-1,3,-1,-1,-1,7,-1,5,-1},{0,-1,12,7,0,3,-1,7,0,-1,10,7,5,-1,3,-1}};patch.ext[i].pattern=bound(v,0,3);memcpy(patch.ext[i].notes,motifs[patch.ext[i].pattern],sizeof motifs[0]);break;}
@@ -814,7 +871,7 @@ static bool step_rule_allows(unsigned track,const md_sequence &q,const md_step &
 static void tick() {
  if(journey_active&&!journey_tick())return;
  if(!(step&15u))fill_state>>=1;
- float duration=MD_RATE*60.0f/(patch.tempo*4.0f)*(1+(step%2?-1:1)*unit(patch.swing)*.5f);
+ float duration=MD_RATE*60.0f/(tempo_now()*4.0f)*(1+(step%2?-1:1)*unit(patch.swing)*.5f);
  if((step%32)==0) {if(patch.locked)seqrng=patch.seed;else patch.seed=random_word(seqrng)|1;}
  static const int degree[7]={0,2,3,5,7,10,12};
  for(unsigned i=0;i<(patch.kit.enabled?4u:6u);i++) {
@@ -825,7 +882,7 @@ static void tick() {
    unsigned at=local%patch.kit.length;
    sequence_visit(i,at);
    if(!t.mute)for(unsigned pad=0;pad<8;pad++)if((patch.kit.gates[pad]>>at)&1u){
-    if(random_word(seqrng)%1000<(unsigned)creative_probability(i)){
+    if(random_word(seqrng)%1000<(unsigned)creative_probability(i)&&!itinera_resting(3)){
      kit_fire(pad,at%4?.67f:.8f);stats.events[3]++;sequence_hit|=1u<<3;
     }
    }
@@ -838,7 +895,7 @@ static void tick() {
    unsigned at=sequence_position(i,local);
    sequence_visit(i,at);
    const md_step &st=sq.steps[at];
-   if(st.note&&st.velocity&&!t.mute&&step_rule_allows(i,sq,st,local)&&roll%100<md_step_chance(&st)&&(roll/100)%1000<(unsigned)creative_probability(i)){
+   if(st.note&&st.velocity&&!t.mute&&step_rule_allows(i,sq,st,local)&&roll%100<md_step_chance(&st)&&(roll/100)%1000<(unsigned)creative_probability(i)&&!itinera_resting(i)){
     int note=st.note;if(t.model>=MD_FM){if(patch.chord_tracks&(1u<<i))note+=chord_offset();note=md_quantize(note+patch.transpose,patch.root,patch.scale);}
     unsigned human=patch.seed^((i+1)*0x27d4eb2du)^((local%sq.length+1)*0x85ebca6bu);
     float feel=1+((int)(random_word(human)%25)-12)*patch.motion.feel[i]*.0001f;
@@ -846,14 +903,14 @@ static void tick() {
     fire(i,note,fminf(1.f,st.velocity*.01f*feel));if(md_has_envelope(t.model)){
      // Swing alternates every tick. A slow track spans whole pairs, with only
      // one extra long/short tick for odd speeds; do not multiply the swing.
-     float span=MD_RATE*60.0f/(patch.tempo*4.0f)*(t.speed+(t.speed%2?(step%2?-1:1)*unit(patch.swing)*.5f:0));
+     float span=MD_RATE*60.0f/(tempo_now()*4.0f)*(t.speed+(t.speed%2?(step%2?-1:1)*unit(patch.swing)*.5f:0));
      voices[i].midi_gate=1;seq_gate[i]=span*md_step_gate(&st)*.01f;
     }
    }continue;
   }
   const unsigned rhythmic_length=patch.ext[i].bass_mode==2&&t.length>16?16:t.length;
   sequence_visit(i,local%rhythmic_length);
-  if((patch.ext[i].bass_mode==2||md_hit(local,hits,t.length,t.rotate))&&roll%1000<(unsigned)creative_probability(i)&&!t.mute) {
+  if((patch.ext[i].bass_mode==2||md_hit(local,hits,t.length,t.rotate))&&roll%1000<(unsigned)creative_probability(i)&&!t.mute&&!itinera_resting(i)) {
    int note=t.note;
    const md_extension &e=patch.ext[i];
    if(e.bass_mode){int off=e.notes[local%(e.bass_mode==2?(t.length>16?16:t.length):16)];if(off<0)continue;note+=off;
@@ -876,6 +933,15 @@ static void tick() {
  if(journey_active)journey_prepare();
  stats.step=step++;untilstep+=duration;
 }
+#if defined(MD_PORT_PERFORMANCE)
+struct PerformanceFx { float room, echo, texture, dusk; };
+static PerformanceFx performance_target, performance;
+
+static float performance_slew(float value,float target,unsigned frames){
+ const float next=value+(target-value)*(frames/(frames+(target>value?1400.f:4400.f)));
+ return target==0.f&&next<.0001f?0.f:next;
+}
+#endif
 static void quantum(float *lr,unsigned n
 #if defined(FM1B_UAC_CH) && FM1B_UAC_CH == 8
  ,const md_usb_stems &stems,unsigned offset
@@ -885,35 +951,48 @@ static void quantum(float *lr,unsigned n
  // Conservative admission guard from 0.4.1 FM-1 costs with full-rate tape, LP24 and maximum repeats.
  // Count unmuted slots before playback so the tape cannot prefill four FULL grains
  // immediately before a dense six-voice attack. Existing audible tails also count.
- if(patch.quality){static const unsigned weight[]={8,13,8,18,10,27,17,11,8,30,10,12,10,12,10,10,17,14,10,10,10,10,10,10};
+ if(quality_on()){static const unsigned weight[]={8,13,8,18,10,27,17,11,8,30,10,12,10,12,10,10,17,14,10,10,10,10,10,10};
   static_assert(sizeof weight/sizeof weight[0]==MD_MODELS,"one admission weight per engine");
   unsigned cost=12;
   // Provisional additional weights, pending physical-device measurement.
   if(fx_active||patch.fx_level)cost+=10;if(patch.kit.enabled)cost+=12;
   for(unsigned j=0;j<(patch.kit.enabled?3u:6u);j++)if(!patch.track[j].mute&&patch.ext[j].warps)cost+=2;
   for(unsigned i=0;i<(patch.kit.enabled?3u:6u);i++)if(voices[i].active||!patch.track[i].mute)cost+=weight[patch.track[i].model];
-  if(cost>85){patch.quality=0;stats.quality_reductions++;for(unsigned i=0;i<6;i++){voices[i].eco_phase=0;voices[i].eco_previous=voices[i].eco_next=0;voices[i].fade=0;}}
+  if(cost>85){runtime_eco=true;stats.quality_reductions++;eco_settle();}
  }
 
  // A shared mode budget also applies in ECO. All six tracks remain audible.
  unsigned element_count=0;
  for(unsigned j=0;j<(patch.kit.enabled?3u:6u);j++)if(patch.track[j].model==MD_ELEMENTS&&(voices[j].active||!patch.track[j].mute))element_count++;
- unsigned element_modes=element_count>1?16/element_count:(patch.quality?16:8);
+ unsigned element_modes=element_count>1?16/element_count:(quality_on()?16:8);
  element_modes=element_modes<2?2:element_modes;stats.element_modes=element_modes;
  const float block_ratio=n>32?n/32.0f:1.0f;
  const float slew25=n>32?.025f*block_ratio*(1-.0125f*(block_ratio-1)):.025f;
  const float slew40=n>32?.04f*block_ratio*(1-.02f*(block_ratio-1)):.04f;
  const float slew35=n>32?.035f*block_ratio*(1-.0175f*(block_ratio-1)):.035f;
  for(unsigned i=0;i<6;i++)stats.track_peak[i]*=n>32?.984064f:.992f;
+#if defined(MD_PORT_PERFORMANCE)
+ performance.room=performance_slew(performance.room,performance_target.room,n);
+ performance.echo=performance_slew(performance.echo,performance_target.echo,n);
+ performance.texture=performance_slew(performance.texture,performance_target.texture,n);
+ performance.dusk=performance_slew(performance.dusk,performance_target.dusk,n);
+ for(unsigned j=0;j<4;j++){
+  const float offset=j==2?-.36f*performance.dusk:j==3?.35f*performance.texture:0.f;
+  smooth[j]+=(fminf(1.f,fmaxf(0.f,unit(drift_macro(j))+offset))-smooth[j])*slew25;
+ }
+#else
  for(unsigned j=0;j<4;j++)smooth[j]+=(unit(drift_macro(j))-smooth[j])*slew25;
+#endif
  bool source_active=playing;float delay_send[Q]={},room_send[Q]={};
  float send[Q]={},out[Q],aux[Q],tmp[Q],exc[Q],duck[Q];memset(lr,0,n*2*sizeof(float));
+ // O-4: links and drift change only in creative_tick: ask once a quantum.
+ const bool moving_quantum=creative_active();
  float duckdec=1.0f-1.0f/(MD_RATE*(.04f+unit(patch.duck_release)*1.46f));
  for(unsigned k=0;k<n;k++){duck[k]=1-duckenv*unit(patch.duck_amount)*.9f;duckenv*=duckdec;}
  float grainrate=stmlib::SemitonesToRatio((float)patch.grain_pitch)*(patch.reverse?-1:1);
  float fb=unit(patch.feedback);
  for(unsigned i=0;i<(patch.kit.enabled?3u:6u);i++) {
-  md_track dynamic_track;md_extension dynamic_ext;const bool moving=creative_active();
+  md_track dynamic_track;md_extension dynamic_ext;const bool moving=moving_quantum;
   if(moving){dynamic_track=patch.track[i];dynamic_ext=patch.ext[i];creative_track(i,dynamic_track,dynamic_ext);}
   md_track &t=moving?dynamic_track:patch.track[i];Voice &v=voices[i];bool trig=v.trigger;v.trigger=0;
   if(trig) {v.active=1;v.attacking=md_has_envelope(t.model)||t.attack>0; if(!v.attacking)v.env=1;v.excite=1;v.lpg=1;}
@@ -956,7 +1035,7 @@ static void quantum(float *lr,unsigned n
   // Rings::Resonator::Process overwrites both outputs on every sample.
   // Elements still uses its auxiliary buffer as an accumulator.
   if(t.model==MD_ELEMENTS)memset(aux,0,sizeof aux);
-  bool eco=patch.quality==0&&(t.model==MD_FM||t.model==MD_VA||t.model==MD_HARMONIC);
+  bool eco=!quality_on()&&(t.model==MD_FM||t.model==MD_VA||t.model==MD_HARMONIC);
   unsigned engine_n=eco?(n+(v.eco_phase?0:1))/2:n;
   if(eco)p.note+=12.0f; // same concert pitch at 22.05 kHz; linear reconstruction below.
   switch(t.model) {
@@ -1129,17 +1208,20 @@ static void quantum(float *lr,unsigned n
     int band=3;float highest=fmaxf(f,f2);
     while(band>0&&highest*(1<<band)>.45f)band--;
     float fade=band?fminf(1.0f,fmaxf(0.0f,(.45f-highest*(1<<band))/.1125f)):1;
+    // O-6: the tile's tables are fixed: chosen once, not per sample and voice.
+    const float (*table)[4][257]=t.model==MD_SPECTRAL?spectral_table:satin_table;
+    const float *ha=table[band][shape],*hb=table[band][shape+1];
+    const bool blend_low=band&&fade<1;
+    const float *la=blend_low?table[band-1][shape]:ha,*lb=blend_low?table[band-1][shape+1]:hb;
     for(unsigned k=0;k<n;k++){
      v.sub_phase+=f;if(v.sub_phase>=1)v.sub_phase-=1;
      v.mellow_phase+=f2;if(v.mellow_phase>=1)v.mellow_phase-=1;
      float sum=0;float phases[2]={v.sub_phase,v.mellow_phase};
      for(int osc=0;osc<2;osc++){
       float index=phases[osc]*256;int at=(int)index;float frac=index-at;
-      const float (*table)[4][257]=t.model==MD_SPECTRAL?spectral_table:satin_table;
-      const float *a=table[band][shape],*b=table[band][shape+1];
-      float x=a[at]+(a[at+1]-a[at])*frac,y=b[at]+(b[at+1]-b[at])*frac;
+      float x=ha[at]+(ha[at+1]-ha[at])*frac,y=hb[at]+(hb[at+1]-hb[at])*frac;
       float wave=x+(y-x)*morph;
-      if(band&&fade<1){a=table[band-1][shape];b=table[band-1][shape+1];x=a[at]+(a[at+1]-a[at])*frac;y=b[at]+(b[at+1]-b[at])*frac;float low=x+(y-x)*morph;wave=low+(wave-low)*fade;}
+      if(blend_low){x=la[at]+(la[at+1]-la[at])*frac;y=lb[at]+(lb[at+1]-lb[at])*frac;float low=x+(y-x)*morph;wave=low+(wave-low)*fade;}
       sum+=wave;
      }
      float fundamental=plaits::Sine(v.sub_phase);
@@ -1181,7 +1263,7 @@ static void quantum(float *lr,unsigned n
     }break;}
    case MD_RINGS:
     v.rings.set_frequency(f);v.rings.set_structure(unit(t.harm)*.999f);v.rings.set_brightness(tone*(.6f+.4f*tone));
-    v.rings.set_damping(unit(t.decay)*.9f);v.rings.set_position(.22f+.18f*tone+.07f*breathing);v.rings.set_resolution(patch.quality?24:8);
+    v.rings.set_damping(unit(t.decay)*.9f);v.rings.set_position(.22f+.18f*tone+.07f*breathing);v.rings.set_resolution(quality_on()?24:8);
     // A repeatable damped mallet carries the strike; a little decaying air
     // retains texture. A noise-only strike made equal-velocity notes vary
     // wildly at individual resonant modes. Leave the sounding body intact.
@@ -1215,6 +1297,14 @@ static void quantum(float *lr,unsigned n
   // each track's gate deadline made six short staggered gates overload the
   // FM-1. No oscillator/filter reconfiguration is needed to end one gate.
   const unsigned release_at=seq_gate[i]>0&&seq_gate[i]<n?(unsigned)ceilf(seq_gate[i]):n;
+  // K-1: the staggered end of an Itinera scene, eased across this quantum.
+  float scene_gain=1.f,scene_step=0.f;
+  if(itinera.active){
+   const float step_frames=MD_RATE*60.0f/(tempo_now()*4.0f);
+   const float remaining=(float)(journey_duration()>journey_ticks?journey_duration()-journey_ticks:0)+untilstep/step_frames;
+   const float g=itinera_fade_gain(i,(float)journey_ticks-untilstep/step_frames,remaining);
+   scene_gain=itinera.fade[i];scene_step=(g-scene_gain)/n;itinera.fade[i]=g;
+  }
   // Keep the exact envelope -> filter -> gain order, but let the SVF retain
   // coefficients and state in registers across a tile instead of the mixer.
   for(unsigned k=0;k<n;k++){
@@ -1225,7 +1315,7 @@ static void quantum(float *lr,unsigned n
   if(t.filter){v.filter1.Process<stmlib::FILTER_MODE_LOW_PASS>(out,out,n);if(t.filter==2)v.filter2.Process<stmlib::FILTER_MODE_LOW_PASS>(out,out,n);}
   // Local scalars prevent output-buffer aliasing from forcing repeated Voice
   // loads/stores. Same arithmetic and order; commit once after the tile.
-  float mix_amp=v.amp;float mix_fade=v.fade;float mix_lpg=v.lpg;float mix_warp_smooth=v.warp_smooth;float mix_warp_phase=v.warp_phase;float mix_expression_smooth=v.expression_smooth;float mix_pan_smooth=v.pan_smooth;float mix_delay_send_smooth=v.delay_send_smooth;float mix_reverb_send_smooth=v.reverb_send_smooth;
+  float mix_amp=v.amp;float mix_fade=v.fade;float mix_lpg=v.lpg;float mix_warp_smooth=v.warp_smooth;float mix_warp_phase=v.warp_phase;float mix_expression_smooth=v.expression_smooth;float mix_pan_smooth=v.pan_smooth;float mix_delay_send_smooth=v.delay_send_smooth;float mix_reverb_send_smooth=v.reverb_send_smooth;float mix_grain_send_smooth=v.grain_send_smooth; // O-2
   const bool duck_this_voice=(int)i!=patch.duck_source;
   for(unsigned k=0;k<n;k++) {
    mix_amp+=(target-mix_amp)*.004f;mix_fade+=(1-mix_fade)*.004f;
@@ -1238,31 +1328,78 @@ static void quantum(float *lr,unsigned n
    if(mix_warp_smooth>.000001f){mix_warp_phase+=f;if(mix_warp_phase>=1)mix_warp_phase-=1;x*=1-mix_warp_smooth*.5f+mix_warp_smooth*.5f*plaits::Sine(mix_warp_phase);}
    mix_expression_smooth+=(expr-mix_expression_smooth)*.003f;mix_pan_smooth+=(pan-mix_pan_smooth)*.003f;
    x=x*mix_amp*mix_fade*mix_expression_smooth;if(journey_prepared&&(journey_fade_mask&(1u<<i)))x*=journey_gain(i,k,n);if(duck_this_voice)x*=duck[k];
+   // K-1: an Itinera scene's dry voice leaves; its sends stay and carry the tail.
+   const float sent=x;
+   if(scene_step!=0.f||scene_gain!=1.f){scene_gain+=scene_step;x*=scene_gain;}
 #if defined(FM1B_UAC_CH) && FM1B_UAC_CH == 8
    write_stem(stems,offset+k,i,x);
 #endif
    track_peak=fmaxf(track_peak,fabsf(x));
-   lr[2*k]+=x*(1-mix_pan_smooth);lr[2*k+1]+=x*mix_pan_smooth;v.grain_send_smooth+=(sendlevel-v.grain_send_smooth)*.002f;send[k]+=x*v.grain_send_smooth;
+   lr[2*k]+=x*(1-mix_pan_smooth);lr[2*k+1]+=x*mix_pan_smooth;mix_grain_send_smooth+=(sendlevel-mix_grain_send_smooth)*.002f;send[k]+=sent*mix_grain_send_smooth;
    mix_delay_send_smooth+=(ds-mix_delay_send_smooth)*.002f;mix_reverb_send_smooth+=(rs-mix_reverb_send_smooth)*.002f;
-   delay_send[k]+=x*mix_delay_send_smooth;room_send[k]+=x*mix_reverb_send_smooth;
+   delay_send[k]+=sent*mix_delay_send_smooth;room_send[k]+=sent*mix_reverb_send_smooth;
   }
-  v.amp=mix_amp;v.fade=mix_fade;v.lpg=mix_lpg;v.warp_smooth=mix_warp_smooth;v.warp_phase=mix_warp_phase;v.expression_smooth=mix_expression_smooth;v.pan_smooth=mix_pan_smooth;v.delay_send_smooth=mix_delay_send_smooth;v.reverb_send_smooth=mix_reverb_send_smooth;
+  v.amp=mix_amp;v.fade=mix_fade;v.lpg=mix_lpg;v.warp_smooth=mix_warp_smooth;v.warp_phase=mix_warp_phase;v.expression_smooth=mix_expression_smooth;v.pan_smooth=mix_pan_smooth;v.delay_send_smooth=mix_delay_send_smooth;v.reverb_send_smooth=mix_reverb_send_smooth;v.grain_send_smooth=mix_grain_send_smooth;
   stats.track_peak[i]=track_peak;
   if(melodic&&!v.attacking&&v.env<.000001f)v.active=0;
+ }
+ kit_scene_gain=1.f;kit_scene_step=0.f;
+ if(itinera.active&&patch.kit.enabled){
+  const float step_frames=MD_RATE*60.0f/(tempo_now()*4.0f);
+  const float remaining=(float)(journey_duration()>journey_ticks?journey_duration()-journey_ticks:0)+untilstep/step_frames;
+  const float g=itinera_fade_gain(3,(float)journey_ticks-untilstep/step_frames,remaining);
+  kit_scene_gain=itinera.fade[3];kit_scene_step=(g-kit_scene_gain)/n;itinera.fade[3]=g;
  }
  if(patch.kit.enabled)kit_mix(lr,send,delay_send,room_send,n
 #if defined(FM1B_UAC_CH) && FM1B_UAC_CH == 8
  ,stems,offset
 #endif
  );
+#if defined(MD_PORT_PERFORMANCE)
+ if(performance.room>0.f||performance.echo>0.f||performance.texture>0.f){
+  for(unsigned k=0;k<n;k++){
+   const float dry=lr[2*k]+lr[2*k+1];
+   room_send[k]+=dry*performance.room*.23f;
+   delay_send[k]+=dry*performance.echo*.18f;
+   send[k]+=dry*performance.texture*.13f;
+  }
+ }
+#endif
  // Stop restores home controls immediately, but releases the last dry sample
  // continuously. This tiny anti-click carry is not another synthesis voice.
  if(journey_release[0]!=0||journey_release[1]!=0)for(unsigned k=0;k<n;k++)for(unsigned c=0;c<2;c++){
   lr[2*k+c]+=journey_release[c];journey_release[c]*=.9975f;if(fabsf(journey_release[c])<1e-9f)journey_release[c]=0;
  }
+ if(itinera.active)itinera_release_audio(lr,send,delay_send,room_send,n);
  if(journey_active){journey_dry_last[0]=lr[2*n-2];journey_dry_last[1]=lr[2*n-1];}
+#if defined(MD_PORT_PERFORMANCE)
+ const float echo_feedback=unit(patch.delay_fb),room_decay=.45f+.5f*unit(patch.reverb_time),echo_target=fminf(16382.0f,patch.delay_ms*44.1f);
+ const float effect_return=fmaxf(unit(patch.fx_level),.55f*fmaxf(performance.room,performance.echo));
+#else
  const float echo_feedback=unit(patch.delay_fb),room_decay=.45f+.5f*unit(patch.reverb_time),effect_return=unit(patch.fx_level),echo_target=fminf(16382.0f,patch.delay_ms*44.1f);
- unsigned maxgrains=patch.quality?4:2;
+#endif
+ unsigned maxgrains=quality_on()?4:2;
+ // K-4: the room's read offsets for this quantum (control rate, 0.11..0.29 Hz).
+ const bool room_moving=itinera.active;float room_offset[4]={0,0,0,0};
+ if(room_moving){
+  static const float rate[4]={.11f,.17f,.23f,.29f};
+  for(unsigned j=0;j<4;j++){
+   room_mod_phase[j]+=rate[j]*n/MD_RATE;if(room_mod_phase[j]>=1)room_mod_phase[j]-=1;
+   room_offset[j]=3.f+3.f*plaits::Sine(room_mod_phase[j]);
+  }
+ }
+ // K-5: an Itinera dream's level gain for this quantum, eased from the last.
+ const bool level_on=itinera.active;float level_gain=1.f,level_step=0.f,level_power=0.f;
+ if(level_on){
+  float target=itinera.gain;
+  const unsigned fade_zone=itinera_fade_frames+30u*MD_RATE;
+  if(itinera.level_short>1e-9f&&itinera.level_long>1e-9f&&itinera_remaining()>fade_zone){
+   target=sqrtf(itinera.level_long/itinera.level_short);
+   target=target<.63f?.63f:target>1.58f?1.58f:target;
+  }
+  const float next=itinera.gain+(target-itinera.gain)*(n/(30.f*MD_RATE));
+  level_gain=itinera.gain;level_step=(next-level_gain)/n;
+ }
  for(unsigned k=0;k<n;k++) {
   float wet[2]={};
   if(!grainclock){
@@ -1302,7 +1439,11 @@ static void quantum(float *lr,unsigned n
    tape[writehead]=int16_t(input*32767);writehead=(writehead+1)&GM;if(tape_valid<GN)tape_valid++;stats.grain_writes++;
   }
   float effect[2]={};
+#if defined(MD_PORT_PERFORMANCE)
+  if(effect_return>0.f)fx_active=true;
+#else
   if(patch.fx_level)fx_active=true;
+#endif
   if(fx_active){
   // Full-rate independent echo, interpolated time movement, bounded feedback.
   delay_smooth+=(echo_target-delay_smooth)*.00005f;
@@ -1315,18 +1456,41 @@ static void quantum(float *lr,unsigned n
   // allpasses distribute transients; tails and tape allocation stay unchanged.
   hp=diffuse_room(hp);
   static const unsigned lens[4]={887,1013,1151,1201};float rv[4],sum=0;
-  for(unsigned j=0;j<4;j++){rv[j]=room[j][room_head[j]]/32768.0f;room_lp[j]+=(rv[j]-room_lp[j])*.3f;sum+=room_lp[j];}
+  if(room_moving){
+   // K-4: each line read 0..6 samples early, moving slowly and independently
+   // (interpolated): the four fixed echoes no longer ring as one metallic
+   // colour. Only in a dream; Biomes and live play keep the fixed room.
+   for(unsigned j=0;j<4;j++){
+    const float pos=room_head[j]+room_offset[j];const unsigned at=(unsigned)pos;const float f=pos-at;
+    const unsigned i0=at>=lens[j]?at-lens[j]:at,i1=i0+1>=lens[j]?0:i0+1;
+    rv[j]=(room[j][i0]+(room[j][i1]-room[j][i0])*f)/32768.0f;room_lp[j]+=(rv[j]-room_lp[j])*.3f;sum+=room_lp[j];
+   }
+  }else for(unsigned j=0;j<4;j++){rv[j]=room[j][room_head[j]]/32768.0f;room_lp[j]+=(rv[j]-room_lp[j])*.3f;sum+=room_lp[j];}
   for(unsigned j=0;j<4;j++){float value=hp*.3f+(sum*.5f-room_lp[j])*room_decay;room[j][room_head[j]]=int16_t(clip(value)*32767);if(++room_head[j]>=lens[j])room_head[j]=0;}
   fx_smooth+=(effect_return-fx_smooth)*.002f;
   effect[0]=fx_smooth*(delayed*.5f+(rv[0]+rv[2])*.35f);effect[1]=fx_smooth*(delayed*.5f+(rv[1]+rv[3])*.35f);
   }
   for(unsigned c=0;c<2;c++) {
    float x=effect[c]+lr[2*k+c]+wet[c]*smooth[3]*1.7f*duck[k];
+   if(level_on){level_power+=x*x;x*=level_gain;}
    float y=x-dcx[c]+.9997f*dcy[c];dcx[c]=x;dcy[c]=y;
    x=clip(y*1.9f);lr[2*k+c]=x;
    if(fabsf(x)>stats.peak)stats.peak=fabsf(x);
   }
+  if(level_on)level_gain+=level_step;
  }
+ if(level_on){
+  // K-5: the mean power before the gain, short (8 s) and long (120 s); a
+  // quiet passage (below about -90 dBFS) is not measured, never boosted.
+  const float power=level_power/(2*n);
+  itinera.gain=level_gain;
+  if(power>1e-9f){
+   if(itinera.level_long<=0)itinera.level_long=itinera.level_short=power;
+   itinera.level_short+=(power-itinera.level_short)*(n/(8.f*MD_RATE));
+   itinera.level_long+=(power-itinera.level_long)*(n/(120.f*MD_RATE));
+  }
+ }
+ if(fx_active&&effect_return<=0.f&&fx_smooth<1e-7f)rest_fx(); // O-3
  stats.frames+=n;
 }
 }
@@ -1346,6 +1510,10 @@ const char *md_link_target_name(int k){static const char *s[]={"CUTOFF","COLOUR"
 const char *md_link_signal_name(int k){static const char *s[]={"HIT","ENVELOPE","LFO A","LFO B"};return s[bound(k,0,3)];}
 int md_hit(unsigned s,unsigned h,unsigned l,unsigned r) {if(!l||l>32)return 0;h=h>l?l:h;return (((s+r)%l)*h)%l<h;}
 void md_init() {
+#if defined(MD_PORT_PERFORMANCE)
+ performance_target=performance={};
+#endif
+ itinera={};journey_active=journey_prepared=0;
  sequence_clip_kind=0;sequence_notice=0;
  velocity_touch=0;
  voices=reinterpret_cast<Voice*>(voices_raw);memset(voices_raw,0,sizeof voices_raw);memset(tape,0,sizeof tape);memset(grains,0,sizeof grains);
@@ -1353,6 +1521,12 @@ void md_init() {
  memset(rpn_select,127,sizeof rpn_select);memset(bend_semitones,2,sizeof bend_semitones);memset(bend_cents,0,sizeof bend_cents);memset(macro14,0,sizeof macro14);memset(macro_lsb_seen,0,sizeof macro_lsb_seen);
  learn_init();memset(midi_bank,0,sizeof midi_bank);for(unsigned i=0;i<6;i++)midi_route[i]=i+1;midi_macro_enabled=1;qread=qwrite=writehead=grainclock=tape_valid=0;feedback_lp=0;rng=0x88888;stmlib::Random::Seed(rng);scene(0);playing=0;clock_source=midi_quantize=clock_pulse=0;clock_age=clock_last=0;clock_interval=0;
 }
+#if defined(MD_PORT_PERFORMANCE)
+void md_performance_set(float room,float echo,float texture,float dusk){
+ const auto level=[](float value){return fminf(1.f,fmaxf(0.f,value));};
+ performance_target={level(room),level(echo),level(texture),level(dusk)};
+}
+#endif
 int md_clock_source(void){return clock_source;}
 int md_midi_quantize(void){return midi_quantize;}
 int md_midi_route(unsigned track){return track<6?midi_route[track]:0;}
@@ -1378,15 +1552,26 @@ void md_midi_lost(int port){
  }
 }
 void md_midi(unsigned st,unsigned a,unsigned b,int port){
- if(port<0||port>2)return;
+ if(port<0||port>2||itinera.active)return;
  a&=127;b&=127;
  if(st>=0xf8){
   if(!clock_source||port!=(clock_source==1?0:clock_source==2?2:1))return;
+  if(st==0xfa||st==0xfc)clock_seen=0;
   if(st==0xfa){if(journey_active)journey_stop();journey_start();step=0;sequence_rewind();seqrng=patch.seed;clock_pulse=0;playing=1;clock_age=0;clock_last=stats.frames;clock_interval=0;memset(repeats,0,sizeof repeats);}
   else if(st==0xfb){if(!playing)journey_start();playing=1;clock_age=0;}
   else if(st==0xfc){fill_state=0;journey_stop();playing=0;record_mode=0;record_note=record_step=-1;memset(repeats,0,sizeof repeats);}
   else if(st==0xf8&&playing){unsigned delta=stats.frames-clock_last;clock_last=stats.frames;
-   if(delta>=MD_RATE*60/(220*24)&&delta<=MD_RATE*60/(30*24)){clock_interval=clock_interval?clock_interval*.85f+delta*.15f:delta;patch.tempo=bound((int)(MD_RATE*60/(24*clock_interval)+.5f),30,220);}
+   // F-2: once a whole beat (24 pulses) is known, the tempo comes from its
+   // span and changes only by more than 0.6 BPM; before that, as before.
+   if(delta>MD_RATE*60/(30*24)*2)clock_seen=0; // (a pause: start again)
+   if(clock_seen>=24){
+    const uint32_t span=stats.frames-clock_hist[clock_seen%24];
+    if(span>=MD_RATE*60/220&&span<=MD_RATE*60/30){
+     const float bpm=MD_RATE*60.0f/span;clock_interval=span/24.0f;
+     if(fabsf(bpm-(float)tempo_now())>.6f)clock_tempo=bound((int)(bpm+.5f),30,220);
+    }
+   }else if(delta>=MD_RATE*60/(220*24)&&delta<=MD_RATE*60/(30*24)){clock_interval=clock_interval?clock_interval*.85f+delta*.15f:delta;clock_tempo=bound((int)(MD_RATE*60/(24*clock_interval)+.5f),30,220);}
+   clock_hist[clock_seen%24]=stats.frames;clock_seen++;
    clock_age=0;if(clock_pulse==0){untilstep=0;tick();}clock_pulse=(clock_pulse+1)%6;}
   return;
  }
@@ -1435,9 +1620,20 @@ void md_midi(unsigned st,unsigned a,unsigned b,int port){
  }
  }
 }
+// F-2: a callback's block begins; anything still waiting from the last one plays now.
+void md_block_begin(void){
+ for(unsigned j=0;j<midi_at_n;j++)md_midi(midi_at[j].st,midi_at[j].a,midi_at[j].b,midi_at[j].port);
+ midi_at_n=0;block_pos=0;
+}
+void md_midi_at(unsigned st,unsigned a,unsigned b,int port,unsigned frame){
+ if(frame<=block_pos||midi_at_n>=sizeof midi_at/sizeof midi_at[0]){md_midi(st,a,b,port);return;}
+ unsigned i=midi_at_n++;
+ while(i&&midi_at[i-1].frame>frame){midi_at[i]=midi_at[i-1];i--;}
+ midi_at[i]={frame,(uint8_t)st,(uint8_t)a,(uint8_t)b,(int8_t)port};
+}
 unsigned md_command_space(void){return 64-(qwrite-qread);}
 int md_command_valid(int c){return (c>=0&&c<=98)||(c>=120&&c<=123)||c==125||c==126||(c>=MD_JOURNEY_MODE&&c<MD_COMMAND_COUNT);}
-int md_command_allowed(int c){if(c==MD_DRIFT_CAPTURE&&patch.drift.mode)return 0;if(c==MD_SEQ_COPY||c==MD_FILL)return 1;if(((c>=MD_SEQ_PASTE&&c<=MD_SEQ_MIRROR)||c==MD_SEQ_RULE||c==MD_SEQ_EXPRESSION)&&record_mode)return 0;return !journey_active||(c>=MD_LEARN_TARGET&&c<=MD_LEARN_ENABLE)||c==MD_DRIFT_POSITION||c==MD_DRIFT_DEPTH||c==MD_LEVEL||c==MD_PAN||c==MD_CUTOFF||c==MD_SEND||c==MD_DELAY_SEND||c==MD_REVERB_SEND||c==MD_PLAY||c==MD_PANIC||c==MD_TRIGGER||c==MD_NOTE_OFF||c==MD_KIT_TRIGGER||c==MD_MUTE||c==MD_MACRO||c==MD_QUALITY;}
+int md_command_allowed(int c){if(itinera.active)return c==MD_PLAY||c==MD_PANIC;if(c==MD_ITINERA_START)return !playing&&pending_biome<0;if(c==MD_DRIFT_CAPTURE&&patch.drift.mode)return 0;if(c==MD_SEQ_COPY||c==MD_FILL)return 1;if(((c>=MD_SEQ_PASTE&&c<=MD_SEQ_MIRROR)||c==MD_SEQ_RULE||c==MD_SEQ_EXPRESSION)&&record_mode)return 0;return !journey_active||(c>=MD_LEARN_TARGET&&c<=MD_LEARN_ENABLE)||c==MD_DRIFT_POSITION||c==MD_DRIFT_DEPTH||c==MD_LEVEL||c==MD_PAN||c==MD_CUTOFF||c==MD_SEND||c==MD_DELAY_SEND||c==MD_REVERB_SEND||c==MD_PLAY||c==MD_PANIC||c==MD_TRIGGER||c==MD_NOTE_OFF||c==MD_KIT_TRIGGER||c==MD_MUTE||c==MD_MACRO||c==MD_QUALITY;}
 int md_command(int c,int t,int v) {if(!md_command_valid(c)||!md_command_allowed(c))return 0;unsigned w=qwrite;if(w-qread>=64){stats.dropped_commands++;return 0;}queue[w&63]={c,t,v};fence();qwrite=w+1;return 1;}
 #if defined(FM1B_UAC_CH) && FM1B_UAC_CH == 8
 void md_render_stems(float *lr,unsigned n,md_usb_stems stems) {
@@ -1445,8 +1641,22 @@ void md_render_stems(float *lr,unsigned n,md_usb_stems stems) {
 #else
 void md_render(float *lr,unsigned n) {
 #endif
- while(n){while(qread!=qwrite){fence();Command e=queue[qread&63];apply(e);fence();qread++;}
+ while(n){
+  // F-2: MIDI due at or before this point of the block, in order.
+  while(midi_at_n&&midi_at[0].frame<=block_pos){const MidiAt e=midi_at[0];midi_at_n--;for(unsigned j=0;j<midi_at_n;j++)midi_at[j]=midi_at[j+1];md_midi(e.st,e.a,e.b,e.port);}
+  while(qread!=qwrite){fence();Command e=queue[qread&63];
+   // scene() rebuilds the whole rack from the Biome ID, so in a run of
+   // consecutive Biome requests only the last one can be heard. Rebuild once
+   // per run instead of once per encoder detent inside a single callback.
+   if(e.c==MD_SCENE&&qread+1!=qwrite&&queue[(qread+1)&63].c==MD_SCENE){fence();qread++;continue;}
+   apply(e);fence();qread++;}
   unsigned z=n<Q?n:Q;
+  if(midi_at_n&&z>midi_at[0].frame-block_pos)z=midi_at[0].frame-block_pos; // F-2: stop at the next event
+  if(itinera.active){
+   const unsigned remaining=itinera_remaining();
+   if(!remaining){journey_stop();fill_state=0;playing=0;untilstep=0;}
+   else if(z>remaining)z=remaining;
+  }
   if(playing){
    if(!clock_source&&untilstep<=0)tick();
    for(unsigned i=0;i<6;i++)if(repeats[i].remaining&&repeats[i].left<=0){
@@ -1463,7 +1673,7 @@ void md_render(float *lr,unsigned n) {
 #else
   quantum(lr,z);
 #endif
-  for(unsigned i=0;i<6;i++)if(seq_gate[i]>0){seq_gate[i]-=z;if(seq_gate[i]<=0)voices[i].midi_gate=-1;}lr+=z*2;n-=z;
+  for(unsigned i=0;i<6;i++)if(seq_gate[i]>0){seq_gate[i]-=z;if(seq_gate[i]<=0)voices[i].midi_gate=-1;}lr+=z*2;n-=z;block_pos+=z;
  }
 }
 #if defined(FM1B_UAC_CH) && FM1B_UAC_CH == 8
@@ -1471,15 +1681,33 @@ void md_render(float *lr,unsigned n){md_render_stems(lr,n,{});}
 #endif
 int md_unsaved(){uint32_t h[2];patch_hash(h);return h[0]!=saved_hash[0]||h[1]!=saved_hash[1];}
 void md_mark_saved(){patch_hash(saved_hash);}
+void md_mark_saved_from(const md_patch *written){if(written)patch_hash_of(*written,saved_hash);}
 int md_pending_biome(){return pending_biome;}
 int md_active_tracks(){return patch.kit.enabled?4:6;}
 const char *md_kit_name(int n){static const char *s[]={"DUST ROOM","PAPER MACHINES","SOFT STATIC","FOUND OBJECTS","VELOUR TAPE"};return s[bound(n,0,4)];}
 const char *md_pad_name(int n){static const char *s[]={"PILLOW KICK","BRUSH SNARE","DUST HAT","WOOD KNOCK","TINY CLICK","TAPE HISS","CRACKLE","AIR TEXTURE"};return s[bound(n,0,7)];}
 const md_patch *md_state(){return &patch;}
+int md_quality_active(){return quality_on();}
+int md_tempo_now(){return tempo_now();}
+void md_overload(){if(quality_on()){runtime_eco=true;eco_settle();}}
 const md_patch *md_project_state(){return journey_active?&journey_home:&patch;}
-int md_journey_active(){return journey_active;}
-int md_journey_position(){return journey_active?journey_at:-1;}
-unsigned md_journey_step(){return journey_active&&journey_ticks?journey_ticks-1:0;}
+void md_itinera_read(md_itinera_view *view){
+ view->active=itinera.active;
+ view->biome=patch.biome_id;
+ view->remaining=itinera.active?(itinera_remaining()+MD_RATE-1)/MD_RATE:0;
+ view->section=itinera.part;
+ view->preset=itinera.preset;
+ view->progress=itinera.active?journey_ticks*1000u/itinera.section_steps:0;
+ view->chapter=itinera.active?(itinera.length-itinera_remaining())/(itinera.length/4):0;
+ float energy=0;
+ if(itinera.active)for(unsigned i=0;i<MD_TRACKS;i++)energy+=stats.track_peak[i];
+ view->energy=bound((int)(energy*90.f),0,100);
+}
+const char *md_itinera_name(unsigned p){return itinera_presets[p%MD_ITINERA_PRESETS].name;}
+unsigned md_itinera_defaults(unsigned p){const auto &a=itinera_presets[p%MD_ITINERA_PRESETS];return 1+4*a.pace+12*a.hall;}
+int md_journey_active(){return journey_active&&!itinera.active;}
+int md_journey_position(){return md_journey_active()?journey_at:-1;}
+unsigned md_journey_step(){return md_journey_active()&&journey_ticks?journey_ticks-1:0;}
 int md_preview_biome_kit(md_patch *scratch,int biome){
  factory_scene(*scratch,biome);
  return scratch->kit.enabled;
@@ -1491,8 +1719,8 @@ void md_grain_positions(uint8_t position[4],uint8_t window[4]){
   window[i]=g.life&&g.age<g.life?(unsigned)(g.phase*127)+1:0;
  }
 }
-unsigned md_journey_bar(){return journey_active?(journey_ticks?journey_ticks-1:0)/16%patch.journey.section[journey_at].bars+1:0;}
-unsigned md_journey_repeat(){return journey_active?(journey_ticks?journey_ticks-1:0)/(16*patch.journey.section[journey_at].bars)+1:0;}const md_stats *md_status(){return &stats;}int md_playing(){return playing;}
+unsigned md_journey_bar(){return md_journey_active()?(journey_ticks?journey_ticks-1:0)/16%patch.journey.section[journey_at].bars+1:0;}
+unsigned md_journey_repeat(){return md_journey_active()?(journey_ticks?journey_ticks-1:0)/(16*patch.journey.section[journey_at].bars)+1:0;}const md_stats *md_status(){return &stats;}int md_playing(){return playing;}
 int md_validate(const md_patch *p) {
  if(!p||p->magic!=0x4D445231||p->version!=MD_PATCH_VERSION||!p->seed||p->tempo<30||p->tempo>220)return 0;
  if(p->biome_id< -1||p->biome_id>=MD_BIOMES||p->edited_mask>127)return 0;
@@ -1519,8 +1747,8 @@ int md_validate(const md_patch *p) {
  for(const md_pad &a:k.pads)if(a.tune< -12||a.tune>12||a.level>1000||a.cutoff>1000||a.send>1000||a.decay>1000)return 0;
  return 1;
 }
-int md_load(const md_patch *p){if(playing||!md_validate(p))return 0;journey_active=journey_prepared=0;patch=*p;previous=patch;seqrng=patch.seed;clear_audio();for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);for(int i=0;i<6;i++)reset_voice(i);pending_biome=-1;md_mark_saved();return 1;}
-unsigned md_memory_bytes(){return sizeof cedar_line+sizeof cedar_state+sizeof element_body+sizeof element_strike+sizeof echo+sizeof room+sizeof room_diffusion+sizeof diffusion_head+sizeof voices_raw+sizeof tape+sizeof grains+sizeof patch+sizeof previous+sizeof journey_home+sizeof journey_origin+80+sizeof rpn_select+sizeof bend_semitones+sizeof bend_cents+sizeof bend_wheel+sizeof macro14+sizeof macro_lsb_seen+sizeof mappings+sizeof learn_last+sizeof learn_picked+sizeof learn_sender+sizeof bend_port+sizeof expression_port+sizeof sustain_port+sizeof link_envelope+sizeof link_mod+sizeof link_readout+sizeof link_phase+32+sizeof kit_voices+sizeof saved_hash+sizeof stats+sizeof queue+sizeof repeats+512;}
+int md_load(const md_patch *p){if(playing||!md_validate(p))return 0;runtime_eco=false;journey_active=journey_prepared=0;patch=*p;previous=patch;seqrng=patch.seed;clear_audio();for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);for(int i=0;i<6;i++)reset_voice(i);pending_biome=-1;md_mark_saved();return 1;}
+unsigned md_memory_bytes(){return sizeof cedar_line+sizeof cedar_state+sizeof element_body+sizeof element_strike+sizeof echo+sizeof room+sizeof room_diffusion+sizeof diffusion_head+sizeof voices_raw+sizeof tape+sizeof grains+sizeof patch+sizeof previous+sizeof journey_home+sizeof journey_origin+80+sizeof rpn_select+sizeof bend_semitones+sizeof bend_cents+sizeof bend_wheel+sizeof macro14+sizeof macro_lsb_seen+sizeof mappings+sizeof learn_last+sizeof learn_picked+sizeof learn_sender+sizeof bend_port+sizeof expression_port+sizeof sustain_port+sizeof link_envelope+sizeof link_mod+sizeof link_readout+sizeof link_phase+32+sizeof kit_voices+sizeof saved_hash+sizeof stats+sizeof itinera+sizeof itinera_undo+sizeof queue+sizeof repeats+512;}
 int md_decode(md_patch *out,const void *data,unsigned bytes){
  if(!out||!data)return 0;
  if(bytes==sizeof(md_patch)||bytes==2356||bytes==2288||bytes==2220||bytes==2100){

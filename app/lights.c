@@ -5,12 +5,13 @@ static const uint8_t dream_page_button[]={
  B_HOME,B_EDIT,B_SEQ,B_FX,B_EDIT,B_GLO,B_EDIT,B_SEQ,B_FX,B_GLO,
  B_EDIT,B_GLO,B_EDIT,B_SEQ,B_FX,B_FX,B_SEQ,B_GLO,B_GLO,B_SEQ,
  B_SEQ,B_GLO,B_FX,B_GLO,B_EDIT,B_EDIT,B_SEQ,B_SEQ,B_FX,B_FX,
- B_GLO,B_SEQ,B_SEQ,B_SEQ,B_GLO,B_GLO,B_FX,B_FX,B_FX,B_FX,B_SEQ,B_SEQ,B_SEQ,B_GLO
+ B_GLO,B_SEQ,B_SEQ,B_SEQ,B_GLO,B_GLO,B_FX,B_FX,B_FX,B_FX,B_SEQ,B_SEQ,B_SEQ,B_GLO,B_HOME
 };
 _Static_assert(sizeof dream_page_button==sizeof dream_pages/sizeof *dream_pages,"Every page has one navigation light");
 static uint32_t dream_light_at, dream_light_ns=1600;
 
 static uint32_t dream_light_buttons(void){
+ if(radio_view.active)return LED_PLAY_GREEN;
  const md_patch *p=md_state();uint32_t b=1u<<dream_page_button[dream_ui.page];
  /* Holding PLAY highlights its green LED, never a false red recording light. */
  b|=dream_ui.btn&~(1u<<B_PLAY);
@@ -42,7 +43,7 @@ static uint32_t dream_light_target(uint32_t now){
  uint32_t energy=0;
  for(unsigned i=0;i<6;i++){uint32_t e=dream_light_tail(i,now);if(e>energy)energy=e;}
  /* At least four seconds per breath. Faster tempi use whole-bar multiples. */
- uint32_t period=240000u/(unsigned)clamp(md_state()->tempo,20,300);
+ uint32_t period=240000u/(unsigned)clamp(md_tempo_now(),20,300);
  while(period<4000u)period*=2u;
  uint32_t x=(now%period)*1024u/period;x=x<512u?2u*x:2u*(1024u-x);
  uint32_t smooth=((x*x/1024u)*(3072u-2u*x))/1024u;

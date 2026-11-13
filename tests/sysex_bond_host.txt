@@ -1,0 +1,16 @@
+# Host script (mutable-dreams-host): stored-object reads over SysEx (command 6).
+# P-1: the Bluetooth bond object (23) is refused like any unknown object (status 1).
+wait 300
+sysex_out
+sysex F0 7D 4D 44 06 11 17 F7
+expect_sysex F0 7D 4D 44 06 11 01 F7
+sysex F0 7D 4D 44 06 12 18 F7
+expect_sysex F0 7D 4D 44 06 12 01 F7
+# The panel calibration (1) stays refused, an empty user slot (3) and the last
+# tone bank (22) are still allowed objects: absent here, so status 3.
+sysex F0 7D 4D 44 06 13 01 F7
+expect_sysex F0 7D 4D 44 06 13 01 F7
+sysex F0 7D 4D 44 06 14 03 F7
+expect_sysex F0 7D 4D 44 06 14 03 F7
+sysex F0 7D 4D 44 06 15 16 F7
+expect_sysex F0 7D 4D 44 06 15 03 F7

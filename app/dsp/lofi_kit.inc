@@ -46,10 +46,13 @@ static void kit_mix(float *lr,float *send,float *delay_send,float *room_send,uns
   }
   if(playing&&patch.kit.hiss){kit_hiss_lp+=(noise()-kit_hiss_lp)*.13f;float h=kit_hiss_lp*patch.kit.hiss*.0006f;sum+=h;gs+=h;}
   kit_amp+=(target-kit_amp)*.003f;kit_pan+=(unit(t.pan)-kit_pan)*.003f;
-  float amp=kit_amp;if(journey_prepared&&(journey_fade_mask&8))amp*=journey_gain(3,k,n);sum*=amp;gs*=amp;stats.track_peak[3]=fmaxf(stats.track_peak[3],fabsf(sum));
+  float amp=kit_amp;if(journey_prepared&&(journey_fade_mask&8))amp*=journey_gain(3,k,n);
+  sum*=amp;gs*=amp;stats.track_peak[3]=fmaxf(stats.track_peak[3],fabsf(sum));
+  // K-1: the dry kit leaves; its echo and room sends stay and carry the tail.
+  float dry=sum;if(kit_scene_step!=0.f||kit_scene_gain!=1.f){kit_scene_gain+=kit_scene_step;dry*=kit_scene_gain;}
 #if defined(FM1B_UAC_CH) && FM1B_UAC_CH == 8
-  write_stem(stems,offset+k,3,sum);
+  write_stem(stems,offset+k,3,dry);
 #endif
-  lr[k*2]+=sum*(1-kit_pan);lr[k*2+1]+=sum*kit_pan;send[k]+=gs*master_send;delay_send[k]+=sum*ds;room_send[k]+=sum*rs;
+  lr[k*2]+=dry*(1-kit_pan);lr[k*2+1]+=dry*kit_pan;send[k]+=gs*master_send;delay_send[k]+=sum*ds;room_send[k]+=sum*rs;
  }
 }

@@ -11,7 +11,7 @@ enum { MD_MODEL, MD_TONE, MD_HARM, MD_DECAY, MD_LEVEL, MD_SEND, MD_HITS,
  MD_MACRO, MD_TEMPO, MD_PLAY, MD_LOCK, MD_MUTATE, MD_RETURN, MD_SCENE,
  MD_FREEZE, MD_GRAIN_SIZE, MD_GRAIN_POS, MD_FEEDBACK, MD_QUALITY, MD_TRIGGER, MD_PANIC,
  MD_ATTACK,MD_SWING,MD_RATCHET,MD_ROOT,MD_SCALE,MD_TRANSPOSE,MD_GRAIN_PITCH,
- MD_REVERSE,MD_DUCK_SOURCE,MD_DUCK,MD_DUCK_RELEASE,MD_ACCENT,MD_SHAPE,MD_CUTOFF,MD_RESONANCE,MD_FILTER,MD_BREATHE,MD_TONE_PRESET,MD_DELAY_SEND,MD_REVERB_SEND,MD_DELAY_TIME,MD_DELAY_FB,MD_REVERB_TIME,MD_FX_LEVEL,MD_BASS_MODE,MD_BASS_PATTERN,MD_GLIDE,MD_MARBLES,MD_TIDES,MD_TIDES_RATE,MD_WARPS,MD_BASS_STEP,MD_BASS_VALUE,MD_CLOCK_SOURCE,MD_MIDI_QUANTIZE,MD_GRAIN_NOISE,MD_SEQ_ENABLE,MD_SEQ_STEP,MD_SEQ_NOTE,MD_SEQ_VELOCITY,MD_SEQ_CHANCE,MD_SEQ_GATE,MD_SEQ_GENERATE,MD_SEQ_LENGTH,MD_RECORD,MD_CHORD_PATTERN,MD_CHORD_BARS,MD_CHORD_TRACKS,MD_NOTE_OFF,MD_CHORD_FOLLOW,MD_SCENE_CONFIRM,MD_KIT_MODE,MD_KIT_BANK,MD_KIT_PAD,MD_KIT_STEP,MD_KIT_GATE,MD_KIT_TUNE,MD_KIT_LEVEL,MD_KIT_CUTOFF,MD_KIT_SEND,MD_KIT_DECAY,MD_KIT_HISS,MD_KIT_GENERATE,MD_KIT_LENGTH,MD_KIT_TRIGGER,MD_SEQ_DIRECTION,MD_SEQ_FEEL,MD_SEQ_SHIFT,MD_LFO_TARGET,MD_LFO_SHAPE,MD_CHORD_COMPACT,MD_LFO2_TARGET=120,MD_LFO2_SHAPE,MD_LFO2_DEPTH,MD_LFO2_RATE,MD_MIDI_ROUTE=125,MD_MIDI_MACRO,MD_JOURNEY_MODE=128,MD_JOURNEY_LENGTH,MD_JOURNEY_BIOME,MD_JOURNEY_BARS,MD_JOURNEY_REPEATS,MD_JOURNEY_TRANSPOSE,MD_JOURNEY_KEEP,MD_JOURNEY_KEEP_TRACK,MD_LEARN_TARGET,MD_LEARN_TRACK,MD_LEARN_ARM,MD_LEARN_CLEAR,MD_LEARN_PORT,MD_LEARN_CHANNEL,MD_LEARN_CC,MD_LEARN_ENABLE,MD_LINK_SOURCE,MD_LINK_SIGNAL,MD_LINK_DEST,MD_LINK_TARGET,MD_LINK_DEPTH,MD_LINK_RELEASE,MD_DRIFT_MODE,MD_DRIFT_POSITION,MD_DRIFT_RATE,MD_DRIFT_CAPTURE,MD_DRIFT_DEPTH,MD_SEQ_COPY,MD_SEQ_PASTE,MD_SEQ_TRANSPOSE,MD_SEQ_MIRROR,MD_SEQ_RULE,MD_FILL,MD_SEQ_EXPRESSION,MD_COMMAND_COUNT };
+ MD_REVERSE,MD_DUCK_SOURCE,MD_DUCK,MD_DUCK_RELEASE,MD_ACCENT,MD_SHAPE,MD_CUTOFF,MD_RESONANCE,MD_FILTER,MD_BREATHE,MD_TONE_PRESET,MD_DELAY_SEND,MD_REVERB_SEND,MD_DELAY_TIME,MD_DELAY_FB,MD_REVERB_TIME,MD_FX_LEVEL,MD_BASS_MODE,MD_BASS_PATTERN,MD_GLIDE,MD_MARBLES,MD_TIDES,MD_TIDES_RATE,MD_WARPS,MD_BASS_STEP,MD_BASS_VALUE,MD_CLOCK_SOURCE,MD_MIDI_QUANTIZE,MD_GRAIN_NOISE,MD_SEQ_ENABLE,MD_SEQ_STEP,MD_SEQ_NOTE,MD_SEQ_VELOCITY,MD_SEQ_CHANCE,MD_SEQ_GATE,MD_SEQ_GENERATE,MD_SEQ_LENGTH,MD_RECORD,MD_CHORD_PATTERN,MD_CHORD_BARS,MD_CHORD_TRACKS,MD_NOTE_OFF,MD_CHORD_FOLLOW,MD_SCENE_CONFIRM,MD_KIT_MODE,MD_KIT_BANK,MD_KIT_PAD,MD_KIT_STEP,MD_KIT_GATE,MD_KIT_TUNE,MD_KIT_LEVEL,MD_KIT_CUTOFF,MD_KIT_SEND,MD_KIT_DECAY,MD_KIT_HISS,MD_KIT_GENERATE,MD_KIT_LENGTH,MD_KIT_TRIGGER,MD_SEQ_DIRECTION,MD_SEQ_FEEL,MD_SEQ_SHIFT,MD_LFO_TARGET,MD_LFO_SHAPE,MD_CHORD_COMPACT,MD_LFO2_TARGET=120,MD_LFO2_SHAPE,MD_LFO2_DEPTH,MD_LFO2_RATE,MD_MIDI_ROUTE=125,MD_MIDI_MACRO,MD_JOURNEY_MODE=128,MD_JOURNEY_LENGTH,MD_JOURNEY_BIOME,MD_JOURNEY_BARS,MD_JOURNEY_REPEATS,MD_JOURNEY_TRANSPOSE,MD_JOURNEY_KEEP,MD_JOURNEY_KEEP_TRACK,MD_LEARN_TARGET,MD_LEARN_TRACK,MD_LEARN_ARM,MD_LEARN_CLEAR,MD_LEARN_PORT,MD_LEARN_CHANNEL,MD_LEARN_CC,MD_LEARN_ENABLE,MD_LINK_SOURCE,MD_LINK_SIGNAL,MD_LINK_DEST,MD_LINK_TARGET,MD_LINK_DEPTH,MD_LINK_RELEASE,MD_DRIFT_MODE,MD_DRIFT_POSITION,MD_DRIFT_RATE,MD_DRIFT_CAPTURE,MD_DRIFT_DEPTH,MD_SEQ_COPY,MD_SEQ_PASTE,MD_SEQ_TRANSPOSE,MD_SEQ_MIRROR,MD_SEQ_RULE,MD_FILL,MD_SEQ_EXPRESSION,MD_ITINERA_START,MD_COMMAND_COUNT };
 typedef struct { int32_t model,tone,harm,decay,level,send,hits,length,rotate,prob,note,pan,mute,speed,attack,ratchet,accent,shape,cutoff,resonance,filter,breathe; } md_track;
 typedef struct { int32_t delay_send,reverb_send,bass_mode,pattern,glide,marbles,tides,tides_rate,warps,edit_step; int32_t notes[16]; } md_extension;
 /* v12 preserves the four-byte step: chance and gate each supply one high bit.
@@ -65,6 +65,11 @@ unsigned md_command_space(void);
 int md_command_valid(int command);
 int md_command_allowed(int command); /* temporary performance controls remain live */
 const md_patch *md_project_state(void); /* canonical project, even during Journey */
+enum { MD_ITINERA_PRESETS=14 };
+typedef struct { unsigned remaining, section, progress, preset, chapter, energy; int biome, active; } md_itinera_view;
+void md_itinera_read(md_itinera_view *view);
+const char *md_itinera_name(unsigned preset);
+unsigned md_itinera_defaults(unsigned preset);
 int md_journey_active(void);
 int md_journey_position(void); /* zero-based section, -1 while stopped */
 unsigned md_journey_bar(void); /* one-based bar in this repeat */
@@ -75,6 +80,11 @@ typedef struct { uint32_t seed; uint8_t tempo,root,scale,family; } md_biome_card
 int md_biome_card_info(int id,md_biome_card *card);
 void md_grain_positions(uint8_t position[4],uint8_t window[4]); /* caller holds audio lock */
 void md_midi(unsigned status,unsigned a,unsigned b,int port); /* audio owner only */
+/* F-2: audio owner. A callback's block begins (frame 0); then each message at
+ * the frame of that block where it belongs (its arrival, one block later):
+ * md_render plays it exactly there. Frame 0 or a full list: at once. */
+void md_block_begin(void);
+void md_midi_at(unsigned status,unsigned a,unsigned b,int port,unsigned frame);
 void md_midi_lost(int port); /* release notes held by a disconnected transport */
 int md_clock_source(void);
 int md_midi_quantize(void);
@@ -117,6 +127,10 @@ const char *md_direction_name(int direction);
 const char *md_lfo_target_name(int target);
 const char *md_lfo_wave_name(int wave);
 void md_render(float *stereo,unsigned n);
+#if defined(MD_PORT_PERFORMANCE)
+/* Audio-owner controls. These never change a saved patch or Journey. */
+void md_performance_set(float room,float echo,float texture,float dusk);
+#endif
 #if defined(FM1B_UAC_CH) && FM1B_UAC_CH == 8
 /* Six mono post-fader, pre-pan/pre-bus USB stems at fixed level. */
 typedef struct {
@@ -126,6 +140,9 @@ typedef struct {
 void md_render_stems(float *stereo,unsigned n,md_usb_stems stems);
 #endif
 const md_patch *md_state(void);
+int md_tempo_now(void);      /* F-6: the tempo that times steps now: an external clock's, else the project's */
+int md_quality_active(void); /* FULL now: the setting, unless the admission guard or an overload took ECO */
+void md_overload(void);      /* audio owner: the render ran late; ECO until the project or quality changes */
 const md_stats *md_status(void);
 int md_playing(void);
 int md_validate(const md_patch *p);
@@ -136,6 +153,9 @@ int md_import_edit(const void *p,unsigned bytes); /* sound recall keeps unsaved 
 unsigned md_memory_bytes(void);
 int md_unsaved(void);
 void md_mark_saved(void); /* caller holds control lock, only after successful write */
+/* Mark exactly the image that was written as saved; edits that arrive while
+ * flash is busy stay unsaved. Caller holds the control lock. */
+void md_mark_saved_from(const md_patch *written);
 int md_pending_biome(void);
 int md_active_tracks(void);
 const char *md_kit_name(int bank);

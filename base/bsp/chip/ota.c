@@ -138,6 +138,14 @@ static int ota_send_msg(uint32_t cmd, const uint8_t *body, uint32_t n)   /* n <=
     return ota_wire_send(ota_wire, w);
 }
 
+/* a firmware may refuse an update before anything is erased: its own record in the staging area waits for the
+ * next boot (device/backup.c: a restore's journal at 0xE1000). OTA_STAGE_REFUSED() nonzero: the session ends at
+ * once, nothing touched, ota_show(9, OTA_E_REFUSED) */
+#ifndef OTA_STAGE_REFUSED
+#define OTA_STAGE_REFUSED() 0
+#endif
+#define OTA_E_REFUSED (-15)
+
 /* the flash's JEDEC ID for the identity reply (a firmware defines it before including this file: the ID it read at
  * boot), 0: not read */
 #ifndef OTA_FLASH_ID
@@ -434,6 +442,10 @@ static int ota_session(void)
     uint8_t back[112];
     uint32_t i;
     int rc;
+    if (OTA_STAGE_REFUSED()) {                      /* (before ota_stage: it erases the whole area first) */
+        ota_show(9, OTA_E_REFUSED);
+        return OTA_E_REFUSED;
+    }
     ota_deadline = ota_now_ms() + 120000u;          /* step 1 normally takes ~5 s; a stalled host gives up after 2 min */
     rc = ota_stage();
     if (rc) {

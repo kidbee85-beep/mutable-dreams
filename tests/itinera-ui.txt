@@ -1,0 +1,307 @@
+wait 3400
+scene 169
+wait 50
+tap HOME
+expect live_view 1
+tap HOME
+expect live_view 2
+tap HOME
+expect page 44
+tap HOME
+expect page 0
+expect live_view 0
+press HOME
+wait 950
+expect page 44
+release HOME
+expect page 44
+expect radio_preset 0
+spin K2 3
+expect radio_settings 15
+shot Itinera-Einstellungen.png
+tap PLAY
+wait 400
+expect radio_active 1
+expect page 44
+shot Hortus-Quietus-Opening.png
+tap SEL
+spin PRESET 4
+wait 9000
+expect page 44
+expect radio_active 1
+shot Hortus-Quietus.png
+wait 650
+shot Hortus-Quietus-Motion.png
+tap PLAY
+wait 300
+expect radio_active 0
+expect playing 0
+expect biome 169
+spin K1 1
+expect radio_preset 1
+tap PLAY
+wait 400
+expect radio_active 1
+expect page 44
+shot Via-Siderum-Opening.png
+tap SEL
+spin PRESET 4
+wait 9000
+expect page 44
+expect radio_active 1
+shot Via-Siderum.png
+wait 650
+shot Via-Siderum-Motion.png
+tap PLAY
+wait 300
+expect radio_active 0
+expect playing 0
+expect biome 169
+spin K1 1
+expect radio_preset 2
+tap PLAY
+wait 400
+expect radio_active 1
+expect page 44
+shot Silva-Nocturna-Opening.png
+tap SEL
+spin PRESET 4
+wait 9000
+expect page 44
+expect radio_active 1
+shot Silva-Nocturna.png
+wait 650
+shot Silva-Nocturna-Motion.png
+tap PLAY
+wait 300
+expect radio_active 0
+expect playing 0
+expect biome 169
+spin K1 1
+expect radio_preset 3
+tap PLAY
+wait 400
+expect radio_active 1
+expect page 44
+shot Mare-Nebularum-Opening.png
+tap SEL
+spin PRESET 4
+wait 9000
+expect page 44
+expect radio_active 1
+shot Mare-Nebularum.png
+wait 650
+shot Mare-Nebularum-Motion.png
+tap PLAY
+wait 300
+expect radio_active 0
+expect playing 0
+expect biome 169
+spin K1 1
+expect radio_preset 4
+tap PLAY
+wait 400
+expect radio_active 1
+expect page 44
+shot Lumen-Primum-Opening.png
+tap SEL
+spin PRESET 4
+wait 9000
+expect page 44
+expect radio_active 1
+shot Lumen-Primum.png
+wait 650
+shot Lumen-Primum-Motion.png
+tap PLAY
+wait 300
+expect radio_active 0
+expect playing 0
+expect biome 169
+spin K1 1
+expect radio_preset 5
+tap PLAY
+wait 400
+expect radio_active 1
+expect page 44
+shot Terra-Pluvia-Opening.png
+tap SEL
+spin PRESET 4
+wait 9000
+expect page 44
+expect radio_active 1
+shot Terra-Pluvia.png
+wait 650
+shot Terra-Pluvia-Motion.png
+tap PLAY
+wait 300
+expect radio_active 0
+expect playing 0
+expect biome 169
+spin K1 1
+expect radio_preset 6
+tap PLAY
+wait 400
+expect radio_active 1
+expect page 44
+shot Aurora-Polaris-Opening.png
+tap SEL
+spin PRESET 4
+wait 9000
+expect page 44
+expect radio_active 1
+shot Aurora-Polaris.png
+wait 650
+shot Aurora-Polaris-Motion.png
+tap PLAY
+wait 300
+expect radio_active 0
+expect playing 0
+expect biome 169
+spin K1 1
+expect radio_preset 7
+tap PLAY
+wait 400
+expect radio_active 1
+expect page 44
+shot Somnus-Lenis-Opening.png
+tap SEL
+spin PRESET 4
+wait 9000
+expect page 44
+expect radio_active 1
+shot Somnus-Lenis.png
+wait 650
+shot Somnus-Lenis-Motion.png
+tap PLAY
+wait 300
+expect radio_active 0
+expect playing 0
+expect biome 169
+spin K1 1
+expect radio_preset 8
+tap PLAY
+wait 400
+expect radio_active 1
+expect page 44
+shot Murmur-Arenae-Opening.png
+tap SEL
+spin PRESET 4
+wait 9000
+expect page 44
+expect radio_active 1
+shot Murmur-Arenae.png
+wait 650
+shot Murmur-Arenae-Motion.png
+tap PLAY
+wait 300
+expect radio_active 0
+expect playing 0
+expect biome 169
+spin K1 1
+expect radio_preset 9
+tap PLAY
+wait 400
+expect radio_active 1
+expect page 44
+shot Speculum-Glaciei-Opening.png
+tap SEL
+spin PRESET 4
+wait 9000
+expect page 44
+expect radio_active 1
+shot Speculum-Glaciei.png
+wait 650
+shot Speculum-Glaciei-Motion.png
+tap PLAY
+wait 300
+expect radio_active 0
+expect playing 0
+expect biome 169
+spin K1 1
+expect radio_preset 10
+tap PLAY
+wait 400
+expect radio_active 1
+expect page 44
+shot Ignes-Errantes-Opening.png
+tap SEL
+spin PRESET 4
+wait 9000
+expect page 44
+expect radio_active 1
+shot Ignes-Errantes.png
+wait 650
+shot Ignes-Errantes-Motion.png
+tap PLAY
+wait 300
+expect radio_active 0
+expect playing 0
+expect biome 169
+spin K1 1
+expect radio_preset 11
+tap PLAY
+wait 400
+expect radio_active 1
+expect page 44
+shot Fungi-Lucentes-Opening.png
+tap SEL
+spin PRESET 4
+wait 9000
+expect page 44
+expect radio_active 1
+shot Fungi-Lucentes.png
+wait 650
+shot Fungi-Lucentes-Motion.png
+tap PLAY
+wait 300
+expect radio_active 0
+expect playing 0
+expect biome 169
+
+spin K1 1
+expect radio_preset 12
+tap PLAY
+wait 400
+expect radio_active 1
+expect page 44
+shot Terra-Resonans-Opening.png
+tap SEL
+spin PRESET 4
+wait 9000
+expect page 44
+expect radio_active 1
+shot Terra-Resonans.png
+wait 650
+shot Terra-Resonans-Motion.png
+tap PLAY
+wait 300
+expect radio_active 0
+expect playing 0
+expect biome 169
+
+spin K1 1
+expect radio_preset 13
+tap PLAY
+wait 400
+expect radio_active 1
+expect page 44
+shot Aer-Silens-Opening.png
+tap SEL
+spin PRESET 4
+wait 9000
+expect page 44
+expect radio_active 1
+shot Aer-Silens.png
+wait 650
+shot Aer-Silens-Motion.png
+tap PLAY
+wait 300
+expect radio_active 0
+expect playing 0
+expect biome 169
+spin K1 -13
+expect radio_settings 15
+tap REC
+expect radio_settings 13
+tap HOME
+expect page 0

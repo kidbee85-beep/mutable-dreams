@@ -1,9 +1,9 @@
-# Build Mutable Dreams 2.0 for the FM-1
+# Build Mutable Dreams 2.1 for the FM-1
 
-Use the browsable repository source tree or the 2.0 source bundle. No Git submodule download is needed. The application, selected Mutable Instruments code, fm1-base platform and felucca-bsp are vendored with their original notices.
+Use the browsable repository source tree or the 2.1 source bundle. No Git submodule download is needed. The application, selected Mutable Instruments code, fm1-base platform and felucca-bsp are vendored with their original notices.
 
 ```sh
-cd /path/to/Mutable-Dreams-2.0-Source
+cd /path/to/Mutable-Dreams-2.1-Source
 ```
 
 ## Source map
@@ -93,13 +93,13 @@ export PYTHON=/absolute/path/to/python3
 sh tools/build_device.sh --fm1-test-candidate
 ```
 
-`JIELI_TOOLCHAIN` must contain `pi32v2/` and `common/`; `AC79_SDK` must directly contain `cpu/`. The explicit private flag creates a 2.0.0-dev FM-1 application, update loader and local `.fwsc` under `app/build/`. Running the wrapper without it is refused. Building does not flash or publish. SMK-37 targets remain compile-time rejected and are deferred until FM-1 acceptance.
+`JIELI_TOOLCHAIN` must contain `pi32v2/` and `common/`; `AC79_SDK` must directly contain `cpu/`. The explicit private flag creates a 2.1.0-dev FM-1 application, update loader and local `.fwsc` under `app/build/`. Running the wrapper without it is refused. Building does not flash or publish. SMK-37 targets remain compile-time rejected and are deferred until FM-1 acceptance. The published 2.1 package (build `2467CC38`, `mutable-dreams-2.1.fwsc`) was built from this tree with the same environment and `python3 base/tools/build.py app --release 2.1`.
 
 For Apple Silicon, read [the tested build environment repair](docs/development/BUILD-ENVIRONMENT-FIX.txt) and [the preserved Blink patch](tools/toolchain-patches/blink-macos-guest-pages.patch). The qualified setup used the corrected Blink guest-page handling and interpreter mode (`-m -j`); the accelerated path failed in that setup. Do not assume a different emulator/container is qualified merely because compilation starts.
 
 ## Version and provenance
 
-The 2.0 source archive contains the build tree and a SHA-256 manifest. Run `python3 tools/verify_published_source.py` to check these files. The device and DSP sources correspond to build 4442417D. Toolchain differences can change binary outputs. The manifest verifies the source snapshot.
+The 2.1 source archive contains the build tree and a SHA-256 manifest. Run `python3 tools/verify_published_source.py` to check these files. The device and DSP sources correspond to build 2467CC38. Toolchain differences can change binary outputs. The manifest verifies the source snapshot.
 
 Use the named source ZIPs attached to the published v1.0 through v1.5 releases for those historical snapshots.
 

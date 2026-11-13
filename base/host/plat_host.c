@@ -1090,6 +1090,7 @@ static uint32_t hsx_sk;                          /* the stream's bytes not yet i
 uint32_t plat_sysex_room(void) { return hsx_session && !hsx_streaming ? (HSX_RING - hsx_q) * 3u : 0u; }
 uint32_t plat_sysex_queued(void) { return hsx_q * 3u; }
 uint32_t plat_usb_session(void) { return hsx_session; }
+int plat_usb_awake(void) { return hsx_session != 0; }   /* (the script's usb unplug / plug) */
 static void hsx_ms(void)                        /* one millisecond of USB: the computer reads */
 {
     if (!hsx_stalled)
