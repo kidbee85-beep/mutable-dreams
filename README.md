@@ -20,3 +20,9 @@ Build 2467CC38 keeps the 2.0 project and bank format. Build 2467CC38 was tested 
 Thanks to the players who tested builds and reported issues, and to the authors of the open-source DSP and platform code retained with their original notices.
 
 [Project website](https://kidbee85-beep.github.io/mutable-dreams/) · [Illustrated walkthrough](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.1-Walkthrough.pdf)
+
+## Follow and support
+
+[Instagram @mutabledreams](https://www.instagram.com/mutabledreams/) · [YouTube by Kid Bunka](https://www.youtube.com/@kidbunka) · [Mutable Dreams FM](https://kidbee85-beep.github.io/mutable-dreams/radio.html) · [Performance Garden](https://kidbee85-beep.github.io/mutable-dreams/#performance-garden)
+
+[Support development via PayPal](https://paypal.com/donate/?business=kidbee85@gmail.com). Voluntary support goes entirely into firmware updates, new firmware and synthesizer software.
