@@ -1,0 +1,9 @@
+
+.hero-visual{background:linear-gradient(145deg,#10231c77,#0b1b1bbb),url(../radio-fern.jpg) center / cover;
+  padding:clamp(1rem,3vw,2.4rem);border:1px solid #a1c7b54f;border-radius:1.7rem .65rem 1.7rem .65rem}
+.project-paths{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;padding-bottom:3rem}
+.project-paths a{display:grid;gap:.5rem;padding:1.1rem 1.25rem;border:1px solid #9fc3b44f;
+  border-radius:1rem .45rem 1rem .45rem;background:#203831;color:#e5eee5;text-decoration:none}
+.project-paths a:hover,.project-paths a:focus-visible{background:#32544a;outline:2px solid #b2e6c9;outline-offset:3px}
+.project-paths strong{font-size:1.04rem}.project-paths span{color:#d0e2d7;line-height:1.45;font-size:.92rem}
+@media(max-width:680px){.project-paths{grid-template-columns:1fr;gap:.6rem;padding-bottom:1.5rem}}
