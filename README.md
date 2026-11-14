@@ -26,3 +26,5 @@ Thanks to the players who tested builds and reported issues, and to the authors 
 [Instagram @mutabledreams](https://www.instagram.com/mutabledreams/) · [YouTube by Kid Bunka](https://www.youtube.com/@kidbunka) · [Mutable Dreams FM](https://kidbee85-beep.github.io/mutable-dreams/radio.html) · [Performance Garden](https://kidbee85-beep.github.io/mutable-dreams/#performance-garden)
 
 [Support development via PayPal](https://paypal.com/donate/?business=kidbee85@gmail.com). Voluntary support goes entirely into firmware updates, new firmware and synthesizer software.
+
+You can also try Mutable Dreams in the browser, no flashing needed, in the free community [FM-1 Emulator](https://fm1-emulator.atst.tools/).
