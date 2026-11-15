@@ -4,6 +4,17 @@ Owner-approved release, 15 November 2026. The exact final firmware is retained w
 
 Mutable Dreams 2.2 brings more of the instrument within reach while you play: a personal Live List, Tone stars, a HOME mixer, clearer performance views and musical Biome changes. The six-track generative instrument remains familiar, with 275 musical Biomes plus Blank, 640 Tones and 24 sound models.
 
+## Back up before updating
+
+**Updating can erase your Favorites and personal / User Biomes. Save them before installing.**
+
+- In the [Live Device Editor](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2.html#device-editor), export all device banks as a **.mddb** file.
+- Export your current edited live Biome separately as **JSON**; unsaved edits are not a named User Bank entry.
+- Write down or photograph your **Biome Favorites and Tone stars** separately. Do not assume the bank backup restores every preference.
+- After updating, restore the bank backup, confirm **SEL** on the FM-1 and check a known User Biome. Import the live export if needed and recreate Favorites from your notes if they were reset.
+
+See the [updated PDF manual, page 2](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2-Manual.pdf#page=2) for the illustrated backup route.
+
 ## Keep your favourites close
 
 - **Live List:** arrange up to 16 Biome references for a performance. Choose with K2 or PRESET, load with SEL and manage the current entry with REC. Blank remains directly accessible at position 00. Save sound edits to a User Biome before relying on a list reference.

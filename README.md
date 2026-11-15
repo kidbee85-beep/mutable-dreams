@@ -4,7 +4,7 @@ An independent, open-source instrument for the **M-VAVE FM-1**, by **Kid Bunka**
 
 **Six freely assignable tracks · 275 musical Biomes + Blank · 640 Tones · 24 sound models · 14 Itinera dreams**
 
-[Start here](https://kidbee85-beep.github.io/mutable-dreams/Start-here.html) · [Play the Web Studio](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2.html) · [Complete manual](https://kidbee85-beep.github.io/mutable-dreams/Manual.html) · [62-page PDF](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2-Manual.pdf) · [Installer](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2-Install.html)
+[Start here](https://kidbee85-beep.github.io/mutable-dreams/Start-here.html) · [Play the Web Studio](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2.html) · [Complete manual](https://kidbee85-beep.github.io/mutable-dreams/Manual.html) · [64-page PDF](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2-Manual.pdf) · [Installer](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2-Install.html)
 
 ## New ways to play
 
