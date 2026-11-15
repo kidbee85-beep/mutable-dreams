@@ -1,16 +1,16 @@
 {
-  "version": "1.5",
-  "identity": "FM-1_710010500",
-  "sha256": "ee5d410fc13b9861baa2336303821ccf66ec8c7143c167649886fad368198b52",
-  "what": "Six assignable synth tracks, or a Lo-Fi kit plus three synths. Explore 168 musical Biomes, 364 sounds and thirteen scales; receive BLE MIDI notes, CC and clock, shape chord journeys and generative rhythms, and play or edit in your browser.",
+  "what": "A six-track generative FM-1 synth with 275 musical Biomes, 640 Tones, a 16-position Live List, live dream macros, timed Biome changes and six USB audio stems.",
   "author": "Kid Bunka",
   "kinds": [
-    "synth",
-    "groove",
-    "drums"
+    "synth"
   ],
-  "play": "https://kidbee85-beep.github.io/mutable-dreams/",
-  "editor": "https://kidbee85-beep.github.io/mutable-dreams/#device-editor",
-  "cheat": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-1.5-Guide.pdf",
-  "image": "docs/img/screen-1.5.png"
+  "play": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2.html",
+  "editor": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2.html#device-editor",
+  "cheat": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2-Manual.pdf",
+  "image": "docs/card-2.2.png",
+  "color": "#9BC9A5",
+  "sounds": "own: original synthesized Tones, Biomes, kit sounds and demonstration recordings",
+  "version": "2.2",
+  "identity": "FM-1_710020200",
+  "sha256": "25df8be7b5d87806739e3481f0d8af371762e29051e4153cd86ce5bdae882b68"
 }

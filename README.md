@@ -1,28 +1,43 @@
-# Mutable Dreams 1.5
+# Mutable Dreams 2.2 · Played live
 
-A free, independent instrument for the M-VAVE FM-1 by **Kid Bunka**.
+An independent, open-source instrument for the **M-VAVE FM-1**, by **Kid Bunka**.
 
-**168 musical Biomes + Blank · 364 tone presets · BLE MIDI reception · six freely assigned synth tracks, or a Lo-Fi kit plus three synths.**
+**Six freely assignable tracks · 275 musical Biomes + Blank · 640 Tones · 24 sound models · 14 Itinera dreams**
 
-[Play and edit in your browser](https://mutable-dreams.kidbee85.chatgpt.site/) · [Install / return to V15](https://mutable-dreams.kidbee85.chatgpt.site/Mutable-Dreams-1.5-Install.html) · [Illustrated update guide](https://mutable-dreams.kidbee85.chatgpt.site/Mutable-Dreams-1.5-Guide.pdf) · [Release downloads](https://github.com/kidbee85-beep/mutable-dreams/releases/tag/v1.5)
+[Start here](https://kidbee85-beep.github.io/mutable-dreams/Start-here.html) · [Play the Web Studio](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2.html) · [Complete manual](https://kidbee85-beep.github.io/mutable-dreams/Manual.html) · [62-page PDF](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2-Manual.pdf) · [Installer](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2-Install.html)
 
-Version 1.5 adds twelve contrasting Biomes and twelve tones, a Wireless MIDI page, brighter organic display families, corrected echo bounds and an updater restart fix. Thank you for the community feedback that shaped these changes.
+## New ways to play
 
-## Wireless MIDI
+- **HOME Live List:** 16 ordered references to your own saved or factory Biomes, plus permanent Blank access. Name-based Tone browsing and separate Tone stars.
+- **HOME mixer and Voice Detail:** selected-track level, grain and room sends, Touch on supported voices, and a larger sound-detail view. Menus remember their pages; hold a menu key and turn SELECT to use its page wheel.
+- **Musical Biome changes:** Now, Next Bar or Track by Track. KEEP SETTING carries root, scale, transpose, tempo and chords into the next Biome.
+- **Play inside Itinera:** the 14 existing dreams gain live Density, Motion, Colour and Space offsets. SEL keeps the current Biome playing; ENV restores the project from before the dream.
+- **Darker saw colours:** Velour Nightfall, Saw Cathedral, Ember Tape Dusk and Deep Saw Tide, with eight additional Satin Morph Tones.
+- **Generated USB MIDI notes:** choose an output channel for each synth track. This release sends generated monophonic synth notes, not kit notes, incoming notes, MIDI clock or BLE/TRS output.
+- **Stability and headroom:** corrected stopped-save timing with mirroring, MIDI backpressure/note-off handling and lower effect-loop overhead. Full scope is in the [release notes](Release-Notes-2.2.md).
 
-An external BLE central, such as a Mac, can connect to the FM-1 service and send notes, controllers and transport/clock. Notes, CC74 and Start/Clock/Stop were tested on a physical FM-1, including reconnection after cold start. One BLE connection is supported. The opposite connection role, where the FM-1 links to a separate BLE peripheral, is experimental and still needs a controller test. USB and TRS input remain; physical TRS and BLE jitter measurements are not recorded in this cycle. Keyboard/sequencer MIDI output and arbitrary CC Learn are not new features of this release.
+All previous factory Biomes remain available. A Live List entry is a reference: save edited music to User Banks first. Factory ROM is not overwritten by saving a personal Biome. Journey Arrange is optional and follows each Biome's settings; ordinary generative playback remains available.
 
-## Update and recovery
+## Install, back up and return
 
-Back up .mddb User Banks and export unsaved live JSON before installation. Use our browser or Python installer; official M-UPGRADE rejects custom Mutable Dreams packages. Read [recovery instructions](docs/release-1.5/Recovery-1.5.txt). The tested package identifies as `FM-1_710010500`; SHA-256 `ee5d410fc13b9861baa2336303821ccf66ec8c7143c167649886fad368198b52`.
+Export saved banks as `.mddb` and an edited live Biome separately before an update. Use the matching installer with desktop Chrome or Edge. Keep the prior firmware and both backups for the return path. An `.mddb` is a Mutable Dreams backup, not a universal backup for other FM-1 firmware.
 
-Mutable Dreams does not import projects or sample banks saved by stock firmware or other custom firmwares. Switching firmware can replace their storage formats; export the relevant project's backup first and keep its matching firmware/restore tool. A Mutable Dreams .mddb backup is for Mutable Dreams, not a universal FM-1 backup.
+Tested binary: **23F2FA0E**, identity **FM-1_710020200**. Package SHA-256:
 
-The UC25HQ80 flash ID is included, but physical installation on that newer board is still unverified. Do not confuse static support with a tested update. This release is FM-1 only; an SMK-37 build is not included.
+`25df8be7b5d87806739e3481f0d8af371762e29051e4153cd86ce5bdae882b68`
+
+Six-track FULL/dense ECO tests with effects, MIDI and mirroring added no XRuns or USB overflows. The lowest measured ECO reserve was **12.30% in the specified tests**, not a guarantee for every patch. The owner accepted cold-start and listening tests on 15 November 2026. Exact UC25HQ80 hardware validation remains open. See [the measured scope](Release-Notes-2.2.md) before installing.
+
+This package is **FM-1 only**. SMK-37 Elite/Pro and the handheld project have separate development and hardware validation. The [MPC product preview](https://kidbee85-beep.github.io/mutable-dreams/mpc.html) and [Performance Garden for VIBE FM](https://kidbee85-beep.github.io/mutable-dreams/#performance-garden) have their own downloads and compatibility notes.
+
+## Listen and keep in touch
+
+[Mutable Dreams FM radio](https://kidbee85-beep.github.io/mutable-dreams/radio.html) · [YouTube / Kid Bunka](https://www.youtube.com/@kidbunka) · [Instagram / Mutable Dreams](https://www.instagram.com/mutabledreams/) · [Feedback and issues](https://github.com/kidbee85-beep/mutable-dreams/issues)
+
+[Support development](https://www.paypal.com/donate/?business=kidbee85%40gmail.com&item_name=Mutable%20Dreams%20development). Voluntary donations go entirely into firmware updates, new firmware and synthesizer-software projects. Thank you for playing, testing and helping this garden grow.
 
 ## Source and credits
 
-All source is browsable in this repository and at tag v1.5. See [BUILDING.md](BUILDING.md), [release notes](docs/release-1.5/Release-Notes-1.5.md), [licensing](LICENSING-GPL.txt) and [development evidence](DEVELOPMENT-NOTES-BLE.md). Earlier release tags and downloads remain available.
+Source use follows the included licenses: GPL-3.0 for the combined application, with original notices retained for selected MIT DSP and the MPL-2.0 platform. See `LICENSE`, `LICENSING-GPL.txt` and `BUILDING.md`. With thanks to the original DSP and platform contributors and to everyone who shared feedback. Mutable Dreams is independent of and not endorsed by M-VAVE or Mutable Instruments.
 
-With gratitude to Émilie Gillet, Mutable Instruments, fm1-base and felucca-bsp contributors. Selected algorithms retain their original notices; other module-inspired features are independent interpretations. Mutable Dreams is unaffiliated with and not endorsed by Mutable Instruments or M-VAVE.
-
+Direct installation from V15 and published 2.1, plus both return paths, was verified with the exact final package. A V15 return requires the saved-bank backup and separate live export; all 22 objects and the live project were restored exactly after physical SEL confirmation.
