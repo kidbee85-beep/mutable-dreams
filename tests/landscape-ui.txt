@@ -17,6 +17,8 @@ shot rhythm-a.png
 wait 700
 shot rhythm-b.png
 tap HOME
+# 2.2: buttons remember their last page; this sequence starts from the first page
+pages_reset
 tap GLO
 tap GLO
 tap GLO

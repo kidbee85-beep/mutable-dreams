@@ -1,0 +1,8 @@
+wait 3400
+# 2.2 host with d-2.1.bin: the Live List survived the 2.1 restore
+expect velocity_touch 35
+tap HOME
+tap HOME
+tap HOME
+expect live_view 3
+expect list_entry 32783

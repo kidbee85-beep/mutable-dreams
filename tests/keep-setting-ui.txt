@@ -1,0 +1,53 @@
+wait 3400
+# 2.2 development (user feedback): KEEP SETTING keeps root, scale, transpose, tempo and chords on a Biome change.
+scene 9
+wait 100
+page 9
+expect keep_setting 0
+spin K1 3
+spin K4 7
+wait 50
+expect root 11
+expect tempo 67
+tap SEL
+expect keep_setting 1
+wait 300
+shot Harmony-Keep.png
+# a Biome by hand (edits pending: the guard asks, SEL loads): character new, setting kept
+scene 272
+wait 150
+tap SEL
+wait 150
+expect biome 272
+expect root 11
+expect tempo 67
+expect scale 1
+expect pending_biome -1
+# KEEP off: the next Biome brings its own setting (Velour Nightfall: C minor, 62 BPM)
+page 9
+tap SEL
+expect keep_setting 0
+scene 9
+wait 150
+scene 272
+wait 150
+expect biome 272
+expect root 0
+expect tempo 62
+# the choice is a preference: SAVE keeps it across a cold start
+tap SEL
+expect keep_setting 1
+tap SAVE
+wait 100
+reboot
+wait 3400
+expect keep_setting 1
+page 9
+tap SEL
+tap SAVE
+wait 100
+reboot
+wait 3400
+expect keep_setting 0
+expect patch_valid 1
+expect invalid 0

@@ -5,9 +5,21 @@
 #ifdef PLAT_HOST
 #include <stdlib.h>
 #endif
-enum { LIVE,SOUND,RHYTHM,GRAIN,MIX,SYSTEM,ENVELOPE,GROOVE,TAPE,HARMONY,FILTER,APPEARANCE,MIXER,BASSLINE,SPACE,MODULATION,PHRASE,MIDI,BANKS,SEQUENCE,STEP_DETAIL,PROGRESSION,CLOUD,KIT,KIT_PAD,KIT_SEND,KIT_SEQ,SEQ_FLOW,LFO_ROUTE,LFO_ROUTE2,BT_PAGE,JOURNEY,JOURNEY_TIME,JOURNEY_KEEP,MIDI_LEARN,MIDI_MAP,LIVING_LINKS,LINK_MOTION,BIOME_DRIFT,DRIFT_SCENES,SEQ_GRID,SEQ_TOOLS,SEQ_RULES,USB_AUDIO,ITINERA,DREAM_PAGE_COUNT };
+enum { LIVE,SOUND,RHYTHM,GRAIN,MIX,SYSTEM,ENVELOPE,GROOVE,TAPE,HARMONY,FILTER,APPEARANCE,MIXER,BASSLINE,SPACE,MODULATION,PHRASE,MIDI,BANKS,SEQUENCE,STEP_DETAIL,PROGRESSION,CLOUD,KIT,KIT_PAD,KIT_SEND,KIT_SEQ,SEQ_FLOW,LFO_ROUTE,LFO_ROUTE2,BT_PAGE,JOURNEY,JOURNEY_TIME,JOURNEY_KEEP,MIDI_LEARN,MIDI_MAP,LIVING_LINKS,LINK_MOTION,BIOME_DRIFT,DRIFT_SCENES,SEQ_GRID,SEQ_TOOLS,SEQ_RULES,USB_AUDIO,ITINERA,VOICE_DETAIL,DREAM_PAGE_COUNT };
 static int journey_edit,learn_slot,link_slot;
-enum { LIVE_ATLAS, LIVE_TRACKS, LIVE_BROWSER, LIVE_VIEW_COUNT };
+/* 2.2 development: EDIT, SEQ, FX and GLO return to the page last used under that button
+ * (1-based page, 0 none; not saved), and the page line shows its place, e.g. 3/11. */
+static uint8_t page_memory[16];
+static int page_button(int page);   /* lights.c: the button a page belongs to */
+static const uint8_t page_order[]={1,10,6,4,12, 24,25,12, 2,7,13,16,19,20,27,40,41,42,31,32,33,
+ 3,8,14,15,28,29,22,36,37,38,39, 9,21,5,11,17,43,34,35,30,18,23,44};
+static const uint8_t page_group[]={5,3,13,11,12};
+/* 2.2 development: hold EDIT, SEQ, FX or GLO and turn SELECT to move through that button's pages.
+ * The release then neither steps nor opens help. Without a held button SELECT still chooses the track. */
+static int page_wheel=-1;   /* the held menu button while it turns pages, else -1 */
+static const uint8_t page_first[]={0,8,21,32};
+/* 2.2 development: HOME cycles Atlas, Large Tracks, Biomes, Live List and the large Biome view. */
+enum { LIVE_ATLAS, LIVE_TRACKS, LIVE_BROWSER, LIVE_LIST, LIVE_STAGE, LIVE_VIEW_COUNT };
 static struct { int page,track,help,dirty,octave; uint32_t btn,keys,down[NB],held,frame_at,frame_wait; char msg[32]; uint32_t msg_start; uint8_t live_view; } dream_ui;
 static int dream_store_hold;static int bank_pending=-1,bank_allow_load;
 static uint8_t keyboard_track[27],keyboard_note[27];
@@ -23,6 +35,16 @@ typedef struct { md_preferences base; md_performance_preferences performance; } 
 static md_performance_preferences performance_prefs;
 _Static_assert(sizeof(md_preferences)==156,"Stable v2 preference layout");
 _Static_assert(sizeof(md_saved_preferences)==224,"Stable preferences trailer layout");
+/* 2.2 development: the Live List and starred tones follow the 2.1 record. A 2.1 reader
+ * loads only its own 224 bytes (the store truncates to the reader's buffer), so every
+ * 2.1 preference stays readable after an update and after a return to 2.1. Written only
+ * when used, so an unused list keeps the exact 2.1 record. */
+enum { LIVE_SLOTS=16, LIVE_USER=0x8000u, TONE_STAR_BYTES=128, LIVE_PREFS_MAGIC=0x324c444du };
+typedef struct { uint32_t magic; uint16_t entry[LIVE_SLOTS]; uint8_t tone_stars[TONE_STAR_BYTES]; uint8_t midi_out[6],reserved[2]; } md_live_preferences;
+typedef struct { md_saved_preferences v21; md_live_preferences live; } md_saved_preferences_22;
+static md_live_preferences live_prefs;
+_Static_assert(sizeof(md_saved_preferences_22)==396,"Stable 2.2 Live List trailer");
+_Static_assert(MD_TONE_PRESETS<=TONE_STAR_BYTES*8,"Every tone has a star bit");
 /* These preference bits sit above all Biome IDs. Older builds ignore them. */
 enum { LOCAL_MONITOR_BIT=510, DISPLAY_POLARITY_BIT=511 };
 _Static_assert(MD_BIOMES<=LOCAL_MONITOR_BIT,"Preference bits must not overlap Biome IDs");
@@ -38,6 +60,12 @@ static int dream_inverted(void){return (performance_prefs.favorites[DISPLAY_POLA
 /* The previous reader truncates the record to its own buffer size. Keep its
  * complete 156-byte prefix so it can still read its original preferences. */
 static int dream_prefs_decode(md_preferences *out,const void *data,unsigned n){
+ if(n==sizeof(md_saved_preferences_22)){
+  md_live_preferences live;
+  memcpy(&live,(const uint8_t*)data+sizeof(md_saved_preferences),sizeof live);
+  if(live.magic!=LIVE_PREFS_MAGIC)return 0;   /* entries a later build adds are shown as empty */
+  n=sizeof(md_saved_preferences);
+ }
  if(n==sizeof(md_saved_preferences)){
   md_performance_preferences extra;
   memcpy(&extra,(const uint8_t*)data+sizeof *out,sizeof extra);
@@ -55,10 +83,15 @@ static int dream_prefs_decode(md_preferences *out,const void *data,unsigned n){
 }
 static void dream_sync_mappings(void){uint32_t f=plat_lock();for(int i=0;i<16;i++)dream_prefs.mapping[i]=*md_mapping(i);plat_unlock(f);}
 static int dream_save_preferences(void){
- md_saved_preferences saved={dream_prefs,performance_prefs};
- unsigned used=performance_prefs.touch;
+ md_saved_preferences_22 saved={{dream_prefs,performance_prefs},live_prefs};
+ unsigned used=performance_prefs.touch,listed=0;
  for(unsigned i=0;i<sizeof performance_prefs.favorites;i++)used|=performance_prefs.favorites[i];
- return plat_store_save(OBJ_PREFS,&saved,used?sizeof saved:sizeof saved.base);
+ for(unsigned i=0;i<LIVE_SLOTS;i++)listed|=live_prefs.entry[i];
+ for(unsigned i=0;i<TONE_STAR_BYTES;i++)listed|=live_prefs.tone_stars[i];
+ for(unsigned i=0;i<6;i++)listed|=live_prefs.midi_out[i];
+ listed|=live_prefs.reserved[0];
+ saved.live.magic=LIVE_PREFS_MAGIC;
+ return plat_store_save(OBJ_PREFS,&saved,listed?sizeof saved:used?sizeof saved.v21:sizeof saved.v21.base);
 }
 int md_ble_at_boot(void){return (dream_prefs.reserved&1)!=0;}
 /* A BLE central scan occupies the same radio that advertises the FM-1 to a phone.
@@ -86,7 +119,7 @@ static void toggle_display_polarity(void){
  performance_prefs.favorites[DISPLAY_POLARITY_BIT/8]^=1u<<(DISPLAY_POLARITY_BIT%8);
  app_redraw();
 }
-static uint32_t display_static_frame[3];
+static uint32_t display_static_frame[4];
 _Static_assert(240u % DREAM_TILE_ROWS == 0,"Display tiles must cover the screen");
 static const uint16_t dream_colors[6]={RGB(174,207,182),RGB(220,198,148),RGB(134,194,180),RGB(165,190,218),RGB(200,177,216),RGB(204,160,145)};
 /* A saved Biome already contains its visual seed. No new RAM or file field. */
@@ -106,7 +139,7 @@ static const uint16_t dream_palettes[11][4]={
  {RGB(247,203,118),RGB(199,234,155),RGB(237,176,178),RGB(166,216,218)},// hearth / amber
  {RGB(179,229,149),RGB(113,226,202),RGB(194,180,239),RGB(242,218,153)} // luminous moss
 };
-static const uint8_t dream_page_palette[DREAM_PAGE_COUNT]={0,1,4,2,0,5,1,4,2,3,1,0,0,4,2,3,4,5,5,4,4,3,2,6,6,2,4,4,3,3,2,7,3,10,8,5,10,7,3,8,4,3,4,2,10};
+static const uint8_t dream_page_palette[DREAM_PAGE_COUNT]={0,1,4,2,0,5,1,4,2,3,1,0,0,4,2,3,4,5,5,4,4,3,2,6,6,2,4,4,3,3,2,7,3,10,8,5,10,7,3,8,4,3,4,2,10,1};
 static const uint16_t *md_palette(void){
  unsigned palette=dream_ui.page==LIVE?(md_world_dna()>>9)%11u:dream_page_palette[dream_ui.page];
  return dream_palettes[palette];
@@ -117,18 +150,32 @@ static uint16_t md_control_ink(int x,int y,uint16_t fallback){return (y==158||y=
 #define MD_INK RGB(255,252,244)
 #define MD_DIM RGB(226,236,238)
 #define MD_EDGE RGB(106,135,145)
-static const char *dream_pages[]={"LIVE ATLAS / 2.0","SOUND","RHYTHM","GRANULAR BUS","MIX / NOTES","QUALITY / SYSTEM","ENVELOPE / BLOOM","GROOVE / REPEATS","TAPE / MOTION","HARMONY / GLOBAL","VELVET FILTER","LOOK / STARTUP","GLOBAL MIXER","BASS / MOTIFS","SHARED SPACE","MARBLES / TIDES / WARPS","PHRASE / NOTES","MIDI / PERFORMANCE","USER BANKS","SEQUENCE / 32 STEPS","STEP / EXPRESSION","CHORD JOURNEY","CLOUD / AIR","LO-FI / RACK MODE","KIT / PAD COLOUR","KIT / SENDS","KIT / 32 STEPS","SEQUENCE / FLOW","TIDAL / LFO A","TIDAL / LFO B","WIRELESS MIDI","JOURNEY / ARRANGE","JOURNEY / TIMING","JOURNEY / ANCHORS","MIDI / LEARN","MIDI / MAPPING","LIVING / LINKS","LINK / MOTION","BIOME / DRIFT","DRIFT / SCENES","SEQUENCER / GRID","SEQUENCER / TOOLS","SEQUENCER / FILL","USB AUDIO","ITINERA / BIOME RADIO"};
-static const char *dream_headings[]={"MUTABLE DREAMS","VOICE SHAPING","RHYTHM","GRANULAR CLOUD","NOTES & SEND","PERFORMANCE","BLOOM & DECAY","GROOVE","TAPE MOTION","HARMONY","VELVET FILTER","LIVING DISPLAY","MIXER","BASS & MOTIFS","SHARED SPACE","MODULATION","PHRASE","MIDI CONTROL","USER LIBRARY","YOUR SEQUENCE","STEP EXPRESSION","CHORD JOURNEY","AIR & TEXTURE","LO-FI RACK","PAD COLOUR","KIT SENDS","KIT SEQUENCE","MELODIC FLOW","TIDAL MOTION A","TIDAL MOTION B","WIRELESS MIDI","YOUR JOURNEY","TIME TO UNFOLD","KEEP A THREAD","YOUR CONTROLLERS","MAPPING DETAILS","LET TRACKS RESPOND","SHAPE THE CONNECTION","BETWEEN TWO WORLDS","CAPTURE THE ENDPOINTS","SIX TRACKS","PHRASE TOOLS","STEP RULES","DAW MONITORING","ITINERA"};
+/* 2.2: the version the build carries (tools/build.py --release X.Y[.Z][-suffix]):
+ * Show major.minor on the splash, LIVE ATLAS and QUALITY / SYSTEM. Build
+ * suffixes remain in package metadata; the display has no DEV suffix. */
+#ifndef APP_VERSION
+#define APP_VERSION "2.2"
+#endif
+static char app_version[12],live_title[24],system_title[28];
+static void app_version_init(void){
+ const char *v=APP_VERSION;unsigned i=0,dots=0;
+ while(v[i]&&i<5&&v[i]!='-'&&!(v[i]=='.'&&++dots==2)){app_version[i]=v[i];i++;}
+ app_version[i]=0;
+ memcpy(system_title,"MUTABLE DREAMS ",15);memcpy(system_title+15,app_version,sizeof app_version);
+ memcpy(live_title,"LIVE ATLAS / ",13);memcpy(live_title+13,app_version,i);live_title[13+i]=0;
+}
+static const char *dream_pages[]={live_title,"SOUND","RHYTHM","GRANULAR BUS","MIX / NOTES","QUALITY / SYSTEM","ENVELOPE / BLOOM","GROOVE / REPEATS","TAPE / MOTION","HARMONY / GLOBAL","VELVET FILTER","LOOK / STARTUP","GLOBAL MIXER","BASS / MOTIFS","SHARED SPACE","MARBLES / TIDES / WARPS","PHRASE / NOTES","MIDI / PERFORMANCE","USER BANKS","SEQUENCE / 32 STEPS","STEP / EXPRESSION","CHORD JOURNEY","CLOUD / AIR","LO-FI / RACK MODE","KIT / PAD COLOUR","KIT / SENDS","KIT / 32 STEPS","SEQUENCE / FLOW","TIDAL / LFO A","TIDAL / LFO B","WIRELESS MIDI","JOURNEY / ARRANGE","JOURNEY / TIMING","JOURNEY / ANCHORS","MIDI / LEARN","MIDI / MAPPING","LIVING / LINKS","LINK / MOTION","BIOME / DRIFT","DRIFT / SCENES","SEQUENCER / GRID","SEQUENCER / TOOLS","SEQUENCER / FILL","USB AUDIO","ITINERA / BIOME RADIO","VOICE / DETAIL"};
+static const char *dream_headings[]={"MUTABLE DREAMS","VOICE SHAPING","RHYTHM","GRANULAR CLOUD","NOTES & SEND","PERFORMANCE","BLOOM & DECAY","GROOVE","TAPE MOTION","HARMONY","VELVET FILTER","LIVING DISPLAY","MIXER","BASS & MOTIFS","SHARED SPACE","MODULATION","PHRASE","MIDI CONTROL","USER LIBRARY","YOUR SEQUENCE","STEP EXPRESSION","CHORD JOURNEY","AIR & TEXTURE","LO-FI RACK","PAD COLOUR","KIT SENDS","KIT SEQUENCE","MELODIC FLOW","TIDAL MOTION A","TIDAL MOTION B","WIRELESS MIDI","YOUR JOURNEY","TIME TO UNFOLD","KEEP A THREAD","YOUR CONTROLLERS","MAPPING DETAILS","LET TRACKS RESPOND","SHAPE THE CONNECTION","BETWEEN TWO WORLDS","CAPTURE THE ENDPOINTS","SIX TRACKS","PHRASE TOOLS","STEP RULES","DAW MONITORING","ITINERA","VOICE DETAIL"};
 static const char *help_title[NB]={"GRANULAR BUS","MUTE A TRACK","RETURN","FREEZE","CHOOSE A VOICE","SYSTEM","LIVE MACROS","SAVE","LOCK THE SEED","GENERATE RHYTHMS","PLAY / STOP","MUTATE","LOWER OCTAVE","HIGHER OCTAVE"};
 static const char *help_lines[NB][5]={
  {"ONE SHARED BUS / ALL TRACKS","K1 Mix / K2 Grain length","K3 Position / K4 Feedback","Track sends: MIXER, K2","FX again: Tape / Space / Air"},
  {"SEL: mute / unmute this track","SELECT: choose an active track","ALGO: change sound engine","Every engine fits every track.","EDIT + PRESET: sound library"},
  {"ENV: undo the last variation","REC: make a new variation","One previous variation is kept.","Choosing a Biome starts fresh.","SAVE: store the current patch"},
  {"LFO: freeze the granular memory","The cloud keeps playing.","Tracks remain live and playable.","LFO again: resume recording","FX: edit the cloud and tape"},
- {"EDIT: Sound/Filter/Env/Mix/Mixer","PRESET: 452 sound presets","ALGO: twenty sound engines","Rhythm and notes are preserved.","HOME + PRESET: Biome path"},
+ {"EDIT: Sound/Filter/Env/Mix/Mixer","EDIT + PRESET: 640 Tones","ALGO: 24 sound models","Rhythm and notes are preserved.","HOME + PRESET: Biome path"},
  {"GLO: Harmony/System/Look/MIDI/Banks","Harmony: root / scale / offset","System: tempo / quality","Look: motion / sound / LEDs","SAVE stores these preferences."},
  {"K1 DENSITY: number of events","K2 MOTION: melodic movement","K3 COLOUR: brighter / darker","K4 SPACE: granular level","PRESET: browse factory Biomes"},
- {"Stop PLAY; use internal clock.","SAVE stores Biome and preferences.","GLO > BANKS: 16 Biomes / 64 tones","Factory Biomes stay available.","Granular audio is not stored."},
+ {"Stop PLAY; use internal clock.","SAVE: live project + preferences","GLO > BANKS: name a User slot","Used slot: SAVE, then SEL","Factory Biomes stay unchanged."},
  {"ARP: lock the random seed","The same seed repeats.","REC: create a new variation","ENV: undo the last variation","Unequal lengths keep cycling."},
  {"SEQ: Rhythm > Groove > Bass","Rhythm: hits / length / rotation","K4: event probability","Groove: swing / repeats / accent","K4: individual clock division"},
  {"PLAY: start / stop","Stop lets the sound decay.","SYSTEM + REC: silence all","Keyboard: play the selected track","Start restarts the sequence."},
@@ -146,6 +193,7 @@ static int md_context_help(void){
 static int dream_cmd(int c,int t,int v){if(c==MD_MIDI_ROUTE)v=clamp(v,0,16);if(c==MD_MIDI_MACRO)v=clamp(v,0,1);uint32_t f=plat_lock();int r=md_command(c,t,v);plat_unlock(f);if(!r&&md_journey_active())app_say("STOP JOURNEY TO EDIT","");if(r&&c==MD_MIDI_ROUTE&&t>=0&&t<6)dream_prefs.midi_route[t]=v;if(r&&c==MD_MIDI_MACRO)dream_prefs.midi_macro=v;return r;}
 static int dream_install(const void *,unsigned);
 static int dream_install_edit(const void *,unsigned);
+static void midi_out_drain(void);static void list_note_user_load(int slot);static void list_invalidate_names(void); /* live_list.c */
 #include "banks.c"
 static char *md_num(int v,char *s) {char b[12];int i=0;if(v<0){*s++='-';v=-v;}do{b[i++]='0'+v%10;v/=10;}while(v);while(i)*s++=b[--i];*s=0;return s;}
 static void md_note_label(int note,char *s){
@@ -471,6 +519,8 @@ static void md_plankton(int page,int land,unsigned time){
 #include "journey_timeline.c"
 #include "sequence_view.c"
 #include "itinera_view.c"
+#include "live_list.c"
+#include "voice_detail.c"
 static void draw_legacy_plant(const md_patch *p){
  if(-cv_oy>=145||-cv_oy+(int)cv_h<=42)return;
   md_bloom_cache();
@@ -500,10 +550,13 @@ static void md_draw_all(void) {
  if(dream_ui.page==ITINERA){radio_draw();return;}
  const md_patch *p=md_state();const md_track *t=&p->track[dream_ui.track];uint16_t col=md_palette()[0];char s[24];int i;
  const int static_view=display_static_frame[0]!=0;
- if(static_view||(dream_ui.page==LIVE&&dream_ui.live_view!=LIVE_ATLAS&&dream_ui.help<0&&
-    !intro_active&&md_pending_biome()<0&&bank_pending<0)){
+ const int plain=dream_ui.help<0&&!intro_active&&md_pending_biome()<0&&bank_pending<0;
+ if(plain&&dream_ui.page==LIVE&&dream_ui.live_view==LIVE_STAGE){draw_stage();return;}
+ if(plain&&dream_ui.page==VOICE_DETAIL){draw_voice_detail(col);return;}
+ if(static_view||(dream_ui.page==LIVE&&dream_ui.live_view!=LIVE_ATLAS&&plain)){
   if(static_view)col=display_static_frame[0]>>8;
   if(dream_ui.live_view==LIVE_BROWSER){draw_biome_browser(col);return;}
+  if(dream_ui.live_view==LIVE_LIST){draw_live_list(col);return;}
   const uint32_t state=display_static_frame[1];
   const int kit=static_view?(state>>11)&1:p->kit.enabled;
   const int playing=static_view?(state>>10)&1:md_playing();
@@ -519,11 +572,14 @@ static void md_draw_all(void) {
    md_num(i+1,s);cv_text(15,y+2,&FONT_B,s,dream_colors[i]);
    cv_text(37,y+2,text_w(&FONT_B,name)>150?&FONT_H:&FONT_B,name,ink);
    cv_text(193,y+2,&FONT_B,off?"OFF":"ON",off?ink:dream_colors[i]);
+   /* 2.2: each track's level as a fader line (K1 on the selected track) */
+   cv_rect(37,y+23,150,1,MD_EDGE);cv_rect(37,y+22,clamp(p->track[i].level,0,1000)*150/1000,2,off?ink:dream_colors[i]);
   }
-  cv_text(11,212,&FONT_XS,"K4 TOUCH",MD_DIM);
-  md_num(performance_prefs.touch,s);
-  cv_text(74,212,&FONT_XS,s,col);
-  cv_text(11,225,&FONT_XS,"HOME Biomes / GLO User Banks",MD_INK);
+  {const md_track *m=&p->track[dream_ui.track];
+   const int v[4]={m->level/10,m->send/10,p->ext[dream_ui.track].reverb_send/10,performance_prefs.touch};
+   static const char *const k[4]={"LVL","GRN","ROOM","TCH"};
+   for(i=0;i<4;i++){cv_text(11+i*58,212,&FONT_XS,k[i],MD_DIM);md_num(v[i],s);cv_text(11+i*58+text_w(&FONT_XS,k[i])+4,212,&FONT_XS,s,i==3?col:dream_colors[dream_ui.track]);}}
+  cv_text(11,225,&FONT_XS,"HOME Biomes  EDIT Voice  GLO Banks",MD_INK);
   return;
  }
  if(!intro_active&&-cv_oy+(int)cv_h>39&&-cv_oy<224){
@@ -558,14 +614,17 @@ static void md_draw_all(void) {
    cv_rect(x,y,hit?2:1,hit?2:1,hit?dream_colors[track]:MD_EDGE);
   }
  }
- md_text(10,25,dream_pages[dream_ui.page],md_tint(col,MD_INK,8));md_num(md_tempo_now(),s);md_text(186,25,s,MD_INK);md_text(211,25,"BPM",MD_DIM);
+ md_text(10,25,dream_pages[dream_ui.page],md_tint(col,MD_INK,8));
+ {int at=0,start=0;const int kit=dream_ui.page==KIT_PAD||dream_ui.page==KIT_SEND;
+  for(unsigned g=0;g<sizeof page_group;g++){if(!(kit^(g==1)))for(int k=0;k<page_group[g];k++)if(page_order[start+k]==dream_ui.page){at=k+1;char *e=md_num(at,s);*e++='/';md_num(page_group[g],e);break;}start+=page_group[g];if(at)break;}
+  if(at){const int x=179-text_w(&FONT_T,s);if(10+text_w(&FONT_XS,dream_pages[dream_ui.page])+6<x)cv_text(x,27,&FONT_T,s,page_wheel>=0?col:MD_DIM);}}md_num(md_tempo_now(),s);md_text(186,25,s,MD_INK);md_text(211,25,"BPM",MD_DIM);
  if(-cv_oy+(int)cv_h<=39)return;
  if(intro_active&&(uint32_t)(plat_ms()-intro_start)<3200&&dream_ui.help<0){
   unsigned ms=plat_ms()-intro_start;
   int open=dream_prefs.motion?clamp((int)(ms/13),18,100):100;
   atlas_plate(50,47,140,105,col);
   atlas_brand_mark(98,open);
-  cv_text((240-text_w(&FONT_M,"2.0"))/2,152,&FONT_M,"2.0",MD_INK);
+  cv_text((240-text_w(&FONT_M,app_version))/2,152,&FONT_M,app_version,MD_INK);
   md_text(59,180,"THE LIVING ATLAS",col);
   char *caption=md_num(MD_BIOMES-1,s);
   memcpy(caption," BIOMES / ",10);
@@ -614,7 +673,7 @@ static void md_draw_all(void) {
   static const char *mixhelp[]={"K1: send to granular bus","K2: track base note","K3: pan left / right","K4: clock division, 1 to 8","PRESET: sound / SEL: mute"};
   static const char *lookhelp[]={"K1: screen + light movement","K2: startup sound on / off","K3: replay startup animation","K4: button LEDs off / dim / flow","SEL: invert / Stop + SAVE: keep"};
   static const char *systemhelp[]={"K1: Tempo / K2: ECO or FULL","K3: ducking recovery","K4: reset measured CPU peak","REC: panic / clear tape","GLO: animation and startup"};
-  static const char *harmonyhelp[]={"K1: root note C to B","K2: one of thirteen scales","K3: transpose +/-24 semitones","K4: tempo for all tracks","GLO: continue to System"};
+  static const char *harmonyhelp[]={"K1 root / K2 scale (voices follow)","K3 transpose / K4 tempo","SEL: keep setting on Biome change","REC: change now / bar / by track","SAVE keeps both choices"};
   static const char *filterhelp[]={"K1: cutoff, 60 to 18000 Hz","K2: resonance at the cutoff","K3: OFF / LP12 / LP24 / LPG","K4: slow filter movement","LPG darkens with the decay"};
   static const char *envhelp[]={"K1: attack up to 8 seconds","K2: decay up to 16 seconds","Melodic voices can hold MIDI","K3: level / K4: grain send","Percussion: engine-shaped tail"};
   static const char *groovehelp[]={"K1: global swing (0-60)","K2: 1-4 repeats per hit","K3: accent / K4: clock division","Repeats divide one step.","SEQ: return to hits / length"};
@@ -642,7 +701,7 @@ static void md_draw_all(void) {
    {"K1 step 1-16 / K2 semitones","-1 is a rest; scale still applies","K3 accent / K4 probability","Bass page: enable this phrase","STEP mode ignores Euclidean gates."},
    {"K1 clock: Internal / USB / TRS / BLE","K2 input scale snap on / off","K3 selected track: Off / CH 1-16","K4 CH16 CC16-19 macro shortcut","Save preferences with SAVE."},
    {"K1: slot / K2: Biome or Tone","K3 load / K4 name cursor","SAVE: save; repeat to overwrite","Stop first; use internal clock","PRESET: edit name character"},
-   {"K1 enable / K2 select step","K3 note (23=rest) / K4 length","REC: STEP entry > LIVE > OFF","Play keys or MIDI CH 1-6","RAM only; stop + SAVE to keep"},
+   {"K1 enable / K2 select step","K3 note (23=rest) / K4 length","REC: STEP entry > LIVE > OFF","MIDI channels: GLO > MIDI, K3","RAM only; stop + SAVE to keep"},
    {"K1 velocity / K2 gate length","K3 chance for this step","K4: sparse / arp / pulse / drift","Generator replaces this track","ENV undo / REC arms note entry"},
    {"K1 four-chord progression","K2 bars per chord (1-8)","K3 selected track follows","K4 tonic / HARMONY sets scale","Slow chords; no extra voices"},
    {"K1 noise into the SHARED tape","K2 SHARED granular return","K3 SELECTED track grain send","K4 freeze the SHARED memory","Noise and sends stop in freeze"}};
@@ -678,12 +737,16 @@ static void md_draw_all(void) {
   if(dream_ui.page==LINK_MOTION)lines=linkmotionhelp;
   if(dream_ui.page==BIOME_DRIFT)lines=drifthelp;
   if(dream_ui.page==DRIFT_SCENES)lines=scenehelp;
-  static const char *bankhelp[]={"K1 slot / K2 Biomes or Sounds","K4 cursor / PRESET changes letter","K3 right: load / SAVE: store","REC: clear slot / SEL: confirm","Stop playback; use internal clock"};
+  static const char *bankhelp[]={"K1 slot / K2 Biome or Tone","K4 cursor / PRESET: name letter","SAVE: store / used slot: SEL","K3 right: load / REC: clear","Stop; use internal MIDI clock"};
   if(dream_ui.page==BANKS)lines=bankhelp;
-  static const char *trackshelp[]={"HOME: Atlas / Tracks / Biomes","SELECT: track / SEL: mute","K4: Touch for Bow / Aero / Felt","GLO from Tracks: User Banks","Stop + SAVE to keep Touch"};
-  static const char *browsehelp[]={"K1: Family / Favorites","K2 or PRESET: choose Biome","SEL: load / REC: favorite","Stop + SAVE: keep favorites","HOME: Itinera / GLO: User Banks"};
+  static const char *trackshelp[]={"HOME: Tracks/Biomes/List/Stage","SELECT: track / SEL: mute","K1 level / K2 grain / K3 room","K4 Touch / EDIT: voice detail","Stop + SAVE keeps Touch; GLO: Banks"};
+  static const char *browsehelp[]={"K1: Family / Favorites","K2 or PRESET: choose Biome","SEL: load / REC: favorite","Stop + SAVE: keep favorites","HOME: Live List / GLO: Banks"};
+  static const char *listhelp[]={"K1 List/Tones/Starred; K2 row","K3 source / SEL: load","REC: take live Biome / star Tone","SAVE: list/stars, not sound edits","GLO: name and save a User Biome"};
+  static const char *stagehelp[]={"The live Biome, full screen","K1-K4: live macros as Atlas","SEL: mute / PRESET: next Biome","HOME: back to the Atlas","LOOK K1 MOTION: STILL saves load"};
   if(dream_ui.page==LIVE){
    if(dream_ui.live_view==LIVE_BROWSER)lines=browsehelp;
+   else if(dream_ui.live_view==LIVE_LIST)lines=listhelp;
+   else if(dream_ui.live_view==LIVE_STAGE)lines=stagehelp;
    else if(dream_ui.help==B_HOME||(dream_ui.live_view==LIVE_TRACKS&&dream_ui.help==B_GLO))lines=trackshelp;
   }
   for(i=0;i<5;i++){
@@ -809,7 +872,8 @@ static void md_draw_all(void) {
    md_text(12,130,"AIR ENTERS TAPE / FREEZE HOLDS",MD_DIM);
    md_value(8,158,"K1 ALL: AIR",p->grain_noise/10,col);md_value(124,158,"K2 ALL: SPACE",p->macro[3]/10,col);md_value(8,194,"K3 THIS: SEND",t->send/10,col);md_named(124,194,"K4 ALL: FREEZE",p->freeze?"ON":"OFF",col);
   }else if(dream_ui.page==MIDI){
-   md_text(12,65,"MIDI INPUT: OFF OR CH 1-16",MD_INK);md_text(12,94,"VELOCITY / SUSTAIN / +/-2 BEND",MD_DIM);md_text(12,120,"CC7 LEVEL / 74 FILTER / 91 ROOM",MD_DIM);
+   md_text(12,65,"MIDI INPUT: OFF OR CH 1-16",MD_INK);md_text(12,94,"VELOCITY / SUSTAIN / BEND / CC7 74 91",MD_DIM);
+   {char out[]="PRESET: T1 NOTES OUT USB OFF  ";out[9]='1'+dream_ui.track;const int ch=md_midi_out_channel(dream_ui.track);if(ch){memcpy(out+25,"CH ",3);md_num(ch,out+28);}md_text(12,120,out,ch?col:MD_DIM);}
    md_named(8,158,"K1 CLOCK",md_clock_source()==0?"INTERNAL":md_clock_source()==1?"USB":md_clock_source()==2?"TRS":"BLE",col);md_named(124,158,"K2 SCALE SNAP",md_midi_quantize()?"ON":"OFF",col);
    char route_label[12];if(md_midi_route(dream_ui.track)){memcpy(route_label,"CH ",3);md_num(md_midi_route(dream_ui.track),route_label+3);}else memcpy(route_label,"OFF",4);
    md_named(8,194,"K3 MIDI IN",route_label,col);md_named(124,194,"K4 CH16 MACROS",md_midi_macro_enabled()?"ON":"OFF",col);
@@ -872,7 +936,7 @@ static void md_draw_all(void) {
   md_text(12,141,p->kit.enabled&&dream_ui.track==3?md_kit_name(p->kit.bank):md_tone_name(p->tone_preset[dream_ui.track]),col);md_text(140,141,md_biome_family(p->biome_id),MD_DIM);
   const char *labels[]={"K1 DENSITY","K2 MOTION","K3 COLOUR","K4 SPACE"};for(i=0;i<4;i++)md_value(8+(i%2)*116,158+(i/2)*36,labels[i],p->macro[i]/10,dream_colors[i]);
  } else if(dream_ui.page==SYSTEM) {
-  md_text(10,48,"MUTABLE DREAMS 2.0 DEV",MD_INK);md_text(10,69,md_quality_active()?"FULL  24 MODES / 4 GRAINS":p->quality?"ECO NOW, FULL KEPT FOR NEXT":"ECO / ADAPTIVE MODES / 2 GRAINS",col);
+  md_text(10,48,system_title,MD_INK);md_text(10,69,md_quality_active()?"FULL  24 MODES / 4 GRAINS":p->quality?"ECO NOW, FULL KEPT FOR NEXT":"ECO / ADAPTIVE MODES / 2 GRAINS",col);
   md_text(10,93,"LOAD / MAX %",MD_DIM);
 #ifdef PLAT_HOST
   md_text(139,93,"HOST ONLY",MD_INK);
@@ -909,7 +973,9 @@ static void md_draw_all(void) {
  } else if(dream_ui.page==HARMONY) {
   static const char *notes[]={"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};
   cv_text(24,60,&FONT_M,notes[p->root],col);cv_text(76,68,&FONT_B,md_scale_name(p->scale),MD_INK);
-  md_text(12,108,"MELODIC VOICES FOLLOW SCALE",MD_DIM);md_text(12,130,"GLO AGAIN: CHORD JOURNEY",MD_DIM);
+  {char chord[32]="CHORDS: ";const char *n=md_chord_name(p->chord_pattern);int j=8;while(*n&&j<31)chord[j++]=*n++;chord[j]=0;md_text(12,108,chord,MD_INK);}
+  md_text(12,124,md_keep_setting()?"SEL: KEEP SETTING ON":"SEL: KEEP SETTING OFF",md_keep_setting()?col:MD_DIM);   /* 2.2: on a Biome change */
+  {static const char *change[]={"REC: CHANGE NOW","REC: CHANGE NEXT BAR","REC: CHANGE TRACK BY TRACK"};md_text(12,140,change[md_biome_change()],md_biome_change()?col:MD_DIM);}
   md_named(8,158,"K1 ROOT",notes[p->root],col);md_named(124,158,"K2 SCALE",md_scale_name(p->scale),col);
   md_value_span(8,194,"K3 TRANSPOSE",p->transpose,-24,24,col);md_value_span(124,194,"K4 TEMPO",p->tempo,30,220,col);
  } else {
@@ -1009,7 +1075,7 @@ static void md_draw_all(void) {
   else if(dream_ui.page==SEQ_RULES)md_text(10,226,"SEL FILL / SEQ JOURNEY / HOLD HELP",MD_DIM);
   else if(dream_ui.page>=JOURNEY&&dream_ui.page<=JOURNEY_KEEP)md_text(10,226,"PRESET: SECTION BIOME / HOLD SEQ",MD_DIM);
   else if(dream_ui.page==LIVE)md_text(10,226,"PRESET: BIOME  /  HOLD HOME: ITINERA",MD_DIM);
-  else md_text(10,226,(dream_ui.page>=KIT&&dream_ui.page<=KIT_SEQ)?"PRESET: PAD  /  HOLD: HELP":(dream_ui.page==SOUND||dream_ui.page==FILTER||dream_ui.page==ENVELOPE||dream_ui.page==MIX||dream_ui.page==MIXER||dream_ui.page==BASSLINE||dream_ui.page==MODULATION||dream_ui.page==LFO_ROUTE||dream_ui.page==LFO_ROUTE2||dream_ui.page==SEQ_FLOW||(dream_ui.page==PHRASE||dream_ui.page==SEQUENCE||dream_ui.page==STEP_DETAIL))?"PRESET: TONE  /  HOLD: HELP":"PRESET: BIOME  /  HOLD: HELP",MD_DIM);
+  else md_text(10,226,dream_ui.page==MIDI?"PRESET: NOTES OUT  /  HOLD: HELP":(dream_ui.page>=KIT&&dream_ui.page<=KIT_SEQ)?"PRESET: PAD  /  HOLD: HELP":(dream_ui.page==SOUND||dream_ui.page==FILTER||dream_ui.page==ENVELOPE||dream_ui.page==MIX||dream_ui.page==MIXER||dream_ui.page==BASSLINE||dream_ui.page==MODULATION||dream_ui.page==LFO_ROUTE||dream_ui.page==LFO_ROUTE2||dream_ui.page==SEQ_FLOW||(dream_ui.page==PHRASE||dream_ui.page==SEQUENCE||dream_ui.page==STEP_DETAIL))?"PRESET: TONE  /  HOLD: HELP":"PRESET: BIOME  /  HOLD: HELP",MD_DIM);
  }
 }
 void app_say(const char *a,const char *b) {unsigned i=0;(void)b;while(a&&a[i]&&i<31){dream_ui.msg[i]=a[i];i++;}dream_ui.msg[i]=0;dream_ui.msg_start=plat_ms();dream_ui.dirty=1;ann_say(dream_ui.msg,0,ANN_NOW);}
@@ -1019,14 +1085,21 @@ void app_init(void) {
  performance_prefs=(md_performance_preferences){.version=1};
  browse_filter=0;
  browse_position=0;
- md_saved_preferences prefs;
+ memset(&live_prefs,0,sizeof live_prefs);live_prefs.magic=LIVE_PREFS_MAGIC;
+ md_saved_preferences_22 prefs;
  int pref_bytes=plat_store_load(OBJ_PREFS,&prefs,sizeof prefs);
- if(pref_bytes>0&&dream_prefs_decode(&dream_prefs,&prefs,pref_bytes)&&pref_bytes==sizeof prefs)
-  performance_prefs=prefs.performance;
+ if(pref_bytes>0&&dream_prefs_decode(&dream_prefs,&prefs,pref_bytes)){
+  if(pref_bytes>=(int)sizeof prefs.v21)performance_prefs=prefs.v21.performance;
+  if(pref_bytes==(int)sizeof prefs)live_prefs=prefs.live;
+ }
+ live_list_reset();
+ for(unsigned i=0;i<6;i++)md_set_midi_out(i,live_prefs.midi_out[i]<=16?live_prefs.midi_out[i]:0);
+ md_set_keep_setting(live_prefs.reserved[0]&1u);
+ md_set_biome_change((live_prefs.reserved[0]>>1)&3u);
  set_local_monitor((performance_prefs.favorites[LOCAL_MONITOR_BIT/8]>>(LOCAL_MONITOR_BIT%8))&1);
  md_set_velocity_touch(performance_prefs.touch);
  for(int i=0;i<6;i++)md_set_midi_route(i,dream_prefs.midi_route[i]);md_set_midi_macro_enabled(dream_prefs.midi_macro);for(int i=0;i<16;i++)md_set_mapping(i,&dream_prefs.mapping[i]);
- intro_pending=1;intro_active=chime_left=0;pulse_active=0;md_gain=0;radio_preset=0;memset(radio_saved,0,sizeof radio_saved);memset(&radio_view,0,sizeof radio_view);memset(&dream_ui,0,sizeof dream_ui);dream_ui.help=-1;
+ app_version_init();intro_pending=1;intro_active=chime_left=0;pulse_active=0;md_gain=0;radio_preset=0;memset(radio_saved,0,sizeof radio_saved);memset(&radio_view,0,sizeof radio_view);memset(&dream_ui,0,sizeof dream_ui);dream_ui.help=-1;
  int bytes=plat_store_load(OBJ_PATCH,&bank_patch_io,sizeof bank_patch_io);if(bytes>0)md_import(&bank_patch_io,(unsigned)bytes);
 }
 void app_render(int32_t *lr,uint32_t n,uint32_t master) {
@@ -1087,6 +1160,26 @@ int app_ble_save_later(void) {return md_playing();}
 /* From the audio interrupt (main_fm1.c), right after the render it belongs to: ECO for this render owner and
  * nothing else. dream_cmd could reach app_say and the announcer's SysEx ring, whose writer is the main loop. */
 void app_overload(void) {overloads++;md_overload();} /* F-3: ECO for the render, not the saved quality */
+static int page_wheel_move(int d){
+ const int kit=dream_ui.page==KIT_PAD||dream_ui.page==KIT_SEND;
+ int start=0;
+ for(unsigned g=0;g<sizeof page_group;g++){
+  const int n=page_group[g];
+  if(!(kit^(g==1)))for(int k=0;k<n;k++)if(page_order[start+k]==dream_ui.page){
+   int at=((k+d)%n+n)%n;
+   if(page_order[start+at]==ITINERA)at=((at+(d>0?1:-1))%n+n)%n;
+   dream_ui.page=page_order[start+at];return 1;
+  }
+  start+=n;
+ }
+ return 0;
+}
+static int page_recall(int b){
+ const int at=page_memory[b]-1;
+ if(at<0||page_button(dream_ui.page)==b||(b==B_GLO&&dream_ui.page==ITINERA))return 0; /* Itinera sits in GLO's cycle */
+ if(at>=KIT_PAD&&at<=KIT_SEQ&&!(md_state()->kit.enabled&&dream_ui.track==3))return 0;
+ dream_ui.page=at;return 1;
+}
 static void md_tap(int b) {
  if(md_pending_biome()>=0||bank_pending>=0){
   if(b==B_SEL){if(bank_pending>=0){bank_slot=bank_pending;bank_kind=0;bank_pending=-1;bank_allow_load=1;bank_action(0);bank_allow_load=0;}else dream_cmd(MD_SCENE_CONFIRM,0,1);}
@@ -1100,24 +1193,31 @@ static void md_tap(int b) {
  const md_patch *p=md_state();switch(b){
  case B_HOME:
   bank_armed=-1;
-  if(dream_ui.page==LIVE&&dream_ui.live_view==LIVE_BROWSER){dream_ui.page=ITINERA;break;}
-  dream_ui.live_view=dream_ui.page==LIVE?(dream_ui.live_view+1)%LIVE_VIEW_COUNT:LIVE_ATLAS;
+  /* 2.2: Atlas, Large Tracks, Biomes, Live List, large Biome view, then the Atlas again.
+   * Itinera: hold HOME (as before) or GLO. From the voice detail back to Large Tracks. */
+  if(dream_ui.page==VOICE_DETAIL)dream_ui.live_view=LIVE_TRACKS;
+  else dream_ui.live_view=dream_ui.page==LIVE?(dream_ui.live_view+1)%LIVE_VIEW_COUNT:LIVE_ATLAS;
   dream_ui.page=LIVE;
   if(dream_ui.live_view==LIVE_BROWSER)browse_open(p->biome_id);
-  else app_say(dream_ui.live_view==LIVE_TRACKS?"LARGE TRACKS":"LIVE ATLAS","");
+  else if(dream_ui.live_view==LIVE_LIST)list_open();
+  else {if(dream_ui.live_view==LIVE_STAGE)stage_biome=-2;app_say(dream_ui.live_view==LIVE_TRACKS?"LARGE TRACKS":dream_ui.live_view==LIVE_STAGE?"":"LIVE ATLAS","");}
   break;
- case B_EDIT:if(p->kit.enabled&&(dream_ui.track==3||(dream_ui.page>=KIT&&dream_ui.page<=KIT_SEQ))){dream_ui.track=3;dream_ui.page=dream_ui.page==KIT_PAD?KIT_SEND:dream_ui.page==KIT_SEND?MIXER:KIT_PAD;break;}dream_ui.page=dream_ui.page==SOUND?FILTER:dream_ui.page==FILTER?ENVELOPE:dream_ui.page==ENVELOPE?MIX:dream_ui.page==MIX?MIXER:SOUND;break;
+ case B_EDIT:if(dream_ui.page==LIVE&&dream_ui.live_view==LIVE_TRACKS){dream_ui.page=VOICE_DETAIL;break;}
+  if(page_recall(b))break;
+  if(p->kit.enabled&&(dream_ui.track==3||(dream_ui.page>=KIT&&dream_ui.page<=KIT_SEQ))){dream_ui.track=3;dream_ui.page=dream_ui.page==KIT_PAD?KIT_SEND:dream_ui.page==KIT_SEND?MIXER:KIT_PAD;break;}dream_ui.page=dream_ui.page==SOUND?FILTER:dream_ui.page==FILTER?ENVELOPE:dream_ui.page==ENVELOPE?MIX:dream_ui.page==MIX?MIXER:SOUND;break;
  case B_SEQ:
+  if(page_recall(b))break;
   if(dream_ui.page==SEQ_FLOW||dream_ui.page==KIT_SEQ){dream_ui.page=SEQ_GRID;break;}
   if(dream_ui.page==SEQ_GRID){dream_ui.page=SEQ_TOOLS;break;}
   if(dream_ui.page==SEQ_TOOLS){dream_ui.page=SEQ_RULES;break;}
   if(dream_ui.page==SEQ_RULES){dream_ui.page=JOURNEY;break;}
   if(dream_ui.page>=JOURNEY&&dream_ui.page<=JOURNEY_KEEP){dream_ui.page=dream_ui.page==JOURNEY?JOURNEY_TIME:dream_ui.page==JOURNEY_TIME?JOURNEY_KEEP:RHYTHM;break;}if(p->kit.enabled&&dream_ui.track==3){dream_ui.page=KIT_SEQ;break;}dream_ui.page=dream_ui.page==RHYTHM?GROOVE:dream_ui.page==GROOVE?BASSLINE:dream_ui.page==BASSLINE?PHRASE:dream_ui.page==PHRASE?SEQUENCE:dream_ui.page==SEQUENCE?STEP_DETAIL:dream_ui.page==STEP_DETAIL?SEQ_FLOW:RHYTHM;break;
- case B_FX:dream_ui.page=dream_ui.page==GRAIN?TAPE:dream_ui.page==TAPE?SPACE:dream_ui.page==SPACE?MODULATION:dream_ui.page==MODULATION?LFO_ROUTE:dream_ui.page==LFO_ROUTE?LFO_ROUTE2:dream_ui.page==LFO_ROUTE2?CLOUD:dream_ui.page==CLOUD?LIVING_LINKS:dream_ui.page==LIVING_LINKS?LINK_MOTION:dream_ui.page==LINK_MOTION?BIOME_DRIFT:dream_ui.page==BIOME_DRIFT?DRIFT_SCENES:GRAIN;break;
+ case B_FX:if(page_recall(b))break;dream_ui.page=dream_ui.page==GRAIN?TAPE:dream_ui.page==TAPE?SPACE:dream_ui.page==SPACE?MODULATION:dream_ui.page==MODULATION?LFO_ROUTE:dream_ui.page==LFO_ROUTE?LFO_ROUTE2:dream_ui.page==LFO_ROUTE2?CLOUD:dream_ui.page==CLOUD?LIVING_LINKS:dream_ui.page==LIVING_LINKS?LINK_MOTION:dream_ui.page==LINK_MOTION?BIOME_DRIFT:dream_ui.page==BIOME_DRIFT?DRIFT_SCENES:GRAIN;break;
  case B_GLO:
   if(dream_ui.page==LIVE&&dream_ui.live_view!=LIVE_ATLAS){
    bank_kind=0;bank_slot=clamp(bank_slot,0,15);bank_armed=-1;dream_ui.page=BANKS;break;
   }
+  if(page_recall(b))break;
   dream_ui.page=dream_ui.page==HARMONY?PROGRESSION:dream_ui.page==PROGRESSION?SYSTEM:dream_ui.page==SYSTEM?APPEARANCE:dream_ui.page==APPEARANCE?MIDI:dream_ui.page==MIDI?USB_AUDIO:dream_ui.page==USB_AUDIO?MIDI_LEARN:dream_ui.page==MIDI_LEARN?MIDI_MAP:dream_ui.page==MIDI_MAP?BT_PAGE:dream_ui.page==BT_PAGE?BANKS:dream_ui.page==BANKS?KIT:dream_ui.page==KIT?ITINERA:HARMONY;break;
  case B_SEL:
   if(dream_ui.page==BANKS&&bank_armed>=0){
@@ -1129,11 +1229,15 @@ static void md_tap(int b) {
   }
   if(dream_ui.page==ITINERA)break;
   if(dream_ui.page==APPEARANCE){toggle_display_polarity();break;}
+  if(dream_ui.page==HARMONY){   /* 2.2: KEEP SETTING (saved with SAVE) */
+   live_prefs.reserved[0]^=1u;uint32_t lock=plat_lock();md_set_keep_setting(live_prefs.reserved[0]&1u);plat_unlock(lock);
+   app_say(live_prefs.reserved[0]&1u?"BIOMES KEEP THIS SETTING":"BIOMES BRING THEIR SETTING","");dream_ui.dirty=1;break;}
   // F-6: an external clock's tempo is the transport's; SEL here keeps it as the project's.
   if(dream_ui.page==MIDI&&md_clock_source()&&md_tempo_now()!=p->tempo){dream_cmd(MD_TEMPO,0,md_tempo_now());app_say("CLOCK TEMPO KEPT","");break;}
   if(dream_ui.page==SEQ_TOOLS){sequence_apply();break;}
   if(dream_ui.page==SEQ_RULES){if(md_playing())dream_cmd(MD_FILL,0,-1);else app_say("PLAY TO QUEUE FILL","");break;}
   if(dream_ui.page==SEQ_GRID){dream_ui.page=p->kit.enabled&&dream_ui.track==3?KIT_SEQ:SEQUENCE;dream_ui.dirty=1;break;}
+  if(dream_ui.page==LIVE&&dream_ui.live_view==LIVE_LIST){list_select();break;}
   if(dream_ui.page==LIVE&&dream_ui.live_view==LIVE_BROWSER){
    int id=browse_biome();
    if(id>=0&&id!=p->biome_id&&dream_cmd(MD_SCENE,0,id))app_say(md_biome_name(id),"");
@@ -1144,10 +1248,13 @@ static void md_tap(int b) {
    dream_cmd(MD_ITINERA_START,radio_preset,radio_settings());
   }else dream_cmd(MD_PLAY,0,!md_playing());
   break;case B_ARP:dream_cmd(MD_LOCK,0,!p->locked);break;
- case B_REC:if(dream_ui.page==ITINERA){radio_saved[radio_preset]=0;break;}if(dream_ui.page==BANKS){bank_action(BANK_CLEAR_ASK);break;}
+ case B_REC:if(dream_ui.page==ITINERA){radio_saved[radio_preset]=0;break;}if(dream_ui.page==HARMONY){   /* 2.2: BIOME CHANGE (saved with SAVE) */
+   const unsigned m=(((live_prefs.reserved[0]>>1)&3u)+1u)%3u;live_prefs.reserved[0]=(uint8_t)((live_prefs.reserved[0]&~6u)|(m<<1));
+   uint32_t lock=plat_lock();md_set_biome_change((int)m);plat_unlock(lock);
+   app_say(m==0?"BIOMES CHANGE AT ONCE":m==1?"BIOMES CHANGE ON THE BAR":"BIOMES HAND OVER TRACK BY TRACK","");dream_ui.dirty=1;break;}if(dream_ui.page==BANKS){bank_action(BANK_CLEAR_ASK);break;}
  if(dream_ui.page==SEQ_TOOLS){app_say("OPEN TRACK TO RECORD","");break;}
  if(dream_ui.page==SEQ_GRID||dream_ui.page==SEQ_RULES){dream_cmd(MD_RECORD,dream_ui.track,(md_record_mode()+1)%3);break;}
- if(dream_ui.page==LIVE&&dream_ui.live_view==LIVE_BROWSER){browse_toggle_favorite();break;}if(dream_ui.page==MIDI_LEARN||dream_ui.page==MIDI_MAP){dream_cmd(MD_LEARN_CLEAR,learn_slot,0);break;}if(dream_ui.page==KIT_SEQ){dream_cmd(MD_RECORD,3,(md_record_mode()+1)%3);break;}if((dream_ui.page>=KIT&&dream_ui.page<=KIT_SEQ)){dream_cmd(MD_KIT_TRIGGER,3,p->kit.pad);break;}if(dream_ui.page==SEQUENCE||dream_ui.page==STEP_DETAIL||dream_ui.page==SEQ_FLOW){dream_cmd(MD_RECORD,dream_ui.track,(md_record_mode()+1)%3);break;}dream_cmd((dream_ui.page==SYSTEM||dream_ui.page==MIDI)?MD_PANIC:MD_MUTATE,0,0);break;case B_ENV:dream_cmd(MD_RETURN,0,0);break;
+ if(dream_ui.page==LIVE&&dream_ui.live_view==LIVE_BROWSER){browse_toggle_favorite();break;}if(dream_ui.page==LIVE&&dream_ui.live_view==LIVE_LIST){list_record();break;}if(dream_ui.page==MIDI_LEARN||dream_ui.page==MIDI_MAP){dream_cmd(MD_LEARN_CLEAR,learn_slot,0);break;}if(dream_ui.page==KIT_SEQ){dream_cmd(MD_RECORD,3,(md_record_mode()+1)%3);break;}if((dream_ui.page>=KIT&&dream_ui.page<=KIT_SEQ)){dream_cmd(MD_KIT_TRIGGER,3,p->kit.pad);break;}if(dream_ui.page==SEQUENCE||dream_ui.page==STEP_DETAIL||dream_ui.page==SEQ_FLOW){dream_cmd(MD_RECORD,dream_ui.track,(md_record_mode()+1)%3);break;}dream_cmd((dream_ui.page==SYSTEM||dream_ui.page==MIDI)?MD_PANIC:MD_MUTATE,0,0);break;case B_ENV:dream_cmd(MD_RETURN,0,0);break;
  case B_LFO:dream_cmd(MD_FREEZE,0,!p->freeze);break;
  case B_OCTDN:dream_ui.octave=clamp(dream_ui.octave-1,-2,2);break;case B_OCTUP:dream_ui.octave=clamp(dream_ui.octave+1,-2,2);break;
  case B_SAVE:if(dream_store_hold){app_say("USB BACKUP IN PROGRESS","");break;}if(dream_ui.page==BANKS){bank_action(1);break;}if(md_playing())app_say("STOP BEFORE SAVING","");else if(md_clock_source())app_say("USE INTERNAL CLOCK TO SAVE","");else {
@@ -1160,14 +1267,21 @@ static void md_tap(int b) {
    app_say(dream_save_preferences()?"SAVE FAILED":"FAVORITES SAVED","");
    break;
   }
+  if(dream_ui.page==LIVE&&dream_ui.live_view==LIVE_LIST){
+   const int failed=dream_save_preferences();
+   if(!failed){list_dirty=0;list_serial++;}
+   app_say(failed?"SAVE FAILED":list_mode==LIST_BIOMES?"LIVE LIST SAVED":"TONE STARS SAVED","");
+   break;
+  }
   uint32_t f=plat_lock();
   bank_patch_io=*md_project_state();
   plat_unlock(f);
+  md_patch_portable(&bank_patch_io); /* 2.2: the saved project stays readable by 2.1 */
   int failed=plat_store_save(OBJ_PATCH,&bank_patch_io,sizeof bank_patch_io);
   if(!failed)failed=dream_save_preferences();
   // Hash the image that reached flash, not the live patch: a MIDI edit
   // during the write must stay unsaved.
-  if(!failed){f=plat_lock();md_mark_saved_from(&bank_patch_io);plat_unlock(f);}
+  if(!failed){f=plat_lock();md_adopt_portable();md_mark_saved_from(&bank_patch_io);plat_unlock(f);}
   app_say(failed?"SAVE FAILED":"BIOME + PREFS SAVED","");
  }break;
  }
@@ -1184,18 +1298,22 @@ void app_input_only(void) {
  uint32_t lock=plat_lock();
  const int was_radio=radio_view.active;
  const unsigned old_chapter=radio_view.chapter;
+ const int old_biome=radio_view.biome;
  md_itinera_read(&radio_view);
  plat_unlock(lock);
  if(radio_view.active){
   const unsigned released=dream_ui.btn&~btn;
   dream_ui.page=ITINERA;dream_ui.help=-1;radio_preset=radio_view.preset;
-  if(!was_radio||old_chapter!=radio_view.chapter){radio_activity=now;dream_ui.dirty=1;}
+  if(!was_radio)radio_knob_at=0;
+  if(!was_radio||old_chapter!=radio_view.chapter||old_biome!=radio_view.biome){radio_activity=now;dream_ui.dirty=1;}
   dream_ui.btn=btn;dream_ui.keys=keys;dream_ui.held=0;
-  for(b=0;b<7;b++)plat_enc(b);
+  for(b=0;b<7;b++)if((d=plat_enc(b))&&b>=EN_K1)radio_nudge(b-EN_K1,d);   /* 2.2: K1-K4 shape the dream */
   if(released&(1u<<B_PLAY))dream_cmd(MD_PLAY,0,0);
+  if((released&(1u<<B_SEL))&&dream_cmd(MD_PLAY,0,2))radio_kept=1;   /* 2.2: keep this Biome (LIVE when the dream has ended) */
   return;
  }
  if(was_radio){
+  if(radio_kept){radio_kept=0;dream_ui.page=LIVE;dream_ui.live_view=0;app_say(md_biome_name(md_state()->biome_id),"");}
   dream_ui.dirty=1;
   dream_ui.btn=btn;dream_ui.keys=keys;
  }
@@ -1217,16 +1335,30 @@ void app_input_only(void) {
   return;
  }
  if(dream_ui.track>=md_active_tracks())dream_ui.track=md_active_tracks()-1;
- if((d=plat_enc(EN_SELECT))){dream_dismiss_intro();dream_ui.track=clamp(dream_ui.track+d,0,md_active_tracks()-1);bank_armed=-1;}
- if((d=plat_enc(EN_ALGO))&&!(p->kit.enabled&&dream_ui.track==3)){dream_dismiss_intro();dream_cmd(MD_MODEL,dream_ui.track,clamp(p->track[dream_ui.track].model+d,0,MD_MODELS-1));dream_ui.page=SOUND;}
+ {static const uint8_t menu[4]={B_EDIT,B_SEQ,B_FX,B_GLO};
+  int held=-1;for(int m=0;m<4;m++)if(btn>>menu[m]&1)held=m;
+  if(page_wheel>=0&&(held<0||menu[held]!=page_wheel))page_wheel=-1;
+  if((d=plat_enc(EN_SELECT))&&held>=0){
+   const int mb=menu[held];
+   dream_dismiss_intro();dream_ui.held|=1u<<mb;dream_ui.help=-1;bank_armed=-1;page_wheel=mb;
+   if(page_button(dream_ui.page)!=mb){if(!page_recall(mb))dream_ui.page=page_order[page_first[held]];}
+   else page_wheel_move(d);
+   dream_ui.dirty=1;d=0;
+  }}
+ if(d){dream_dismiss_intro();dream_ui.track=clamp(dream_ui.track+d,0,md_active_tracks()-1);bank_armed=-1;}
+ if((d=plat_enc(EN_ALGO))&&!(p->kit.enabled&&dream_ui.track==3)){dream_dismiss_intro();dream_cmd(MD_MODEL,dream_ui.track,clamp(p->track[dream_ui.track].model+d,0,MD_MODELS-1));if(dream_ui.page!=VOICE_DETAIL)dream_ui.page=SOUND;}
  if((d=plat_enc(EN_PRESET))&&dream_ui.help<0){dream_dismiss_intro();
   if(dream_ui.page==LIVE&&dream_ui.live_view==LIVE_BROWSER)browse_move(d);
+  else if(dream_ui.page==LIVE&&dream_ui.live_view==LIVE_LIST)list_move(d);
+  else if(dream_ui.page==MIDI){   /* 2.2: the selected track's sequencer notes out over USB, Off or 1-16 */
+   const int tr=dream_ui.track,ch=clamp(live_prefs.midi_out[tr]+d,0,16);live_prefs.midi_out[tr]=(uint8_t)ch;
+   uint32_t lock=plat_lock();md_set_midi_out(tr,ch);plat_unlock(lock);dream_ui.dirty=1;}
   else if(dream_ui.page==SEQ_GRID||dream_ui.page==SEQ_TOOLS||dream_ui.page==SEQ_RULES)
    sequence_panel_set(dream_ui.page,1,sequence_panel_value(dream_ui.page,dream_ui.track,1)+d);
-  else if(dream_ui.page>=MIDI_LEARN){if(dream_ui.page<=MIDI_MAP)learn_slot=clamp(learn_slot+d,0,15);else if(dream_ui.page<=LINK_MOTION)link_slot=clamp(link_slot+d,0,3);}
-  else if(dream_ui.page>=JOURNEY&&dream_ui.page<=JOURNEY_KEEP){int id=p->journey.section[journey_edit].biome;id=id==65535?-1:id;dream_cmd(MD_JOURNEY_BIOME,journey_edit,clamp(id+d,-1,MD_BIOMES-1));}
+  else if(dream_ui.page>=MIDI_LEARN&&dream_ui.page!=VOICE_DETAIL){if(dream_ui.page<=MIDI_MAP)learn_slot=clamp(learn_slot+d,0,15);else if(dream_ui.page<=LINK_MOTION)link_slot=clamp(link_slot+d,0,3);}
+  else if(dream_ui.page>=JOURNEY&&dream_ui.page<=JOURNEY_KEEP){int id=p->journey.section[journey_edit].biome;id=id==65535?-1:id;dream_cmd(MD_JOURNEY_BIOME,journey_edit,clamp(id+d,-1,MD_V21_BIOMES-1));}
   else if((dream_ui.page>=KIT&&dream_ui.page<=KIT_SEQ)||(p->kit.enabled&&dream_ui.track==3&&dream_ui.page!=LIVE&&dream_ui.page!=BANKS)){dream_cmd(MD_KIT_PAD,3,clamp(p->kit.pad+d,0,7));}
-  else if(dream_ui.page==BANKS){for(int j=0;j<=bank_char;j++)if(!bank_name[j])bank_name[j]=' ';bank_name[bank_char]=clamp(bank_name[bank_char]+d,32,126);bank_name[23]=0;bank_armed=-1;}else if(dream_ui.page==SOUND||dream_ui.page==FILTER||dream_ui.page==ENVELOPE||dream_ui.page==MIX||dream_ui.page==MIXER||dream_ui.page==BASSLINE||dream_ui.page==MODULATION||dream_ui.page==LFO_ROUTE||dream_ui.page==LFO_ROUTE2||dream_ui.page==SEQ_FLOW||(dream_ui.page==PHRASE||dream_ui.page==SEQUENCE||dream_ui.page==STEP_DETAIL)){
+  else if(dream_ui.page==BANKS){for(int j=0;j<=bank_char;j++)if(!bank_name[j])bank_name[j]=' ';bank_name[bank_char]=clamp(bank_name[bank_char]+d,32,126);bank_name[23]=0;bank_armed=-1;}else if(dream_ui.page==SOUND||dream_ui.page==VOICE_DETAIL||dream_ui.page==FILTER||dream_ui.page==ENVELOPE||dream_ui.page==MIX||dream_ui.page==MIXER||dream_ui.page==BASSLINE||dream_ui.page==MODULATION||dream_ui.page==LFO_ROUTE||dream_ui.page==LFO_ROUTE2||dream_ui.page==SEQ_FLOW||(dream_ui.page==PHRASE||dream_ui.page==SEQUENCE||dream_ui.page==STEP_DETAIL)){
    int id=p->tone_preset[dream_ui.track];if(id<0)id=md_model_first_tone(p->track[dream_ui.track].model)-(d>0?1:0);
    id=clamp(id+d,0,MD_TONE_PRESETS-1);dream_cmd(MD_TONE_PRESET,dream_ui.track,id);app_say(md_tone_name(id),"");
   }else{int id=md_biome_step(p->biome_id,d);dream_cmd(MD_SCENE,0,id);app_say(md_biome_name(id),"");}
@@ -1236,6 +1368,24 @@ void app_input_only(void) {
   if(dream_ui.page==LIVE&&dream_ui.live_view==LIVE_BROWSER){
    if(b==0)browse_change_filter(d);
    if(b==1)browse_move(d);
+   continue;
+  }
+  if(dream_ui.page==LIVE&&dream_ui.live_view==LIVE_LIST){
+   if(b==0)list_change_mode(d);else if(b==1)list_move(d);else if(b==2)list_assign(d);
+   continue;
+  }
+  if(dream_ui.page==VOICE_DETAIL){
+   if(p->kit.enabled&&tr==3){app_say("EDIT: KIT PAGES","");continue;}
+   const int envelope=md_has_envelope(t->model)||t->model==MD_ELEMENTS;
+   const int cmds[]={MD_TONE,MD_HARM,envelope?MD_SHAPE:MD_DECAY,MD_LEVEL};
+   const int vals[]={t->tone,t->harm,envelope?t->shape:t->decay,t->level};
+   dream_cmd(cmds[b],tr,vals[b]+d*20);
+   continue;
+  }
+  if(dream_ui.page==LIVE&&dream_ui.live_view==LIVE_TRACKS&&b<3){
+   /* 2.2: Large Tracks is the live mixer: K1 level, K2 grain send, K3 room send */
+   const int cs[]={MD_LEVEL,MD_SEND,MD_REVERB_SEND},vs[]={t->level,t->send,p->ext[tr].reverb_send};
+   dream_cmd(cs[b],tr,vs[b]+d*20);
    continue;
   }
   if(dream_ui.page==LIVE&&dream_ui.live_view==LIVE_TRACKS&&b==3){
@@ -1321,16 +1471,18 @@ void app_input_only(void) {
   if(!(keys>>b&1)&&(dream_ui.keys>>b&1))dream_cmd(MD_NOTE_OFF,keyboard_track[b],keyboard_note[b]);
  }
  dream_ui.keys=keys;
+ {const int owner=page_button(dream_ui.page);if(owner!=B_HOME&&owner<16)page_memory[owner]=(uint8_t)(dream_ui.page+1);}
  /* The printed SEL key mutes; EDIT cycles sound, envelope, mix, avoiding a hidden modifier. */
 }
 void app_ui_init(void) {app_redraw();dream_ui.frame_at=plat_ms();dream_ui.frame_wait=0;if(intro_pending){intro_pending=0;dream_intro();}}
 #include "lights.c"
+static int page_button(int page){return page>=0&&page<DREAM_PAGE_COUNT?dream_page_button[page]:B_HOME;}
 static int display_static_unchanged(void){
- uint32_t key[3]={0};
+ uint32_t key[4]={0};
  // The static view paints the same audio-state snapshot used for its cache
  // key. MIDI edits cannot leave a mixed set of rows cached as a full frame.
  uint32_t lock=plat_lock();
- if(dream_ui.page==LIVE&&dream_ui.live_view!=LIVE_ATLAS&&!intro_active&&
+ if(dream_ui.page==LIVE&&dream_ui.live_view!=LIVE_ATLAS&&dream_ui.live_view!=LIVE_STAGE&&!intro_active&&
     dream_ui.help<0&&md_pending_biome()<0&&bank_pending<0&&!dream_ui.msg[0]){
   const md_patch *p=md_state();
   key[0]=dream_ui.live_view|((uint32_t)md_palette()[0]<<8);
@@ -1339,7 +1491,14 @@ static int display_static_unchanged(void){
    for(unsigned i=0;i<6;i++){
     key[1]|=(uint32_t)p->track[i].mute<<(12+i);
     key[2]|=(uint32_t)p->track[i].model<<(5*i);
+    /* 2.2: the mixer values shown in Large Tracks */
+    key[3]=(key[3]^(uint32_t)p->track[i].level)*16777619u;key[3]=(key[3]^(uint32_t)p->track[i].send)*16777619u;
+    key[3]=(key[3]^(uint32_t)p->ext[i].reverb_send)*16777619u;
    }
+  }else if(dream_ui.live_view==LIVE_LIST){
+   /* list_serial counts every row, mode, star, name and save change */
+   key[1]=(uint32_t)list_mode|((uint32_t)(list_mode==LIST_BIOMES?list_row:tone_row)<<2)|((uint32_t)dream_ui.track<<12)|((uint32_t)list_dirty<<15);
+   key[2]=((uint32_t)(p->biome_id+1)&511u)|((uint32_t)(p->tone_preset[dream_ui.track]+1)<<9)|(list_serial<<20);
   }else{
    int id=browse_biome();
    key[1]=browse_filter|((uint32_t)(id+1)<<8)|((uint32_t)!!biome_favorite(id)<<17);
@@ -1347,7 +1506,7 @@ static int display_static_unchanged(void){
   }
  }
  plat_unlock(lock);
- int same=key[0]&&key[0]==display_static_frame[0]&&key[1]==display_static_frame[1]&&key[2]==display_static_frame[2];
+ int same=key[0]&&key[0]==display_static_frame[0]&&key[1]==display_static_frame[1]&&key[2]==display_static_frame[2]&&key[3]==display_static_frame[3];
  memcpy(display_static_frame,key,sizeof key);
  return same;
 }
@@ -1360,6 +1519,7 @@ static void draw_display(void){
   cv_begin(240,DREAM_TILE_ROWS,MD_BG);
   cv_oy=-(int)y;
   md_draw_all();
+  midi_out_drain();
   // Retain only a signature, never a second pixel buffer. A mirror refresh or
   // a return from a system screen always sends the complete display.
   // Z-2: two pixels a step (one multiply per pair, half the work of a pixel
@@ -1376,10 +1536,26 @@ static void draw_display(void){
   }else display_tiles_skipped++;
  }
 }
+/* 2.2: the sequencer's notes out (dreams.cpp out_on), sent from the main loop; also between display
+ * tiles so a long frame does not hold notes back. */
+static void midi_out_drain(void){
+ /* Do not consume a DSP release when the USB ring cannot accept it. Keep
+  * room/read/send atomic against the audio producer; never wait for USB. */
+ for(unsigned n=0;n<64;n++){
+  uint32_t pkt,f=plat_lock();
+  int ready=plat_midi_out_room(TO_USB)>0&&md_midi_out_read(&pkt);
+  if(ready)plat_midi_send(pkt,TO_USB);
+  plat_unlock(f);
+  if(!ready)break;
+ }
+}
 void app_frame(void) {
+ midi_out_drain();
  app_input_only();if(dream_ui.page!=BT_PAGE)bt_scan_until=0;btdev_page(dream_ui.page==BT_PAGE&&(dream_prefs.reserved&1)&&bt_scan_until&&(int32_t)(bt_scan_until-plat_ms())>0);int bev;while((bev=btdev_event())!=BTDEV_NONE){if(bev==BTDEV_LOST||bev==BTDEV_COMPUTER_GONE||bev==BTDEV_LET_GO)ble_link_lost=1;app_say(btdev_word(bev),"");dream_ui.dirty=1;}if(md_status()->quality_reductions!=quality_notice){quality_notice=md_status()->quality_reductions;app_say("ECO: DENSE PATCH","");}flower_time=dream_prefs.motion?plat_ms():0;for(int i=0;i<6;i++)if(md_status()->events[i]!=last_events[i]){last_events[i]=md_status()->events[i];pulse_start[i]=plat_ms();pulse_active|=1u<<i;}dream_lights(plat_ms());if((uint32_t)(plat_ms()-dream_ui.frame_at)<dream_ui.frame_wait&&!dream_ui.dirty)return;dream_ui.frame_at=plat_ms();uint32_t audio_load=plat_cpu_pct();dream_ui.frame_wait=dream_prefs.motion?(audio_load>72?96:audio_load>40?66:58):80;dream_ui.dirty=0;
  uint32_t frame_started=plat_ms();
- if(dream_ui.page==ITINERA){
+ if(dream_ui.page==LIVE&&dream_ui.live_view==LIVE_LIST&&!list_names_valid)list_refresh_names();
+ /* 2.2: the large Biome view draws the Itinera scene, so it keeps Itinera's frame pacing. */
+ if(dream_ui.page==ITINERA||(dream_ui.page==LIVE&&dream_ui.live_view==LIVE_STAGE)){
   dream_ui.frame_wait=!dream_prefs.motion?500:audio_load>72?250:audio_load>40?125:66;
  }else{
   md_field_update();living_update(frame_started);timeline_update();sequence_view_update();
@@ -1393,6 +1569,7 @@ int app_host_cmd(const char *cmd,const char *a,const char *b,const char *c,const
  (void)c;(void)d;
  // Host-only listening probe. No test interface is compiled into the FM-1.
  if(!strcmp(cmd,"journey")){dream_cmd(atoi(a),atoi(b),atoi(c));dream_ui.dirty=1;return 1;}
+ if(!strcmp(cmd,"pages_reset")){memset(page_memory,0,sizeof page_memory);page_wheel=-1;return 1;} /* 2.2: forget the remembered pages */
  if(!strcmp(cmd,"page")){dream_ui.page=clamp(atoi(a),0,DREAM_PAGE_COUNT-1);dream_ui.dirty=1;return 1;}
  if(!strcmp(cmd,"scene")){dream_cmd(MD_SCENE,0,atoi(a));dream_ui.dirty=1;return 1;}
  if(!strcmp(cmd,"mute")){dream_cmd(MD_MUTE,atoi(a),atoi(b));dream_ui.dirty=1;return 1;}
@@ -1407,12 +1584,34 @@ int app_expect(const char *what,int *got) {
  if(!strcmp(what,"radio_active")){*got=radio_view.active;return 1;}
  if(!strcmp(what,"radio_preset")){*got=radio_preset;return 1;}
  if(!strcmp(what,"radio_settings")){*got=radio_settings();return 1;}
+ if(!strcmp(what,"radio_biome")){*got=radio_view.biome;return 1;}
+ if(!strncmp(what,"radio_macro",11)&&what[11]>='0'&&what[11]<='3'&&!what[12]){*got=radio_view.macro[what[11]-'0'];return 1;}
  if(!strcmp(what,"tiles_skipped")){*got=display_tiles_skipped>0;return 1;}
  if(!strcmp(what,"living_profile")){*got=living.profile;return 1;}
  if(!strcmp(what,"timeline_next")){*got=timeline.next;return 1;}
  if(!strcmp(what,"timeline_keep")){*got=timeline.keep;return 1;}
  if(!strcmp(what,"large_tracks")){*got=dream_ui.live_view==LIVE_TRACKS;return 1;}
  if(!strcmp(what,"live_view")){*got=dream_ui.live_view;return 1;}
+ if(!strcmp(what,"list_mode")){*got=list_mode;return 1;}
+ if(!strcmp(what,"list_row")){*got=list_row;return 1;}
+ if(!strcmp(what,"list_entry")){*got=list_row?(int)live_prefs.entry[list_row-1]:MD_BLANK_BIOME+1;return 1;}
+ if(!strcmp(what,"list_dirty")){*got=list_dirty;return 1;}
+ if(!strcmp(what,"list_user_live")){*got=list_live_user_slot();return 1;}
+ if(!strcmp(what,"tone_row")){*got=tone_row;return 1;}
+ if(!strcmp(what,"tone_starred")){*got=tone_starred(tone_row);return 1;}
+ if(!strcmp(what,"bank_pending")){*got=bank_pending;return 1;}
+ if(!strcmp(what,"bank_armed")){*got=bank_armed>=0;return 1;}
+ if(!strcmp(what,"page_wheel")){*got=page_wheel;return 1;}
+ if(!strcmp(what,"midi_out")){*got=md_midi_out_channel(dream_ui.track);return 1;}
+ if(!strcmp(what,"keep_setting")){*got=md_keep_setting();return 1;}
+ if(!strcmp(what,"biome_change")){*got=md_biome_change();return 1;}
+ if(!strcmp(what,"biome_arriving")){*got=md_biome_arriving();return 1;}
+ if(!strncmp(what,"model",5)&&what[5]>='0'&&what[5]<='5'&&!what[6]){*got=md_state()->track[what[5]-'0'].model;return 1;}
+ if(!strcmp(what,"root")){*got=md_state()->root;return 1;}
+ if(!strcmp(what,"tempo")){*got=md_state()->tempo;return 1;}
+ if(!strcmp(what,"track_level")){*got=md_state()->track[dream_ui.track].level;return 1;}
+ if(!strcmp(what,"track_send")){*got=md_state()->track[dream_ui.track].send;return 1;}
+ if(!strcmp(what,"track_room")){*got=md_state()->ext[dream_ui.track].reverb_send;return 1;}
  if(!strcmp(what,"browse_biome")){*got=browse_biome();return 1;}
  if(!strcmp(what,"browse_family")){*got=md_biome_family_index(browse_biome());return 1;}
  if(!strcmp(what,"browse_favorite")){*got=biome_favorite(browse_biome());return 1;}

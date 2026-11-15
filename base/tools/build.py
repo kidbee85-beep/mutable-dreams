@@ -367,6 +367,42 @@ def _builder_start():
     return name
 
 
+def elf_section_names(path):
+    """the section names of an ELF32 object (for ram_units)"""
+    import struct
+    d = Path(path).read_bytes()
+    e = "<" if d[5] == 1 else ">"
+    shoff, = struct.unpack_from(e + "I", d, 0x20)
+    shentsize, shnum, shstrndx = struct.unpack_from(e + "HHH", d, 0x2E)
+    sh = [struct.unpack_from(e + "IIIIIIIIII", d, shoff + i * shentsize) for i in range(shnum)]
+    so = sh[shstrndx][4]
+    return [d[so + h[0]:d.index(b"\0", so + h[0])].decode() for h in sh]
+
+
+def elf_rename_sections(path, renames):
+    """rename sections of an ELF32 object in place: the new names go to a section-name table appended at the
+    end of the file (the header's string-table section then points there); nothing else moves"""
+    import struct
+    d = bytearray(Path(path).read_bytes())
+    e = "<" if d[5] == 1 else ">"
+    shoff, = struct.unpack_from(e + "I", d, 0x20)
+    shentsize, shnum, shstrndx = struct.unpack_from(e + "HHH", d, 0x2E)
+    hdr = lambda i: shoff + i * shentsize
+    so, ss = struct.unpack_from(e + "II", d, hdr(shstrndx) + 16)
+    table = bytearray(d[so:so + ss])
+    for i in range(shnum):
+        nm, = struct.unpack_from(e + "I", d, hdr(i))
+        name = d[so + nm:d.index(b"\0", so + nm)].decode()
+        if name in renames:
+            struct.pack_into(e + "I", d, hdr(i), len(table))
+            table += renames[name].encode() + b"\0"
+    while len(d) % 4:
+        d.append(0)
+    struct.pack_into(e + "II", d, hdr(shstrndx) + 16, len(d), len(table))
+    d += table
+    Path(path).write_bytes(bytes(d))
+
+
 def tc(tool, *args):
     """run a toolchain binary (pi32v2/bin/..., common/bin/...) with cwd ROOT; paths relative to ROOT"""
     rel = [str(Path(a).resolve().relative_to(ROOT)) if isinstance(a, Path) else a for a in args]
@@ -867,9 +903,42 @@ def build_app():
             units.append(("cc", *o2, *o2_more, *cpp, *inc(f.parent), *ir_out, "-c", f, "-o", o.with_suffix(".ll") if ir else o))
             objs.append(o)
             o2_units.append((f, o))
+    # fm1.toml dsp_first = true: the app's o2 units (its DSP) right after the vectors, before the unity build,
+    # so that the DSP keeps its flash addresses (and so its places in the shared 32 KB code/data cache) however
+    # the UI grows. dsp_pad = N: N bytes of padding between the unity build and the o2 units instead.
+    if CONF.get("dsp_first"):
+        o2_objs_now = [o for _, o in o2_units]
+        objs = [x for x in objs if x not in o2_objs_now]
+        at = objs.index(OUT / "unity.o")
+        objs[at:at] = o2_objs_now
+    if int(CONF.get("dsp_pad", 0)) > 0:
+        pad_s = OUT / "dsp_pad.S"      # dsp_pad_rodata = M: also M bytes between the unity build's constants and the DSP's
+        ro = int(CONF.get("dsp_pad_rodata", 0))
+        pad_s.write_text(f'.section .text.dsp_pad,"ax"\n.global dsp_pad\ndsp_pad:\n.space {int(CONF["dsp_pad"])}\n'
+                         + (f'.section .rodata.dsp_pad,"a"\n.global dsp_pad_ro\ndsp_pad_ro:\n.space {ro}\n' if ro > 0 else ''))
+        units.append(("cc", "-c", pad_s, "-o", OUT / "dsp_pad.o"))
+        # dsp_pad_first = true: the padding before the unity build instead (everything after it moves)
+        objs.insert(objs.index(OUT / "unity.o") + (0 if CONF.get("dsp_pad_first") else 1), OUT / "dsp_pad.o")
+    if int(CONF.get("dsp_pad2", 0)) > 0:       # a second code padding between the unity build and the DSP units
+        pad2 = OUT / "dsp_pad2.S"
+        pad2.write_text(f'.section .text.dsp_pad2,"ax"\n.global dsp_pad2\ndsp_pad2:\n.space {int(CONF["dsp_pad2"])}\n')
+        units.append(("cc", "-c", pad2, "-o", OUT / "dsp_pad2.o"))
+        objs.insert(objs.index(OUT / "unity.o") + 1, OUT / "dsp_pad2.o")
     jieli = (BLE and not OWN) or WIFI             # JieLi's libraries linked (the shim, LTO)
     b_units, b_objs, b_libs = radio_units() if jieli else ([], [], [])
     tc_all(*units, *b_units)
+    # fm1.toml ram_units = ["o2 unit path", ...]: those units' functions (each in its own section:
+    # -ffunction-sections) move to .app_ram, the app's RAM code (plat.h PLAT_RAM_CODE), out of the way of the
+    # XIP cache's misses; Init/Reset functions stay in the flash (cold, and called directly from there). The
+    # app calls the moved entries through PLAT_FAR pointers; the RAM code check below still applies.
+    ram_units = set(CONF.get("ram_units", []))
+    if ram_units:
+        for f, o in o2_units:
+            if str(f.relative_to(APP)) not in ram_units:
+                continue
+            names = [n for n in elf_section_names(o) if n.startswith(".text.") and not re.search(r"Init|Reset", n)]
+            if names:                                 # (this toolchain's objcopy cannot rename sections)
+                elf_rename_sections(o, {n: ".app_ram" + n[5:] for n in names})
     if ir:                                        # the pass, then each unit's code from its IR at its own level
         def ir_pass(src, dst, unit=None):
             r = subprocess.run([sys.executable, str(APP / ir), str(src), str(dst), *([unit] if unit else [])],
@@ -900,7 +969,7 @@ def build_app():
     if not WIFI and stacks() != STACKS:          # (other stack sizes: the SRAM's end and the bands moved)
         ld = stack_script(ld)
     LAYOUT = memory_regions(ld.read_text())
-    tc("pi32v2/bin/ld", *lto, "--gc-sections", "-e", "_start", "-T", ld, *objs, *b_objs,
+    tc("pi32v2/bin/ld", *lto, "--gc-sections", "-e", "_start", *(["-u", "dsp_pad"] if int(CONF.get("dsp_pad", 0)) > 0 else []), *(["-u", "dsp_pad_ro"] if int(CONF.get("dsp_pad_rodata", 0)) > 0 and int(CONF.get("dsp_pad", 0)) > 0 else []), *(["-u", "dsp_pad2"] if int(CONF.get("dsp_pad2", 0)) > 0 else []), "-T", ld, *objs, *b_objs,
        *b_libs, "-o", elf)
     for sect in ("text.bin", "data.bin", "ramtext.bin"):
         (OUT / sect).unlink(missing_ok=True)

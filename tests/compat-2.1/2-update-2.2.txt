@@ -1,0 +1,104 @@
+wait 3400
+# Run on the 2.2 host, powered on with the 2.1 flash (a-2.1.bin): update path.
+expect biome 9
+expect unsaved 0
+expect patch_valid 1
+expect velocity_touch 35
+tap HOME
+tap HOME
+expect live_view 2
+spin K1 63
+expect browse_favorite 1
+expect browse_biome 3
+spin K1 -63
+# Live List is empty after an update; HOME reaches it after the Biomes
+tap HOME
+expect live_view 3
+expect list_entry 0
+# LOAD test slot U15 (2.1 data)
+page 18
+spin K1 -20
+spin K1 14
+spin K3 1
+wait 150
+expect biome 5
+expect unsaved 0
+# OVERWRITE test slot U16 with a 2.2 dark saw Biome: SAVE arms, SEL confirms
+scene 273
+wait 200
+expect biome 273
+page 18
+spin K1 1
+tap SAVE
+expect bank_armed 1
+tap SEL
+wait 150
+expect bank_armed 0
+expect unsaved 0
+expect biome -1
+# CANCEL: arm an overwrite of U15, then leave with HOME; nothing is written
+scene 274
+wait 200
+page 18
+spin K1 -1
+tap SAVE
+expect bank_armed 1
+tap HOME
+expect bank_armed 0
+# Live List row 01 <- U16, row 02 <- factory 275; SAVE keeps the list (388-byte record)
+tap HOME
+tap HOME
+tap HOME
+expect live_view 3
+spin K3 16
+expect list_entry 32783
+spin K2 1
+spin K3 300
+spin K3 -1
+tap SAVE
+expect list_dirty 0
+# KEEP SETTING on and BIOME CHANGE TRACK BY TRACK, saved in the 2.2 trailer
+page 9
+tap SEL
+tap REC
+tap REC
+tap SAVE
+wait 100
+expect keep_setting 1
+expect biome_change 2
+# live project <- dark saw Biome 274, saved: stored as a 2.1-readable User Biome
+scene 274
+wait 200
+page 1
+tap SAVE
+wait 100
+expect unsaved 0
+expect biome -1
+expect tone_preset -1
+# COLD START with the same flash
+reboot
+wait 3400
+expect keep_setting 1
+expect biome_change 2
+expect biome -1
+expect unsaved 0
+expect patch_valid 1
+expect velocity_touch 35
+page 18
+spin K1 -20
+spin K1 14
+spin K3 1
+wait 150
+expect biome 5
+spin K1 1
+spin K3 1
+wait 150
+expect biome -1
+page 0
+tap HOME
+tap HOME
+tap HOME
+expect live_view 3
+expect list_row 1
+expect list_entry 32783
+flash_dump OUT/b-2.2.bin

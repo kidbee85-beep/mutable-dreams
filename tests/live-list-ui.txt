@@ -1,0 +1,175 @@
+wait 3400
+# 2.2 development (#4 #8 #18): Live List from HOME, Blank row, unsaved guard, starred tones.
+expect biome 0
+expect unsaved 0
+tap HOME
+expect live_view 1
+tap HOME
+expect live_view 2
+tap HOME
+expect live_view 3
+expect list_mode 0
+expect list_row 1
+expect list_entry 0
+expect list_dirty 0
+shot List-Empty.png
+# REC takes the live factory Biome into the empty row 01
+tap REC
+expect list_entry 1
+expect list_dirty 1
+# K3 chooses: empty, U1..U16, factory Biomes in wheel order
+spin K2 1
+expect list_row 2
+spin K3 1
+expect list_entry 32768
+spin K3 17
+expect list_dirty 1
+spin K3 -17
+expect list_entry 32768
+spin K3 -1
+expect list_entry 0
+spin K3 30
+wait 1500
+shot List-Rows.png
+# SAVE keeps the list (stopped, internal clock)
+tap SAVE
+expect list_dirty 0
+reboot
+wait 3400
+tap HOME
+tap HOME
+tap HOME
+expect live_view 3
+expect list_row 1
+expect list_entry 1
+spin K2 1
+expect list_dirty 0
+spin K2 -1
+# ---- Blank row and the unsaved-edits guard ----
+tap HOME
+tap HOME
+expect live_view 0
+spin K1 2
+wait 25
+expect unsaved 1
+tap HOME
+tap HOME
+tap HOME
+expect live_view 3
+spin K2 -5
+expect list_row 0
+tap SEL
+wait 150
+expect pending_biome 64
+expect biome 0
+shot List-Blank-Guard.png
+tap HOME
+wait 25
+expect pending_biome -1
+expect biome 0
+expect unsaved 1
+expect live_view 3
+tap SEL
+wait 150
+expect pending_biome 64
+tap SEL
+wait 150
+expect biome 64
+expect pending_biome -1
+expect unsaved 0
+# ---- A User Biome slot in the list (test slot U16) ----
+tap GLO
+expect page 18
+spin K1 15
+tap SAVE
+wait 150
+tap HOME
+expect page 0
+tap HOME
+tap HOME
+tap HOME
+expect live_view 3
+spin K2 2
+expect list_row 2
+spin K3 -300
+expect list_entry 0
+spin K3 16
+expect list_entry 32783
+tap SEL
+wait 150
+expect list_user_live 15
+expect biome 64
+# edit, then load the slot again: the guard asks; HOME keeps the edit, SEL discards
+tap HOME
+tap HOME
+expect live_view 0
+spin K1 3
+wait 25
+expect unsaved 1
+tap HOME
+tap HOME
+tap HOME
+tap SEL
+wait 150
+expect bank_pending 15
+shot List-User-Guard.png
+tap HOME
+wait 25
+expect bank_pending -1
+expect unsaved 1
+tap SEL
+wait 150
+expect bank_pending 15
+tap SEL
+wait 150
+expect bank_pending -1
+expect unsaved 0
+expect list_user_live 15
+# REC on a filled row clears it; REC again takes the live User Biome
+tap REC
+expect list_entry 0
+tap REC
+expect list_entry 32783
+# ---- Starred tones ----
+spin K1 1
+expect list_mode 1
+tap REC
+expect tone_starred 1
+spin K2 5
+tap REC
+expect tone_starred 1
+spin K2 1
+expect tone_starred 0
+spin K1 1
+expect list_mode 2
+expect tone_starred 1
+spin K2 -1
+expect tone_starred 1
+tap SEL
+wait 150
+wait 1500
+shot Tones-Starred.png
+tap SAVE
+expect list_dirty 0
+reboot
+wait 3400
+tap HOME
+tap HOME
+tap HOME
+spin K1 2
+expect list_mode 2
+expect tone_starred 1
+spin K1 -2
+expect list_mode 0
+expect list_row 1
+expect list_entry 1
+spin K2 1
+expect list_entry 32783
+# HOME continues to the large Biome view and back to the Atlas
+tap HOME
+expect live_view 4
+tap HOME
+expect live_view 0
+expect patch_valid 1
+expect invalid 0
+expect queue_drops 0

@@ -76,7 +76,8 @@ static void atlas_filaments(int x,int y,int width,int height,uint32_t seed){
 static unsigned atlas_kind(const md_biome_card *card){
  static const uint8_t family_marks[]={ART_MEDUSA,ART_FROND,ART_WIRE,ART_CURRENT,
   ART_CELLS,ART_FROND,ART_SHELL,ART_MEDUSA,ART_CELLS,ART_SHELL,ART_WIRE,
-  ART_CURRENT,ART_SHELL,ART_MEDUSA,ART_CELLS,ART_FROND,ART_WIRE,ART_CORAL,ART_FROND};
+  ART_CURRENT,ART_SHELL,ART_MEDUSA,ART_CELLS,ART_FROND,ART_WIRE,ART_CORAL,ART_FROND,
+  ART_CELLS /* 19: as before (the fallback) */,ART_MEDUSA /* 20: 2.2 dark saw pads */};
  return family_marks[card->family<sizeof family_marks?card->family:8];
 }
 

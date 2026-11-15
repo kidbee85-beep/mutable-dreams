@@ -1,3 +1,9 @@
 # url: https://kidbee85-beep.github.io/mutable-dreams/words/
 # Published with each release under the url above (app/web/words/<id>.json).
 MUTABLE DREAMS	Mutable Dreams
+# 2.2 development: Large Tracks mixer, voice detail, MIDI notes out
+GRN	grain send
+TCH	touch
+HZ	hertz
+T# NOTES OUT	track # notes out
+CH #	channel #

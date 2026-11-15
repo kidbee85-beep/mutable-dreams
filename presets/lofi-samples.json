@@ -1,6 +1,6 @@
 {
   "source": "Original synthesized one-shots; no external samples",
-  "pcm_bytes": 160000,
+  "pcm_bytes": 120000,
   "samples": [
     {
       "bank": 0,

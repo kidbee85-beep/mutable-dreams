@@ -125,7 +125,7 @@ static float radio_chapter_target(void){
  * 2 ice glints, 3 rain, 4 pollen, 5 embers), so that the scenes of one dream
  * look different. -1: none (Blank). */
 static int radio_layer_of(int biome){
- static const int8_t layer[]={0,0,2,3,3,4,5,4,-1,3,2,1,5,4,5,0,5,0,0,0};
+ static const int8_t layer[]={0,0,2,3,3,4,5,4,-1,3,2,1,5,4,5,0,5,0,0,0,0}; /* 20: 2.2 dark saws, fog */
  const int family=md_biome_family_index(biome);
  return family>=0&&family<(int)sizeof layer?layer[family]:-1;
 }
@@ -548,12 +548,30 @@ static void radio_art(int y,int h,uint16_t color,uint16_t accent){
 }
 /* G-2: the title and the chapter's line come in over 0.6 s and leave over the
  * last 1.5 s of their 8 s, instead of appearing and vanishing at once. */
-static unsigned radio_text_mix(uint32_t now){
- const uint32_t age=now-radio_activity;
+static unsigned radio_text_mix_from(uint32_t age){
  if(age>=8000u)return 0;
  if(!dream_prefs.motion)return 32;
  const float in=radio_smooth(age/600.f),out=radio_smooth((8000u-age)/1500.f);
  return (unsigned)radio_round(32*(in<out?in:out));
+}
+static unsigned radio_text_mix(uint32_t now){return radio_text_mix_from(now-radio_activity);}
+/* 2.2: K1-K4 during a dream: DENSITY, MOTION, COLOUR and SPACE on top of the
+ * dream's own movement, shown for a moment where the story line sits. */
+static const char *const radio_macro_names[4]={"DENSITY","MOTION","COLOUR","SPACE"};
+static uint32_t radio_knob_at;
+static uint8_t radio_knob,radio_kept;
+static void radio_macro_text(char *s,unsigned knob){
+ const char *n=radio_macro_names[knob];while(*n)*s++=*n++;
+ *s++=' ';const int v=radio_view.macro[knob]/10;if(v>0)*s++='+';md_num(v,s);
+}
+static void radio_nudge(unsigned knob,int delta){
+ const int u=clamp(radio_view.macro[knob]+delta*20,-500,500);
+ if(!dream_cmd(MD_MACRO,knob,500+u))return;
+ radio_view.macro[knob]=u;radio_knob=knob;
+ radio_knob_at=plat_ms();
+ if(!radio_text_mix(radio_knob_at))radio_activity=radio_knob_at-600u;
+ char s[24];radio_macro_text(s,knob);ann_say(s,0,ANN_NOW);
+ dream_ui.dirty=1;
 }
 static void radio_draw(void){
  static const char *const durations[]={"30 MIN","1 HOUR","2 HOURS","4 HOURS"};
@@ -584,8 +602,11 @@ static void radio_draw(void){
   if(mix){
    const unsigned chapter=clamp(radio_view.chapter,0,3);
    radio_center(13,&FONT_B,name,md_tint(MD_BG,MD_INK,mix));
+   radio_center(37,&FONT_XS,md_biome_name(radio_view.biome),md_tint(MD_BG,pal[0],mix));   /* 2.2: the Biome now; SEL keeps it */
    const char *line=story[radio_preset];
    for(unsigned i=0;i<chapter;i++)while(*line++);
+   char knob[24];
+   if(radio_knob_at&&plat_ms()-radio_knob_at<2500u){radio_macro_text(knob,radio_knob);line=knob;}
    radio_center(215,&FONT_XS,line,md_tint(MD_BG,pal[1],mix));
   }
   return;

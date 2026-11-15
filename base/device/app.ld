@@ -29,7 +29,9 @@ SECTIONS
      * and the radio trim (*.rf_trim, CONFIG_RF_TRIM_CODE_AT_RAM in their demos) run from RAM: the trim
      * draws ~500 ms of high current, and fetching from the flash meanwhile corrupts what is read
      * (the crashes 0.7 s into every BT start, fm1-ble notes/03-05) */
-    .text : { KEEP(*(.text.crt0)) *(.text*) *(.rodata*)
+    /* An app's o2 units (fm1.toml o2: its DSP), code and constants, right after the vectors: they keep their
+     * flash addresses, and so their places in the shared 32 KiB cache, however the rest grows (2.2 development) */
+    .text : { KEEP(*(.text.crt0)) *o2/*.o(.text* .rodata*) *(.text*) *(.rodata*)
               *(.bt_stack_code .ble_sm_code .hci_controller_code .ble_hci_code .ble_att_code .ble_db_code
                 .classic_lmp_code .link_bulk_code .classic_rf_code .lmp_irq_code .ble_gatt_code .ble_ll_code
                 .ble_rf_code .bt_rf_code .hci_interface_code .vendor_manager_code .device_manager_code)

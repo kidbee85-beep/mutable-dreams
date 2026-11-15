@@ -1,0 +1,67 @@
+{
+  "date": "2026-11-15",
+  "firmware": "2.2",
+  "build": "23F2FA0E",
+  "package_sha256": "25df8be7b5d87806739e3481f0d8af371762e29051e4153cd86ce5bdae882b68",
+  "identity": "FM-1_710020200",
+  "physical_fm1_direct_update_and_return": {
+    "published_2_1_to_final_2_2": true,
+    "final_2_2_to_published_2_1": true,
+    "final_2_2_to_stock_V15": true,
+    "stock_V15_to_final_2_2": true
+  },
+  "published_2_1_both_legs_all_22_objects_exact": true,
+  "stock_V15_roundtrip_requires_saved_bank_restore": true,
+  "physical_SEL_restore_completed": true,
+  "final_all_22_saved_objects_exact": true,
+  "original_unsaved_live_project_restored_exact": true,
+  "two_final_bank_exports_identical": true,
+  "post_restore_eight_channel_audio_and_mirror": {
+    "mirror": {
+      "frames": 1008,
+      "input_reports": 26,
+      "hellos": 11,
+      "bytes": 213604,
+      "bad_frames": 0,
+      "sequence_gaps": 0,
+      "pixels_received": 57600,
+      "total_pixels": 57600
+    },
+    "audio": {
+      "frames": 485376,
+      "energy": 868.9172953208908,
+      "peak": 0.095947265625,
+      "overflows": 0,
+      "nonfinite": 0
+    },
+    "capabilities": [
+      1,
+      12,
+      2604,
+      46,
+      16,
+      64,
+      640,
+      276
+    ],
+    "counter_deltas": {
+      "xruns": 0,
+      "overloads": 0,
+      "nonfinite": 0,
+      "dropped": 0,
+      "quality_reductions": 0
+    },
+    "peak_us": 4197,
+    "audio_budget_us": 5804,
+    "original_live_restored_exact": true,
+    "all_22_saved_objects_exact": true,
+    "two_final_exports_identical": true,
+    "cleanup_errors": [],
+    "pass": true
+  },
+  "initial_v15_harness_port_refusal": "Stock updater uses USB Composite Device, identity ota-FM-1_015. Harness initially excluded this alias; read-only identity checked before resuming. Shipping installer already recognizes composite. No firmware code change.",
+  "cold_start_and_hearing": "User reported passed,2026-11-15; this roundtrip does not add a separate power-loss claim.",
+  "UC25HQ80": "Exact-build hardware validation remains pending with external tester.",
+  "private_backups_in_public_evidence": false,
+  "pass": true
+}

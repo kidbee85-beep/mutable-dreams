@@ -1,5 +1,9 @@
-# Mutable Dreams 2.1 source publication
+# Mutable Dreams 2.2 source publication
 
-This FM-1 source snapshot corresponds to build `2467CC38`, package identity `FM-1_710020100` and firmware SHA-256 `a3f0ff7a23dd377dd3c51fd95b44de9631d0e7dc52a60b52da503cb6a793b8eb`. It is supplied as browsable repository source and as a ZIP. Run `python3 tools/verify_published_source.py` to verify the snapshot.
+The release tag contains the complete browsable application, platform, DSP, presets, web template and tools. The combined application follows GPL-3.0; original notices for MIT and MPL components remain in place. The proprietary SDK/toolchain is not redistributed.
 
-The archive excludes user backups, live patches, stock firmware, credentials and local audio captures. The combined distribution is GPL-3.0-only. Component notices remain under their respective licences. See [BUILDING.md](BUILDING.md) and [LICENSING-GPL.txt](LICENSING-GPL.txt).
+The device binary is the exact hardware-qualified build 23F2FA0E, SHA-256 25df8be7b5d87806739e3481f0d8af371762e29051e4153cd86ce5bdae882b68. Its effective app/base/presets source is unchanged from the recorded development commit a5e0e7f95b4d38365a271edbe3700ea61b2ea4b9. Release-only documentation and web-presentation updates were added afterwards; the device firmware was not recompiled. Toolchain details are in BUILDING.md. Identical source alone is not a claim of a bit-reproducible firmware build.
+
+The exact-build update/recovery report is docs/Hardware-Rundweg-2.2.json. Qualification scope, reserves and pending UC25HQ80 hardware validation are stated in docs/Qualification-2.2.json and RELEASE-BUILD-2.2.json.
+
+No private device backups, user banks, credentials or SDK binaries are included. Historical release artifacts remain available for users of previous versions.

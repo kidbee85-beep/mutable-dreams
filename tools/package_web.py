@@ -27,3 +27,8 @@ if (R/'assets/journey').exists():
 if (R/'assets/creative').exists():
  (out.parent/'Screenshots').mkdir(exist_ok=True)
  for shot in (R/'assets/creative').glob('*.png'):shutil.copy2(shot,out.parent/'Screenshots'/shot.name)
+
+# External presentation assets used by the 2.2 Web Studio.
+(out.parent/"assets").mkdir(exist_ok=True)
+for name in ['studio-refresh.css', 'radio-player.css', 'radio-player.js', 'donation.css', 'learn.css', 'TitilliumWeb-Regular.ttf', 'TitilliumWeb-SemiBold.ttf', 'OFL-TitilliumWeb.txt']:
+ shutil.copy2(R/"assets"/name,out.parent/"assets"/name)

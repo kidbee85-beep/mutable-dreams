@@ -1,6 +1,12 @@
 /* SPDX-License-Identifier: MIT OR GPL-3.0-only
  * Four bounded sample voices, no allocation or streaming in the audio callback.
  * Kit replaces slots 4-6 at runtime; their saved synth settings stay intact. */
+/* 2.2: kit samples are 12-bit, two in three bytes (tools/generate_lofi.py); -2048..2047. */
+static inline int kit_pcm12(const uint8_t *d,unsigned i){
+ const uint8_t *p=d+(i>>1)*3;
+ const int v=i&1u?((p[1]&15)<<8)|p[2]:(p[0]<<4)|(p[1]>>4);
+ return (v^2048)-2048;
+}
 #include "lofi_samples.inc"
 struct KitVoice { float pos,rate,gain,lp,cut,env,decay,last,carry; unsigned end,age; uint8_t sample,pad; };
 static KitVoice kit_voices[4];static unsigned kit_age;static float kit_hiss_lp,kit_amp,kit_pan=.5f;
@@ -36,8 +42,8 @@ static void kit_mix(float *lr,float *send,float *delay_send,float *room_send,uns
   float sum=0,gs=0;
   for(unsigned j=0;j<4;j++){
    KitVoice &v=kit_voices[j];float x=0;
-   if(v.end&&v.pos<v.end){unsigned at=(unsigned)v.pos;float f=v.pos-at;const int16_t *pcm=kit_samples[v.sample].data;
-    x=(pcm[at]+(pcm[at+1]-pcm[at])*f)*(1.f/32768.f);v.lp+=(x-v.lp)*v.cut;
+   if(v.end&&v.pos<v.end){unsigned at=(unsigned)v.pos;float f=v.pos-at;const uint8_t *pcm=kit_samples[v.sample].data;
+    const int a=kit_pcm12(pcm,at),b=kit_pcm12(pcm,at+1);x=(a+(b-a)*f)*(1.f/2048.f);v.lp+=(x-v.lp)*v.cut;
     float attack=fminf(1.f,v.pos/16.f);x=v.lp*v.gain*v.env*attack;v.pos+=v.rate;v.env*=v.decay;
    }else v.end=0;
    // Steals and sample endings release smoothly, including sparse MIDI hits.

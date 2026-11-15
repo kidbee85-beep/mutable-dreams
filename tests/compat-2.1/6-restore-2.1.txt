@@ -1,0 +1,10 @@
+wait 3400
+# 2.1 host, fresh flash: restore the 2.2 backup, cold start
+expect velocity_touch 0
+restore OUT/b-2.2.bak
+expect restore_rc 0
+wait 3400
+expect velocity_touch 35
+expect biome -1
+expect patch_valid 1
+flash_dump OUT/d-2.1.bin

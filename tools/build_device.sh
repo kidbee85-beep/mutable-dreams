@@ -9,4 +9,4 @@ fi
 : "${AC79_SDK:?Set AC79_SDK}"
 "${PYTHON:-python3}" tools/check_palette_20.py
 "${PYTHON:-python3}" tools/test_target_selection.py
-exec "${PYTHON:-python3}" base/tools/build.py app --release 2.1.0-dev
+exec "${PYTHON:-python3}" base/tools/build.py app --release 2.2.0-dev

@@ -26,6 +26,7 @@
 //
 // 2 variable shape oscillators with sync, FM and crossfading.
 
+#include "md_ram.h"  // 2.2 development: this unit runs from RAM on the FM-1
 #include "plaits/dsp/engine/virtual_analog_engine.h"
 
 #include <algorithm>
@@ -246,3 +247,6 @@ void VirtualAnalogEngine::Render(
 }
 
 }  // namespace plaits
+
+// 2.2 development: the entry Mutable Dreams calls (through a far pointer on the FM-1).
+extern "C" void md_ram_va_render(plaits::VirtualAnalogEngine *e, const plaits::EngineParameters *p, float *out, float *aux, size_t n, bool *env) { e->plaits::VirtualAnalogEngine::Render(*p, out, aux, n, env); }  // qualified: no virtual call

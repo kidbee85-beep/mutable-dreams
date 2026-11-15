@@ -136,6 +136,8 @@ scene 64
 wait 30
 expect biome 64
 tap EDIT
+# 2.2: EDIT from Large Tracks opens the voice detail first; EDIT again: SOUND
+tap EDIT
 spin PRESET 1
 wait 30
 expect tone_preset 112

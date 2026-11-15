@@ -69,6 +69,9 @@ static struct {
   * in which only pads, bass, room and tape sound */
  uint16_t rest_at,rest_len;
  uint8_t pace;
+ /* 2.2: the listener's K1-K4 during the dream, -500..500 on top of each
+  * scene's DENSITY, MOTION, COLOUR and SPACE (0 = the dream as written) */
+ int16_t user[4];
 } itinera;
 static unsigned itinera_remaining(){
  const unsigned elapsed=stats.frames-itinera.start;
@@ -196,16 +199,23 @@ static void itinera_breathe(){
  const int swell=(phase<32?phase:64-phase)-12+arc[chapter];
  const unsigned pulse=(phase+itinera.part*9)%64;
  const int tide=(int)(pulse<32?pulse:64-pulse)-16;
- patch.macro[0]=bound(itinera.macros[0]+swell*shape[0],0,1000);
- patch.macro[1]=bound(itinera.macros[1]+tide*shape[1],0,1000);
+ patch.macro[0]=bound(itinera.macros[0]+swell*shape[0]+itinera.user[0],0,1000);
+ patch.macro[1]=bound(itinera.macros[1]+tide*shape[1]+itinera.user[1],0,1000);
  // K-7: one slow arc over the whole dream: colour lower at its start and
  // end, brightest in the middle ("morning, noon, evening"); the grain's share
  // of the texture rises towards the end.
  const float dream=(float)(itinera.length-itinera_remaining())/itinera.length;
  const int day=(int)(-40.f+100.f*plaits::Sine(.5f*dream));
  const int dusk=(int)(120.f*dream*dream*(3-2*dream));
- patch.macro[2]=bound(itinera.macros[2]+swell*3-tide*2+day,0,1000);
- patch.macro[3]=bound(itinera.macros[3]+swell*shape[2]+dusk,0,1000);
+ patch.macro[2]=bound(itinera.macros[2]+swell*3-tide*2+day+itinera.user[2],0,1000);
+ patch.macro[3]=bound(itinera.macros[3]+swell*shape[2]+dusk+itinera.user[3],0,1000);
+}
+/* 2.2: a listener's turn of K1-K4 during the dream. It is heard at once and
+ * stays on top of every later scene's macros until the dream stops. */
+static void itinera_nudge(unsigned k,int v){
+ const int u=bound(v-500,-500,500);
+ patch.macro[k]=bound(patch.macro[k]+u-itinera.user[k],0,1000);
+ itinera.user[k]=(int16_t)u;
 }
 static void itinera_begin(int preset,int settings){
  if(playing||pending_biome>=0||preset<0||preset>=MD_ITINERA_PRESETS||settings<0||settings>=36)return;

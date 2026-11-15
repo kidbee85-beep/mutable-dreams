@@ -26,6 +26,7 @@
 //
 // Classic 2-op FM found in Braids, Rings and Elements.
 
+#include "md_ram.h"  // 2.2 development: this unit runs from RAM on the FM-1
 #include "plaits/dsp/engine/fm_engine.h"
 
 #include "stmlib/dsp/parameter_interpolator.h"
@@ -122,3 +123,6 @@ void FMEngine::Render(
 }
 
 }  // namespace plaits
+
+// 2.2 development: the entry Mutable Dreams calls (through a far pointer on the FM-1).
+extern "C" void md_ram_fm_render(plaits::FMEngine *e, const plaits::EngineParameters *p, float *out, float *aux, size_t n, bool *env) { e->plaits::FMEngine::Render(*p, out, aux, n, env); }  // qualified: no virtual call

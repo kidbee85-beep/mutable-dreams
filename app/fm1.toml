@@ -33,7 +33,11 @@ o2 = ["third_party/elements/dsp/exciter.cc", "third_party/elements/dsp/resonator
 include = ["third_party"]
 vendored = ["third_party/"]
 # Optimize DSP loops without fast-math or changed floating-point contraction.
-o2_cflags = ["-O3", "-DTEST", "-ffunction-sections", "-fdata-sections"]
+o2_cflags = ["-O3", "-DTEST", "-ffunction-sections", "-fdata-sections", "-DMD_DSP_RAM"]
+# 2.2 development: the engines called per audio block run from RAM on the FM-1 (third_party/md_ram.h)
+ram_units = ["third_party/rings/dsp/resonator.cc", "third_party/elements/dsp/exciter.cc", "third_party/elements/dsp/resonator.cc", "third_party/plaits/dsp/engine/fm_engine.cc", "third_party/plaits/dsp/engine/virtual_analog_engine.cc", "third_party/plaits/dsp/engine/additive_engine.cc"]
 licence = "GPL-3.0-only"
 
 device_include = ["compat"]
+# 2.2 development: no layout padding needed (base/tools/build.py dsp_pad* stay available): with ram_units the
+# engines run from RAM, and eight-channel USB + mirror load on the FM-1 gave 0 ECO spikes in 3 min (2.1: 10-24).

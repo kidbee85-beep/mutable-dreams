@@ -53,6 +53,8 @@ tap HOME
 spin K1 6
 wait 20
 expect density 620
+# 2.2: buttons remember their last page; this sequence starts from the first page
+pages_reset
 tap GLO
 tap GLO
 tap GLO

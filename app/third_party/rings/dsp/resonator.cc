@@ -26,6 +26,7 @@
 //
 // Resonator.
 
+#include "md_ram.h"  // 2.2 development: this unit runs from RAM on the FM-1
 #include "rings/dsp/resonator.h"
 
 #include "stmlib/dsp/dsp.h"
@@ -151,3 +152,6 @@ void Resonator::Process(const float* in, float* out, float* aux, size_t size) {
 }
 
 }  // namespace rings
+
+// 2.2 development: the entry Mutable Dreams calls (through a far pointer on the FM-1).
+extern "C" void md_ram_rings_process(rings::Resonator *r, const float *in, float *out, float *aux, size_t n) { r->Process(in, out, aux, n); }

@@ -58,18 +58,20 @@ static int bank_action(int action){
   }
   unsigned bytes=bank_kind&&bank_io.tones.used?sizeof(ToneBank):0;
   int failed=plat_store_save(obj,&bank_io.tones,bytes);
+  list_invalidate_names();
   app_say(failed?"CLEAR FAILED":"USER SLOT CLEARED","");return failed?7:0;
  }
  uint32_t lock=plat_lock();bank_patch_io=*md_state();plat_unlock(lock);
  if(action!=BANK_LOAD){
   int failed;
   if(bank_kind){memcpy(bank_io.tones.tone[bank_slot%16].name,bank_name,24);bank_io.tones.tone[bank_slot%16].track=bank_patch_io.track[dream_ui.track];bank_io.tones.tone[bank_slot%16].ext=bank_patch_io.ext[dream_ui.track];bank_io.tones.used|=1u<<(bank_slot%16);failed=plat_store_save(obj,&bank_io.tones,sizeof bank_io.tones);}
-  else {bank_io.biome.magic=0x4d445542;memcpy(bank_io.biome.name,bank_name,24);bank_io.biome.patch=bank_patch_io;failed=plat_store_save(obj,&bank_io.biome,sizeof bank_io.biome);}
+  else {md_patch_portable(&bank_patch_io);bank_io.biome.magic=0x4d445542;memcpy(bank_io.biome.name,bank_name,24);bank_io.biome.patch=bank_patch_io;failed=plat_store_save(obj,&bank_io.biome,sizeof bank_io.biome);}
   if(!failed&&!bank_kind){
-   uint32_t f=plat_lock();md_mark_saved_from(&bank_patch_io);plat_unlock(f);
+   uint32_t f=plat_lock();md_adopt_portable();md_mark_saved_from(&bank_patch_io);plat_unlock(f);
    bank_pending=-1;
    if(md_pending_biome()>=0)dream_cmd(MD_SCENE_CONFIRM,0,0);
   }
+  list_invalidate_names();
   app_say(failed?"BANK SAVE FAILED":"USER SLOT SAVED","");return failed?7:0;
  }else{
   if(!exists){app_say("EMPTY USER SLOT","");return 3;}
@@ -80,6 +82,7 @@ static int bank_action(int action){
    e->glide=t->ext.glide;e->tides=t->ext.tides;e->tides_rate=t->ext.tides_rate;e->warps=t->ext.warps;
    bank_patch_io.tone_preset[dream_ui.track]=-1;bank_patch_io.edited_mask|=1u|(2u<<dream_ui.track);
   }else {if(!bank_read_biome(obj)){app_say("INVALID USER SLOT","");return 6;}memcpy(bank_name,bank_io.biome.name,24);bank_name[23]=0;}
-  int ok=bank_kind?dream_install_edit(&bank_patch_io,sizeof bank_patch_io):dream_install(&bank_patch_io,sizeof bank_patch_io);app_say(ok?"USER SLOT LOADED":"INVALID USER SLOT","");return ok?0:6;
+  int ok=bank_kind?dream_install_edit(&bank_patch_io,sizeof bank_patch_io):dream_install(&bank_patch_io,sizeof bank_patch_io);
+  if(ok&&!bank_kind)list_note_user_load(bank_slot);   /* 2.2: the Live List's REC can take this slot */app_say(ok?"USER SLOT LOADED":"INVALID USER SLOT","");return ok?0:6;
  }
 }

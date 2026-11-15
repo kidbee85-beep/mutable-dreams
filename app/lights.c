@@ -5,7 +5,8 @@ static const uint8_t dream_page_button[]={
  B_HOME,B_EDIT,B_SEQ,B_FX,B_EDIT,B_GLO,B_EDIT,B_SEQ,B_FX,B_GLO,
  B_EDIT,B_GLO,B_EDIT,B_SEQ,B_FX,B_FX,B_SEQ,B_GLO,B_GLO,B_SEQ,
  B_SEQ,B_GLO,B_FX,B_GLO,B_EDIT,B_EDIT,B_SEQ,B_SEQ,B_FX,B_FX,
- B_GLO,B_SEQ,B_SEQ,B_SEQ,B_GLO,B_GLO,B_FX,B_FX,B_FX,B_FX,B_SEQ,B_SEQ,B_SEQ,B_GLO,B_HOME
+ B_GLO,B_SEQ,B_SEQ,B_SEQ,B_GLO,B_GLO,B_FX,B_FX,B_FX,B_FX,B_SEQ,B_SEQ,B_SEQ,B_GLO,B_HOME,
+ B_EDIT /* 2.2 VOICE_DETAIL */
 };
 _Static_assert(sizeof dream_page_button==sizeof dream_pages/sizeof *dream_pages,"Every page has one navigation light");
 static uint32_t dream_light_at, dream_light_ns=1600;

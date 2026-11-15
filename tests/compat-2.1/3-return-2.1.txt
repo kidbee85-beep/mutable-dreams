@@ -1,0 +1,41 @@
+wait 3400
+# Run on the 2.1 host, powered on with the 2.2 flash (b-2.2.bin): return path.
+expect patch_valid 1
+expect biome -1
+expect unsaved 0
+expect velocity_touch 35
+tap HOME
+tap HOME
+spin K1 63
+expect browse_favorite 1
+expect browse_biome 3
+# U15 still holds factory Biome 5 (the cancelled overwrite wrote nothing)
+page 18
+spin K1 -20
+spin K1 14
+spin K3 1
+wait 150
+expect biome 5
+expect unsaved 0
+# U16, written by 2.2 from a dark saw Biome, loads in 2.1 as a User Biome
+spin K1 1
+spin K3 1
+wait 150
+expect biome -1
+expect patch_valid 1
+expect invalid 0
+# 2.1 saves its preferences again (224 bytes); cold start
+page 1
+tap HOME
+tap HOME
+expect live_view 1
+spin K4 -1
+expect velocity_touch 30
+page 1
+tap SAVE
+wait 100
+reboot
+wait 3400
+expect velocity_touch 30
+expect patch_valid 1
+flash_dump OUT/c-2.1.bin

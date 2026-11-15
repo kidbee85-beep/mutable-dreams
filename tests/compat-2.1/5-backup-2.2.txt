@@ -1,0 +1,3 @@
+wait 3400
+# 2.2 host with b-2.2.bin: a USB backup that includes the 388-byte preferences (Live List)
+backup OUT/b-2.2.bak

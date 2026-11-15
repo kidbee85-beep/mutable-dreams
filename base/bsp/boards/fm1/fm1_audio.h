@@ -141,6 +141,7 @@ FM1_INLINE int fm1_audio_init(int32_t *buf, uint32_t half_words, void (*isr)(voi
     return fm1_audio_init_checked(buf, 2u * half_words, half_words, FM1_AUDIO_RATE, isr, prio);
 }
 
+FM1_INLINE int fm1_audio_running(void) { return (FM1_ALNK_CON0 & 0x800u) != 0; }
 FM1_INLINE uint8_t fm1_audio_pending(void) { return FM1_ALNK_CON2; }
 FM1_INLINE void fm1_audio_ack_aux(uint8_t p)   /* the other three pendings */
 {

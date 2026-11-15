@@ -38,9 +38,16 @@ for bank in range(5):
   mean=sum(samples)/N;samples=[(v-mean)*min(1,i/16,(N-1-i)/64) for i,v in enumerate(samples)]
   peak=max(map(abs,samples));gain=[.82,.70,.55,.65,.5,.42,.50,.48][pad]/max(peak,1e-6)
   pcm=[round(v*gain*32767) for v in samples];arrays.append(pcm);meta.append(dict(bank=bank,pad=pad,frames=N,rate=rate))
-lines=['/* Generated original PCM: tools/generate_lofi.py. MIT OR GPL-3.0-only. */']
-for i,pcm in enumerate(arrays):lines+=['static const int16_t kit_pcm_'+str(i)+'[]={',','.join(map(str,pcm)),'};']
-lines+=['struct KitSample {const int16_t *data;unsigned size;};','static const KitSample kit_samples[40]={'+','.join('{kit_pcm_'+str(i)+','+str(len(v))+'}' for i,v in enumerate(arrays))+'};']
+# 2.2: 12-bit PCM, two samples in three bytes (kit_pcm12 in dsp/lofi_kit.inc reads them): 120 kB
+# instead of 160 kB; the rounding noise stays below -77 dBFS (16 kHz Lo-Fi source, filtered per voice).
+def pack12(pcm):
+ q=[max(-2048,min(2047,round(v/16)))&4095 for v in pcm]+[0]
+ out=[]
+ for i in range(0,len(pcm),2):a,b=q[i],q[i+1];out+=[a>>4,((a&15)<<4)|(b>>8),b&255]
+ return out
+lines=['/* Generated original PCM: tools/generate_lofi.py. MIT OR GPL-3.0-only. 12-bit, two samples in three bytes. */']
+for i,pcm in enumerate(arrays):lines+=['static const uint8_t kit_pcm_'+str(i)+'[]={',','.join(map(str,pack12(pcm))),'};']
+lines+=['struct KitSample {const uint8_t *data;unsigned size;};','static const KitSample kit_samples[40]={'+','.join('{kit_pcm_'+str(i)+','+str(len(v))+'}' for i,v in enumerate(arrays))+'};']
 (R/'app/dsp/lofi_samples.inc').write_text('\n'.join(lines)+'\n')
-(R/'presets/lofi-samples.json').write_text(json.dumps({'source':'Original synthesized one-shots; no external samples','pcm_bytes':sum(len(v)*2 for v in arrays),'samples':meta},indent=2)+'\n')
-print('PCM bytes',sum(len(v)*2 for v in arrays))
+(R/'presets/lofi-samples.json').write_text(json.dumps({'source':'Original synthesized one-shots; no external samples','pcm_bytes':sum((len(v)+1)//2*3 for v in arrays),'samples':meta},indent=2)+'\n')
+print('PCM bytes',sum((len(v)+1)//2*3 for v in arrays))

@@ -1,0 +1,51 @@
+wait 3400
+# 2.2 development (user feedback 2): hold a menu button and turn SELECT to move through its pages.
+pages_reset
+tap EDIT
+expect page 1
+tap EDIT
+expect page 10
+tap EDIT
+expect page 6
+# hold FX from an EDIT page: the first turn opens FX, further turns step its pages
+press FX
+wait 100
+spin SELECT 1
+expect page 3
+expect page_wheel 0
+spin SELECT 2
+expect page 14
+spin SELECT -3
+expect page 39
+wait 300
+shot Page-Wheel.png
+release FX
+wait 50
+expect page 39
+expect page_wheel -1
+expect help -1
+expect track 0
+# without a held button SELECT chooses the track
+spin SELECT 1
+expect track 1
+# a long hold before turning: help shows, the turn closes it and moves pages; the release stays silent
+press GLO
+wait 1000
+expect help 5
+spin SELECT 1
+expect help -1
+expect page 9
+spin SELECT -1
+expect page 23
+release GLO
+wait 50
+expect page 23
+expect help -1
+# normal taps still step and remember
+tap GLO
+expect page 44
+tap HOME
+tap EDIT
+expect page 6
+expect patch_valid 1
+expect invalid 0

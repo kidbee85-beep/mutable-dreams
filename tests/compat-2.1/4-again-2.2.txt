@@ -1,0 +1,22 @@
+wait 3400
+# Run on the 2.2 host with c-2.1.bin: after 2.1 rewrote the preferences the list is empty, nothing else is lost.
+expect patch_valid 1
+expect velocity_touch 30
+expect keep_setting 0
+expect biome_change 0
+tap HOME
+tap HOME
+spin K1 63
+expect browse_favorite 1
+expect browse_biome 3
+tap HOME
+expect live_view 3
+expect list_entry 0
+page 18
+spin K1 -20
+spin K1 14
+spin K3 1
+wait 150
+expect biome 5
+expect invalid 0
+expect queue_drops 0

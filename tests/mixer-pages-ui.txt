@@ -1,0 +1,68 @@
+wait 3400
+# 2.2 development (user feedback): Large Tracks as the live mixer; EDIT/SEQ/FX/GLO remember their page.
+tap HOME
+expect live_view 1
+spin SELECT 2
+expect track 2
+expect track_level 221
+spin K1 -2
+wait 25
+expect track_level 181
+spin K2 1
+wait 25
+expect track_send 470
+spin K3 1
+wait 25
+expect track_room 460
+expect density 500
+expect unsaved 1
+wait 300
+shot Tracks-Mixer.png
+# page memory: EDIT twice -> FILTER (from Atlas), away and back -> FILTER again
+tap HOME
+tap HOME
+tap HOME
+tap HOME
+expect live_view 0
+tap EDIT
+expect page 1
+tap EDIT
+expect page 10
+wait 300
+shot Page-Counter-Filter.png
+tap FX
+expect page 3
+tap FX
+tap FX
+expect page 14
+tap EDIT
+expect page 10
+tap FX
+expect page 14
+tap SEQ
+expect page 2
+tap SEQ
+expect page 7
+tap HOME
+tap GLO
+expect page 9
+tap GLO
+expect page 21
+tap SEQ
+expect page 7
+tap GLO
+expect page 21
+# GLO from Itinera continues its cycle (device test 56463164: it returned to the remembered KIT page)
+page 23
+tap GLO
+expect page 44
+tap GLO
+expect page 9
+tap HOME
+tap EDIT
+expect page 10
+tap EDIT
+expect page 6
+expect patch_valid 1
+expect invalid 0
+expect queue_drops 0

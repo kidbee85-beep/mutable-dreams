@@ -4,7 +4,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-enum { MD_TRACKS=6, MD_MODELS=24, MD_RATE=44100, MD_QUANTUM=64, MD_V13_BIOMES=109, MD_V15_BIOMES=169, MD_WARM_FIRST_BIOME=213, MD_WARM_FIRST_TONE=452, MD_RULE_FIRST_BIOME=233, MD_MALLET_FIRST_BIOME=245, MD_ENSEMBLE_FIRST_BIOME=248, MD_VOWEL_FIRST_BIOME=257, MD_SOFT_FIRST_BIOME=261, MD_LAYERS_FIRST_BIOME=269, MD_BIOMES=272, MD_PATCH_VERSION=12, MD_FELT_FIRST_TONE=516, MD_TONE_PRESETS=632, MD_BLANK_BIOME=64, MD_STEPS=32 };
+enum { MD_TRACKS=6, MD_MODELS=24, MD_RATE=44100, MD_QUANTUM=64, MD_V13_BIOMES=109, MD_V15_BIOMES=169, MD_WARM_FIRST_BIOME=213, MD_WARM_FIRST_TONE=452, MD_RULE_FIRST_BIOME=233, MD_MALLET_FIRST_BIOME=245, MD_ENSEMBLE_FIRST_BIOME=248, MD_VOWEL_FIRST_BIOME=257, MD_SOFT_FIRST_BIOME=261, MD_LAYERS_FIRST_BIOME=269, MD_V21_BIOMES=272, MD_DARK_FIRST_BIOME=272, MD_BIOMES=276, MD_PATCH_VERSION=12, MD_FELT_FIRST_TONE=516, MD_V21_TONES=632, MD_DARK_FIRST_TONE=632, MD_TONE_PRESETS=640, MD_BLANK_BIOME=64, MD_STEPS=32 };
 enum { MD_KICK, MD_SNARE, MD_HAT, MD_FM, MD_VA, MD_RINGS, MD_HARMONIC, MD_CHOIR, MD_BASS, MD_ELEMENTS, MD_MELLOW, MD_SATIN, MD_VELVET_KEYS, MD_SPECTRAL, MD_BREATH, MD_CEDAR, MD_REED, MD_SKIN, MD_BOWED, MD_AERO, MD_FELT, MD_SILK, MD_COPPER, MD_VOWEL };
 enum { MD_MODEL, MD_TONE, MD_HARM, MD_DECAY, MD_LEVEL, MD_SEND, MD_HITS,
  MD_LENGTH, MD_ROTATE, MD_PROB, MD_NOTE, MD_PAN, MD_MUTE, MD_SPEED,
@@ -66,7 +66,10 @@ int md_command_valid(int command);
 int md_command_allowed(int command); /* temporary performance controls remain live */
 const md_patch *md_project_state(void); /* canonical project, even during Journey */
 enum { MD_ITINERA_PRESETS=14 };
-typedef struct { unsigned remaining, section, progress, preset, chapter, energy; int biome, active; } md_itinera_view;
+/* MD_PLAY 2 during a dream: keep the sounding Biome as the live project, playing on.
+ * macro: the listener's K1-K4 offsets during a dream, -500..500. MD_MACRO
+ * during a dream sets one: 500 + offset (MIDI-learned macros centre on 500). */
+typedef struct { unsigned remaining, section, progress, preset, chapter, energy; int biome, active; int macro[4]; } md_itinera_view;
 void md_itinera_read(md_itinera_view *view);
 const char *md_itinera_name(unsigned preset);
 unsigned md_itinera_defaults(unsigned preset);
@@ -156,6 +159,20 @@ void md_mark_saved(void); /* caller holds control lock, only after successful wr
 /* Mark exactly the image that was written as saved; edits that arrive while
  * flash is busy stay unsaved. Caller holds the control lock. */
 void md_mark_saved_from(const md_patch *written);
+/* 2.2 development: the 2.1-readable form of a saved image (2.2 factory IDs as user labels). */
+void md_patch_portable(md_patch *p);
+/* 2.2 development: the sequencer's notes out over USB MIDI, a channel per track (0 off). */
+void md_set_midi_out(unsigned track,unsigned channel); /* caller holds the audio lock */
+int md_midi_out_channel(unsigned track);
+/* 2.2 development: a Biome chosen by hand keeps root, scale, transpose, tempo and chords. */
+void md_set_keep_setting(int on); /* caller holds the audio lock */
+int md_keep_setting(void);
+/* 2.2: a Biome chosen by hand while playing: 0 NOW, 1 NEXT BAR, 2 HANDOVER (track by track) */
+void md_set_biome_change(int mode); /* caller holds the audio lock */
+int md_biome_change(void);
+int md_biome_arriving(void); /* Biome on its way, or -1 */
+int md_midi_out_read(uint32_t *packet);                 /* main loop: next USB-MIDI packet, 0 none */
+void md_adopt_portable(void); /* the same for the live project; caller holds the control lock */
 int md_pending_biome(void);
 int md_active_tracks(void);
 const char *md_kit_name(int bank);

@@ -1,0 +1,54 @@
+wait 3400
+# 2.2 development (#13): large voice detail from Large Tracks, large Biome view in the HOME cycle.
+scene 272
+wait 200
+expect biome 272
+tap PLAY
+wait 2500
+tap HOME
+expect live_view 1
+spin SELECT 1
+expect track 1
+tap EDIT
+expect page 45
+wait 100
+shot Voice-Detail.png
+expect tone_preset 638
+spin K1 -1
+wait 25
+expect unsaved 1
+spin PRESET 1
+wait 25
+expect page 45
+expect tone_preset 639
+spin ALGO 0
+tap HOME
+expect page 0
+expect live_view 1
+tap EDIT
+tap EDIT
+expect page 1
+tap HOME
+expect live_view 0
+tap HOME
+tap HOME
+tap HOME
+tap HOME
+expect live_view 4
+wait 1200
+shot Stage-Name.png
+wait 9000
+shot Stage-Scene.png
+spin K4 2
+tap SEL
+wait 25
+expect selected_muted 1
+tap SEL
+wait 25
+expect selected_muted 0
+tap HOME
+expect live_view 0
+tap PLAY
+expect patch_valid 1
+expect invalid 0
+expect queue_drops 0

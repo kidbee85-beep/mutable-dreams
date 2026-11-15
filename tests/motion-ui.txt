@@ -340,6 +340,8 @@ spin K4 20
 wait 100
 shot tidal-bloom.png
 tap HOME
+# 2.2: buttons remember their last page; this sequence starts from the first page
+pages_reset
 tap FX
 tap FX
 tap FX

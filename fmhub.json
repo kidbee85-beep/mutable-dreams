@@ -1,12 +1,13 @@
 {
-  "what": "A six-track generative synth for the M-VAVE FM-1. Play 272 Biomes, let 14 Itinera dreams travel for up to four hours, arrange with Journey, and record six mono voices plus the stereo mix over USB.",
+  "what": "A six-track generative FM-1 synth with 275 musical Biomes, 640 Tones, a 16-position Live List, live dream macros, timed Biome changes and six USB audio stems.",
   "author": "Kid Bunka",
   "kinds": [
     "synth"
   ],
-  "play": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.1.html",
-  "editor": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.1.html#device-editor",
-  "cheat": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.1-Walkthrough.pdf",
-  "image": "docs/img/Mutable-Dreams-2.0-FM1.png",
-  "color": "#9BC9A5"
+  "play": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2.html",
+  "editor": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2.html#device-editor",
+  "cheat": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2-Manual.pdf",
+  "image": "docs/card-2.2.png",
+  "color": "#9BC9A5",
+  "sounds": "own: original synthesized Tones, Biomes, kit sounds and demonstration recordings"
 }

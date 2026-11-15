@@ -1,0 +1,55 @@
+wait 3400
+# 2.2 development (user feedback 1): the sequencer's notes out over USB, a channel per track.
+scene 9
+wait 100
+page 17
+expect midi_out 0
+spin PRESET 5
+expect midi_out 5
+spin SELECT 1
+spin PRESET 16
+expect midi_out 16
+spin PRESET 1
+expect midi_out 16
+wait 300
+shot Midi-Out.png
+out
+tap PLAY
+wait 4000
+expect_out USB 94 3A 69
+expect_out USB 84 3A 00
+expect_no_out USB 90 00 00
+tap PLAY
+wait 50
+# stop ends whatever still sounds on both channels (note off, velocity 0)
+expect playing 0
+# PANIC (REC on the MIDI page) right after a note: its note off goes out too
+out
+tap PLAY
+wait 30
+tap REC
+wait 50
+expect playing 0
+expect_out USB 84 3A 00
+tap SAVE
+wait 100
+reboot
+wait 3400
+page 17
+expect midi_out 5
+spin SELECT 1
+expect midi_out 16
+spin PRESET -16
+expect midi_out 0
+spin SELECT -1
+spin PRESET -5
+expect midi_out 0
+out
+tap PLAY
+wait 3000
+tap PLAY
+wait 50
+# all channels off: nothing goes out
+expect_no_out USB 94 3A 69
+expect patch_valid 1
+expect invalid 0

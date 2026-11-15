@@ -67,6 +67,12 @@ static void reset(void)
 }
 static void validate(void)
 {
+    reset();
+    assert(!fm1_audio_running());
+    regs[0] = 0x800u;
+    assert(fm1_audio_running());
+    regs[0] = 0x8000u;                            /* DMA side alone does not mean enabled */
+    assert(!fm1_audio_running());
     assert(FM1_AUDIO_SAMPLE_BITS == 24 && FM1_AUDIO_CHANNELS == 2);
     assert(FM1_AUDIO_SAMPLE_MIN == -8388608 && FM1_AUDIO_SAMPLE_MAX == 8388607);
     assert(FM1_AUDIO_RATE == 44100 && FM1_AUDIO_RATE_NUM == 24000000 && FM1_AUDIO_RATE_DEN == 544);

@@ -1,0 +1,40 @@
+wait 3400
+# Run on the 2.1 host (build 2467CC38 sources). Fresh flash: preferences, two test slots, live project.
+expect biome 0
+tap HOME
+expect live_view 1
+spin K4 7
+expect velocity_touch 35
+tap HOME
+expect live_view 2
+spin K2 3
+tap REC
+expect browse_favorite 1
+expect browse_biome 3
+tap SAVE
+# test slot U15 <- factory Biome 5, test slot U16 <- factory Biome 7
+scene 5
+wait 200
+page 18
+spin K1 14
+tap SAVE
+wait 100
+scene 7
+wait 200
+page 18
+spin K1 1
+tap SAVE
+wait 100
+# live project <- factory Biome 9, saved from a sound page
+scene 9
+wait 200
+page 1
+tap SAVE
+wait 100
+expect unsaved 0
+reboot
+wait 3400
+expect biome 9
+expect unsaved 0
+expect velocity_touch 35
+flash_dump OUT/a-2.1.bin

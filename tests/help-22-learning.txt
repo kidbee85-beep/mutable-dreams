@@ -1,0 +1,41 @@
+wait 3400
+press EDIT
+wait 900
+expect help 4
+release EDIT
+expect page 0
+shot Help-Edit-640-24.png
+tap HOME
+press SAVE
+wait 900
+expect help 7
+release SAVE
+shot Help-Save-User.png
+tap HOME
+tap HOME
+tap HOME
+tap HOME
+expect live_view 3
+press SAVE
+wait 900
+release SAVE
+shot Help-Live-List.png
+tap HOME
+tap GLO
+expect page 18
+press GLO
+wait 900
+release GLO
+shot Help-User-Banks.png
+tap HOME
+wait 50
+page 19
+wait 50
+press SEQ
+wait 900
+expect help 9
+release SEQ
+shot Help-Sequence-MIDI.png
+expect page 19
+expect invalid 0
+expect queue_drops 0

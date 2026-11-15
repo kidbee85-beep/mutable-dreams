@@ -1,0 +1,114 @@
+wait 3400
+# 2.2 development (user feedback): BIOME CHANGE. A Biome chosen by hand while playing arrives
+# NOW (as 2.1), on the NEXT BAR, or TRACK BY TRACK (pads and bass, then leads, then rhythm).
+# Biome 9 (60 BPM): models 7 6 5 4 3 7. Biome 272 Velour Nightfall (62 BPM): 11 11 11 8 12 2.
+scene 9
+wait 100
+page 9
+expect biome_change 0
+tap REC
+expect biome_change 1
+tap REC
+expect biome_change 2
+wait 300
+shot Harmony-Change.png
+# TRACK BY TRACK: Low Lantern Dub (262, 118 BPM: 8 0 12 2 1 20) to Amber Fog (5, 82 BPM: 7 6 5 4 3 7).
+# Pads (tracks 1 and 6) arrive on the first bar (2.03 s), the leads one bar later (82 BPM: +2.93 s).
+scene 262
+wait 100
+tap PLAY
+wait 500
+scene 5
+wait 100
+expect biome 262
+expect biome_arriving 5
+expect pending_biome -1
+wait 1700
+expect biome 5
+expect model0 7
+expect model5 7
+expect model1 0
+expect model2 12
+expect biome_arriving 5
+wait 2900
+expect model1 6
+expect model2 5
+expect model4 3
+expect biome_arriving -1
+expect tempo 82
+expect playing 1
+# A mix of old and new voices over the admission guard does not happen: Amber Fog to Velour Nightfall
+# (272) hands over in one step on the bar (its stages would weigh 95 and 87, the guard allows 85).
+scene 272
+wait 100
+expect biome_arriving 272
+wait 3000
+expect model0 11
+expect model4 12
+expect model5 2
+expect biome_arriving -1
+# NEXT BAR: everything at once on the bar
+page 9
+tap REC
+tap REC
+expect biome_change 1
+scene 9
+wait 100
+expect biome 272
+expect biome_arriving 9
+wait 4000
+expect biome 9
+expect model0 7
+expect model4 3
+expect model5 7
+expect biome_arriving -1
+# Stop during a handover completes it at once
+tap REC
+expect biome_change 2
+scene 272
+wait 100
+expect biome_arriving 272
+tap PLAY
+expect playing 0
+expect biome_arriving -1
+expect biome 272
+expect model0 11
+expect model4 12
+expect model5 2
+# Stopped: a Biome changes at once in every mode
+scene 9
+wait 100
+expect biome 9
+expect biome_arriving -1
+# NOW: as 2.1, also while playing
+tap REC
+expect biome_change 0
+tap PLAY
+wait 500
+scene 272
+wait 100
+expect biome 272
+expect model5 2
+expect biome_arriving -1
+tap PLAY
+# the choice is a preference: SAVE keeps it across a cold start
+page 9
+tap REC
+tap REC
+expect biome_change 2
+tap SAVE
+wait 100
+reboot
+wait 3400
+expect biome_change 2
+expect keep_setting 0
+page 9
+tap REC
+expect biome_change 0
+tap SAVE
+wait 100
+reboot
+wait 3400
+expect biome_change 0
+expect patch_valid 1
+expect invalid 0

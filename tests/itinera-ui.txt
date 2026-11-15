@@ -5,8 +5,12 @@ tap HOME
 expect live_view 1
 tap HOME
 expect live_view 2
+# 2.2: HOME continues to the Live List and the large Biome view, then the Atlas;
+# Itinera: hold HOME (below) or GLO.
 tap HOME
-expect page 44
+expect live_view 3
+tap HOME
+expect live_view 4
 tap HOME
 expect page 0
 expect live_view 0
@@ -24,7 +28,52 @@ wait 400
 expect radio_active 1
 expect page 44
 shot Hortus-Quietus-Opening.png
+# 2.2: K1-K4 during the dream shape DENSITY, MOTION, COLOUR and SPACE
+# (two clicks of 20 each), PLAY still stops, and a new dream starts neutral.
+spin K1 2
+wait 100
+expect radio_macro0 40
+expect radio_active 1
+spin K3 -3
+wait 100
+expect radio_macro2 -60
+expect radio_preset 0
+shot Hortus-Quietus-Colour.png
+spin K4 40
+wait 100
+expect radio_macro3 500
+tap PLAY
+wait 400
+expect radio_active 0
+tap PLAY
+wait 400
+expect radio_active 1
+expect radio_macro0 0
+expect radio_macro3 0
+# 2.2: the Biome that sounds is named on screen; SEL keeps it as the live
+# project and it plays on (LIVE ATLAS); ENV brings back the project from before.
+expect radio_biome 77
+shot Hortus-Quietus-Name.png
 tap SEL
+wait 300
+expect radio_active 0
+expect playing 1
+expect page 0
+expect biome 77
+shot Kept-Biome.png
+tap ENV
+wait 200
+expect biome 169
+tap PLAY
+wait 300
+expect playing 0
+press HOME
+wait 950
+release HOME
+expect page 44
+tap PLAY
+wait 400
+expect radio_active 1
 spin PRESET 4
 wait 9000
 expect page 44
@@ -44,7 +93,6 @@ wait 400
 expect radio_active 1
 expect page 44
 shot Via-Siderum-Opening.png
-tap SEL
 spin PRESET 4
 wait 9000
 expect page 44
@@ -64,7 +112,6 @@ wait 400
 expect radio_active 1
 expect page 44
 shot Silva-Nocturna-Opening.png
-tap SEL
 spin PRESET 4
 wait 9000
 expect page 44
@@ -84,7 +131,6 @@ wait 400
 expect radio_active 1
 expect page 44
 shot Mare-Nebularum-Opening.png
-tap SEL
 spin PRESET 4
 wait 9000
 expect page 44
@@ -104,7 +150,6 @@ wait 400
 expect radio_active 1
 expect page 44
 shot Lumen-Primum-Opening.png
-tap SEL
 spin PRESET 4
 wait 9000
 expect page 44
@@ -124,7 +169,6 @@ wait 400
 expect radio_active 1
 expect page 44
 shot Terra-Pluvia-Opening.png
-tap SEL
 spin PRESET 4
 wait 9000
 expect page 44
@@ -144,7 +188,6 @@ wait 400
 expect radio_active 1
 expect page 44
 shot Aurora-Polaris-Opening.png
-tap SEL
 spin PRESET 4
 wait 9000
 expect page 44
@@ -164,7 +207,6 @@ wait 400
 expect radio_active 1
 expect page 44
 shot Somnus-Lenis-Opening.png
-tap SEL
 spin PRESET 4
 wait 9000
 expect page 44
@@ -184,7 +226,6 @@ wait 400
 expect radio_active 1
 expect page 44
 shot Murmur-Arenae-Opening.png
-tap SEL
 spin PRESET 4
 wait 9000
 expect page 44
@@ -204,7 +245,6 @@ wait 400
 expect radio_active 1
 expect page 44
 shot Speculum-Glaciei-Opening.png
-tap SEL
 spin PRESET 4
 wait 9000
 expect page 44
@@ -224,7 +264,6 @@ wait 400
 expect radio_active 1
 expect page 44
 shot Ignes-Errantes-Opening.png
-tap SEL
 spin PRESET 4
 wait 9000
 expect page 44
@@ -244,7 +283,6 @@ wait 400
 expect radio_active 1
 expect page 44
 shot Fungi-Lucentes-Opening.png
-tap SEL
 spin PRESET 4
 wait 9000
 expect page 44
@@ -265,7 +303,6 @@ wait 400
 expect radio_active 1
 expect page 44
 shot Terra-Resonans-Opening.png
-tap SEL
 spin PRESET 4
 wait 9000
 expect page 44
@@ -286,7 +323,6 @@ wait 400
 expect radio_active 1
 expect page 44
 shot Aer-Silens-Opening.png
-tap SEL
 spin PRESET 4
 wait 9000
 expect page 44

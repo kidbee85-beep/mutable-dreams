@@ -10,7 +10,7 @@ static void learn_reset(){memset(learn_last,0xff,sizeof learn_last);memset(learn
 static void learn_reset_port(int port){for(int j=0;j<16;j++)if(learn_sender[j]==port){learn_picked[j]=0;learn_last[j]=learn_sender[j]=-1;}}
 static void learn_init(){memset(mappings,0,sizeof mappings);learn_arm=-1;mapping_generation=0;learn_applying=-1;learn_reset();}
 static int learn_current(const md_midi_mapping &m){
- unsigned i=m.track;switch(m.target){case 0:case 1:case 2:case 3:return patch.macro[m.target];case 4:return patch.track[i].level;case 5:return patch.track[i].cutoff;case 6:return patch.track[i].pan;case 7:return patch.track[i].send;case 8:return patch.ext[i].delay_send;case 9:return patch.ext[i].reverb_send;case 10:return patch.drift.position;default:return patch.drift.depth;}
+ unsigned i=m.track;switch(m.target){case 0:case 1:case 2:case 3:return macro_controller_value(m.target);case 4:return patch.track[i].level;case 5:return patch.track[i].cutoff;case 6:return patch.track[i].pan;case 7:return patch.track[i].send;case 8:return patch.ext[i].delay_send;case 9:return patch.ext[i].reverb_send;case 10:return patch.drift.position;default:return patch.drift.depth;}
 }
 static Command learn_command(const md_midi_mapping &m,int value){
  static const int cmds[12]={MD_MACRO,MD_MACRO,MD_MACRO,MD_MACRO,MD_LEVEL,MD_CUTOFF,MD_PAN,MD_SEND,MD_DELAY_SEND,MD_REVERB_SEND,MD_DRIFT_POSITION,MD_DRIFT_DEPTH};return {cmds[m.target],m.target<4?m.target:m.track,value};
@@ -23,7 +23,7 @@ static bool learn_matches(const md_midi_mapping &m,int port,unsigned channel){re
 static bool learn_cc(int port,unsigned channel,unsigned cc,unsigned value){
  if(cc==121){for(int j=0;j<16;j++)if(learn_sender[j]==port&&learn_matches(mappings[j],port,channel)){learn_picked[j]=0;learn_last[j]=learn_sender[j]=-1;}return false;}
  if(learn_arm>=0&&(int32_t)(stats.frames-learn_deadline)>=0)learn_arm=-1;
- if(learn_arm>=0&&learn_safe(cc)){
+ if(learn_arm>=0&&learn_safe(cc)&&md_command_allowed(MD_LEARN_ARM)){
   auto &m=mappings[learn_arm];m.enabled=1;m.port=port;m.channel=channel;m.cc=cc;m.reserved[0]=m.reserved[1]=0;
   // The most recent assignment wins over an exact duplicate.
   for(int j=0;j<16;j++)if(j!=learn_arm&&learn_matches(mappings[j],port,channel)&&mappings[j].cc==cc)mappings[j].enabled=0;
@@ -31,6 +31,7 @@ static bool learn_cc(int port,unsigned channel,unsigned cc,unsigned value){
  }
  bool consumed=false;
  for(int j=0;j<16;j++){auto &m=mappings[j];if(!learn_matches(m,port,channel))continue;
+  if(!md_command_allowed(learn_command(m,0).c))continue;
   if(cc>=32&&cc<=63&&m.cc==cc-32){consumed=true;continue;}
   if(m.cc!=cc)continue;consumed=true;
   if(learn_sender[j]!=port){learn_picked[j]=0;learn_last[j]=-1;learn_sender[j]=port;}

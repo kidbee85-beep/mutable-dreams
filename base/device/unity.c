@@ -195,20 +195,7 @@ static int st_read(uint32_t off, void *dst, uint32_t n)   /* 256-byte IRQ-off wi
     }
     return 0;
 }
-static int st_erase(uint32_t off)
-{
-    uint32_t took;
-    if (!FL_STORE_OK(off, 0x1000u))
-        return -8;
-    audio_silence();
-    return fl_erase4k(off, &took);
-}
-static int st_prog(uint32_t off, const void *src, uint32_t n)
-{
-    if (!FL_STORE_OK(off, n))
-        return -8;
-    return fl_write(off, src, n);
-}
+#include "storage_flash.c"
 #include "storage.c"
 
 struct bootguard_s { uint32_t magic, failed, pending; };

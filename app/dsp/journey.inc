@@ -55,10 +55,19 @@ static void journey_stop(){
  for(unsigned i=0;i<6;i++){reset_voice(i);repeats[i].remaining=0;seq_gate[i]=0;}
  kit_reset();record_mode=0;record_note=record_step=-1;
 }
+/* 2.2: SEL during a dream keeps the Biome that sounds, as it sounds now (its
+ * key, tempo, macros and the listener's K1-K4), as the live project, and it
+ * plays on. ENV (return) brings back the project from before the dream. */
+static void itinera_keep(){
+ if(!itinera.active)return;
+ itinera_end();
+ journey_active=journey_prepared=0;journey_fade_mask=0;runtime_eco=false;
+ previous=journey_home;learn_reset();
+}
 static bool journey_tick(){
  if(journey_ticks>=journey_duration()){
   unsigned next=journey_next();
-  if(!itinera.active&&next==8){journey_stop();fill_state=0;playing=0;untilstep=0;return false;}
+  if(!itinera.active&&next==8){out_all_off();journey_stop();fill_state=0;playing=0;untilstep=0;return false;}
   unsigned keep=(~journey_fade_mask)&63u;journey_enter(next,keep);
  }
  if(itinera.active){itinera_breathe();itinera_glide();}
