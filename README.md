@@ -38,6 +38,6 @@ This package is **FM-1 only**. SMK-37 Elite/Pro and the handheld project have se
 
 ## Source and credits
 
-Source use follows the included licenses: GPL-3.0 for the combined application, with original notices retained for selected MIT DSP and the MPL-2.0 platform. See `LICENSE`, `LICENSING-GPL.txt` and `BUILDING.md`. With thanks to the original DSP and platform contributors and to everyone who shared feedback. Mutable Dreams is independent of and not endorsed by M-VAVE or Mutable Instruments.
+Source use follows the included licenses: GPL-3.0 for the combined application, with original notices retained for selected MIT DSP and the MPL-2.0 platform. See `LICENSE`, `LICENSING-GPL.txt` and [the 2.2 build guide](BUILDING-2.2.md). With thanks to the original DSP and platform contributors and to everyone who shared feedback. Mutable Dreams is independent of and not endorsed by M-VAVE or Mutable Instruments.
 
 Direct installation from V15 and published 2.1, plus both return paths, was verified with the exact final package. A V15 return requires the saved-bank backup and separate live export; all 22 objects and the live project were restored exactly after physical SEL confirmation.
