@@ -649,6 +649,11 @@ dark_start=len(biomes)
 extend_dark_saws(tones,biomes,tone_fields,len(families)+1)
 for index,biome in zip((6,58,121,201),range(dark_start,len(biomes))):
  browse_order.insert(index,biome)
+# Private first expansion: append in the browser too, so all old browse positions remain stable.
+from bloom_studies import FAMILY as BLOOM_FAMILY, SHORT as BLOOM_SHORT, extend_bloom_studies
+bloom_start=len(biomes)
+extend_bloom_studies(tones,biomes,tone_fields,len(families)+2)
+browse_order.extend(range(bloom_start,len(biomes)))
 # A few 2.0 pieces have an authored loop. Each starts on the chosen Biome;
 # later sections use related ensembles and keep the indicated voice slots.
 biome_by_name={b['name']:b for b in biomes}
@@ -669,7 +674,7 @@ for name,sections in (
 assert sorted(browse_order)==list(range(len(biomes)))
 assert all([t['model'] for t in biomes[a]['tracks']]!=[t['model'] for t in biomes[b]['tracks']]
            for a,b in zip(browse_order,browse_order[1:]))
-catalog=dict(version='private development',families=families+[LAYERS_FAMILY,DARK_FAMILY],family_short=short_names+[LAYERS_SHORT,DARK_SHORT],tone_fields=tone_fields,tones=tones,biomes=biomes,browse_order=browse_order)
+catalog=dict(version='private development',families=families+[LAYERS_FAMILY,DARK_FAMILY,BLOOM_FAMILY],family_short=short_names+[LAYERS_SHORT,DARK_SHORT,BLOOM_SHORT],tone_fields=tone_fields,tones=tones,biomes=biomes,browse_order=browse_order)
 assert all(0<=b['family']<len(catalog['family_short']) for b in biomes), 'Factory family outside label table'
 (R/'presets/catalog.json').write_text(json.dumps(catalog,indent=2,ensure_ascii=False)+'\n')
 # Pack the fields used together on recall into three aligned 32-bit words.

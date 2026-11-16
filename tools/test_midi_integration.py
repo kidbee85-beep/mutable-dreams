@@ -24,7 +24,7 @@ for key,define in [('mirror','FM1B_MIRROR'),('backup','FM1B_BACKUP')]:
 if c.get('usb_audio_channels')==8:flags+=['-DFM1B_UAC_CH=8']
 if san:flags+=['-g','-fsanitize=address,undefined','-fno-omit-frame-pointer']
 objs=[str(out/(s.replace('/','_').replace('.','_')+'.o')) for s in c['o2']]
-for name in ('midi_itinera_compat','midi_usb_backpressure'):
+for name in ('midi_itinera_compat','midi_usb_backpressure','midi_clock_retry'):
  target=out/(name+'-tests')
  subprocess.run(['clang++',*flags,*c.get('o2_cflags',[]),'-std=c++11',str(R/'tests'/f'{name}.cpp'),*objs,'-o',str(target)],check=True)
  subprocess.run([str(target)],check=True)
