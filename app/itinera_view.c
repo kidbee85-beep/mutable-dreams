@@ -100,6 +100,13 @@ static struct {
  uint8_t grain_pos[4],grain_win[4];   /* G-5: the grain cloud's grains, as the Atlas reads them */
  float partf,chapterf;
  uint8_t valid;
+ /* G-7 (pilots Terra Pluvia, Aurora Polaris): each track's last note as the
+  * frame saw it at that track's pulse (app.c's pulse_start, from the engine's
+  * own event count: no prediction, the sound is not delayed), and its eased
+  * register (0 low .. 1 high, over 2.5 s). */
+ uint32_t pulse_seen[MD_TRACKS];
+ int8_t pulse_note[MD_TRACKS];
+ float reg[MD_TRACKS];
 } radio_ease;
 static float radio_phase(void){
  if(!dream_prefs.motion)return 0;
@@ -134,7 +141,9 @@ static void radio_follow(unsigned seed,unsigned part){
   radio_ease.valid=1;radio_ease.frame=flower_time;
   radio_ease.seed_now=radio_ease.seed_was=seed;radio_ease.seed_at=flower_time-7000u;
   radio_ease.layer_now=radio_ease.layer_was=(int8_t)radio_layer_of(radio_view.biome);
-  radio_ease.partf=(float)part;radio_ease.chapterf=radio_chapter_target();return;
+  radio_ease.partf=(float)part;radio_ease.chapterf=radio_chapter_target();
+  for(unsigned i=0;i<MD_TRACKS;i++){radio_ease.pulse_note[i]=60;radio_ease.reg[i]=.5f;}  /* G-7: a middle register */
+  return;
  }
  if(radio_ease.frame==flower_time)return;
  const uint32_t dt=flower_time-radio_ease.frame;
@@ -151,7 +160,20 @@ static void radio_follow(unsigned seed,unsigned part){
   uint32_t lock=plat_lock();
   for(unsigned i=0;i<MD_TRACKS;i++){float v=md_status()->track_peak[i]*8.f;v=v>1?1:v;radio_ease.level[i]+=(v-radio_ease.level[i])*(v>radio_ease.level[i]?rise:fall);}
   md_grain_positions(radio_ease.grain_pos,radio_ease.grain_win);
-  plat_unlock(lock);}
+  int8_t notes[MD_TRACKS];
+  for(unsigned i=0;i<MD_TRACKS;i++)notes[i]=(int8_t)clamp(md_status()->last_note[i],0,127);
+  plat_unlock(lock);
+  // Capture under the lock, ease outside it: no extra floating point work
+  // while the audio interrupt is blocked.
+  const float slow=dt>2500u?1.f:dt/2500.f;
+  for(unsigned i=0;i<MD_TRACKS;i++){
+   if(pulse_start[i]!=radio_ease.pulse_seen[i]){
+    radio_ease.pulse_seen[i]=pulse_start[i];radio_ease.pulse_note[i]=notes[i];
+   }
+   const float r=clamp(radio_ease.pulse_note[i]-36,0,48)/48.f;
+   radio_ease.reg[i]+=(r-radio_ease.reg[i])*slow;
+  }
+ }
  radio_ease.chapterf=radio_chapter_target();
 }
 // One sky band of a chapter, as before; the art mixes two chapters' bands.
@@ -213,6 +235,15 @@ static void radio_layer(int kind,float a,int y,int h,float t,uint16_t color,uint
    radio_dot(x,yy,0,c);
   }
  }
+}
+/* G-7: is track i's note still showing, and how far along (0..1)? Only while
+ * the motion is on, and not for a muted track. (pulse_active is cleared after
+ * the 160 ms button pulse, so the age alone counts, as in G-5's rings.) */
+static int radio_pulse(unsigned i,uint32_t life,float *t){
+ if(!radio_view.active||!dream_prefs.motion||!last_events[i]||md_state()->track[i].mute)return 0;
+ const uint32_t age=plat_ms()-pulse_start[i];
+ if(age>=life)return 0;
+ *t=age/(float)life;return 1;
 }
 static void radio_art(int y,int h,uint16_t color,uint16_t accent){
  if(-cv_oy>=y+h||-cv_oy+(int)cv_h<=y)return;
@@ -349,14 +380,38 @@ static void radio_art(int y,int h,uint16_t color,uint16_t accent){
    else radio_orbit(x,water+j%4,4+dy-(span-12),2+j%2,0,j%3==0?accent:soft);
   }
   radio_line(34,water+8,206,water+8,soft);
+  /* G-7 pilot: each track's note lands as its own drop on the river, at its
+   * own stretch of water (the note's pitch class moves it a little within
+   * it), and widens there over 1.2 s. Six forms: flat, double, splash, deep,
+   * twin droplets, beaded. Nothing falls before the note: the drop lands
+   * with the sound, its short streak is drawn after, not before. */
+  if(radio_band(water-12,water+12))for(unsigned i=0;i<MD_TRACKS;i++){
+   float t;if(!radio_pulse(i,1200u,&t))continue;
+   const float x=48+i*29+((radio_ease.pulse_note[i]%12)-5.5f);
+   const float ease=1-(1-t)*(1-t),yy=water+2+(i%2)*2;
+   const uint16_t ink=md_tint(MD_BG,i%2?accent:color,(unsigned)radio_round(26*(1-t)));
+   const float rx=2+11*ease,ry=(i==3?2.5f:1)+(i==3?4:2.5f)*ease;
+   radio_orbit(x,yy,rx,ry,0,ink);
+   if(i==1&&t>.15f)radio_orbit(x,yy,rx*.55f,ry*.55f,0,ink);          /* double */
+   if(i==2&&t<.3f)radio_dot(x,yy-2-14*t,0,ink);                        /* splash rising */
+   if(i==4){radio_dot(x-rx-2,yy-1,0,ink);radio_dot(x+rx+2,yy-1,0,ink);} /* twin droplets */
+   if(i==5)radio_dot(x,yy,1,ink);                                      /* beaded centre */
+   if(t<.12f)radio_line(x,yy-7*(1-t/.12f),x,yy-1,md_tint(MD_BG,color,24)); /* the drop's own streak, after it */
+  }
  }else if(radio_preset==6){
   // Curtains sweep at separate speeds. Late chapters reveal their reflection.
   const float mirror=radio_smooth(chapter-1.f);
   for(int ribbon=0;ribbon<3;ribbon++){
-   float px=30,py=cy+ribbon*11;
+   /* G-7 pilot: a ribbon belongs to two tracks (0-1, 2-3, 4-5). It swells
+    * with the louder of the two, and its height follows their register
+    * slowly (2.5 s): higher notes lift it a few pixels. */
+   const float a=lv[ribbon*2],b=lv[ribbon*2+1],loud=a>b?a:b;
+   const float lift=radio_view.active&&dream_prefs.motion?(radio_ease.reg[ribbon*2]+radio_ease.reg[ribbon*2+1]-1.f)*4.f:0;
+   const float base=cy+ribbon*11-lift;
+   float px=30,py=base;
    for(int j=0;j<=22;j++){
     const float drift=phase/(ribbon+1)+j*3+ribbon*13+partf*5;
-    const float x=30+j*8,ny=cy+ribbon*11+radio_wf(drift)*(11+breath+chapter*3+8*lv[ribbon*2])/64;
+    const float x=30+j*8,ny=base+radio_wf(drift)*(11+breath+chapter*3+8*loud)/64;
     radio_line(px,py,x,ny,ribbon==1?color:line);
     if(mirror>0&&ribbon!=0)radio_line(px,cy+74-(py-cy)/2,x,cy+74-(ny-cy)/2,md_tint(MD_BG,soft,radio_round(mirror*32)));
     if(j%2==0){
@@ -364,6 +419,19 @@ static void radio_art(int y,int h,uint16_t color,uint16_t accent){
      radio_line(x,ny,x-1,curtain,ribbon==1?line:soft);
     }
     px=x;py=ny;
+   }
+   /* G-7 pilot: a note of either track lights one short curtain on its
+    * ribbon, at its pitch (low left, high right), fading within 0.7 s. */
+   for(unsigned k=0;k<2;k++){
+    const unsigned i=(unsigned)ribbon*2+k;
+    float t;if(!radio_pulse(i,700u,&t))continue;
+    const float x=38+clamp(radio_ease.pulse_note[i]-36,0,60)*(176.f/60.f);
+    const float j=(x-30)/8,drift=phase/(ribbon+1)+j*3+ribbon*13+partf*5;
+    const float ny=base+radio_wf(drift)*(11+breath+chapter*3+8*loud)/64;
+    const float tall=6+10*(1-t);
+    const uint16_t ink=md_tint(MD_BG,k?accent:color,(unsigned)radio_round(30*(1-t)));
+    radio_line(x,ny,x-1,ny-tall,ink);
+    radio_dot(x-1,ny-tall,0,ink);
    }
   }
  }else if(radio_preset==7){
@@ -533,7 +601,7 @@ static void radio_art(int y,int h,uint16_t color,uint16_t accent){
    if(radio_view.active)radio_line(32+point,yy-1,25+point,yy+1,soft);
   }
  }
- if(radio_view.active&&dream_prefs.motion){
+ if(radio_view.active&&dream_prefs.motion&&radio_preset!=5&&radio_preset!=6){  /* G-7: the pilots draw their own */
   // G-5: each track's note opens a small ring at its own place near the
   // ground, which widens and fades within 0.9 s.
   const uint32_t now=plat_ms();
@@ -570,7 +638,7 @@ static void radio_nudge(unsigned knob,int delta){
  radio_view.macro[knob]=u;radio_knob=knob;
  radio_knob_at=plat_ms();
  if(!radio_text_mix(radio_knob_at))radio_activity=radio_knob_at-600u;
- char s[24];radio_macro_text(s,knob);ann_say(s,0,ANN_NOW);
+ char s[24];radio_macro_text(s,knob);reader_spoke=1;ann_say(s,0,ANN_NOW);
  dream_ui.dirty=1;
 }
 static void radio_draw(void){

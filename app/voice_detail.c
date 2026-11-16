@@ -9,6 +9,7 @@ static uint32_t stage_activity;
 static int stage_biome=-2;
 
 static void voice_cell(int x,int y,const char *label,const char *value,uint16_t accent){
+ reader_card(label,value);   /* 2.2.1: K1-K4 for the screen reader */
  cv_text(x,y,&FONT_XS,label,MD_DIM);
  cv_text(x,y+14,text_w(&FONT_M,value)<=108?&FONT_M:&FONT_B,value,accent);
 }

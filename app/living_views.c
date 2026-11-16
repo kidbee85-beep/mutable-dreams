@@ -4,6 +4,8 @@ enum { LIVING_STANDARD, LIVING_FERN, LIVING_ROOTS, LIVING_CLOUD,
  LIVING_LANTERNS, LIVING_KILN, LIVING_PORCELAIN, LIVING_ENSEMBLE };
 static struct {
  uint8_t profile, level[6], muted, age[6], position[4], window[4], mix;
+ uint8_t fall_remainder;          /* fractional decay, in 1/66 level units */
+ uint32_t at;                    /* G-2: when the levels last fell (ms; 0 none yet) */
 } living;
 
 static void living_update(uint32_t now){
@@ -22,13 +24,21 @@ static void living_update(uint32_t now){
  const int mixer=dream_ui.page==MIXER;
  if(!tape&&!mixer&&(dream_ui.page!=LIVE||dream_ui.live_view!=LIVE_ATLAS))return;
  const int moving=dream_prefs.motion;
+ /* G-2: a held level falls 5 a 66 ms frame, by the clock rather than per
+  * frame: the frames stretch under a dense load (app.c),
+  * which slowed the fall two to four times. Unchanged at 66 ms. */
+ const uint32_t dt=living.at?now-living.at:66u;
+ const unsigned decay=(dt>1000u?1000u:dt)*5u+living.fall_remainder;
+ const int fall=(int)(decay/66u);
+ living.fall_remainder=(uint8_t)(decay%66u);
+ living.at=now?now:1u;
  uint32_t lock=plat_lock();
  living.muted=0;
  for(unsigned i=0;i<6;i++){
   if(p->track[i].mute||(p->kit.enabled&&i>=4))living.muted|=1u<<i;
   int level=(moving||mixer)?clamp((int)(md_status()->track_peak[i]*800.f),0,100):0;
   if(living.muted&(1u<<i))level=0;
-  int held=(int)living.level[i]-5;
+  int held=(int)living.level[i]-fall;
   living.level[i]=(moving||mixer)&&!(living.muted&(1u<<i))&&held>level?held:level;
   uint32_t age=now-pulse_start[i];
   living.age[i]=moving&&!(living.muted&(1u<<i))&&(pulse_active&(1u<<i))&&age<160?age:160;
@@ -221,7 +231,8 @@ static void living_ensemble(void){
   ART_FROND,ART_SHELL,ART_CURRENT,ART_MEDUSA,ART_CELLS,ART_WIRE,ART_CORAL,
   ART_SHELL,ART_CURRENT,ART_MEDUSA,ART_FROND,ART_CELLS,ART_CORAL,ART_WIRE,ART_FROND,
   ART_FROND,ART_CORAL,ART_MEDUSA,
-  ART_MEDUSA,ART_CURRENT,ART_CELLS,ART_MEDUSA}; /* 2.2 dark saw pads */
+  ART_MEDUSA,ART_CURRENT,ART_CELLS,ART_MEDUSA, /* 2.2 dark saw pads */
+  ART_FROND,ART_WIRE,ART_MEDUSA,ART_CURRENT}; /* append-only Bloom Studies */
  static const uint16_t colours[]={RGB(171,233,180),RGB(138,218,245),RGB(247,208,131),
   RGB(182,169,249),RGB(245,164,124),RGB(164,190,249),RGB(161,230,213),
   RGB(231,175,118),RGB(151,207,248),RGB(198,185,238),RGB(241,183,112),
@@ -229,7 +240,8 @@ static void living_ensemble(void){
   RGB(143,227,232),RGB(166,214,153),RGB(243,160,136),RGB(242,199,111),
   RGB(210,182,226),RGB(152,185,220),
   RGB(175,237,181),RGB(238,179,118),RGB(159,222,245),
-  RGB(214,160,132),RGB(176,158,226),RGB(226,170,108),RGB(132,170,214)};
+  RGB(214,160,132),RGB(176,158,226),RGB(226,170,108),RGB(132,170,214),
+  RGB(164,218,192),RGB(191,201,159),RGB(153,188,220),RGB(226,205,153)};
  _Static_assert(sizeof shapes==MD_BIOMES-MD_ENSEMBLE_FIRST_BIOME,"one shape per Biome");
  _Static_assert(sizeof colours/sizeof colours[0]==sizeof shapes,"one colour per Biome");
  int energy=0;
