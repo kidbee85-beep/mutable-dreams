@@ -866,7 +866,8 @@ static void apply(Command e) {
  case MD_JOURNEY_KEEP:patch.journey.section[bound(e.t,0,7)].keep=bound(v,0,63);break;
  case MD_MACRO:if(itinera.active){itinera_nudge(bound(e.t,0,3),v);break;}patch.macro[bound(e.t,0,3)]=bound(v,0,1000);break;
  case MD_TEMPO:patch.tempo=bound(v,30,220);break;
- case MD_PLAY:if(v==2){itinera_keep();break;}out_all_off();while(!v&&soft_biome>=0)soft_apply();if(!v){fill_state=0;journey_stop();}else if(!playing)journey_start();playing=!!v;if(!playing){record_mode=0;record_note=record_step=-1;}memset(repeats,0,sizeof repeats);if(playing){step=0;untilstep=0;seqrng=patch.seed;sequence_rewind();}break;
+ // A fresh local start gets its full external-clock wait after a prior timeout.
+ case MD_PLAY:if(v==2){itinera_keep();break;}out_all_off();while(!v&&soft_biome>=0)soft_apply();if(!v){fill_state=0;journey_stop();}else if(!playing){clock_age=0;journey_start();}playing=!!v;if(!playing){record_mode=0;record_note=record_step=-1;}memset(repeats,0,sizeof repeats);if(playing){step=0;untilstep=0;seqrng=patch.seed;sequence_rewind();}break;
  case MD_LOCK:patch.locked=!!v;break;
  case MD_MUTATE: previous=patch;patch.edited_mask|=1u;patch.seed=random_word(seqrng)|1;for(unsigned j=0;j<6;j++)patch.track[j].rotate=random_word(seqrng)%patch.track[j].length;break;
  case MD_RETURN:soft_biome=-1;journey_prepared=0;runtime_eco=false;record_mode=0;record_note=record_step=-1;patch=previous;seqrng=patch.seed;for(unsigned j=0;j<6;j++){repeats[j].remaining=0;if(voices[j].model!=patch.track[j].model)reset_voice(j);}break;
