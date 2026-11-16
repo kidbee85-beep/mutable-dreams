@@ -1,0 +1,78 @@
+1
+00:00:01,500 --> 00:00:12,291
+Welcome to Mutable Dreams, two point three. New
+sounds, living dreams, and a little more room
+
+2
+00:00:12,331 --> 00:00:16,599
+to play. Take a moment... and listen.
+
+3
+00:00:23,500 --> 00:00:33,541
+Twelve new Tones bring soft strings, open
+choirs and breathing colours. Choose any sound
+
+4
+00:00:33,581 --> 00:00:40,643
+on any of the six tracks. Your notes and rhythm
+stay in place.
+
+5
+00:01:29,500 --> 00:01:39,455
+Four Bloom Studies move from open, quiet space
+to a gentle waltz and a brighter pulse. Each is
+
+6
+00:01:39,495 --> 00:01:44,878
+a complete six-track piece, ready to make your
+own.
+
+7
+00:03:49,000 --> 00:03:58,699
+Listen to the same phrase... dry, then with
+reverb and delay. These are the existing
+
+8
+00:03:58,739 --> 00:04:05,771
+effects. Shape each track’s sends, and let the
+space breathe.
+
+9
+00:04:40,200 --> 00:04:49,848
+In Terra Pluvia, notes become river rings. In
+Aurora Polaris, six voices light three ribbons.
+
+10
+00:04:49,888 --> 00:04:55,578
+The music leads the picture. The original
+garden stays.
+
+11
+00:05:48,200 --> 00:05:56,619
+Meters settle more steadily. More controls
+speak to the screen reader. Press Play again to
+
+12
+00:05:56,659 --> 00:06:03,857
+give a late MIDI clock a fresh wait. Back up
+your own Biomes before updating.
+
+13
+00:06:19,200 --> 00:06:29,340
+Explore Performance Garden for VIBE FM, the MPC
+preview, and our handheld and SMK Elite
+
+14
+00:06:29,380 --> 00:06:40,104
+projects. There is TrackWerk and bazillOS too.
+Each edition has its own compatibility notes.
+
+15
+00:07:19,200 --> 00:07:28,618
+Mutable Dreams FM carries the music into radio
+and visual streams. Free and open source, by
+
+16
+00:07:28,658 --> 00:07:36,621
+Kid Bunka. Find the instruments, guides, and
+optional support on our website.
