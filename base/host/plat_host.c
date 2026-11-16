@@ -105,6 +105,7 @@
  *   quit
  *   listen                       a screen reader starts listening (HELLO, again every 2 s): each SAY is printed
  *                                ("said: ..."; "said!:" cuts off what was being said)
+ *   bye | unlisten               the reader stops: with a BYE, or silently (its HELLOs stop; gone after 5 s)
  *   where                        the reader asks for everything on the screen
  *   said TEXT                    some SAY since the last "said" (or "listen") has TEXT in it: else a failure
  *   unsaid TEXT                  no SAY since the last "said" has TEXT in it: else a failure
@@ -2807,6 +2808,12 @@ int main(int argc, char **argv)
 #else
             printf("speakdump: this app has none (app_speak_dump)\n");
 #endif
+        } else if (!strcmp(cmd, "bye") || !strcmp(cmd, "unlisten")) {
+            static const uint8_t BYE[] = {ANN_H0, ANN_H1, ANN_H2, ANN_BYE};
+            sim_listen = 0;                     /* bye: the reader says BYE; unlisten: it just stops (gone after 5 s) */
+            if (cmd[0] == 'b')
+                ann_frame(BYE, sizeof BYE, now_ms);
+            run_ms(40);
         } else if (!strcmp(cmd, "where")) {
             static const uint8_t WHERE[] = {ANN_H0, ANN_H1, ANN_H2, ANN_WHERE};
             ann_frame(WHERE, sizeof WHERE, now_ms);
