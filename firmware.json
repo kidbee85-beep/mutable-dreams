@@ -5,20 +5,21 @@
   "author": "Kid Bunka",
   "license": "GPL-3.0-only",
   "tagline": "Living sound worlds for the M-VAVE FM-1",
-  "description": "An open-source six-track FM-1 instrument with 275 musical Biomes plus Blank, 640 Tones, 24 sound models, Live List, dream performance macros, sequencing, effects and per-track generated USB MIDI notes.",
+  "description": "An open-source six-track FM-1 instrument with 652 Tones, 279 musical Biomes plus Blank, 14 Itinera dreams, sequencing, shared space and generated USB MIDI notes.",
   "tags": [
     "synth",
     "groovebox",
     "sequencer",
+    "sampler",
     "midi",
     "chords",
     "ambient",
     "generative"
   ],
-  "install": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2-Install.html",
+  "install": "https://kidbee85-beep.github.io/mutable-dreams/",
   "site": "https://kidbee85-beep.github.io/mutable-dreams/",
   "source": "https://github.com/kidbee85-beep/mutable-dreams",
-  "screenshot": "docs/card-2.2.png",
+  "screenshot": "https://kidbee85-beep.github.io/mutable-dreams/assets/release23/film-cover.jpg",
   "hardware": {
     "models": [
       "FM-1"
@@ -35,11 +36,11 @@
       "screen-mirror",
       "backup"
     ],
-    "flash_status": {
-      "856014": "platform supported",
-      "B36014": "offline checked; exact-build hardware validation pending"
+    "qualification": {
+      "tested": "Puya-chip FM-1; exact CF133B2D scope in release notes",
+      "pending": "UC25HQ80 / B36014 hardware qualification"
     }
   },
   "credits": "Created by Kid Bunka; inspired by the open source work of Mutable Instruments, built with fm1-base and felucca-bsp. Independent from Mutable Instruments and M-VAVE.",
-  "version": "2.2"
+  "version": "2.3"
 }

@@ -1,13 +1,16 @@
 {
-  "what": "A six-track generative FM-1 synth with 275 musical Biomes, 640 Tones, a 16-position Live List, live dream macros, timed Biome changes and six USB audio stems.",
+  "what": "Six generative FM-1 tracks, 279 musical Biomes + Blank, 652 Tones, music-linked Itinera dreams and six USB audio stems.",
   "author": "Kid Bunka",
   "kinds": [
     "synth"
   ],
-  "play": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2.html",
-  "editor": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2.html#device-editor",
-  "cheat": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2-Manual.pdf",
-  "image": "docs/card-2.2.png",
+  "play": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.3.html",
+  "editor": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.3.html#device-editor",
+  "cheat": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.3-Manual.pdf",
+  "image": "https://kidbee85-beep.github.io/mutable-dreams/assets/release23/film-cover.jpg",
   "color": "#9BC9A5",
-  "sounds": "own: original synthesized Tones, Biomes, kit sounds and demonstration recordings"
+  "sounds": "own: original synthesized Tones, Biomes, kit sounds and demonstration recordings",
+  "version": "2.3",
+  "identity": "FM-1_710020300",
+  "sha256": "c70c4371a4287ecbf68b1bb6f53d8d519f968276417ec94a058a0051c6b1ca96"
 }
