@@ -1,44 +1,40 @@
-# Mutable Dreams 2.2 · Played live
+# Mutable Dreams 2.3 · Bloom Studies
 
-An independent, open-source instrument for the **M-VAVE FM-1**, by **Kid Bunka**.
+An independent, free and open-source instrument for the **M-VAVE FM-1**, by **Kid Bunka**.
 
-**Six freely assignable tracks · 275 musical Biomes + Blank · 640 Tones · 24 sound models · 14 Itinera dreams**
+**Six freely assignable tracks · 279 musical Biomes + Blank · 652 Tones · 24 sound models · 14 Itinera dreams**
 
-[Start here](https://kidbee85-beep.github.io/mutable-dreams/Start-here.html) · [Play the Web Studio](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2.html) · [Complete manual](https://kidbee85-beep.github.io/mutable-dreams/Manual.html) · [64-page PDF](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2-Manual.pdf) · [Installer](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.2-Install.html)
+[Start here](https://kidbee85-beep.github.io/mutable-dreams/Start-here.html) · [Web Studio](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.3.html) · [71-page illustrated guide](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.3-Manual.pdf) · [12-page quickstart](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.3-Quickstart.pdf) · [Installer](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.3-Install.html)
 
-## New ways to play
+## New in 2.3
 
-- **HOME Live List:** 16 ordered references to your own saved or factory Biomes, plus permanent Blank access. Name-based Tone browsing and separate Tone stars.
-- **HOME mixer and Voice Detail:** selected-track level, grain and room sends, Touch on supported voices, and a larger sound-detail view. Menus remember their pages; hold a menu key and turn SELECT to use its page wheel.
-- **Musical Biome changes:** Now, Next Bar or Track by Track. KEEP SETTING carries root, scale, transpose, tempo and chords into the next Biome.
-- **Play inside Itinera:** the 14 existing dreams gain live Density, Motion, Colour and Space offsets. SEL keeps the current Biome playing; ENV restores the project from before the dream.
-- **Darker saw colours:** Velour Nightfall, Saw Cathedral, Ember Tape Dusk and Deep Saw Tide, with eight additional Satin Morph Tones.
-- **Generated USB MIDI notes:** choose an output channel for each synth track. This release sends generated monophonic synth notes, not kit notes, incoming notes, MIDI clock or BLE/TRS output.
-- **Stability and headroom:** corrected stopped-save timing with mirroring, MIDI backpressure/note-off handling and lower effect-loop overhead. Full scope is in the [release notes](Release-Notes-2.2.md).
+- Twelve new Tones across Satin, Silk, Choir, Bowed, Aero and Mellow. Choose any sound on any track while keeping its notes and rhythm.
+- Four composed Bloom Studies: **Petals After Rain**, **Willow Waltz**, **Blue Hour Bloom** and **Lanterns Upstream**.
+- Music-linked river rings in **Terra Pluvia** and note-lit ribbons in **Aurora Polaris**. The original design stays; audio is never delayed for the graphics.
+- More consistent living-meter decay, a fresh external-clock wait after a timeout, and broader Screen Reader announcements.
 
-All previous factory Biomes remain available. A Live List entry is a reference: save edited music to User Banks first. Factory ROM is not overwritten by saving a personal Biome. Journey Arrange is optional and follows each Biome's settings; ordinary generative playback remains available.
+The 2.2 performance views, Live List, Tone stars, live Itinera macros, timed Biome changes, generated six-channel USB MIDI notes and eight-channel USB audio remain available. The previous 640 Tones and 276 Biome entries keep their parameters and IDs. Reverb and delay are existing effects; 2.3 does not add Shimmer or second-core processing. Itinera still uses internal clock.
 
-## Install, back up and return
+## Back up before updating
 
-Export saved banks as `.mddb` and an edited live Biome separately before an update. Use the matching installer with desktop Chrome or Edge. Keep the prior firmware and both backups for the return path. An `.mddb` is a Mutable Dreams backup, not a universal backup for other FM-1 firmware.
+**Updates can erase Favorites and personal / User Biomes.** Export all banks as `.mddb`, export an edited live Biome separately and note your Favorites and Tone stars. Restore and check afterwards. Original M-VAVE V15 has a different saved-data format; it needs the documented bank restoration.
 
-Tested binary: **23F2FA0E**, identity **FM-1_710020200**. Package SHA-256:
+Tested build **CF133B2D**, package identity **FM-1_710020300**. Package SHA-256:
 
-`25df8be7b5d87806739e3481f0d8af371762e29051e4153cd86ce5bdae882b68`
+`c70c4371a4287ecbf68b1bb6f53d8d519f968276417ec94a058a0051c6b1ca96`
 
-Six-track FULL/dense ECO tests with effects, MIDI and mirroring added no XRuns or USB overflows. The lowest measured ECO reserve was **12.30% in the specified tests**, not a guarantee for every patch. The owner accepted cold-start and listening tests on 15 November 2026. Exact UC25HQ80 hardware validation remains open. See [the measured scope](Release-Notes-2.2.md) before installing.
+Measured minimum reserve: **12.61%** in three specified 180-second stress cases on one Puya-chip FM-1, with USB audio, MIDI, mirroring and Reader checks. Direct update/return routes include Mutable Dreams 1.5, 2.0, 2.1, 2.2 and original V15. See the [release notes](Release-Notes-2.3.md) for the exact scope and limits. Exact UC25HQ80 qualification and blind-user Reader usability remain open. m-bootloader is separate and optional, not silently installed by this application update.
 
-This package is **FM-1 only**. SMK-37 Elite/Pro and the handheld project have separate development and hardware validation. The [MPC product preview](https://kidbee85-beep.github.io/mutable-dreams/mpc.html) and [Performance Garden for VIBE FM](https://kidbee85-beep.github.io/mutable-dreams/#performance-garden) have their own downloads and compatibility notes.
+## Explore the wider garden
 
-## Listen and keep in touch
+[Performance Garden / VIBE FM](https://kidbee85-beep.github.io/mutable-dreams/#performance-garden) · [MPC product preview](https://kidbee85-beep.github.io/mutable-dreams/mpc.html) · [Handheld and SMK projects](https://kidbee85-beep.github.io/mutable-dreams/#workbench-title)
 
-[Mutable Dreams FM radio](https://kidbee85-beep.github.io/mutable-dreams/radio.html) · [Listen on TuneIn](https://tunein.com/radio/Mutable-Dreams-FM-s364904/) · [YouTube / Kid Bunka](https://www.youtube.com/@kidbunka) · [Instagram / Mutable Dreams](https://www.instagram.com/mutabledreams/) · [Feedback and issues](https://github.com/kidbee85-beep/mutable-dreams/issues)
+Each edition has its own compatibility notes and installer. The FM-1 package is not for MPC, SMK or handheld devices.
 
-[Support development](https://www.paypal.com/donate/?business=kidbee85%40gmail.com&item_name=Mutable%20Dreams%20development). Voluntary donations go entirely into firmware updates, new firmware and synthesizer-software projects. Thank you for playing, testing and helping this garden grow.
+[Mutable Dreams FM](https://kidbee85-beep.github.io/mutable-dreams/radio.html) · [TuneIn](https://tunein.com/radio/Mutable-Dreams-FM-s364904/) · [YouTube](https://www.youtube.com/@kidbunka) · [Instagram](https://www.instagram.com/mutabledreams/) · [Feedback](https://github.com/kidbee85-beep/mutable-dreams/issues)
+
+Special thanks to [Yimiblú](https://www.instagram.com/yimiblu_lofi_ambient/), our Screen Reader testers and everyone sharing ideas and music. [Optional support](https://www.paypal.com/donate/?business=kidbee85%40gmail.com&item_name=Mutable%20Dreams%20development) goes entirely into updates, firmware and synthesizer-software development.
 
 ## Source and credits
 
-Source use follows the included licenses: GPL-3.0 for the combined application, with original notices retained for selected MIT DSP and the MPL-2.0 platform. See `LICENSE`, `LICENSING-GPL.txt` and [the 2.2 build guide](BUILDING-2.2.md). With thanks to the original DSP and platform contributors and to everyone who shared feedback. Mutable Dreams is independent of and not endorsed by M-VAVE or Mutable Instruments.
-
-Direct installation from V15 and published 2.1, plus both return paths, was verified with the exact final package. A V15 return requires the saved-bank backup and separate live export; all 22 objects and the live project were restored exactly after physical SEL confirmation.
-
+See [BUILDING-2.3.md](BUILDING-2.3.md), the corresponding source archive in the [2.3 release](https://github.com/kidbee85-beep/mutable-dreams/releases/tag/v2.3), `LICENSE`, `LICENSE-MIT.txt` and `LICENSING-GPL.txt`. The combined application is GPL-3.0, selected original DSP retains MIT notices, and the platform retains MPL-2.0 notices. Mutable Dreams is independent of M-VAVE and Mutable Instruments.
