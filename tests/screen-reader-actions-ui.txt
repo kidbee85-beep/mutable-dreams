@@ -1,0 +1,68 @@
+# 2.2.1 · GitHub #10, device test 8A903381: four actions that changed state without a word (host simulator).
+# LFO (freeze), OCT- and OCT+, PRESET on MIDI (the track's notes out). Each says its new state or value.
+wait 3400
+listen
+wait 400
+said LIVE ATLAS
+# LFO: freeze on and off (the engine shows it a few frames later)
+tap LFO
+wait 700
+said FREEZE ON
+tap LFO
+wait 700
+said FREEZE OFF
+# OCT- and OCT+: the keys' octave, also at its ends (-2 .. +2)
+tap OCT-
+wait 500
+said OCTAVE -1
+tap OCT-
+wait 500
+said OCTAVE -2
+tap OCT-
+wait 500
+said OCTAVE -2
+tap OCT+
+wait 500
+said OCTAVE -1
+tap OCT+
+wait 500
+said OCTAVE 0
+unsaid OCTAVE -
+tap OCT+
+wait 500
+said OCTAVE +1
+# a held OCT says its help and keeps the octave
+press OCT+
+wait 1100
+release OCT+
+wait 500
+said HIGHER OCTAVE
+unsaid OCTAVE +2
+expect help 13
+tap SEL
+wait 600
+# PRESET on MIDI (notes out start OFF): the selected track's notes out, its newest value once the turn settles
+page 17
+wait 700
+said MIDI / PERFORMANCE
+spin PRESET 2
+wait 900
+said TRACK 1 NOTES OUT CH 2
+expect midi_out 2
+spin PRESET -16
+wait 900
+said TRACK 1 NOTES OUT OFF
+expect midi_out 0
+spin SELECT 1
+wait 700
+spin PRESET 1
+wait 900
+said TRACK 2 NOTES OUT CH 1
+expect midi_out 1
+# PRESET elsewhere still names Biomes itself, once
+page 0
+wait 700
+spin PRESET 1
+wait 900
+said Soft Machines
+unsaid NOTES OUT

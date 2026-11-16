@@ -1,0 +1,93 @@
+# 2.2.1 · GitHub #10: what a listening FM-1 Screen Reader hears (host simulator; not a device test).
+# Release 2.2 (19985f2) said only PRESET's Biome, HOME's view, SAVE and the held buttons' help.
+wait 3400
+listen
+wait 400
+said LIVE ATLAS
+# HOME: a Biome (before any edit: no unsaved-change question), the live macros, the track
+spin PRESET 1
+wait 900
+said Soft Machines
+spin K1 6
+wait 900
+said K1 DENSITY
+spin K4 -3
+wait 900
+said K4 SPACE
+spin SELECT 1
+wait 900
+said TRACK 2
+# a page: its title, the track and the four cards once; then each card as it turns
+tap EDIT
+wait 700
+said SOUND. TRACK 2
+spin K2 3
+wait 900
+said K2 HARMONICS
+spin K3 1
+wait 900
+said K3 DECAY
+# the reader asks for the screen
+where
+wait 500
+said SOUND. TRACK 2
+# a held button says its help and does not also do its short work
+press SEL
+wait 1100
+release SEL
+wait 600
+said MUTE A TRACK
+unsaid TRACK 2 OFF
+expect help 1
+tap SEL
+wait 600
+unsaid TRACK 2 OFF
+# short presses whose result the engine shows a moment later
+tap SEL
+wait 700
+said TRACK 2 OFF
+tap SEL
+wait 700
+said TRACK 2 ON
+tap PLAY
+wait 700
+said PLAYING
+tap PLAY
+wait 700
+said STOPPED
+tap REC
+wait 900
+said MUTATE
+tap ENV
+wait 900
+said RETURN
+# the other menus
+tap SEQ
+wait 700
+said RHYTHM
+tap FX
+wait 700
+said GRANULAR BUS
+tap GLO
+wait 700
+said HARMONY / GLOBAL
+spin K4 1
+wait 900
+said K4 TEMPO
+# HOME's views name themselves once (no repeat from the reader)
+tap HOME
+wait 700
+said LIVE ATLAS
+tap HOME
+wait 700
+said LARGE TRACKS
+unsaid LARGE TRACKS. LARGE TRACKS
+# Itinera: its settings cards, then a dream
+press HOME
+wait 1100
+release HOME
+wait 700
+said ITINERA / BIOME RADIO
+spin K2 1
+wait 900
+said K2 / LENGTH

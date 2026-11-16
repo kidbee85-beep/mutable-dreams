@@ -1,0 +1,94 @@
+# 2.2.1 · GitHub #10, Codex review: a reader that starts on a still, cached screen (host simulator; not a device test).
+# HOME's views keep a cached frame while nothing changes; the cards are only taken while a reader listens.
+wait 3400
+# no reader: Large Tracks, its message gone, many still frames
+tap HOME
+wait 4000
+expect live_view 1
+# HELLO: the title and all four cards, without a knob turned first
+listen
+wait 400
+said LARGE TRACKS. K1 LEVEL 52. K2 GRAIN 50. K3 ROOM 33. K4 TOUCH 0
+said_none
+where
+wait 400
+said LARGE TRACKS. K1 LEVEL 52. K2 GRAIN 50. K3 ROOM 33. K4 TOUCH 0
+said_none
+# the reader says BYE; a level changes meanwhile; a new reader hears the new value, not the old card
+bye
+spin K1 -9
+wait 3000
+listen
+wait 400
+said K1 LEVEL 34. K2 GRAIN 50
+unsaid K1 LEVEL 52
+# the reader goes silent (no BYE: gone after 5 s) and comes back
+unlisten
+wait 6000
+listen
+wait 400
+said LARGE TRACKS. K1 LEVEL 34. K2 GRAIN 50. K3 ROOM 33. K4 TOUCH 0
+# a reader that starts during help, then help closes
+bye
+press SEL
+wait 1100
+release SEL
+listen
+wait 400
+said MUTE A TRACK
+tap SEL
+wait 700
+said LARGE TRACKS. K1 LEVEL 34. K2 GRAIN 50. K3 ROOM 33. K4 TOUCH 0
+wait 3000
+where
+wait 400
+said K4 TOUCH 0
+# the other cached views (Biomes and Live List show no K cards)
+tap HOME
+wait 3000
+where
+wait 400
+said BIOMES
+tap HOME
+wait 3000
+where
+wait 400
+said LIVE LIST
+tap HOME
+wait 700
+said BIOME STAGE
+tap HOME
+wait 3000
+expect live_view 0
+where
+wait 400
+said LIVE ATLAS. K1 DENSITY 50. K2 MOTION 0
+# K1, then K2 at once: one value, the last knob's newest
+spin K1 2
+wait 60
+spin K2 3
+wait 900
+said K2 MOTION 6
+unsaid K1 DENSITY
+# a run of K1 detents: its newest value once it settles, not each step
+spin K1 1
+wait 120
+spin K1 1
+wait 900
+said K1 DENSITY 58
+unsaid K1 DENSITY 56
+# a turn just before a page change: the old card is not said after the new page
+tap EDIT
+wait 700
+spin K2 2
+wait 80
+tap SEQ
+wait 1000
+said RHYTHM
+unsaid K2 HARMONICS
+spin K1 1
+wait 80
+tap HOME
+wait 1000
+said LIVE ATLAS
+unsaid K1 HITS
