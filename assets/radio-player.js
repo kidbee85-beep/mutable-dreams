@@ -13,7 +13,7 @@
  let transport=false, owned=false, pending=0, destroyed=false, managedPlay=false, internalPauseEvents=0;
  let channel;try{channel=new BroadcastChannel('mutable-dreams-audio-focus-v1');}catch{}
  const panel=document.createElement('aside');panel.className='md-radio';panel.setAttribute('aria-label','Mutable Dreams FM radio player');
- panel.innerHTML='<div class="md-radio-top"><span class="md-radio-sprout" aria-hidden="true">❧</span><div><a href="radio.html">Mutable Dreams FM</a><span class="md-radio-title">A garden of generative music</span></div><button class="md-radio-toggle" type="button" aria-label="Play Mutable Dreams FM">Listen</button><button class="md-radio-fold" type="button" aria-label="Minimise radio player" aria-expanded="true">−</button></div><div class="md-radio-bottom"><p class="md-radio-status" role="status">Connecting to the public radio…</p><label>Volume <input aria-label="Radio volume" type="range" min="0" max="100" value="'+Math.round(audio.volume*100)+'"></label></div>';
+ panel.innerHTML='<div class="md-radio-top"><span class="md-radio-sprout" aria-hidden="true">❧</span><div><a href="radio.html">Mutable Dreams FM</a><span class="md-radio-title">A garden of generative music</span></div><button class="md-radio-toggle" type="button" aria-label="Play Mutable Dreams FM">Listen</button><button class="md-radio-fold" type="button" aria-label="Minimise radio player" aria-expanded="true">−</button></div><div class="md-radio-bottom"><p class="md-radio-status" role="status">Connecting to the public radio…</p><label>Volume <input aria-label="Radio volume" type="range" min="0" max="100" value="'+Math.round(audio.volume*100)+'"></label></div><p class="md-radio-directories"><a href="https://tunein.com/radio/Mutable-Dreams-FM-s364904/" aria-label="Listen to Mutable Dreams FM on TuneIn">Listen on TuneIn ↗</a></p>';
  document.body.append(panel); document.body.classList.add('has-md-radio');
  const status=panel.querySelector('.md-radio-status'),toggle=panel.querySelector('.md-radio-toggle');
  const save=()=>write(PREF,{volume:audio.volume,paused:prefs.paused});
@@ -65,3 +65,4 @@
  window.MutableDreamsRadio=Object.freeze({claimInstrument,instrumentState,play:()=>play(true),pause:()=>pause('Radio paused.',true),get paused(){return audio.paused;}});
  play(false);
 })();
+
