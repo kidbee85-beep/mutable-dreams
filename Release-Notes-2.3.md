@@ -45,7 +45,7 @@ Not repeated or not available in this round: a fully power-disconnected cold sta
 ## Learn, play and stay in touch
 
 - [Project and downloads](https://kidbee85-beep.github.io/mutable-dreams/)
-- [Web Studio](Mutable-Dreams-2.3.html) · [Complete illustrated manual](Mutable-Dreams-2.3-Manual.pdf) · [Quickstart](Mutable-Dreams-2.3-Quickstart.pdf)
+- [Web Studio](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.3.html) · [Complete illustrated manual](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.3-Manual.pdf) · [Quickstart](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.3-Quickstart.pdf)
 - [Mutable Dreams FM](https://kidbee85-beep.github.io/mutable-dreams/radio.html)
 - [Instagram @mutabledreams](https://www.instagram.com/mutabledreams/) · [YouTube / Kid Bunka](https://www.youtube.com/@kidbunka)
 
