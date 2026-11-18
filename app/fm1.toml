@@ -24,6 +24,10 @@ usb_audio_in = true
 usb_audio_channels = 8
 usb_audio_out = false
 midi_stamp = true
+# TriCloud-Einbau: den zweiten pi32v2-Kern aktivieren (plat_cpu2_* in device/cpu2.c).
+# cpu2_fallback: bei einem CPU2-Fehler bis zum Ausschalten auf einen Kern zurückfallen.
+cpu2 = true
+cpu2_fallback = true
 unity_opt = "z"
 words = "words.tsv"
 font_set = "dreams"

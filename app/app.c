@@ -1089,6 +1089,9 @@ static void md_draw_all(void) {
 }
 void app_say(const char *a,const char *b) {unsigned i=0;(void)b;while(a&&a[i]&&i<31){dream_ui.msg[i]=a[i];i++;}dream_ui.msg[i]=0;dream_ui.msg_start=plat_ms();dream_ui.dirty=1;if(i)reader_spoke=1;ann_say(dream_ui.msg,0,ANN_NOW);}
 void app_init(void) {
+#if FM1B_CPU2
+ {int c2=plat_cpu2_set(1);(void)c2;}   /* TriCloud-Einbau: zweiten pi32v2-Kern starten (0 = laeuft, -1 = ein Kern) */
+#endif
  bank_pending=-1;bank_allow_load=0;ble_link_lost=0;learn_slot=link_slot=0;seq_scope=1;seq_action=SEQ_COPY;seq_interval=0;seq_amount=65;sequence_view_notice=0;md_init();midi_link=plat_midi_out_link();usb_awake=plat_usb_awake();overloads=cpu_peak=quality_notice=0;
  memset(&dream_prefs,0,sizeof dream_prefs);dream_prefs.magic=0x4D445046;dream_prefs.motion=1;dream_prefs.boot_sound=1;dream_prefs.button_glow=1;dream_prefs.revision=2;for(int i=0;i<6;i++)dream_prefs.midi_route[i]=i+1;dream_prefs.midi_macro=1;
  performance_prefs=(md_performance_preferences){.version=1};
