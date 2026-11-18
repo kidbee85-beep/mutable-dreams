@@ -19,6 +19,16 @@
 #include "stmlib/dsp/filter.h"
 #include "stmlib/utils/random.h"
 #include "md_ram.h"
+#if FM1B_CPU2
+/* plat.h (base/device/cpu2.c): die CPU2-Worker-API fuer den Effekt-Handoff.
+ * cpu2.c ist ein C-Objekt -> C-Linkage fuer den Linker. */
+extern "C" {
+int plat_cpu2_on(void);
+int plat_cpu2_run(void (*fn)(uint32_t), uint32_t arg);
+int plat_cpu2_wait(void);
+void plat_cpu2_sync(void);
+}
+#endif
 #ifndef PLAT_HOST
 #define POOL __attribute__((section(".pool")))
 #else
@@ -156,6 +166,9 @@ static float feedback_lp,dcx[2],dcy[2],smooth[4],grain_noise_smooth,grain_noise_
  * auf dem quantum-Stack), damit quantum_effects() sie getrennt lesen kann. */
 static float fx_send[Q],fx_delay_send[Q],fx_room_send[Q],fx_duck[Q];
 static float fx_grainrate,fx_fb;static bool fx_source_active;
+#if FM1B_CPU2
+static float *fx_lr;static unsigned fx_n;   /* der an CPU2 uebergebene Effekt-Job */
+#endif
 static float seq_gate[6];
 static int record_mode,record_track,record_note=-1,record_step=-1;
 static unsigned record_start;
@@ -1727,6 +1740,9 @@ static void quantum_effects(float *lr,unsigned n){
  if(fx_active&&effect_return<=0.f&&fx_smooth<1e-7f)rest_fx(); // O-3
  stats.frames+=n;
 }
+#if FM1B_CPU2
+static void fx_job(uint32_t arg){(void)arg;quantum_effects(fx_lr,fx_n);}
+#endif
 }
 extern "C" {
 int md_mapping_valid(const md_midi_mapping *m){return m&&m->enabled<=1&&m->port<=3&&m->channel<=16&&m->cc<=127&&m->target<12&&m->track<6&&!m->reserved[0]&&!m->reserved[1]&&(!m->enabled||learn_safe(m->cc));}
@@ -1912,7 +1928,14 @@ void md_render(float *lr,unsigned n) {
 #else
   quantum(lr,z);
 #endif
+#if FM1B_CPU2
+  fx_lr=lr;fx_n=z;
+  if(plat_cpu2_on()&&plat_cpu2_run(fx_job,0u)){
+    if(plat_cpu2_wait()!=0)quantum_effects(lr,z);else plat_cpu2_sync();
+  }else quantum_effects(lr,z);
+#else
   quantum_effects(lr,z);
+#endif
   for(unsigned i=0;i<6;i++)if(seq_gate[i]>0){seq_gate[i]-=z;if(seq_gate[i]<=0)voices[i].midi_gate=-1;}lr+=z*2;n-=z;block_pos+=z;
  }
 }
