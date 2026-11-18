@@ -33,7 +33,7 @@ Each edition has its own compatibility notes and installer. The FM-1 package is 
 
 [Mutable Dreams FM](https://kidbee85-beep.github.io/mutable-dreams/radio.html) · [TuneIn](https://tunein.com/radio/Mutable-Dreams-FM-s364904/) · [YouTube](https://www.youtube.com/@kidbunka) · [Instagram](https://www.instagram.com/mutabledreams/) · [Feedback](https://github.com/kidbee85-beep/mutable-dreams/issues)
 
-Special thanks to [Yimiblú](https://www.instagram.com/yimiblu_lofi_ambient/), our Screen Reader testers and everyone sharing ideas and music. [Optional support](https://www.paypal.com/donate/?business=kidbee85%40gmail.com&item_name=Mutable%20Dreams%20development) goes entirely into updates, firmware and synthesizer-software development.
+Special thanks to [Yimiblú](https://www.instagram.com/yimiblu_lofi_ambient/), [Sarmiento](https://github.com/Funkelectric) for sharing the real-time DSP techniques, our Screen Reader testers and everyone sharing ideas and music. [Optional support](https://www.paypal.com/donate/?business=kidbee85%40gmail.com&item_name=Mutable%20Dreams%20development) goes entirely into updates, firmware and synthesizer-software development.
 
 ## Source and credits
 
