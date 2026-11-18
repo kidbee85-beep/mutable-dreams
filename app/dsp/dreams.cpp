@@ -152,6 +152,10 @@ static bool quality_on(){return patch.quality&&!runtime_eco;}
 static void eco_settle(){for(unsigned i=0;i<6;i++){voices[i].eco_phase=0;voices[i].eco_previous=voices[i].eco_next=0;voices[i].fade=0;}}
 static unsigned writehead,grainclock,tape_valid;
 static float feedback_lp,dcx[2],dcy[2],smooth[4],grain_noise_smooth,grain_noise_lp;
+/* CPU2-Ausbau: die Sends und Effekt-Parameter leben jetzt persistent (nicht mehr
+ * auf dem quantum-Stack), damit quantum_effects() sie getrennt lesen kann. */
+static float fx_send[Q],fx_delay_send[Q],fx_room_send[Q],fx_duck[Q];
+static float fx_grainrate,fx_fb;static bool fx_source_active;
 static float seq_gate[6];
 static int record_mode,record_track,record_note=-1,record_step=-1;
 static unsigned record_start;
@@ -1326,8 +1330,10 @@ static void quantum(float *lr,unsigned n
 #else
  for(unsigned j=0;j<4;j++)smooth[j]+=(unit(drift_macro(j))-smooth[j])*slew25;
 #endif
- bool source_active=playing;float delay_send[Q]={},room_send[Q]={};
- float send[Q]={},out[Q],aux[Q],tmp[Q],exc[Q],duck[Q];memset(lr,0,n*2*sizeof(float));
+ bool source_active=playing;
+ float *delay_send=fx_delay_send,*room_send=fx_room_send,*send=fx_send,*duck=fx_duck;
+ memset(delay_send,0,Q*sizeof *delay_send);memset(room_send,0,Q*sizeof *room_send);memset(send,0,Q*sizeof *send);
+ float out[Q],aux[Q],tmp[Q],exc[Q];memset(lr,0,n*2*sizeof(float));
  // O-4: links and drift change only in creative_tick: ask once a quantum.
  const bool moving_quantum=creative_active();
  float duckdec=1.0f-1.0f/(MD_RATE*(.04f+unit(patch.duck_release)*1.46f));
@@ -1671,6 +1677,11 @@ static void quantum(float *lr,unsigned n
  }
  if(itinera.active)itinera_release_audio(lr,send,delay_send,room_send,n);
  if(journey_active){journey_dry_last[0]=lr[2*n-2];journey_dry_last[1]=lr[2*n-1];}
+ fx_grainrate=grainrate;fx_fb=fb;fx_source_active=source_active;
+}
+static void quantum_effects(float *lr,unsigned n){
+ const float *send=fx_send,*delay_send=fx_delay_send,*room_send=fx_room_send,*duck=fx_duck;
+ const float grainrate=fx_grainrate,fb=fx_fb;const bool source_active=fx_source_active;
 #if defined(MD_PORT_PERFORMANCE)
  const float echo_feedback=unit(patch.delay_fb),room_decay=.45f+.5f*unit(patch.reverb_time),echo_target=fminf(16382.0f,patch.delay_ms*44.1f);
  const float effect_return=fmaxf(unit(patch.fx_level),.55f*fmaxf(performance.room,performance.echo));
@@ -1901,6 +1912,7 @@ void md_render(float *lr,unsigned n) {
 #else
   quantum(lr,z);
 #endif
+  quantum_effects(lr,z);
   for(unsigned i=0;i<6;i++)if(seq_gate[i]>0){seq_gate[i]-=z;if(seq_gate[i]<=0)voices[i].midi_gate=-1;}lr+=z*2;n-=z;block_pos+=z;
  }
 }
