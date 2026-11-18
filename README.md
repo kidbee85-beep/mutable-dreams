@@ -23,7 +23,7 @@ Tested build **CF133B2D**, package identity **FM-1_710020300**. Package SHA-256:
 
 `c70c4371a4287ecbf68b1bb6f53d8d519f968276417ec94a058a0051c6b1ca96`
 
-Measured minimum reserve: **12.61%** in three specified 180-second stress cases on one Puya-chip FM-1, with USB audio, MIDI, mirroring and Reader checks. Direct update/return routes include Mutable Dreams 1.5, 2.0, 2.1, 2.2 and original V15. See the [release notes](Release-Notes-2.3.md) for the exact scope and limits. Exact UC25HQ80 qualification and blind-user Reader usability remain open. m-bootloader is separate and optional, not silently installed by this application update.
+Measured minimum reserve: **12.61%** in three specified 180-second stress cases on one Puya-chip FM-1, with USB audio, MIDI, mirroring and Reader checks. Direct update/return routes include Mutable Dreams 1.5, 2.0, 2.1, 2.2 and original V15. See the [release notes](Release-Notes-2.3.md) for the exact scope and limits. UC25HQ80 qualification is now verified in emulation by [fm1-chiptest](https://github.com/kidbee85-beep/fm1-chiptest) — boot, save and reboot-persistence all pass on both flash chips — while physical validation on a real UC25HQ80 unit remains open. Blind-user Reader usability remains open. m-bootloader is separate and optional, not silently installed by this application update.
 
 ## Explore the wider garden
 
