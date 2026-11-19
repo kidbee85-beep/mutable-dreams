@@ -49,9 +49,9 @@ static elements::Exciter element_strike[6];
 static int16_t tape[GN] POOL;
 // Independent effect storage: never borrow or shorten the granular tape.
 static int16_t echo[16384] POOL;
-static int16_t room[4][1201];
+static int16_t room[4][1201] POOL;
 // Two short input allpasses soften discrete room echoes without more voices.
-static float room_diffusion[2][181];static unsigned diffusion_head[2];
+static float room_diffusion[2][181] POOL;static unsigned diffusion_head[2];
 static bool fx_active;
 // K-4: the room lines' slow read movement during Itinera (phase 0..1 each).
 static float room_mod_phase[4];
@@ -1184,6 +1184,7 @@ static MD_HOT_RAM float render_effects(float *lr,unsigned n,const float *send,
     rv[j]=(room[j][i0]+(room[j][i1]-room[j][i0])*f)/32768.0f;room_lp[j]+=(rv[j]-room_lp[j])*.3f;sum+=room_lp[j];
    }
   }else for(unsigned j=0;j<4;j++){rv[j]=room[j][room_head[j]]/32768.0f;room_lp[j]+=(rv[j]-room_lp[j])*.3f;sum+=room_lp[j];}
+  for(unsigned j=0;j<4;j++)if(fabsf(room_lp[j])<1e-18f)room_lp[j]=0;
   for(unsigned j=0;j<4;j++){float value=hp*.3f+(sum*.5f-room_lp[j])*room_decay;room[j][room_head[j]]=int16_t(clip(value)*32767);if(++room_head[j]>=lens[j])room_head[j]=0;}
   tile_fx_smooth+=(effect_return-tile_fx_smooth)*.002f;
   effect[0]=tile_fx_smooth*(delayed*.5f+(rv[0]+rv[2])*.35f);effect[1]=tile_fx_smooth*(delayed*.5f+(rv[1]+rv[3])*.35f);
@@ -1192,6 +1193,7 @@ static MD_HOT_RAM float render_effects(float *lr,unsigned n,const float *send,
    float x=effect[c]+lr[2*k+c]+wet[c]*smooth[3]*1.7f*duck[k];
    if(level_on){level_power+=x*x;x*=level_gain;}
    float y=x-dcx[c]+.9997f*dcy[c];dcx[c]=x;dcy[c]=y;
+   if(fabsf(dcx[c])<1e-18f)dcx[c]=0;if(fabsf(dcy[c])<1e-18f)dcy[c]=0;
    x=clip(y*1.9f);lr[2*k+c]=x;
    if(fabsf(x)>tile_peak)tile_peak=fabsf(x);
   }
@@ -1206,6 +1208,13 @@ static MD_HOT_RAM float render_effects(float *lr,unsigned n,const float *send,
  feedback_lp=tile_feedback_lp;
  grain_noise_smooth=tile_grain_noise_smooth;
  grain_noise_lp=tile_grain_noise_lp;
+ // A-07: flush denormals (-180 dB, inaudible) so the recursive tails never park in slow denormal land
+ if(fabsf(echo_lp)<1e-18f)echo_lp=0;
+ if(fabsf(feedback_lp)<1e-18f)feedback_lp=0;
+ if(fabsf(grain_noise_lp)<1e-18f)grain_noise_lp=0;
+ if(fabsf(grain_noise_smooth)<1e-18f)grain_noise_smooth=0;
+ if(fabsf(fx_highpass_in)<1e-18f)fx_highpass_in=0;
+ if(fabsf(fx_highpass_out)<1e-18f)fx_highpass_out=0;
  stats.peak=tile_peak;stats.grain_writes+=tape_writes;
  return level_power;
 }
