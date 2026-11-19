@@ -19,3 +19,12 @@
 static inline float ceilf(float x){return -fm_floorf(-x);}
 static inline float fminf(float a,float b){return a<b?a:b;}
 static inline float fmaxf(float a,float b){return a>b?a:b;}
+/* The Mutable Instruments modules (clouds/warps/tides/marbles/grids) call the double forms fabs/cos/sin/sqrt/exp/log
+ * on float data (an STM32 habit). The pi32v2 has no hardware double, so these run as single precision. */
+static inline float fabs(float x){return fm_fabsf(x);}
+static inline float cos(float x){return fm_cosf(x);}
+static inline float sin(float x){return fm_sinf(x);}
+static inline float sqrt(float x){return fm_sqrtf(x);}
+static inline float exp(float x){return fm_expf(x);}
+static inline float log(float x){return fm_logf(x);}
+static inline float pow(float x,float y){return fm_powf(x,y);}

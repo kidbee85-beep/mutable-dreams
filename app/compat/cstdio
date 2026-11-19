@@ -1,0 +1,3 @@
+// SPDX-License-Identifier: MIT
+#pragma once
+/* Included by the Mutable Instruments modules (clouds/dsp/wsola_sample_player.h) but not actually used. */

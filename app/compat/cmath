@@ -1,3 +1,9 @@
 /* SPDX-License-Identifier: MIT */
 #pragma once
 #include <math.h>
+/* Only std::cos / std::sin are used (clouds' FFT, on double data). The other double math stays global in math.h so a
+ * `using namespace std;` in the modules (warps) never meets both a global and a std:: fabs/sqrt/… at once. */
+namespace std {
+inline double cos(double x) { return (double)fm_cosf((float)x); }
+inline double sin(double x) { return (double)fm_sinf((float)x); }
+}

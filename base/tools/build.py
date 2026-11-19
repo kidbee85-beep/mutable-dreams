@@ -903,6 +903,15 @@ def build_app():
             units.append(("cc", *o2, *o2_more, *cpp, *inc(f.parent), *ir_out, "-c", f, "-o", o.with_suffix(".ll") if ir else o))
             objs.append(o)
             o2_units.append((f, o))
+    (OUT / "mi").mkdir(parents=True, exist_ok=True)
+    mi_more = [*CONF.get("mi_cflags", []),
+               *[a for h in CONF.get("mi_include", []) for a in ("-include", str((APP / h).resolve().relative_to(ROOT)))]]
+    for u in CONF.get("mi", []):
+        for f in (sorted(APP.glob(u)) if any(ch in u for ch in "*?[") else [APP / u]):
+            o = OUT / "mi" / ("_".join(f.relative_to(APP).with_suffix("").parts) + ".o")
+            cpp = ["-std=c++11", "-fno-exceptions", "-fno-rtti", "-fno-threadsafe-statics"] if f.suffix in (".cpp", ".cc") else []
+            units.append(("cc", *o2, *mi_more, *cpp, *inc(f.parent), *ir_out, "-c", f, "-o", o.with_suffix(".ll") if ir else o))
+            objs.append(o)
     # fm1.toml dsp_first = true: the app's o2 units (its DSP) right after the vectors, before the unity build,
     # so that the DSP keeps its flash addresses (and so its places in the shared 32 KB code/data cache) however
     # the UI grows. dsp_pad = N: N bytes of padding between the unity build and the o2 units instead.

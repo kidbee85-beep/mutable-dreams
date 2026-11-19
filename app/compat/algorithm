@@ -4,5 +4,8 @@ namespace std {
 template<class T> inline const T& min(const T&a,const T&b){return b<a?b:a;}
 template<class T> inline const T& max(const T&a,const T&b){return a<b?b:a;}
 template<class I,class T> inline void fill(I a,I b,const T&v){while(a!=b)*a++=v;}
+template<class I,class O> inline O copy(I a,I b,O o){while(a!=b)*o++=*a++;return o;}
+template<class I> inline I max_element(I a,I b){if(a==b)return b;I m=a;while(++a!=b)if(*m<*a)m=a;return m;}
+template<class I,class T> inline I upper_bound(I a,I b,const T&v){while(a<b){I m=a+(b-a)/2;if(v<*m)b=m;else a=m+1;}return a;}
 template<class T> inline void swap(T&a,T&b){T t=a;a=b;b=t;}
 }

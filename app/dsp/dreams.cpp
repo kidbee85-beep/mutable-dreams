@@ -18,6 +18,7 @@
 #include "plaits/dsp/oscillator/sine_oscillator.h"
 #include "stmlib/dsp/filter.h"
 #include "stmlib/utils/random.h"
+#include "mi/brick_mi.h"             /* the additional MI modules (Tides/Warps/…), as C bridges over mi_stmlib */
 #include "md_ram.h"
 #ifndef PLAT_HOST
 #define POOL __attribute__((section(".pool")))
@@ -1354,9 +1355,16 @@ static void quantum(float *lr,unsigned n
   if(!v.active){stats.skipped_quanta++;continue;}stats.voice_quanta++;source_active=true;
   const md_extension &e=moving?dynamic_ext:patch.ext[i];
   v.note+=(v.target_note-v.note)*(e.glide?n/(float)(n+MD_RATE*.35f*unit(e.glide)):1.0f);
-  v.tide_phase+=n/(MD_RATE*(.5f+unit(e.tides_rate)*19.5f));if(v.tide_phase>=1)v.tide_phase-=1;
   const unsigned route=patch.motion.target[i],route2=patch.motion.target2[i];
-  float wave=tidal_wave(v.tide_phase,e.tides?patch.motion.wave[i]:0);
+  float wave=0;
+  if(e.tides){
+#ifdef MD_MI_TIDES
+    wave=mi_tides_render((int)i,.5f+unit(e.tides_rate)*19.5f,.5f,unit(patch.motion.wave[i])/3.0f,.3f,n);
+#else
+    v.tide_phase+=n/(MD_RATE*(.5f+unit(e.tides_rate)*19.5f));if(v.tide_phase>=1)v.tide_phase-=1;
+    wave=tidal_wave(v.tide_phase,patch.motion.wave[i]);
+#endif
+  }
   float tidal=wave*unit(e.tides),tide_gain=1-unit(e.tides)*.5f+tidal*.5f;
   float depth2=unit(patch.motion.depth2[i]),tidal2=0,tide_gain2=1;
   if(depth2){v.tide2_phase+=n/(MD_RATE*(.5f+unit(patch.motion.rate2[i])*19.5f));if(v.tide2_phase>=1)v.tide2_phase-=1;

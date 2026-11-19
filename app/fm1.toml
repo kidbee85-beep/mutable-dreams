@@ -30,10 +30,14 @@ font_set = "dreams"
 font_trim = true
 font_pack = true
 o2 = ["third_party/elements/dsp/exciter.cc", "third_party/elements/dsp/resonator.cc", "third_party/elements/resources.cc", "third_party/plaits/dsp/engine/additive_engine.cc", "third_party/plaits/dsp/engine/fm_engine.cc", "third_party/plaits/dsp/engine/virtual_analog_engine.cc", "third_party/plaits/resources.cc", "third_party/rings/dsp/resonator.cc", "third_party/rings/resources.cc", "third_party/stmlib/dsp/units.cc", "third_party/stmlib/utils/random.cc", "dsp/dreams.cpp"]
-include = ["third_party"]
+include = ["third_party", "third_party/mi"]
 vendored = ["third_party/"]
 # Optimize DSP loops without fast-math or changed floating-point contraction.
-o2_cflags = ["-O3", "-DTEST", "-ffunction-sections", "-fdata-sections", "-DMD_DSP_RAM"]
+o2_cflags = ["-O3", "-DTEST", "-ffunction-sections", "-fdata-sections", "-DMD_DSP_RAM", "-DMD_MI_TIDES"]
+# The additional Mutable Instruments modules (Clouds/Warps/Marbles/Tides/Grids), over their own stmlib renamed
+# mi_stmlib so it never collides with the 2.3 engine's stmlib. Tides + Warps first; Clouds/Marbles follow.
+mi = ["third_party/mi/tides2/poly_slope_generator.cc", "third_party/mi/tides2/resources.cc", "third_party/mi/warps/resources.cc", "third_party/mi/warps/dsp/oscillator.cc", "third_party/mi/warps/dsp/vocoder.cc", "third_party/mi/warps/dsp/filter_bank.cc", "third_party/mi/warps/dsp/modulator.cc", "third_party/mi/stmlib/dsp/atan.cc", "third_party/mi/stmlib/dsp/units.cc", "third_party/mi/stmlib/utils/random.cc", "mi/brick_mi_tides.cpp", "mi/brick_mi_warps.cpp"]
+mi_cflags = ["-DTEST", "-Dstmlib=mi_stmlib"]
 # 2.2 development: the engines called per audio block run from RAM on the FM-1 (third_party/md_ram.h)
 ram_units = ["third_party/rings/dsp/resonator.cc", "third_party/elements/dsp/exciter.cc", "third_party/elements/dsp/resonator.cc", "third_party/plaits/dsp/engine/fm_engine.cc", "third_party/plaits/dsp/engine/virtual_analog_engine.cc", "third_party/plaits/dsp/engine/additive_engine.cc"]
 licence = "GPL-3.0-only"

@@ -1,0 +1,4 @@
+// SPDX-License-Identifier: MIT
+#pragma once
+/* Included by the Mutable Instruments modules. Only abs() is used (clouds' WSOLA). No malloc/free/atoi on target. */
+static inline int abs(int x) { return x < 0 ? -x : x; }
