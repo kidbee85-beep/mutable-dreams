@@ -49,9 +49,9 @@ static elements::Exciter element_strike[6];
 static int16_t tape[GN] POOL;
 // Independent effect storage: never borrow or shorten the granular tape.
 static int16_t echo[16384] POOL;
-static int16_t room[4][1201] POOL;
+static int16_t room[4][1201];
 // Two short input allpasses soften discrete room echoes without more voices.
-static float room_diffusion[2][181] POOL;static unsigned diffusion_head[2];
+static float room_diffusion[2][181];static unsigned diffusion_head[2];
 static bool fx_active;
 // K-4: the room lines' slow read movement during Itinera (phase 0..1 each).
 static float room_mod_phase[4];

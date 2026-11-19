@@ -2,8 +2,8 @@
  * Original compact fractional-delay string. A bounded half-rate Q15 loop,
  * excitation spread over time, and full-rate reconstruction: no trigger fill. */
 struct CedarState {float delay,previous,quant_error;unsigned head,phase,left,span;uint32_t rng;};
-static int16_t cedar_line[6][512] POOL;
-static CedarState cedar_state[6] POOL;
+static int16_t cedar_line[6][512];
+static CedarState cedar_state[6];
 static void cedar_reset(unsigned i){
  memset(cedar_line[i],0,sizeof cedar_line[i]);memset(&cedar_state[i],0,sizeof cedar_state[i]);
  cedar_state[i].rng=0x9e3779b9u^(patch.seed+i*7919u);
