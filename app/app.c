@@ -815,7 +815,7 @@ static void md_draw_all(void) {
   md_text(12,48,dream_ui.page==KIT_SEQ&&md_record_mode()?(md_record_mode()==1?"REC STEP / PLAY THE PADS":"REC LIVE / OVERDUB PADS"):k->enabled?"3 SYNTH VOICES + ONE LO-FI KIT":"SIX SYNTH VOICES / KIT OFF",col);
   md_text(12,68,md_kit_name(k->bank),MD_INK);md_text(12,87,md_pad_name(k->pad),MD_DIM);
   if(dream_ui.page==KIT_SEQ){for(i=0;i<32;i++){int x=16+(i%16)*14,y=112+(i/16)*24;int on=(k->gates[k->pad]>>i)&1;md_circle(x,y,on?4:2,i==k->step?MD_INK:i<k->length?col:MD_EDGE,on);if(i==k->step)cv_rect(x-5,y+7,10,1,MD_INK);}
-   md_value_span(8,158,"K1 STEP",k->step+1,1,k->length,col);md_named(124,158,"K2 HIT",(k->gates[k->pad]>>k->step)&1?"ON":"OFF",col);md_value_span(8,194,"K3 LENGTH",k->length,1,32,col);static const char *g[]={"DUST","SHUFFLE","SPARSE","TEXTURE"};md_named(124,194,"K4 GENERATE",g[k->generator],col);
+   md_value_span(8,158,"K1 STEP",k->step+1,1,k->length,col);md_named(124,158,"K2 HIT",(k->gates[k->pad]>>k->step)&1?"ON":"OFF",col);md_value_span(8,194,"K3 LENGTH",k->length,1,32,col);static const char *g[]={"DUST","SHUFFLE","SPARSE","TEXTURE","GRIDS"};md_named(124,194,"K4 GENERATE",g[k->generator],col);
   }else{
    for(i=0;i<8;i++){int x=24+i*27,y=123+(i%2)*8;md_circle(x,y,i==k->pad?9:5,i==k->pad?MD_INK:col,0);if(i==k->pad)md_circle(x,y,3,col,1);}
    if(dream_ui.page==KIT){md_named(8,158,"K1 RACK",k->enabled?"3 SYNTH + KIT":"6 SYNTH",col);md_value_span(124,158,"K2 KIT",k->bank+1,1,5,col);md_value_span(8,194,"K3 PAD",k->pad+1,1,8,col);md_value(124,194,"K4 TAPE HISS",k->hiss,col);}

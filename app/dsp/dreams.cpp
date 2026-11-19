@@ -273,6 +273,7 @@ static inline void write_stem(const md_usb_stems &stems,unsigned frame,unsigned 
 #endif
 // K-1: the kit's share of an Itinera scene's staggered end (1: none).
 static float kit_scene_gain=1.f,kit_scene_step=0.f;
+#include "grids.inc"
 #include "lofi_kit.inc"
 static void clear_audio() {
  fill_state=0;
@@ -884,7 +885,7 @@ static void apply(Command e) {
  case MD_KIT_SEND:patch.kit.pads[patch.kit.pad].send=bound(v,0,1000);break;
  case MD_KIT_DECAY:patch.kit.pads[patch.kit.pad].decay=bound(v,0,1000);break;
  case MD_KIT_HISS:patch.kit.hiss=bound(v,0,100);break;
- case MD_KIT_GENERATE:previous=patch;kit_pattern(patch.kit,bound(v,0,3));break;
+ case MD_KIT_GENERATE:previous=patch;kit_pattern(patch.kit,bound(v,0,4));break;
  case MD_KIT_LENGTH:patch.kit.length=bound(v,1,32);patch.kit.step=bound(patch.kit.step,0,patch.kit.length-1);break;
  case MD_KIT_TRIGGER:if(patch.kit.enabled){unsigned pad=bound(v,0,7);kit_fire(pad,.8f);stats.events[3]++;if(record_mode&&record_track==3){unsigned at=record_mode==1?patch.kit.step:((step?step-1:0)/patch.track[3].speed)%patch.kit.length;patch.kit.gates[pad]|=1u<<at;if(record_mode==1)patch.kit.step=(at+1)%patch.kit.length;}}break;
  case MD_TONE_PRESET:tone_preset(i,v);break;
@@ -1008,6 +1009,7 @@ static void tick() {
  if(!(step&15u))fill_state>>=1;
  float duration=MD_RATE*60.0f/(tempo_now()*4.0f)*(1+(step%2?-1:1)*unit(patch.swing)*.5f);
  if((step%32)==0) {if(patch.locked)seqrng=patch.seed;else patch.seed=random_word(seqrng)|1;}
+ if((step%32)==0&&patch.kit.enabled&&patch.kit.generator==4)grids_generate(patch.kit,127,127,127,40);   /* GRIDS re-rolls each pattern */
  static const int degree[7]={0,2,3,5,7,10,12};
  for(unsigned i=0;i<(patch.kit.enabled?4u:6u);i++) {
   const md_track &t=patch.track[i];unsigned voice_step=step-(journey_active?journey_origin[i]:0);
@@ -1990,7 +1992,7 @@ int md_validate(const md_patch *p) {
  for(const auto &l:p->links)if(l.source>5||l.destination>5||l.signal>3||l.target>5||l.depth< -1000||l.depth>1000||l.release>1000)return 0;
  const auto &d=p->drift;if(d.mode>2||d.captured>3||d.position>1000||d.rate>1000||d.depth>1000||(d.mode&&d.captured!=3))return 0;
  for(const auto &s:d.scene){for(auto v:s.macro)if(v>1000)return 0;for(const auto &t:s.track)for(auto v:t)if(v>1000)return 0;}
- const md_kit &k=p->kit;if(k.enabled>1||k.bank>4||k.pad>7||k.length<1||k.length>32||k.step>=k.length||k.generator>3||k.hiss>100||k.reserved)return 0;
+ const md_kit &k=p->kit;if(k.enabled>1||k.bank>4||k.pad>7||k.length<1||k.length>32||k.step>=k.length||k.generator>4||k.hiss>100||k.reserved)return 0;
  for(const md_pad &a:k.pads)if(a.tune< -12||a.tune>12||a.level>1000||a.cutoff>1000||a.send>1000||a.decay>1000)return 0;
  return 1;
 }
