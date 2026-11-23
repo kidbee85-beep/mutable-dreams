@@ -10,7 +10,6 @@
     "synth",
     "groovebox",
     "sequencer",
-    "sampler",
     "midi",
     "chords",
     "ambient",
@@ -34,11 +33,12 @@
       "usb-audio-in",
       "screen-reader",
       "screen-mirror",
-      "backup"
+      "backup",
+      "second-core"
     ],
     "qualification": {
-      "tested": "Puya-chip FM-1; exact CF133B2D scope in release notes",
-      "pending": "UC25HQ80 / B36014 hardware qualification"
+      "tested": "Puya-chip FM-1; exact 8FBE5AF8 scope in Release-Notes-2.4.md",
+      "pending": "Physical UC25HQ80 / B36014 qualification; fresh fully power-disconnected cold start"
     }
   },
   "credits": "Created by Kid Bunka; inspired by the open source work of Mutable Instruments, built with fm1-base and felucca-bsp. Independent from Mutable Instruments and M-VAVE.",

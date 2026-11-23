@@ -1,0 +1,139 @@
+1
+00:00:01,500 --> 00:00:04,692
+Willkommen bei Mutable Dreams 2.4.
+
+2
+00:00:04,732 --> 00:00:13,096
+Ein kleines Instrument mit sechs frei
+belegbaren Spuren und mehr Raum zum
+Entdecken.
+
+3
+00:00:13,136 --> 00:00:17,621
+Nimm dir einen Moment und hör zu.
+
+4
+00:00:31,000 --> 00:00:33,108
+Zwölf neue Tones.
+
+5
+00:00:33,148 --> 00:00:35,256
+Zwanzig neue Biomes.
+
+6
+00:00:35,296 --> 00:00:40,267
+Warme Pads, runde Bässe und sanfte
+Streicher.
+
+7
+00:00:40,307 --> 00:00:48,143
+Behalte Noten und Rhythmus und gib jeder
+Spur eine andere Stimme.
+
+8
+00:02:19,000 --> 00:02:24,899
+Elf zusätzliche Dreams eröffnen neue Wege
+durch den Klanggarten.
+
+9
+00:02:24,939 --> 00:02:31,497
+Wähle einen Code oder gestalte MY DREAM aus
+deinen Lieblings-Biomes.
+
+10
+00:02:31,537 --> 00:02:34,796
+Lass die Musik sich entfalten.
+
+11
+00:03:19,000 --> 00:03:27,253
+Ein wenig AIR, sanfter Chorus, mehr Breite
+oder leichte Vintage-Drift.
+
+12
+00:03:27,293 --> 00:03:32,229
+Diese optionalen Klangfarben entstehen im
+FM-1.
+
+13
+00:03:32,269 --> 00:03:36,375
+Hör dieselbe Phrase im Vergleich.
+
+14
+00:04:29,000 --> 00:04:35,296
+Beide LFOs können jetzt Grain Size und
+Position bewegen.
+
+15
+00:04:35,336 --> 00:04:43,041
+Neue Grains folgen der Modulation; bereits
+laufende Grains behalten ihre Form.
+
+16
+00:04:43,081 --> 00:04:46,561
+Langsame Veränderungen eröffnen neue
+Klanglandschaften.
+
+17
+00:05:43,000 --> 00:05:48,614
+Lade ein gespeichertes User-Biome und
+behalte deine MIDI-Konfiguration.
+
+18
+00:05:48,654 --> 00:05:54,267
+SELECT und die Oktavtasten blättern zurück
+oder vor.
+
+19
+00:05:54,307 --> 00:05:59,214
+Halte eine Funktionstaste für die passende
+Hilfe.
+
+20
+00:06:29,000 --> 00:06:34,017
+Im Inneren teilen beide Kerne echte
+Audioarbeit.
+
+21
+00:06:34,057 --> 00:06:37,629
+Auch Enginezustände nutzen Speicher
+gemeinsam.
+
+22
+00:06:37,669 --> 00:06:47,742
+Alle sechs Spuren und 24 Modelle bleiben
+erhalten, mit mehr Platz für die nächsten
+
+23
+00:06:47,782 --> 00:06:48,465
+Schritte.
+
+24
+00:06:59,000 --> 00:07:01,441
+Finde Klänge schneller.
+
+25
+00:07:01,481 --> 00:07:08,058
+Entdecke GRIDS-Rhythmen, sehr langsame
+Tempi, Nachtmodus und Sleep-Timer.
+
+26
+00:07:08,098 --> 00:07:16,329
+Biome-Übergänge sind robuster, und die Hilfe
+passt zum aktuellen Kontext.
+
+27
+00:07:37,000 --> 00:07:40,191
+Mutable Dreams von Kid Bunka.
+
+28
+00:07:40,231 --> 00:07:47,301
+Sichere deine eigenen Biomes vor dem Update
+und lies die Anleitung.
+
+29
+00:07:47,341 --> 00:07:50,532
+Dann komm zurück zur Musik.
+
+30
+00:07:50,572 --> 00:07:52,471
+Danke fürs Zuhören.

@@ -1,0 +1,43 @@
+{
+  "build": "8FBE5AF8",
+  "source_commit": "978562abab66f4c817c226c9adc8329a5c108ad1",
+  "qualified": true,
+  "package_sha256": "0923a0e1bb05f8b0fc6111e4274be38436e37a2a66790a58d12bf60bb7a2e004",
+  "firmware_flash_readback_hash_obtained": false,
+  "image_bytes": 575936,
+  "image_free": 5628,
+  "sram_free": 22836,
+  "sram_gain_vs_AEC27818": 8016,
+  "sram_required_reserve": 8192,
+  "sram_spendable": 14644,
+  "minimum_free_stacks_all_phases": [
+    15460,
+    2208,
+    2044
+  ],
+  "fixed_stacks_unchanged": [
+    24320,
+    7936,
+    2816,
+    256
+  ],
+  "models": 24,
+  "matrix_windows": 34,
+  "identity": "FM-1_710020400",
+  "chip": "Puya 0x856014",
+  "peak_us": 4672,
+  "budget_us": 5804,
+  "gate_us": 5107,
+  "system_and_matrix": "Same-image v3 carried unchanged with original hashes and timestamps",
+  "elements_cases": 96,
+  "elements_full": 12,
+  "elements_eco": 84,
+  "usb_isolation_windows": 8,
+  "handover_cases": 6,
+  "grain_lfo_windows": 20,
+  "natural_dream_seconds": 1800.822,
+  "tail_seconds": 30,
+  "original_data_restored": true,
+  "physical_uc25hq80_qualified": false,
+  "fresh_power_disconnected_cold_start_claimed": false
+}

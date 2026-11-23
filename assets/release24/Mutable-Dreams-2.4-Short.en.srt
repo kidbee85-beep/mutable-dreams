@@ -1,0 +1,36 @@
+1
+00:00:01,000 --> 00:00:02,943
+Twelve new Tones.
+
+2
+00:00:02,983 --> 00:00:04,925
+Twenty new Biomes.
+
+3
+00:00:04,965 --> 00:00:10,212
+Warm pads, rounded basses and softly bowed
+strings.
+
+4
+00:00:10,252 --> 00:00:18,143
+Keep your notes and rhythm… and give each
+track a different voice.
+
+5
+00:00:31,000 --> 00:00:36,422
+Both LFOs can now move Grain Size and
+Position.
+
+6
+00:00:36,462 --> 00:00:43,098
+New grains follow the movement… while
+grains already playing keep their
+
+7
+00:00:43,138 --> 00:00:43,705
+shape.
+
+8
+00:00:43,745 --> 00:00:48,561
+Slow changes can open a whole new
+landscape.

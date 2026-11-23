@@ -1,0 +1,36 @@
+1
+00:00:01,000 --> 00:00:03,108
+Zwölf neue Tones.
+
+2
+00:00:03,148 --> 00:00:05,256
+Zwanzig neue Biomes.
+
+3
+00:00:05,296 --> 00:00:10,267
+Warme Pads, runde Bässe und sanfte
+Streicher.
+
+4
+00:00:10,307 --> 00:00:18,143
+Behalte Noten und Rhythmus und gib jeder
+Spur eine andere Stimme.
+
+5
+00:00:31,000 --> 00:00:37,296
+Beide LFOs können jetzt Grain Size und
+Position bewegen.
+
+6
+00:00:37,336 --> 00:00:44,337
+Neue Grains folgen der Modulation; bereits
+laufende Grains behalten ihre
+
+7
+00:00:44,377 --> 00:00:45,041
+Form.
+
+8
+00:00:45,081 --> 00:00:48,561
+Langsame Veränderungen eröffnen neue
+Klanglandschaften.
