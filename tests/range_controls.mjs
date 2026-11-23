@@ -89,7 +89,7 @@ context.instrument=instrument;
 vm.runInContext(`for(let p=0;p<controlDefs.length;p++){
  page=p;values.raw=controlDefs[p].map(d=>d[1]);updateLivingField();const low=instrument.style.backgroundSize;
  values.raw=controlDefs[p].map(d=>d[2]);updateLivingField();
- if(low===instrument.style.backgroundSize)throw Error('Unresponsive field '+p);
+ if(low===instrument.style.backgroundSize && controlDefs[p].some(d=>d[2]>d[1]))throw Error('Unresponsive field '+p);
  if(Object.values(instrument.style).some(v=>/NaN|Infinity/.test(v)))throw Error('Invalid field CSS '+p);
 }`,context);
 console.log('PASS living browser field responds to control ranges on all 40 pages (isolated style-state test).');

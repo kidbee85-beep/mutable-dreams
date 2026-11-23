@@ -1,0 +1,26 @@
+# 2.4 · Biome browser: NEW IN 2.4 and RECENT filters, K3 letter jump, K4 A-Z order (host simulator, not a device test)
+wait 3400
+page 1
+tap HOME
+tap HOME
+tap HOME
+expect live_view 2
+# NEW IN 2.4 = family count + 2: all Biomes are 280 or higher
+spin K1 63
+spin K1 -1
+wait 300
+expect browse_biome 280
+shot new.png
+spin K3 3
+wait 300
+shot letter.png
+spin K1 1
+wait 200
+shot recent.png
+spin K1 -3
+spin K4 1
+wait 300
+shot alpha.png
+spin K3 1
+wait 300
+shot alpha-b.png

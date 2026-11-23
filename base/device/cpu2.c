@@ -42,3 +42,27 @@ int plat_cpu2_barred(void) { return fm1_cpu1_barred(); }
 /* how deep CPU1's stack has gone; 0 when it is not marked this start (CPU1 never started: 2ND CORE off, the fallback
  * after a failed boot, barred): its stack is zeroed .bss then, which would read as used to the bottom */
 uint32_t plat_cpu2_stack(void) { return cpu2_painted ? fm1_cpu1_stack_used() : 0u; }
+
+/* Audio-owner bounded join. A published job stays accepted even if CPU1 has not fetched it.
+ * Fault checks precede done, and done precedes the clock: USB preemption cannot create a false timeout. */
+int plat_cpu2_hold_confirmed(void) { return fm1_cpu1_held(); }
+#if FM1_CPU1_FALLBACK
+void plat_cpu2_retire(unsigned why) {
+    if(fm1_cpu1_on)fm1_cpu1_retire(why?why:FM1_CPU1_MISREAD);else fm1_cpu1_stop();
+    if(!plat_cpu2_hold_confirmed()){fm1_reboot();for(;;);}
+}
+int plat_cpu2_wait_budget(uint32_t start,uint32_t span) {
+    for (;;) {
+        fm1_cpu1_sync();
+        if (!fm1_cpu1_on) return -1;
+        if (fm1_cpu1_fault.count) {fm1_cpu1_retire(FM1_CPU1_FAULT);break;}
+        if (fm1_cpu1_mb.rejected) {fm1_cpu1_retire(FM1_CPU1_MISREAD);break;}
+        if (fm1_cpu1_mb.complete==fm1_cpu1_mb.request) return 0;
+        if ((uint32_t)(fm1_ticks()-start)>=span) {fm1_cpu1_retire(FM1_CPU1_LATE);break;}
+    }
+    /* A failed hold cannot safely release a descriptor on the IRQ stack. */
+    if (!plat_cpu2_hold_confirmed()) {fm1_reboot();for(;;);}
+    return -1;
+}
+
+#endif /* bounded recovery is available with cpu2_fallback */

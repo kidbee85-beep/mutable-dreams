@@ -1,0 +1,28 @@
+# 2.4: star a Biome, set every new setting (NIGHT, WIDTH, AIR, CHORUS, TEMPO RANGE), SAVE, restart, dump the flash
+wait 3400
+page 1
+tap HOME
+tap HOME
+tap HOME
+expect live_view 2
+spin K2 1
+tap REC
+expect browse_favorite 1
+page 11
+tap REC
+spin K2 2
+spin K3 2
+tap REC
+spin K1 2
+spin K2 1
+spin K3 2
+tap SAVE
+wait 300
+reboot
+wait 3400
+expect patch_valid 1
+expect unsaved 0
+expect air 2
+expect chorus 1
+expect tempo_range 2
+flash_dump OUT/settings-saved-2.4.bin

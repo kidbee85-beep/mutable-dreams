@@ -1,0 +1,27 @@
+# 2.4 · MY DREAM (dream 24): it needs 4 starred Biomes; then it walks through them (host simulator)
+wait 3400
+page 1
+tap HOME
+tap HOME
+tap HOME
+expect live_view 2
+# star four Biomes: REC stars the shown one, K2 moves on
+tap REC
+spin K2 1
+tap REC
+spin K2 1
+tap REC
+spin K2 1
+tap REC
+# Dreams remain available through the HOME tap cycle (home-cycle-24-ui).
+page 44
+spin K1 24
+expect radio_preset 24
+tap PLAY
+wait 400
+expect radio_active 1
+wait 5000
+shot my-dream.png
+tap PLAY
+wait 900
+expect radio_active 0

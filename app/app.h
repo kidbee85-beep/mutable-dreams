@@ -1,3 +1,11 @@
+#if defined(MD_MIX_DEVICE) && defined(PLAT_HOST) && !defined(MD_MIX_DEVICE_TEST)
+#undef MD_MIX_DEVICE
+#endif
+#if !defined(PLAT_HOST)
+#define MD_MIX_DEVICE 1
+#define MD_SOURCE_MIX_PIPELINE 1
+#define MD_STACK_PROBE 1
+#endif
 /* SPDX-License-Identifier: MIT */
 #pragma once
 #include "plat.h"

@@ -1,12 +1,18 @@
-# Mutable Dreams 2.3 · Bloom Studies
+# Mutable Dreams 2.4
 
-An independent, free and open-source instrument for the **M-VAVE FM-1**, by **Kid Bunka**.
+An open-source musical garden for the M-VAVE FM-1, created by Kid Bunka. Six freely assignable tracks, 24 sound models, 664 Tones, 300 factory entries including Blank and 25 Dreams.
 
-**Six freely assignable tracks · 279 musical Biomes + Blank · 652 Tones · 24 sound models · 14 Itinera dreams**
+Qualified application build **8FBE5AF8**, identity **FM-1_710020400**. Package SHA-256: `0923a0e1bb05f8b0fc6111e4274be38436e37a2a66790a58d12bf60bb7a2e004`.
 
-[Start here](https://kidbee85-beep.github.io/mutable-dreams/Start-here.html) · [Web Studio](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.3.html) · [71-page illustrated guide](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.3-Manual.pdf) · [12-page quickstart](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.3-Quickstart.pdf) · [Installer](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.3-Install.html)
+[Website and installer](https://kidbee85-beep.github.io/mutable-dreams/) · [Full release notes](Release-Notes-2.4.md) · [2.4 manual](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.4-Manual.pdf)
 
-## New in 2.3
+With special thanks to **Sarmiento (Funkelectric)**, Yimiblú, Screen Reader testers and all our helpers.
+
+## New in 2.4
+
+Twelve warm Tones, twenty Biomes, eleven additional Dreams, Grain Size/Position for both LFOs, bidirectional menu navigation, expanded hold help, optional character effects and both-core audio work. [Read the exact changes and qualification](Release-Notes-2.4.md). [Build the supplied source](BUILDING-2.4.md).
+
+## Retained from 2.3
 
 - Twelve new Tones across Satin, Silk, Choir, Bowed, Aero and Mellow. Choose any sound on any track while keeping its notes and rhythm.
 - Four composed Bloom Studies: **Petals After Rain**, **Willow Waltz**, **Blue Hour Bloom** and **Lanterns Upstream**.
@@ -18,6 +24,10 @@ The 2.2 performance views, Live List, Tone stars, live Itinera macros, timed Bio
 ## Back up before updating
 
 **Updates can erase Favorites and personal / User Biomes.** Export all banks as `.mddb`, export an edited live Biome separately and note your Favorites and Tone stars. Restore and check afterwards. Original M-VAVE V15 has a different saved-data format; it needs the documented bank restoration.
+
+## Historical 2.3 qualification
+
+The following figures and routes apply to 2.3 only; read [2.4 qualification](Release-Notes-2.4.md#qualified-test-scope) for the current build.
 
 Tested build **CF133B2D**, package identity **FM-1_710020300**. Package SHA-256:
 
@@ -37,4 +47,4 @@ Special thanks to [Yimiblú](https://www.instagram.com/yimiblu_lofi_ambient/), [
 
 ## Source and credits
 
-See [BUILDING-2.3.md](BUILDING-2.3.md), the corresponding source archive in the [2.3 release](https://github.com/kidbee85-beep/mutable-dreams/releases/tag/v2.3), `LICENSE`, `LICENSE-MIT.txt` and `LICENSING-GPL.txt`. The combined application is GPL-3.0, selected original DSP retains MIT notices, and the platform retains MPL-2.0 notices. Mutable Dreams is independent of M-VAVE and Mutable Instruments.
+See [BUILDING-2.4.md](BUILDING-2.4.md), the corresponding source archive in the [2.4 release](https://github.com/kidbee85-beep/mutable-dreams/releases/tag/v2.4), `LICENSE`, `LICENSE-MIT.txt` and `LICENSING-GPL.txt`. The combined application is GPL-3.0, selected original DSP retains MIT notices, and the platform retains MPL-2.0 notices. Mutable Dreams is independent of M-VAVE and Mutable Instruments.

@@ -32,14 +32,15 @@ tap SEL
 wait 100
 expect biome 1
 expect unsaved 0
+# Start at Atlas and clear page memory, then follow the current documented GLO order.
+page 1
+tap HOME
+pages_reset
 tap GLO
 tap GLO
 tap GLO
 tap GLO
 tap GLO
-tap GLO
-tap GLO
-# The global cycle includes USB Audio, Learn and Mapping before Wireless MIDI and Banks.
 tap GLO
 tap GLO
 tap GLO

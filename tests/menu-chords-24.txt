@@ -1,0 +1,120 @@
+wait 3400
+pages_reset
+page 1
+expect keyboard_octave 0
+expect selected_muted 0
+press SEL
+press OCT+
+expect page 10
+release OCT+
+release SEL
+expect page 10
+expect keyboard_octave 0
+expect selected_muted 0
+# reverse and wrap within EDIT
+press SEL
+press OCT-
+release OCT-
+release SEL
+expect page 1
+press SEL
+press OCT-
+release SEL
+release OCT-
+expect page 12
+expect keyboard_octave 0
+expect selected_muted 0
+# modifier order is symmetric: OCT first is consumed before its release
+page 3
+press OCT+
+press SEL
+release OCT+
+release SEL
+expect page 8
+expect keyboard_octave 0
+# both octave keys: no page or octave action
+press OCT-
+press OCT+
+press SEL
+release SEL
+release OCT-
+release OCT+
+expect page 8
+expect keyboard_octave 0
+# regular octave tapping retains keyboard behavior
+tap OCT+
+expect keyboard_octave 1
+tap OCT-
+expect keyboard_octave 0
+# ordinary long SEL opens help; an OCT chord while help is up is consumed
+press SEL
+wait 900
+expect help 1
+press OCT+
+release OCT+
+release SEL
+expect help 1
+expect page 8
+expect keyboard_octave 0
+shot Menu-Shortcut-Help.png
+tap HOME
+expect help -1
+# LIVE stays a home view; stopped Dream belongs to the GLO menu
+page 0
+press SEL
+press OCT+
+release SEL
+release OCT+
+expect page 0
+expect selected_muted 0
+page 44
+press SEL
+press OCT-
+release OCT-
+release SEL
+expect page 23
+press SEL
+press OCT+
+release SEL
+release OCT+
+expect page 44
+press SEL
+press OCT+
+release OCT+
+release SEL
+expect page 9
+expect playing 0
+expect keyboard_octave 0
+# kit mixer remains in its three-page EDIT family
+scene 64
+journey 79 0 1
+wait 30
+spin SELECT 3
+expect track 3
+page 24
+press SEL
+press OCT+
+release OCT+
+release SEL
+expect page 25
+press SEL
+press OCT+
+release OCT+
+release SEL
+expect page 12
+press SEL
+press OCT+
+release OCT+
+release SEL
+expect page 24
+# hold an already recognized chord past the help threshold: no extra action
+press SEL
+press OCT-
+wait 1000
+expect help -1
+release SEL
+release OCT-
+expect page 12
+expect keyboard_octave 0
+expect invalid 0
+expect queue_drops 0

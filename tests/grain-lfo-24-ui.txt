@@ -1,0 +1,30 @@
+wait 3400
+page 28
+spin K1 8
+wait 180
+expect lfo_target 8
+shot Grain-LFO-A-Position.png
+press FX
+wait 900
+expect help 0
+shot Grain-LFO-Help.png
+release FX
+expect page 28
+tap HOME
+expect help -1
+page 29
+spin K1 7
+spin K3 42
+wait 180
+expect lfo2_target 7
+shot Grain-LFO-B-Size.png
+press FX
+wait 900
+expect help 0
+shot Grain-LFO-B-Help.png
+release FX
+tap HOME
+expect help -1
+expect invalid 0
+expect queue_drops 0
+expect patch_valid 1

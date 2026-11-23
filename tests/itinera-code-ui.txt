@@ -1,0 +1,33 @@
+# 2.4 · dream codes: SELECT picks a digit, PRESET changes it, PLAY begins that dream; the code shows while it plays (host simulator)
+wait 3400
+# Dreams remain available through the HOME tap cycle (home-cycle-24-ui).
+page 44
+expect radio_code 0
+spin PRESET 1
+expect radio_code 32768
+spin SELECT 1
+spin PRESET 2
+expect radio_code 34816
+wait 200
+shot code-idle.png
+tap PLAY
+wait 400
+expect radio_active 1
+expect radio_view_code 34816
+shot code-playing.png
+tap PLAY
+wait 900
+expect radio_active 0
+# the same code again: the same code is shown
+tap PLAY
+wait 400
+expect radio_view_code 34816
+tap PLAY
+wait 900
+# 0000 is a fresh random dream
+spin SELECT -3
+spin PRESET -1
+spin SELECT 1
+spin PRESET -2
+spin SELECT 1
+spin PRESET -0

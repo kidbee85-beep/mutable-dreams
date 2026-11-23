@@ -1,0 +1,83 @@
+# Real UI: Blank remains a favorite but does not count toward MY DREAM.
+wait 3400
+page 1
+tap HOME
+tap HOME
+tap HOME
+expect live_view 2
+spin K2 -63
+spin K2 -63
+spin K2 -63
+spin K2 -63
+spin K2 -63
+spin K2 1
+expect browse_biome 1
+tap REC
+expect browse_favorite 1
+spin K2 -63
+spin K2 -63
+spin K2 -63
+spin K2 -63
+spin K2 -63
+spin K2 2
+expect browse_biome 2
+tap REC
+expect browse_favorite 1
+spin K2 -63
+spin K2 -63
+spin K2 -63
+spin K2 -63
+spin K2 -63
+spin K2 3
+expect browse_biome 3
+tap REC
+expect browse_favorite 1
+spin K2 -63
+spin K2 -63
+spin K2 -63
+spin K2 -63
+spin K2 -63
+spin K2 34
+expect browse_biome 4
+tap REC
+expect browse_favorite 1
+spin K2 -63
+spin K2 -63
+spin K2 -63
+spin K2 -63
+spin K2 -63
+spin K2 63
+spin K2 63
+spin K2 63
+spin K2 63
+spin K2 42
+expect browse_biome 64
+tap REC
+expect browse_favorite 1
+page 44
+spin K1 24
+expect radio_preset 24
+listen
+wait 400
+unsaid CLEAR-UNUSED-MARKER
+tap PLAY
+wait 900
+unsaid STAR 4 BIOMES FOR MY DREAM
+expect radio_active 1
+tap PLAY
+wait 900
+expect radio_active 0
+page 0
+expect live_view 2
+spin K2 -63
+spin K2 -63
+spin K2 -63
+spin K2 -63
+spin K2 -63
+spin K2 63
+spin K2 63
+spin K2 63
+spin K2 63
+spin K2 42
+expect browse_biome 64
+expect browse_favorite 1

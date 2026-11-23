@@ -1,0 +1,8 @@
+0923a0e1bb05f8b0fc6111e4274be38436e37a2a66790a58d12bf60bb7a2e004  Mutable-Dreams-2.4.fwsc
+62c4d20c9d854481a14156e35e5ad9df5ff001036db3bde5ba35ba52ab067333  Mutable-Dreams-2.4-Source.zip
+d533e36c97c3bc54ec10f538cf6d87d9c85b52ed52b916d99790aac31387585e  Mutable-Dreams-2.4-Installer-Kit.zip
+4ff79c66a1cf0f54c8c52b1f0174a4f1f4f5efc3d35f3dd2d05bcf5af4a4e655  Mutable-Dreams-2.4-Manual.pdf
+5f0bebe6c7fc013acfaf6c2bd983dc6132969e719e2abf61b3c31093e10a792c  Mutable-Dreams-2.4-Quickstart.pdf
+7800c4a8a66189f2cbb58889b6f1d44328a3d774bbbac5d0a908945649708eac  Mutable-Dreams-Neues-seit-2.3.pdf
+5e985913cd6d275888fe8b3ced1889593c703661bbdb513f3c07113e479fd66c  Release-Notes-2.4.md
+dc2dc317f3673b0d08eefc3204f6b1d7002609a42befa72eb1d1e10569ea1908  RELEASE-BUILD-2.4.json

@@ -1,3 +1,4 @@
+# Stable simulator starting contexts replace two pre-2.4 HOME wrap assumptions. All favorite/save/unsaved/touch assertions retained.
 wait 3400
 page 1
 tap HOME
@@ -16,10 +17,12 @@ expect browse_biome 1
 tap REC
 expect browse_favorite 1
 spin K1 63
+spin K1 -2
 expect browse_biome 1
 expect browse_favorite 1
 wait 1500
 shot Biome-Favorites.png
+page 1
 tap HOME
 spin K1 2
 wait 25
@@ -47,6 +50,7 @@ expect velocity_touch 35
 tap HOME
 tap HOME
 spin K1 63
+spin K1 -2
 expect browse_biome 1
 expect browse_favorite 1
 tap SEL
@@ -59,6 +63,7 @@ tap SEL
 expect biome 1
 wait 1500
 shot Biome-Empty-Favorites.png
+page 1
 tap HOME
 tap HOME
 spin K4 -7
@@ -71,6 +76,7 @@ expect velocity_touch 0
 tap HOME
 tap HOME
 spin K1 63
+spin K1 -2
 expect browse_biome -1
 tap GLO
 expect page 18

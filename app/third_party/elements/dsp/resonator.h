@@ -96,6 +96,8 @@ class Resonator {
   }
   
  private:
+  void ProcessScalar(const float* bow_strength, const float* in,
+      float* center, float* sides, size_t size);
   size_t ComputeFilters();
   bool filters_dirty_;
   size_t cached_modes_;

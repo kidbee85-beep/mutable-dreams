@@ -11,6 +11,8 @@ tap SEQ
 tap SEQ
 expect page 27
 shot page-27.png
+# HOME hold opens its guide without navigating.
+page 27
 press FX
 wait 900
 expect help 0
@@ -22,6 +24,9 @@ expect playing 0
 shot help-27-0.png
 tap HOME
 expect help -1
+page 27
+# HOME hold opens its guide without navigating.
+page 27
 press SEL
 wait 900
 expect help 1
@@ -33,6 +38,9 @@ expect playing 0
 shot help-27-1.png
 tap HOME
 expect help -1
+page 27
+# HOME hold opens its guide without navigating.
+page 27
 press ENV
 wait 900
 expect help 2
@@ -44,6 +52,9 @@ expect playing 0
 shot help-27-2.png
 tap HOME
 expect help -1
+page 27
+# HOME hold opens its guide without navigating.
+page 27
 press LFO
 wait 900
 expect help 3
@@ -55,6 +66,9 @@ expect playing 0
 shot help-27-3.png
 tap HOME
 expect help -1
+page 27
+# HOME hold opens its guide without navigating.
+page 27
 press EDIT
 wait 900
 expect help 4
@@ -66,6 +80,9 @@ expect playing 0
 shot help-27-4.png
 tap HOME
 expect help -1
+page 27
+# HOME hold opens its guide without navigating.
+page 27
 press GLO
 wait 900
 expect help 5
@@ -77,10 +94,13 @@ expect playing 0
 shot help-27-5.png
 tap HOME
 expect help -1
+page 27
+# HOME hold opens its guide without navigating.
+page 27
 press HOME
 wait 900
 expect help 6
-expect help_context 0
+expect page 27
 release HOME
 wait 100
 expect page 27
@@ -88,6 +108,9 @@ expect playing 0
 shot help-27-6.png
 tap HOME
 expect help -1
+page 27
+# HOME hold opens its guide without navigating.
+page 27
 press SAVE
 wait 900
 expect help 7
@@ -99,6 +122,9 @@ expect playing 0
 shot help-27-7.png
 tap HOME
 expect help -1
+page 27
+# HOME hold opens its guide without navigating.
+page 27
 press ARP
 wait 900
 expect help 8
@@ -110,6 +136,9 @@ expect playing 0
 shot help-27-8.png
 tap HOME
 expect help -1
+page 27
+# HOME hold opens its guide without navigating.
+page 27
 press SEQ
 wait 900
 expect help 9
@@ -121,6 +150,9 @@ expect playing 0
 shot help-27-9.png
 tap HOME
 expect help -1
+page 27
+# HOME hold opens its guide without navigating.
+page 27
 press PLAY
 wait 900
 expect help 10
@@ -132,6 +164,9 @@ expect playing 0
 shot help-27-10.png
 tap HOME
 expect help -1
+page 27
+# HOME hold opens its guide without navigating.
+page 27
 press REC
 wait 900
 expect help 11
@@ -143,6 +178,9 @@ expect playing 0
 shot help-27-11.png
 tap HOME
 expect help -1
+page 27
+# HOME hold opens its guide without navigating.
+page 27
 press OCT-
 wait 900
 expect help 12
@@ -154,6 +192,9 @@ expect playing 0
 shot help-27-12.png
 tap HOME
 expect help -1
+page 27
+# HOME hold opens its guide without navigating.
+page 27
 press OCT+
 wait 900
 expect help 13
@@ -165,6 +206,7 @@ expect playing 0
 shot help-27-13.png
 tap HOME
 expect help -1
+page 27
 spin K1 2
 spin K2 3
 spin K3 5
@@ -179,6 +221,8 @@ tap FX
 tap FX
 expect page 28
 shot page-28.png
+# HOME hold opens its guide without navigating.
+page 28
 press FX
 wait 900
 expect help 0
@@ -190,6 +234,9 @@ expect playing 0
 shot help-28-0.png
 tap HOME
 expect help -1
+page 28
+# HOME hold opens its guide without navigating.
+page 28
 press SEL
 wait 900
 expect help 1
@@ -201,6 +248,9 @@ expect playing 0
 shot help-28-1.png
 tap HOME
 expect help -1
+page 28
+# HOME hold opens its guide without navigating.
+page 28
 press ENV
 wait 900
 expect help 2
@@ -212,6 +262,9 @@ expect playing 0
 shot help-28-2.png
 tap HOME
 expect help -1
+page 28
+# HOME hold opens its guide without navigating.
+page 28
 press LFO
 wait 900
 expect help 3
@@ -223,6 +276,9 @@ expect playing 0
 shot help-28-3.png
 tap HOME
 expect help -1
+page 28
+# HOME hold opens its guide without navigating.
+page 28
 press EDIT
 wait 900
 expect help 4
@@ -234,6 +290,9 @@ expect playing 0
 shot help-28-4.png
 tap HOME
 expect help -1
+page 28
+# HOME hold opens its guide without navigating.
+page 28
 press GLO
 wait 900
 expect help 5
@@ -245,10 +304,13 @@ expect playing 0
 shot help-28-5.png
 tap HOME
 expect help -1
+page 28
+# HOME hold opens its guide without navigating.
+page 28
 press HOME
 wait 900
 expect help 6
-expect help_context 0
+expect page 28
 release HOME
 wait 100
 expect page 28
@@ -256,6 +318,9 @@ expect playing 0
 shot help-28-6.png
 tap HOME
 expect help -1
+page 28
+# HOME hold opens its guide without navigating.
+page 28
 press SAVE
 wait 900
 expect help 7
@@ -267,6 +332,9 @@ expect playing 0
 shot help-28-7.png
 tap HOME
 expect help -1
+page 28
+# HOME hold opens its guide without navigating.
+page 28
 press ARP
 wait 900
 expect help 8
@@ -278,6 +346,9 @@ expect playing 0
 shot help-28-8.png
 tap HOME
 expect help -1
+page 28
+# HOME hold opens its guide without navigating.
+page 28
 press SEQ
 wait 900
 expect help 9
@@ -289,6 +360,9 @@ expect playing 0
 shot help-28-9.png
 tap HOME
 expect help -1
+page 28
+# HOME hold opens its guide without navigating.
+page 28
 press PLAY
 wait 900
 expect help 10
@@ -300,6 +374,9 @@ expect playing 0
 shot help-28-10.png
 tap HOME
 expect help -1
+page 28
+# HOME hold opens its guide without navigating.
+page 28
 press REC
 wait 900
 expect help 11
@@ -311,6 +388,9 @@ expect playing 0
 shot help-28-11.png
 tap HOME
 expect help -1
+page 28
+# HOME hold opens its guide without navigating.
+page 28
 press OCT-
 wait 900
 expect help 12
@@ -322,6 +402,9 @@ expect playing 0
 shot help-28-12.png
 tap HOME
 expect help -1
+page 28
+# HOME hold opens its guide without navigating.
+page 28
 press OCT+
 wait 900
 expect help 13
@@ -333,6 +416,7 @@ expect playing 0
 shot help-28-13.png
 tap HOME
 expect help -1
+page 28
 spin K1 6
 spin K2 2
 spin K3 25
@@ -350,6 +434,8 @@ tap FX
 tap FX
 expect page 29
 shot page-29.png
+# HOME hold opens its guide without navigating.
+page 29
 press FX
 wait 900
 expect help 0
@@ -361,6 +447,9 @@ expect playing 0
 shot help-29-0.png
 tap HOME
 expect help -1
+page 29
+# HOME hold opens its guide without navigating.
+page 29
 press SEL
 wait 900
 expect help 1
@@ -372,6 +461,9 @@ expect playing 0
 shot help-29-1.png
 tap HOME
 expect help -1
+page 29
+# HOME hold opens its guide without navigating.
+page 29
 press ENV
 wait 900
 expect help 2
@@ -383,6 +475,9 @@ expect playing 0
 shot help-29-2.png
 tap HOME
 expect help -1
+page 29
+# HOME hold opens its guide without navigating.
+page 29
 press LFO
 wait 900
 expect help 3
@@ -394,6 +489,9 @@ expect playing 0
 shot help-29-3.png
 tap HOME
 expect help -1
+page 29
+# HOME hold opens its guide without navigating.
+page 29
 press EDIT
 wait 900
 expect help 4
@@ -405,6 +503,9 @@ expect playing 0
 shot help-29-4.png
 tap HOME
 expect help -1
+page 29
+# HOME hold opens its guide without navigating.
+page 29
 press GLO
 wait 900
 expect help 5
@@ -416,10 +517,13 @@ expect playing 0
 shot help-29-5.png
 tap HOME
 expect help -1
+page 29
+# HOME hold opens its guide without navigating.
+page 29
 press HOME
 wait 900
 expect help 6
-expect help_context 0
+expect page 29
 release HOME
 wait 100
 expect page 29
@@ -427,6 +531,9 @@ expect playing 0
 shot help-29-6.png
 tap HOME
 expect help -1
+page 29
+# HOME hold opens its guide without navigating.
+page 29
 press SAVE
 wait 900
 expect help 7
@@ -438,6 +545,9 @@ expect playing 0
 shot help-29-7.png
 tap HOME
 expect help -1
+page 29
+# HOME hold opens its guide without navigating.
+page 29
 press ARP
 wait 900
 expect help 8
@@ -449,6 +559,9 @@ expect playing 0
 shot help-29-8.png
 tap HOME
 expect help -1
+page 29
+# HOME hold opens its guide without navigating.
+page 29
 press SEQ
 wait 900
 expect help 9
@@ -460,6 +573,9 @@ expect playing 0
 shot help-29-9.png
 tap HOME
 expect help -1
+page 29
+# HOME hold opens its guide without navigating.
+page 29
 press PLAY
 wait 900
 expect help 10
@@ -471,6 +587,9 @@ expect playing 0
 shot help-29-10.png
 tap HOME
 expect help -1
+page 29
+# HOME hold opens its guide without navigating.
+page 29
 press REC
 wait 900
 expect help 11
@@ -482,6 +601,9 @@ expect playing 0
 shot help-29-11.png
 tap HOME
 expect help -1
+page 29
+# HOME hold opens its guide without navigating.
+page 29
 press OCT-
 wait 900
 expect help 12
@@ -493,6 +615,9 @@ expect playing 0
 shot help-29-12.png
 tap HOME
 expect help -1
+page 29
+# HOME hold opens its guide without navigating.
+page 29
 press OCT+
 wait 900
 expect help 13
@@ -504,6 +629,7 @@ expect playing 0
 shot help-29-13.png
 tap HOME
 expect help -1
+page 29
 spin K1 6
 spin K2 2
 spin K3 25

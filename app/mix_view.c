@@ -1,6 +1,8 @@
 /* SPDX-License-Identifier: MIT OR GPL-3.0-only */
+static uint8_t mix_hold[6],mix_clip[6];static unsigned mix_tick;   /* 2.4: peak hold tick and clip lamp, display only */
 static void draw_mixer_field(const md_patch *p,uint16_t colour){
  if(!atlas_visible(44,108))return;
+ mix_tick++;
  static const uint16_t buses[]={RGB(139,222,192),RGB(176,173,244),RGB(246,203,138)};
  atlas_plate(8,44,224,108,colour);
  atlas_filaments(13,68,215,62,7);
@@ -38,6 +40,10 @@ static void draw_mixer_field(const md_patch *p,uint16_t colour){
   if(level)cv_rect(stem-1,top,3,2,tone);
   cv_rect(left+20,76,2,41,quiet);
   if(peak){cv_rect(left+20,117-peak,2,peak,tone);cv_rect(left+19,117-peak,4,1,MD_INK);}
+  if(peak>=mix_hold[i])mix_hold[i]=(uint8_t)peak;else if(mix_hold[i]&&(mix_tick&1u)==0)mix_hold[i]--;
+  if(mix_hold[i]>2)cv_rect(left+18,117-mix_hold[i],6,1,md_tint(MD_BG,tone,20));
+  if(living.level[i]>=96)mix_clip[i]=24;else if(mix_clip[i])mix_clip[i]--;
+  if(mix_clip[i])cv_rect(left+18,72,6,3,RGB(240,110,96));
   const int sends[]={p->track[i].send,p->ext[i].delay_send,p->ext[i].reverb_send};
   for(int bus=0;bus<3;bus++){
    int y=123+bus*6;
@@ -47,6 +53,12 @@ static void draw_mixer_field(const md_patch *p,uint16_t colour){
     uint16_t ink=md_tint(MD_BG,buses[bus],muted?12:27);
     cv_rect(left,y,fill,1,ink);cv_rect(left+fill-1,y-1,2,3,ink);
    }
+  }
+  {/* pan: a small rail with a dot, centre marked */
+   const int at=left+23*clamp(p->track[i].pan,0,1000)/1000;
+   cv_rect(left,142,23,1,md_tint(MD_BG,tone,8));
+   cv_rect(left+11,140,1,5,md_tint(MD_BG,tone,12));
+   cv_rect(at-1,141,3,3,muted?MD_DIM:tone);
   }
  }
 }

@@ -14,7 +14,7 @@ static void kit_reset(){memset(kit_voices,0,sizeof kit_voices);kit_age=0;kit_his
 static unsigned kit_note(int n){switch(n){case 36:return 0;case 38:return 1;case 42:return 2;case 45:return 3;case 37:return 4;case 46:return 5;case 39:return 6;case 51:return 7;default:return (unsigned)(n>=53?n-53:n>=48?n-48:n)%8;}}
 static void kit_pattern(md_kit &k,int g){
  k.generator=g;memset(k.gates,0,sizeof k.gates);
- if(g==4){grids_generate(k,127,127,127,40);return;}   /* GRIDS: centre of the map, mid density, mild chaos */
+ if(g==4){grids_generate(k,127,127,127,40,patch.seed);return;}   /* GRIDS: centre of the map, mid density, mild chaos */
  for(unsigned n=0;n<32;n++){
   if(g==0){if(n%8==0)k.gates[0]|=1u<<n;if(n%8==4)k.gates[1]|=1u<<n;if(n%4==2)k.gates[2]|=1u<<n;if(n%16==13)k.gates[6]|=1u<<n;}
   if(g==1){if(n%8==0||n%16==11)k.gates[0]|=1u<<n;if(n%8==4)k.gates[1]|=1u<<n;if(n%2==0)k.gates[2]|=1u<<n;if(n%16==7)k.gates[3]|=1u<<n;}

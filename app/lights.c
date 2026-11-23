@@ -44,7 +44,7 @@ static uint32_t dream_light_target(uint32_t now){
  uint32_t energy=0;
  for(unsigned i=0;i<6;i++){uint32_t e=dream_light_tail(i,now);if(e>energy)energy=e;}
  /* At least four seconds per breath. Faster tempi use whole-bar multiples. */
- uint32_t period=240000u/(unsigned)clamp(md_tempo_now(),20,300);
+ uint32_t period=2400000u/(unsigned)clamp(md_tempo_tenths(),30,3000);   /* 2.4: down to 3 BPM */
  while(period<4000u)period*=2u;
  uint32_t x=(now%period)*1024u/period;x=x<512u?2u*x:2u*(1024u-x);
  uint32_t smooth=((x*x/1024u)*(3072u-2u*x))/1024u;
@@ -70,6 +70,8 @@ static void dream_lights(uint32_t now){
  /* Green is a separate physical PLAY LED; never leave its red LED glowing
   * behind a green transport light. Unused labels keep the chosen dim floor. */
  uint32_t dim=(((1u<<NB)-1u)&~(1u<<B_PLAY)&~b)|LED_PLAY_GREEN;
- plat_lights(b,dream_ui.keys,dim,dream_light_note(now),dream_prefs.button_glow);
- plat_dim_ns(target?dream_light_ns:0);
+ int glow=dream_prefs.button_glow;   /* 2.4: NIGHT DIM keeps the buttons at their faintest, NIGHT DARK turns them off */
+ if(finish_night==1&&glow>1)glow=1;else if(finish_night==2)glow=0;
+ plat_lights(b,dream_ui.keys,dim,dream_light_note(now),glow);
+ plat_dim_ns(target&&finish_night!=2?dream_light_ns:0);
 }

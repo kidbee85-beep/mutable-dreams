@@ -102,7 +102,9 @@ static struct {
 #define FM1_CPU1_CHECK(fn, arg, request) ((uint32_t)(uintptr_t)(fn) ^ (arg) ^ (request) * 0x9E3779B1u)
 
 static uint8_t fm1_cpu1_on;                     /* started and answering: CPU0 may hand it work */
-static inline void fm1_cpu1_sync(void) { FM1_CPU1_SYNC(); }   /* a barrier between the cores (a job's own sharing) */
+static inline void fm1_cpu1_sync(void) { FM1_CPU1_SYNC(); }
+/* Confirm retirement before an audio-owned descriptor leaves its stack. */
+static inline int fm1_cpu1_held(void) { FM1_CPU1_SYNC();return (FM1_C1_CON & 10u)==2u; }   /* a barrier between the cores (a job's own sharing) */
 static uint8_t fm1_cpu1_gave_up;                /* why it is off (FM1_CPU1_*), 0 = it is not */
 
 /* its faults (fm1_cpu1_fault_c): CPU0 reads count */
@@ -152,8 +154,11 @@ void __attribute__((section(".c1_text"), noreturn, used)) fm1_cpu1_main(void)
     for (;;) {
         uint32_t request = fm1_cpu1_mb.request;
         FM1_CPU1_SYNC();
-        if (request == done)
+        if (request == done) {
+            /* A register-only pause reduces idle shared-RAM polling. */
+            __asm__ volatile("nop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop" ::: "memory");
             continue;
+        }
         if (request == done + 1u) {
             fm1_cpu1_fn fn = fm1_cpu1_mb.fn;
             uint32_t arg = fm1_cpu1_mb.arg;

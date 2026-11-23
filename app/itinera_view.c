@@ -6,6 +6,28 @@ static uint8_t radio_preset,radio_saved[MD_ITINERA_PRESETS];
 static unsigned radio_settings(void){
  return radio_saved[radio_preset]?radio_saved[radio_preset]-1:md_itinera_defaults(radio_preset);
 }
+/* 2.4: dream codes. Four base-32 digits (20 bits); 0000 = a fresh random dream. SELECT picks the digit, PRESET changes it. */
+static unsigned radio_code,radio_mine_count;
+static int radio_digit;
+static const char radio_digits[]="0123456789ABCDEFGHJKLMNPQRSTUVWX";
+static void radio_code_text(unsigned code,char *out){
+ out[0]='C';out[1]='O';out[2]='D';out[3]='E';out[4]=' ';
+ for(int i=0;i<4;i++)out[5+i]=radio_digits[(code>>(5*(3-i)))&31u];
+ out[9]=0;
+}
+static void radio_code_edit(int digit_delta,int value_delta){
+ if(digit_delta)radio_digit=clamp(radio_digit+digit_delta,0,3);
+ if(value_delta){
+  const int shift=5*(3-radio_digit);
+  const unsigned v=(((radio_code>>shift)&31u)+(unsigned)(value_delta+32*8))&31u;
+  radio_code=(radio_code&~(31u<<shift))|(v<<shift);
+ }
+ if(digit_delta||value_delta){
+  char text[10];radio_code_text(radio_code,text);
+  app_say(radio_code?text:"CODE RANDOM","");
+  dream_ui.dirty=1;
+ }
+}
 static void radio_adjust(unsigned knob,int delta){
  unsigned settings=radio_settings();
  int duration=settings%4,pace=settings/4%3,hall=settings/12;
@@ -530,6 +552,155 @@ static void radio_art(int y,int h,uint16_t color,uint16_t accent){
    radio_orbit(x,top,spread,2+spread/2,dy/4,j%2?soft:line);
    radio_line(x,top,x+dy,top-spread,color);
   }
+ }else if(radio_preset==14){
+  // Strings of different lengths hum under a low moon; a bow's light travels across them.
+  radio_circle(186,y+16,7,md_tint(MD_BG,accent,20+radio_round(chapter*4)),1);
+  for(int j=0;j<7;j++){
+   const float x=36+j*28,top=y+8+(j*13)%14,bottom=y+h-6-(j*7)%10;
+   if(!radio_band(top-6,bottom+6))continue;
+   const float amp=(2.5f+3.f*lv[j%6]+breath/9)*(1+(j%3)*.35f);
+   const uint16_t ink=md_tint(MD_BG,j%2?accent:color,12+j*3);
+   float px=x,py=top;
+   for(int k=1;k<=12;k++){
+    const float t=top+(bottom-top)*k/12;
+    const float nx=x+radio_wf(phase*(1+(j&1))+j*11)*amp*radio_sine_half(k/12.f)/64;
+    radio_line(px,py,nx,t,ink);px=nx;py=t;
+   }
+  }
+  float sweep=phase*2;sweep-=168*(int)(sweep/168);
+  radio_line(36+sweep-6,cy+7,36+sweep+6,cy-7,accent);
+ }else if(radio_preset==15){
+  // Slow pressure rings rise from the floor; a few bubbles lift through them.
+  for(unsigned j=0;j<5;j++){
+   float t=phase/2+j*13+seed%(64u*420u);t-=64*(int)(t/64);
+   radio_orbit(120,y+h-10,20+t*2.1f+breath/3,5+t*.55f,0,
+               md_tint(MD_BG,j%2?accent:color,clamp(radio_round(30-t/2.4f),0,32)));
+  }
+  for(unsigned j=0;j<7;j++){
+   const float up=phase/(1+j%3)+j*17+seed%(64u*420u),span=h-20;
+   const float rise=up-span*(float)(unsigned)(up/span);
+   radio_dot(100+(j*23)%50+radio_wf(rise/2+j*9)/26,y+h-14-rise,j%2,accent);
+  }
+  radio_line(30,y+h-8,210,y+h-8,soft);
+ }else if(radio_preset==16){
+  // Paper lanterns bob on thin cords; embers rise from the warmest one.
+  for(unsigned j=0;j<6;j++){
+   const float x=34+j*34+(j%2)*5,drop=y+22+(j*29)%(h/2);
+   const float bob=radio_wf(phase/2+j*17)*(2+breath/10+3*lv[j%6])/64;
+   if(!radio_band(y,drop+bob+22))continue;
+   radio_line(x,y,x,drop+bob-6,soft);
+   radio_orbit(x,drop+bob,5+j%2,6+j%3,0,line);
+   radio_circle(radio_round(x),radio_round(drop+bob),2,md_tint(MD_BG,accent,18+radio_round(chapter*3)+radio_round(lv[j%6]*8)),1);
+   radio_line(x-3,drop+bob+7,x+3,drop+bob+7,soft);
+  }
+  for(unsigned j=0;j<8;j++){
+   const float up=phase/(1+j%2)+j*9+seed%(64u*420u),span=h/2.f;
+   const float rise=up-span*(float)(unsigned)(up/span);
+   radio_dot(70+j*11+radio_wf(rise+j*7)/22,y+h-6-rise,0,color);
+  }
+ }else if(radio_preset==17){
+  // The sun leans low behind three hills that breathe slowly.
+  const int sun=y+h/2+radio_round(chapter*3);
+  radio_circle(120,sun,17,md_tint(MD_BG,color,12),1);
+  radio_circle(120,sun,10,md_tint(MD_BG,color,24+radio_round(breath/3)),1);
+  for(int j=0;j<3;j++){
+   const float base=y+h*(5+j)/9.f;
+   if(!radio_band(base-14,base+14))continue;
+   const uint16_t ink=md_tint(MD_BG,j%2?color:accent,14+j*8);
+   float px=0,py=base;
+   for(int x=0;x<=240;x+=6){
+    const float ny=base+radio_wf(x/5+phase/(9-j*2)+j*21)*(6+j*2+breath/8)/64;
+    radio_line(px,py,x,ny,ink);px=x;py=ny;
+   }
+  }
+ }else if(radio_preset==18){
+  // Glass shards hang in the air and catch the light one after another.
+  for(unsigned j=0;j<9;j++){
+   const float x=30+(j*53)%180,yy=y+12+(j*37)%(h-24),sz=5+(j%4)*2+chapter;
+   if(!radio_band(yy-sz-3,yy+sz+3))continue;
+   float shine=phase/2+j*19;shine-=64*(int)(shine/64);
+   const int glow=clamp(radio_round(8+(shine<12?(12-shine)*2:0)+lv[j%6]*10),0,32);
+   const uint16_t ink=md_tint(MD_BG,j%2?accent:color,glow);
+   radio_line(x,yy-sz,x+sz/2,yy,ink);radio_line(x+sz/2,yy,x,yy+sz,ink);
+   radio_line(x,yy+sz,x-sz/2,yy,ink);radio_line(x-sz/2,yy,x,yy-sz,ink);
+   if(shine<8)radio_dot(x,yy,1,accent);
+  }
+ }else if(radio_preset==19){
+  // A hearth glows: flames of different heights, sparks lifting and fading.
+  const float base=y+h-9;
+  for(int j=0;j<5;j++){
+   const float x=120+(j-2)*14;
+   const float tall=14+(j==2?10:0)+(j%2)*4+breath/6+radio_wf(phase*(1+j%2)+j*13)/12+lv[j%6]*6;
+   const float side=3+(j%2);
+   radio_line(x,base,x-side,base-tall*.55f,line);radio_line(x-side,base-tall*.55f,x,base-tall,color);
+   radio_line(x,base,x+side,base-tall*.55f,line);radio_line(x+side,base-tall*.55f,x,base-tall,soft);
+  }
+  radio_line(86,base+2,154,base+2,soft);
+  for(unsigned j=0;j<9;j++){
+   const float up=phase/(1+j%3)+j*11+seed%(64u*420u),span=h*2.f/3;
+   const float rise=up-span*(float)(unsigned)(up/span);
+   radio_dot(100+(j*17)%40+radio_wf(rise+j*13)/16,base-14-rise,0,j%2?accent:color);
+  }
+
+ }else if(radio_preset==20){
+  // A tide: long swells roll in and out, the low one slower, a pale moon over the water.
+  radio_circle(190,y+14,6,md_tint(MD_BG,accent,18+radio_round(chapter*3)),1);
+  for(int j=0;j<4;j++){
+   const float base=y+h*.38f+j*h*.14f,amp=3.f+j*1.5f+lv[j%6]*8+breath/10;
+   const uint16_t ink=md_tint(MD_BG,j%2?accent:color,10+j*5);
+   float px=16,py=base+radio_wf(phase/(1.5f+j*.4f)+j*17)*amp/64;
+   for(int k=1;k<=20;k++){
+    const float x=16+k*10.f,wy=base+radio_wf(phase/(1.5f+j*.4f)+k*9+j*17)*amp/64;
+    if(radio_band(py-2,wy+2))radio_line(px,py,x,wy,ink);
+    px=x;py=wy;
+   }
+  }
+ }else if(radio_preset==21){
+  // Snow falls without a sound: flakes of three sizes, a still ground line.
+  for(unsigned j=0;j<20;j++){
+   const float span=h-10,fall=phase*(.35f+(j%3)*.2f)+j*23.f+seed%(64u*420u);
+   const float dropped=fall-span*(float)(unsigned)(fall/span);
+   const float x=24+(j*43)%190+radio_wf(dropped*2+j*13)/18;
+   const float yy=y+4+dropped;
+   if(!radio_band(yy-2,yy+2))continue;
+   radio_dot(x,yy,j%3==0?1:0,j%2?accent:color);
+  }
+  radio_line(20,y+h-5,220,y+h-5,soft);
+ }else if(radio_preset==22){
+  // A summer meadow: stems lean together in the warm air, a bee circles one flower.
+  for(int j=0;j<13;j++){
+   const float x=20+j*16.5f,top=y+h-12-(j*11)%24-breath/6,bend=radio_wf(phase+j*9)*(2+lv[j%6]*4)/64;
+   const uint16_t ink=md_tint(MD_BG,j%2?accent:color,16+(j%4)*3);
+   if(!radio_band(top-4,y+h-4))continue;
+   radio_line(x,y+h-5,x+bend,top,ink);
+   radio_dot(x+bend,top,1,j%3==0?accent:color);
+  }
+  const float bx=120+radio_wf(phase*2)/5.f,by=y+h/2.f+radio_wf(phase*3+20)/9.f;
+  radio_dot(bx,by,0,accent);
+ }else if(radio_preset==23){
+  // Falling stars: streaks cross a quiet sky, each fading along its tail.
+  for(int j=0;j<5;j++){
+   float t=phase*(.9f+(j%2)*.3f)+j*41.f;t-=96*(int)(t/96);
+   const float x=214-j*34-t*1.6f,yy=y+6+j*11+t*.9f;
+   const int fade=clamp(radio_round(26-t/4),4,26);
+   if(!radio_band(yy-6,yy+6))continue;
+   radio_line(x,yy,x+14,yy-7,md_tint(MD_BG,color,fade/2));
+   radio_line(x,yy,x+7,yy-3,md_tint(MD_BG,accent,fade));
+   radio_dot(x,yy,0,accent);
+  }
+  for(unsigned j=0;j<9;j++)radio_dot(18+(j*47)%204,y+6+(j*29)%(h-12),0,md_tint(MD_BG,color,10+(j%3)*5));
+
+ }else if(radio_preset==24){
+  // MY DREAM: one small star for each Biome you have starred, twinkling in its own time.
+  const unsigned stars=clamp((int)radio_mine_count,4,32);
+  for(unsigned j=0;j<stars;j++){
+   const float x=18+(j*47+j*j*5)%204,yy=y+8+(j*29+j*j*3)%(h-16);
+   if(!radio_band(yy-3,yy+3))continue;
+   float tw=phase/2+j*13;tw-=48*(int)(tw/48);
+   const int glow=clamp(radio_round(8+(tw<10?(10-tw)*2.4f:0)+lv[j%6]*6),0,32);
+   radio_dot(x,yy,tw<4?1:0,md_tint(MD_BG,j%2?accent:color,glow));
+  }
+  radio_line(18,y+h-6,222,y+h-6,soft);
  }else if(radio_preset==0){
   const float cx=120;float px=cx,py=y+h-7;
   const unsigned leaves=5+radio_round(chapter)/2;
@@ -645,7 +816,7 @@ static void radio_draw(void){
  static const char *const durations[]={"30 MIN","1 HOUR","2 HOURS","4 HOURS"};
  static const char *const paces[]={"CALM","FLOW","VARIED"};
  static const char *const halls[]={"CLOSE","OPEN","VAST"};
- static const uint8_t palettes[MD_ITINERA_PRESETS]={10,8,0,7,6,4,9,3,4,8,9,10,6,2};
+ static const uint8_t palettes[MD_ITINERA_PRESETS]={10,8,0,7,6,4,9,3,4,8,9,10,6,2,5,2,9,4,8,6,4,3,5,9,7};
  static const char *const story[MD_ITINERA_PRESETS]={
   "Rain on seeds.\0Roots drink.\0A bud opens.\0Petals fold.",
   "Earth quiets.\0Moonward.\0Stars draw near.\0A light marks home.",
@@ -660,7 +831,18 @@ static void radio_draw(void){
   "A light lifts.\0Another answers.\0Paths cross.\0Dark returns.",
   "Spores rise.\0Caps unfurl.\0The colony glows.\0Spores drift.",
   "Clay warms.\0Rings answer.\0The ground hums.\0Dust settles.",
-  "Air gathers.\0A veil lifts.\0Clouds open.\0Sky lets go."
+  "Air gathers.\0A veil lifts.\0Clouds open.\0Sky lets go.",
+  "Strings tune.\0A bow draws near.\0The room hums low.\0Resin and quiet.",
+  "Down we go.\0The floor hums.\0Slow pressure.\0Warm dark rises.",
+  "A wick is lit.\0Lanterns drift.\0Wool and glow.\0Embers rest.",
+  "Gold on the hills.\0Day leans low.\0Copper clouds.\0Evening folds.",
+  "Glass wakes.\0Bells hang in air.\0Light bends.\0A clear note fades.",
+  "The fire settles.\0Cedar breathes.\0Letters, tea.\0Embers sleep.",
+  "The water draws back.\0A long swell.\0The shore listens.\0The tide turns.",
+  "Snow begins.\0No sound at all.\0The field fills.\0Stillness stays.",
+  "Warm grass.\0Bees at noon.\0Air hums gold.\0Shade lengthens.",
+  "A first streak.\0The sky answers.\0Wishes cross.\0Quiet again.",
+  "Your stars gather.\0One by one.\0They remember you.\0Home again."
  };
  const uint16_t *pal=dream_palettes[palettes[radio_preset]];
  const char *name=md_itinera_name(radio_preset);
@@ -676,6 +858,7 @@ static void radio_draw(void){
    char knob[24];
    if(radio_knob_at&&plat_ms()-radio_knob_at<2500u){radio_macro_text(knob,radio_knob);line=knob;}
    radio_center(215,&FONT_XS,line,md_tint(MD_BG,pal[1],mix));
+   if(radio_view.code){char code[10];radio_code_text(radio_view.code,code);radio_center(228,&FONT_XS,code,md_tint(MD_BG,MD_DIM,mix));}
   }
   return;
  }
@@ -684,11 +867,18 @@ static void radio_draw(void){
  radio_center(7,&FONT_H,"ITINERA / DREAM RADIO",pal[0]);
  cv_rect(19,29,202,1,md_tint(MD_BG,pal[0],16));
  radio_center(36,&FONT_B,name,MD_INK);
- radio_center(63,&FONT_XS,"UNLIMITED DREAMS",pal[1]);
+ if(radio_code){
+  char text[10];radio_code_text(radio_code,text);
+  radio_center(63,&FONT_XS,text,pal[1]);
+  int x=(240-text_w(&FONT_XS,text))/2;
+  char head[10];int n=5+radio_digit;for(int i=0;i<n;i++)head[i]=text[i];head[n]=0;
+  const char one[2]={text[n],0};
+  cv_rect(x+text_w(&FONT_XS,head),75,text_w(&FONT_XS,one),1,pal[0]);
+ }else radio_center(63,&FONT_XS,"UNLIMITED DREAMS",pal[1]);
  radio_art(76,65,pal[0],pal[2]);
  md_named(8,150,"K1 / DREAM","SELECT",pal[0]);
  md_named(124,150,"K2 / LENGTH",durations[settings%4],pal[1]);
  md_named(8,186,"K3 / CHANGES",paces[settings/4%3],pal[2]);
  md_named(124,186,"K4 / ROOM",halls[settings/12],pal[3]);
- radio_center(225,&FONT_XS,md_playing()?"PLAY STOPS BIOME":"PLAY BEGINS / REC RESET",MD_DIM);
+ radio_center(225,&FONT_XS,md_playing()?"PLAY STOPS BIOME":(plat_ms()/3500u)%2u?"SELECT + PRESET: DREAM CODE":"PLAY BEGINS / REC RESET",MD_DIM);
 }

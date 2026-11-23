@@ -17,6 +17,7 @@ static char reader_cards[4][44],reader_prev[4][44];
 static uint32_t reader_turned;                 /* EN_* bits turned since the last frame */
 static uint32_t reader_state;                  /* play, seed lock and the mutes before the frame's input */
 static int reader_tap=-1,reader_key=-1,reader_spoke;
+static const char *const *reader_help_seen;
 static uint32_t reader_tap_at;              /* a button's effect can follow a few frames later (the engine's queue) */
 static int reader_fresh;                    /* the cards come from a draw made while this reader listened */
 
@@ -85,7 +86,7 @@ static void reader_pressed(int b){reader_tap=b;reader_tap_at=plat_ms();}
 static void reader_after(void){
  if(!ann_on()){reader_key=-1;reader_turned=0;reader_fresh=0;return;}
  char s[ANN_MAX+1],t[48];unsigned n=0;s[0]=0;
- const int key=dream_ui.help>=0?-2:dream_ui.page*8+(dream_ui.page==LIVE?dream_ui.live_view:0);
+ const int key=dream_ui.help>=0?-2-(dream_ui.help*DREAM_PAGE_COUNT+dream_ui.page)*LIVE_VIEW_COUNT-dream_ui.live_view:dream_ui.page*8+(dream_ui.page==LIVE?dream_ui.live_view:0);
  const int where=ann_where();
  if(dream_ui.help<0&&(where||key!=reader_key)){
   if(where||!reader_spoke)n=reader_add(s,n,reader_title());   /* (HOME names its views itself) */
@@ -125,9 +126,14 @@ static void reader_after(void){
    if(n)ann_say(s,0,ANN_NOW);
    if(n||late)reader_tap=-1;              /* else wait for the engine to show it */
   }
- }else{                                  /* help: a reader that starts or asks now hears its title */
+ }else{                                  /* Say the same concrete guide that is drawn. */
   reader_tap=-1;
-  if(where&&dream_ui.help<NB)ann_say(help_title[dream_ui.help],0,ANN_NOW);
+  if((where||key!=reader_key||reader_help_seen!=reader_help_lines)&&reader_help_lines){
+   n=reader_add(s,n,reader_help_title);
+   for(int k=0;k<5;k++)n=reader_add(s,n,reader_help_lines[k]);
+   if(n)ann_say(s,0,ANN_NOW);
+   reader_help_seen=reader_help_lines;
+  }
  }
  if(reader_spoke||key!=reader_key)reader_tap=-1;
  reader_key=key;reader_turned=0;reader_spoke=0;

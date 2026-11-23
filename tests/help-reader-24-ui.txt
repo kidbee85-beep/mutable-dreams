@@ -1,0 +1,44 @@
+wait 3400
+listen
+wait 300
+page 1
+spin ALGO -63
+wait 50
+expect model 0
+press EDIT
+wait 900
+release EDIT
+wait 400
+shot help-sound.png
+where
+wait 500
+spin ALGO 1
+expect model 0
+expect help 4
+tap HOME
+expect help -1
+page 44
+press PLAY
+wait 900
+release PLAY
+wait 400
+shot help-dream-setup.png
+where
+wait 500
+tap HOME
+tap PLAY
+wait 400
+press PLAY
+wait 900
+release PLAY
+wait 400
+shot help-playing-dream.png
+where
+wait 500
+expect radio_active 1
+tap HOME
+tap PLAY
+wait 900
+expect radio_active 0
+expect invalid 0
+expect queue_drops 0

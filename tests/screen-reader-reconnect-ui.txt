@@ -58,6 +58,12 @@ tap HOME
 wait 700
 said BIOME STAGE
 tap HOME
+wait 700
+said MIXER
+tap HOME
+wait 700
+said DREAMS
+tap HOME
 wait 3000
 expect live_view 0
 where

@@ -4,7 +4,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-enum { MD_TRACKS=6, MD_MODELS=24, MD_RATE=44100, MD_QUANTUM=64, MD_V13_BIOMES=109, MD_V15_BIOMES=169, MD_WARM_FIRST_BIOME=213, MD_WARM_FIRST_TONE=452, MD_RULE_FIRST_BIOME=233, MD_MALLET_FIRST_BIOME=245, MD_ENSEMBLE_FIRST_BIOME=248, MD_VOWEL_FIRST_BIOME=257, MD_SOFT_FIRST_BIOME=261, MD_LAYERS_FIRST_BIOME=269, MD_V21_BIOMES=272, MD_DARK_FIRST_BIOME=272, MD_BLOOM_FIRST_BIOME=276, MD_BIOMES=280, MD_PATCH_VERSION=12, MD_FELT_FIRST_TONE=516, MD_V21_TONES=632, MD_DARK_FIRST_TONE=632, MD_BLOOM_FIRST_TONE=640, MD_TONE_PRESETS=652, MD_BLANK_BIOME=64, MD_STEPS=32 };
+enum { MD_TRACKS=6, MD_MODELS=24, MD_RATE=44100, MD_QUANTUM=64, MD_V13_BIOMES=109, MD_V15_BIOMES=169, MD_WARM_FIRST_BIOME=213, MD_WARM_FIRST_TONE=452, MD_RULE_FIRST_BIOME=233, MD_MALLET_FIRST_BIOME=245, MD_ENSEMBLE_FIRST_BIOME=248, MD_VOWEL_FIRST_BIOME=257, MD_SOFT_FIRST_BIOME=261, MD_LAYERS_FIRST_BIOME=269, MD_V21_BIOMES=272, MD_DARK_FIRST_BIOME=272, MD_BLOOM_FIRST_BIOME=276, MD_VOICES_FIRST_BIOME=280, MD_BIOMES=300, MD_PATCH_VERSION=12, MD_FELT_FIRST_TONE=516, MD_V21_TONES=632, MD_DARK_FIRST_TONE=632, MD_BLOOM_FIRST_TONE=640, MD_VOICES_FIRST_TONE=652, MD_TONE_PRESETS=664, MD_BLANK_BIOME=64, MD_STEPS=32 };
 enum { MD_KICK, MD_SNARE, MD_HAT, MD_FM, MD_VA, MD_RINGS, MD_HARMONIC, MD_CHOIR, MD_BASS, MD_ELEMENTS, MD_MELLOW, MD_SATIN, MD_VELVET_KEYS, MD_SPECTRAL, MD_BREATH, MD_CEDAR, MD_REED, MD_SKIN, MD_BOWED, MD_AERO, MD_FELT, MD_SILK, MD_COPPER, MD_VOWEL };
 enum { MD_MODEL, MD_TONE, MD_HARM, MD_DECAY, MD_LEVEL, MD_SEND, MD_HITS,
  MD_LENGTH, MD_ROTATE, MD_PROB, MD_NOTE, MD_PAN, MD_MUTE, MD_SPEED,
@@ -28,6 +28,8 @@ static inline void md_step_set_rule(md_step *s,unsigned rule){
 typedef struct { uint8_t enabled,length,edit,generator; md_step steps[MD_STEPS]; } md_sequence;
 typedef struct { int16_t tune; uint16_t level,cutoff,send,decay; } md_pad;
 typedef struct { uint8_t enabled,bank,pad,step,length,generator,hiss,reserved; md_pad pads[8]; uint32_t gates[8]; } md_kit;
+/* Target IDs 0..6 keep their original meaning; 7/8 need firmware 2.4+. */
+enum { MD_LFO_TARGET_GRAIN_SIZE=7, MD_LFO_TARGET_GRAIN_POSITION=8, MD_LFO_TARGET_COUNT=9 };
 typedef struct { uint8_t direction[6],feel[6],shift[6],target[6],wave[6],compact,reserved; uint8_t target2[6],wave2[6]; uint16_t depth2[6],rate2[6]; } md_motion;
 /* v10: eight sections. 65535 means the complete home User Biome.
  * keep is an incoming-section bit mask. No audio or flash addresses are stored. */
@@ -59,19 +61,31 @@ typedef struct {
  md_link links[MD_LINKS]; md_drift drift;
 } md_patch;
 typedef struct { uint32_t frames,step,events[6],dropped_commands,nonfinite; float peak; uint32_t grain_writes,voice_quanta,skipped_quanta; int32_t last_note[6]; uint32_t quality_reductions,element_modes; float track_peak[6]; } md_stats;
+#ifdef MD_SOURCE_MIX_PIPELINE
+/* Private opt-in telemetry: accepted/completed/serial SATIN+SPECTRAL source jobs.
+ * Audio owner only, or read while holding its lock, after any job has joined. */
+void md_source_mix_stats(uint32_t out[3]);
+#endif
 void md_init(void);
 int md_command(int command,int track,int value);
 unsigned md_command_space(void);
 int md_command_valid(int command);
 int md_command_allowed(int command); /* temporary performance controls remain live */
 const md_patch *md_project_state(void); /* canonical project, even during Journey */
-enum { MD_ITINERA_PRESETS=14 };
+enum { MD_ITINERA_PRESETS=25, MD_ITINERA_MINE=24 };
 /* MD_PLAY 2 during a dream: keep the sounding Biome as the live project, playing on.
  * macro: the listener's K1-K4 offsets during a dream, -500..500. MD_MACRO
  * during a dream sets one: 500 + offset (MIDI-learned macros centre on 500). */
-typedef struct { unsigned remaining, section, progress, preset, chapter, energy; int biome, active; int macro[4]; } md_itinera_view;
+typedef struct { unsigned remaining, section, progress, preset, chapter, energy, code; int biome, active; int macro[4]; } md_itinera_view;
 void md_itinera_read(md_itinera_view *view);
 const char *md_itinera_name(unsigned preset);
+void md_set_vintage(int level);        /* 2.4 VINTAGE 0..2: each voice drifts a few cents, slowly (0 = off) */
+void md_set_tempo_shift(int shift);   /* 2.4: TEMPO RANGE 0..3: the own tempo divided by 1, 2, 4 or 8 */
+void md_set_chorus(int on);          /* 2.4: CHORUS on (1) or off (0): a slow stereo chorus above about 250 Hz */
+void md_set_air(int level);          /* 2.4: AIR 0..3 (0 = off): a little sparkle above 7 kHz */
+void md_set_mine(const uint16_t *ids,int count);   /* 2.4 MY DREAM: the starred Biomes (4 or more) that dream 24 walks through; 0 = its own list */
+void md_set_width(int level);        /* 2.4: stereo width 0..3 (0 = as it was): the sides widened, the mono sum unchanged */
+void md_set_level_match(int on);     /* 2.4: the factory Biomes' loudness trim on (1, the default) or off (0: the levels of 2.3) */
 unsigned md_itinera_defaults(unsigned preset);
 int md_journey_active(void);
 int md_journey_position(void); /* zero-based section, -1 while stopped */
@@ -130,6 +144,7 @@ const char *md_direction_name(int direction);
 const char *md_lfo_target_name(int target);
 const char *md_lfo_wave_name(int wave);
 void md_render(float *stereo,unsigned n);
+float md_audio_output24(int32_t *pcm,const float *audio,unsigned n,unsigned master,float gain,float sleep_gain); /* no-chime integer output; same gain recurrence */
 #if defined(MD_PORT_PERFORMANCE)
 /* Audio-owner controls. These never change a saved patch or Journey. */
 void md_performance_set(float room,float echo,float texture,float dusk);
@@ -143,10 +158,17 @@ typedef struct {
 void md_render_stems(float *stereo,unsigned n,md_usb_stems stems);
 #endif
 const md_patch *md_state(void);
+int md_tempo_tenths(void);   /* 2.4: the same in tenths of a BPM (TEMPO RANGE divides the project tempo, 30/8 = 3.75) */
 int md_tempo_now(void);      /* F-6: the tempo that times steps now: an external clock's, else the project's */
 int md_quality_active(void); /* FULL now: the setting, unless the admission guard or an overload took ECO */
 void md_overload(void);      /* audio owner: the render ran late; ECO until the project or quality changes */
 const md_stats *md_status(void);
+#ifdef MD_PROFILE
+int md_prof_read(uint32_t *words,unsigned page);   /* measuring tree: words of the stage profile; page 0 or 1 */
+void md_prof_reset(void);
+void md_prof_end(void);
+int md_prof_avg(uint32_t *words,unsigned mask,int set);   /* sums since the reset; set: also sets the ablation mask (measuring only) */   /* the end of app_render: the callback is one record, begun in md_block_begin */
+#endif
 int md_playing(void);
 int md_validate(const md_patch *p);
 int md_load(const md_patch *p); /* only while transport stopped, at the audio owner */

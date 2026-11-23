@@ -1,0 +1,23 @@
+wait 3400
+expect biome 0
+page 23
+spin K1 1
+wait 30
+expect kit_mode 1
+spin SELECT 10
+wait 30
+expect track 3
+tap SEQ
+expect page 26
+spin K4 4
+wait 100
+expect patch_valid 1
+page 1
+tap SAVE
+wait 150
+expect unsaved 0
+reboot
+wait 3400
+expect patch_valid 1
+expect unsaved 0
+flash_dump OUT/grids-saved-2.4.bin

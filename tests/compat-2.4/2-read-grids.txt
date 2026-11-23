@@ -1,0 +1,7 @@
+# Run on a host powered on with the flash dumped by 1-write-grids-2.4.txt (FM1B_FLASH=FILE).
+# 2.4: the saved GRIDS project is there (kit_mode 1). 2.3: patch_valid is 1 but kit_mode is 0, the saved project is not
+# loaded (kit.generator 4 is not valid there) and stays in the flash: back on 2.4 it returns. A SAVE on 2.3 overwrites it.
+wait 3400
+expect patch_valid 1
+expect unsaved 0
+expect kit_mode 1

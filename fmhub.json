@@ -1,13 +1,16 @@
 {
-  "what": "Six generative FM-1 tracks, 279 musical Biomes + Blank, 652 Tones, music-linked Itinera dreams and six USB audio stems.",
+  "what": "Six freely assignable FM-1 tracks, 299 musical Biomes + Blank, 664 Tones and 25 Dreams. Both-core audio work, Grain Size/Position LFOs, optional AIR/Chorus/Width/Vintage and contextual help.",
   "author": "Kid Bunka",
   "kinds": [
     "synth"
   ],
-  "play": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.3.html",
-  "editor": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.3.html#device-editor",
-  "cheat": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.3-Manual.pdf",
-  "image": "docs/card-2.3.png",
+  "play": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.4.html",
+  "editor": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.4.html#device-editor",
+  "cheat": "https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.4-Quickstart.pdf",
+  "image": "https://kidbee85-beep.github.io/mutable-dreams/assets/release24/cello.png",
   "color": "#9BC9A5",
-  "sounds": "own: original synthesized Tones, Biomes, kit sounds and demonstration recordings"
+  "sounds": "own: original synthesized Tones, Biomes, kit sounds and demonstration recordings",
+  "version": "2.4",
+  "identity": "FM-1_710020400",
+  "sha256": "0923a0e1bb05f8b0fc6111e4274be38436e37a2a66790a58d12bf60bb7a2e004"
 }

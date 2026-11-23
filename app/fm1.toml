@@ -33,7 +33,7 @@ o2 = ["third_party/elements/dsp/exciter.cc", "third_party/elements/dsp/resonator
 include = ["third_party"]
 vendored = ["third_party/"]
 # Optimize DSP loops without fast-math or changed floating-point contraction.
-o2_cflags = ["-O3", "-DTEST", "-ffunction-sections", "-fdata-sections", "-DMD_DSP_RAM"]
+o2_cflags = ["-DMD_MIX_DEVICE", "-DMD_ENGINE_UNION", "-DMD_ELEMENTS_BODY_UNION", "-DMD_SOURCE_MIX_PIPELINE", "-O3", "-DTEST", "-ffunction-sections", "-fdata-sections", "-DMD_DSP_RAM"]
 # 2.2 development: the engines called per audio block run from RAM on the FM-1 (third_party/md_ram.h)
 ram_units = ["third_party/rings/dsp/resonator.cc", "third_party/elements/dsp/exciter.cc", "third_party/elements/dsp/resonator.cc", "third_party/plaits/dsp/engine/fm_engine.cc", "third_party/plaits/dsp/engine/virtual_analog_engine.cc", "third_party/plaits/dsp/engine/additive_engine.cc"]
 licence = "GPL-3.0-only"
@@ -41,3 +41,9 @@ licence = "GPL-3.0-only"
 device_include = ["compat"]
 # 2.2 development: no layout padding needed (base/tools/build.py dsp_pad* stay available): with ram_units the
 # engines run from RAM, and eight-channel USB + mirror load on the FM-1 gave 0 ECO spikes in 3 min (2.1: 10-24).
+
+# Real ordered mix worker; original audio/stack sizes and 8192B pool reserve retained.
+cpu2 = true
+cpu2_fallback = true
+ram_layout = "packed"
+boot_pack = true

@@ -33,7 +33,8 @@ static int bank_read_tones(int obj){
 /* 0 success; 3 empty; 4 busy; 5 overwrite confirmation; 6 format; 7 write. */
 static int bank_action(int action){
  if(dream_store_hold){app_say("USB BACKUP IN PROGRESS","");return 4;}
- if(md_playing()||md_clock_source()){app_say("STOP / USE INTERNAL CLOCK","");return 4;}
+ if(md_playing()){app_say("STOP TO USE USER BANKS","");return 4;}
+ if(action!=BANK_LOAD&&md_clock_source()){app_say("INTERNAL CLOCK TO SAVE / CLEAR","");return 4;}
  const int clear=action>=BANK_CLEAR_ASK;
  if(!clear&&bank_kind&&md_state()->kit.enabled&&dream_ui.track==3){app_say("SAVE KITS AS USER BIOMES","");return 6;}
  int obj=bank_object(),exists=plat_store_size(obj)>0;
@@ -82,7 +83,7 @@ static int bank_action(int action){
    e->glide=t->ext.glide;e->tides=t->ext.tides;e->tides_rate=t->ext.tides_rate;e->warps=t->ext.warps;
    bank_patch_io.tone_preset[dream_ui.track]=-1;bank_patch_io.edited_mask|=1u|(2u<<dream_ui.track);
   }else {if(!bank_read_biome(obj)){app_say("INVALID USER SLOT","");return 6;}memcpy(bank_name,bank_io.biome.name,24);bank_name[23]=0;}
-  int ok=bank_kind?dream_install_edit(&bank_patch_io,sizeof bank_patch_io):dream_install(&bank_patch_io,sizeof bank_patch_io);
-  if(ok&&!bank_kind)list_note_user_load(bank_slot);   /* 2.2: the Live List's REC can take this slot */app_say(ok?"USER SLOT LOADED":"INVALID USER SLOT","");return ok?0:6;
+  int ok=dream_install_user(&bank_patch_io,sizeof bank_patch_io,bank_kind!=0);
+  if(ok&&!bank_kind)list_note_user_load(bank_slot);   /* 2.2: the Live List's REC can take this slot */app_say(ok?"USER SLOT LOADED":"USER SLOT NOT LOADED","");return ok?0:6;
  }
 }

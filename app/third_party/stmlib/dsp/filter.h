@@ -174,6 +174,15 @@ class OnePole {
 
 
 
+// IEEE32 classification, avoiding a floating comparison in sample/state guards.
+// The explicit builtin remains inline under the device's -fno-builtin flags.
+inline bool IsFiniteFloat32(float value) {
+  static_assert(sizeof(float)==sizeof(uint32_t), "IEEE32 float required");
+  uint32_t bits;
+  __builtin_memcpy(&bits,&value,sizeof bits);
+  return (bits&0x7f800000u)!=0x7f800000u;
+}
+
 class Svf {
  public:
   Svf() { }
@@ -310,6 +319,57 @@ class Svf {
     state_2_ = state_2;
   }
   
+  // Same low-pass block arithmetic; measure its output in this pass rather
+  // than rereading the complete tile. NaNs keep the previous peak, as in the
+  // caller's original scan. Audio buffers cannot alias the filter object.
+  inline float ProcessLowPassAndPeak(const float* in, float* out, size_t size) {
+    const float g=g_, r=r_, h=h_;
+    float state_1=state_1_, state_2=state_2_;
+    float peak=0.f;
+    while(size--) {
+      const float hp=(*in-r*state_1-g*state_1-state_2)*h;
+      const float bp=g*hp+state_1;
+      state_1=g*hp+bp;
+      const float lp=g*bp+state_2;
+      state_2=g*bp+lp;
+      *out=lp;
+      const float a=fabsf(lp);
+      peak=a>peak?a:peak;
+      ++out;
+      ++in;
+    }
+    state_1_=state_1;
+    state_2_=state_2;
+    return peak;
+  }
+
+  // Mutable Dreams non-envelope Rings/Elements body gain followed by the
+  // same low-pass recurrence. The caller guards separate aux/output ranges;
+  // in==out is intended. Model arithmetic precedes the filter for each sample.
+  template<bool elements, bool measure_peak>
+  inline float ProcessLowPassBody(const float* in, const float* aux,
+                                 float* out, size_t size, float velocity) {
+    const float g=g_, r=r_, h=h_;
+    float state_1=state_1_, state_2=state_2_;
+    float peak=0.f;
+    while(size--) {
+      const float input=elements?(*in+*aux*.3f)*3.0f*velocity:(*in+*aux)*12.0f;
+      const float hp=(input-r*state_1-g*state_1-state_2)*h;
+      const float bp=g*hp+state_1;
+      state_1=g*hp+bp;
+      const float lp=g*bp+state_2;
+      state_2=g*bp+lp;
+      *out=lp;
+      if(measure_peak){const float a=fabsf(lp);peak=a>peak?a:peak;}
+      ++out;
+      ++in;
+      ++aux;
+    }
+    state_1_=state_1;
+    state_2_=state_2;
+    return peak;
+  }
+
   template<FilterMode mode>
   inline void ProcessAdd(const float* in, float* out, size_t size, float gain) {
     // Mutable Dreams: coefficients cannot alias audio buffers in this block API.
@@ -358,6 +418,74 @@ class Svf {
       gain+=increment;*out++ += gain*bp;
     }
     state_1_=s1;state_2_=s2;
+  }
+
+  inline bool has_finite_state() const {
+    return IsFiniteFloat32(state_1_) && IsFiniteFloat32(state_2_);
+  }
+
+  // Mutable Dreams Elements: one independent mode for a complete tile.
+  // The caller guarantees separate audio spans; keep both pickup sums in
+  // their original mode order and retain every scalar operation and ramp.
+  template<bool initialize>
+  inline void ProcessBandPassDualRamp(const float* in, float* center,
+      float* sides, size_t size, float center_gain, float center_step,
+      float side_gain, float side_step) {
+    const float g=g_, r=r_, h=h_;
+    float s1=state_1_, s2=state_2_;
+    float fixed_center=center_gain;
+    const bool hold_center=size &&
+        (fixed_center=center_gain+center_step)==center_gain;
+    if(hold_center) {
+      // Commit the first rounded result too, including the sign of zero.
+      center_gain=fixed_center;
+      const float fixed_side=side_gain+side_step;
+      if(fixed_side==side_gain) {
+        side_gain=fixed_side;
+        while(size--) {
+          const float input=*in++;
+          const float hp=(input-r*s1-g*s1-s2)*h;
+          const float bp=g*hp+s1; s1=g*hp+bp;
+          const float lp=g*bp+s2; s2=g*bp+lp;
+          if(initialize) {
+            *center++ = 0.f+bp*center_gain;
+            *sides++ = 0.f+bp*side_gain;
+          } else {
+            *center++ += bp*center_gain;
+            *sides++ += bp*side_gain;
+          }
+        }
+      } else {
+        while(size--) {
+          const float input=*in++;
+          const float hp=(input-r*s1-g*s1-s2)*h;
+          const float bp=g*hp+s1; s1=g*hp+bp;
+          const float lp=g*bp+s2; s2=g*bp+lp;
+          if(initialize) {
+            *center++ = 0.f+bp*center_gain;
+            *sides++ = 0.f+bp*(side_gain+=side_step);
+          } else {
+            *center++ += bp*center_gain;
+            *sides++ += bp*(side_gain+=side_step);
+          }
+        }
+      }
+    } else {
+    while(size--) {
+      const float input=*in++;
+      const float hp=(input-r*s1-g*s1-s2)*h;
+      const float bp=g*hp+s1; s1=g*hp+bp;
+      const float lp=g*bp+s2; s2=g*bp+lp;
+      if(initialize) {
+        *center++ = 0.f+bp*(center_gain+=center_step);
+        *sides++ = 0.f+bp*(side_gain+=side_step);
+      } else {
+        *center++ += bp*(center_gain+=center_step);
+        *sides++ += bp*(side_gain+=side_step);
+      }
+    }
+    }
+    state_1_=s1; state_2_=s2;
   }
 
   // Mutable Dreams: identical band-pass arithmetic to Process + a separate

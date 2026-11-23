@@ -1,0 +1,71 @@
+# Help follows all three LOOK subpages, without editing the controls behind the card.
+wait 3400
+page 11
+tap REC
+listen
+wait 300
+press GLO
+wait 900
+release GLO
+wait 400
+expect help 5
+said NIGHT / SOUND
+where
+wait 400
+said K1: Sleep off / 15-120 min
+where
+wait 400
+said K4: Level Match on / off
+where
+wait 400
+shot help-night.png
+spin K1 1
+spin K2 1
+spin K3 1
+spin K4 -1
+expect sleep_set 0
+expect night 0
+expect width 0
+expect level_match 1
+tap HOME
+tap REC
+press GLO
+wait 900
+release GLO
+wait 400
+said AIR / CHARACTER
+where
+wait 400
+said K3: Tempo range /1 /2 /4 /8
+where
+wait 400
+shot help-air.png
+spin K1 1
+spin K2 1
+spin K3 1
+spin K4 1
+expect air 0
+expect chorus 0
+expect tempo_range 0
+expect vintage 0
+tap HOME
+expect help -1
+page 45
+press EDIT
+wait 900
+release EDIT
+wait 400
+said VOICE / DETAIL
+where
+wait 400
+said K1: Tone / brightness
+tap HOME
+page 21
+press GLO
+wait 900
+release GLO
+wait 400
+said K4: original / compact roots
+tap HOME
+expect invalid 0
+expect queue_drops 0

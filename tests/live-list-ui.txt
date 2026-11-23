@@ -48,6 +48,8 @@ spin K2 -1
 # ---- Blank row and the unsaved-edits guard ----
 tap HOME
 tap HOME
+tap HOME
+tap HOME
 expect live_view 0
 spin K1 2
 wait 25
@@ -100,6 +102,8 @@ wait 150
 expect list_user_live 15
 expect biome 64
 # edit, then load the slot again: the guard asks; HOME keeps the edit, SEL discards
+tap HOME
+tap HOME
 tap HOME
 tap HOME
 expect live_view 0
@@ -168,6 +172,8 @@ expect list_entry 32783
 # HOME continues to the large Biome view and back to the Atlas
 tap HOME
 expect live_view 4
+tap HOME
+tap HOME
 tap HOME
 expect live_view 0
 expect patch_valid 1

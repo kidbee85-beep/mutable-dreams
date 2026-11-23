@@ -11,14 +11,16 @@ tap HOME
 expect live_view 3
 tap HOME
 expect live_view 4
+# 2.4: after the large Biome view HOME goes on to the MIXER (page 12), then the DREAMS (page 44), then the Atlas
+tap HOME
+expect page 12
+tap HOME
+expect page 44
 tap HOME
 expect page 0
 expect live_view 0
-press HOME
-wait 950
-expect page 44
-release HOME
-expect page 44
+# Dreams remain available through the HOME tap cycle (home-cycle-24-ui).
+page 44
 expect radio_preset 0
 spin K2 3
 expect radio_settings 15
@@ -67,10 +69,8 @@ expect biome 169
 tap PLAY
 wait 300
 expect playing 0
-press HOME
-wait 950
-release HOME
-expect page 44
+# Dreams remain available through the HOME tap cycle (home-cycle-24-ui).
+page 44
 tap PLAY
 wait 400
 expect radio_active 1

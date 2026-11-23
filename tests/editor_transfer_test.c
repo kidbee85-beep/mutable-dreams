@@ -132,6 +132,9 @@ static void test_user_bank_workflow(void){
  memset(bank_name+sizeof "BANK TEST",0,sizeof bank_name-sizeof "BANK TEST");
  dream_cmd(MD_TEMPO,0,103);run_ms(20);
  held_btn=1u<<B_SAVE;app_input_only();now_ms+=80;held_btn=0;app_input_only();
+ /* 2.4: a tap first dismisses held help without also saving. */
+ assert(dream_ui.help<0&&plat_store_size(obj)<=0);
+ md_tap(B_SAVE);
  assert(plat_store_size(obj)==sizeof(UserBiome)&&!md_unsaved());
  UserBiome copy;
  assert(plat_store_load(obj,&copy,sizeof copy)==sizeof copy);

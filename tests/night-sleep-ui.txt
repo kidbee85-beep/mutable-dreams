@@ -1,0 +1,142 @@
+# 2.4 · APPEARANCE's second set (REC): SLEEP, NIGHT, WIDTH, LEVEL MATCH (host simulator; not a device test).
+wait 3400
+page 11
+wait 100
+expect look_set 0
+tap REC
+wait 100
+expect look_set 1
+shot night-set.png
+# defaults: no sleep, no night, no width, level match on
+expect sleep_set 0
+expect night 0
+expect width 0
+expect level_match 1
+spin K2 1
+expect night 1
+spin K2 5
+expect night 2
+spin K3 2
+expect width 2
+spin K3 9
+expect width 3
+spin K4 -1
+expect level_match 0
+spin K4 1
+expect level_match 1
+spin K4 -1
+expect level_match 0
+# saved with SAVE (the trailer's spare byte), back after a restart; SLEEP is not saved
+tap REC
+wait 50
+tap SAVE
+wait 150
+expect unsaved 0
+reboot
+wait 3400
+expect night 2
+expect width 3
+expect level_match 0
+expect sleep_set 0
+expect look_set 0
+# the sleep timer: 15 minutes, play stops after them with a 30 s fade before
+page 11
+tap REC
+spin K1 1
+expect sleep_set 15
+wait 100
+tap PLAY
+wait 500
+expect playing 1
+wait 840000
+expect playing 1
+expect sleep_gain_pct 100
+wait 40000
+expect sleep_gain_pct <60
+expect playing 1
+wait 25000
+expect playing 0
+expect sleep_set 0
+expect sleep_gain_pct 0
+# the output opens again when play starts
+tap PLAY
+wait 300
+expect playing 1
+expect sleep_gain_pct 100
+tap PLAY
+wait 200
+# SLEEP off again before it fires
+spin K1 2
+expect sleep_set 30
+spin K1 -9
+expect sleep_set 0
+# the Screen Reader hears the second set: the switch, then each card as it turns (a fresh start: the saved night 2, width 3, match off)
+reboot
+wait 3400
+listen
+wait 400
+page 11
+wait 600
+tap REC
+wait 900
+said NIGHT AND SOUND
+spin K2 -1
+wait 900
+said K2 NIGHT DIM
+spin K3 -1
+wait 900
+said K3 WIDTH WIDE
+spin K4 1
+wait 900
+said K4 LEVEL MATCH ON
+# 2.4: the third set (REC twice from LOOK): AIR, saved in the same trailer byte
+reboot
+wait 3400
+page 11
+wait 100
+tap REC
+tap REC
+wait 100
+expect look_set 2
+expect air 0
+spin K1 2
+expect air 2
+spin K1 9
+expect air 3
+spin K1 -1
+expect air 2
+expect chorus 0
+spin K2 1
+expect chorus 1
+spin K2 5
+expect chorus 1
+expect tempo_range 0
+spin K3 2
+expect tempo_range 2
+spin K3 9
+expect tempo_range 3
+expect tempo_tenths 95
+expect tempo_now 9
+spin K3 -1
+expect tempo_range 2
+expect tempo_now 19
+expect tempo_tenths 190
+expect vintage 0
+spin K4 5
+expect vintage 2
+spin K4 -1
+expect vintage 1
+shot air-set.png
+tap SAVE
+wait 150
+reboot
+wait 3400
+expect air 2
+expect chorus 1
+expect tempo_range 2
+expect vintage 1
+page 11
+tap REC
+tap REC
+tap REC
+expect look_set 0

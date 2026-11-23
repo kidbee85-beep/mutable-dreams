@@ -83,10 +83,11 @@ wait 700
 said LARGE TRACKS
 unsaid LARGE TRACKS. LARGE TRACKS
 # Itinera: its settings cards, then a dream
-press HOME
-wait 1100
-release HOME
-wait 700
+# Dream setup remains in the HOME tap cycle; hold HOME now opens help.
+page 44
+wait 300
+where
+wait 400
 said ITINERA / BIOME RADIO
 spin K2 1
 wait 900

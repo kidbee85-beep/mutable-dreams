@@ -545,6 +545,9 @@ int plat_cpu2_set(int on);             /* on 1, in app_init: 0 = it runs; -1 = o
                                         * answer). On 0: held (from the main loop: no job outstanding) */
 int plat_cpu2_on(void);                /* it takes jobs */
 int plat_cpu2_run(void (*fn)(uint32_t), uint32_t arg);   /* render: 1 = it has fn(arg); 0 = do it yourself */
+int plat_cpu2_wait_budget(uint32_t start_ticks,uint32_t span_ticks); /* wrap-safe 24MHz ticks; fallback retirement, never replay */
+void plat_cpu2_retire(unsigned why); /* CPU0 init/render: hold+bar, preserves an existing reason; confirmed before return */
+int plat_cpu2_hold_confirmed(void); /* CPU0: held and run bit cleared */
 int plat_cpu2_wait(void);              /* render: 0 = done; -1 = it was given up and the job dropped: do it yourself
                                         * (cpu2_fallback only) */
 void plat_cpu2_sync(void);             /* a barrier between the cores' reads and writes (a job's own sharing) */

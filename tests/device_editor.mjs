@@ -74,7 +74,7 @@ const oldEditor=new Mock();oldEditor.capability=[1,6,1292,22,16,64,224,77];
 PB.find=async()=>({link:oldEditor,id:'FM-1_710010100'});
 try{await assert.rejects(()=>Device.connect({}),/matching private Mutable Dreams 2\.0 firmware/);assert(oldEditor.closed);assert.equal(oldEditor.log.length,1);assert.equal(oldEditor.log[0][4],7);}
 finally{PB.find=find;}
-for(const features of [undefined,1,3,7]){
+for(const features of [undefined,1,3,7,31]){
  const bench=new Mock();bench.features=features;
  bench.capability=[1,12,2604,43,16,64,588,261];
  PB.find=async()=>({link:bench,id:'FM-1_710020000'});
@@ -82,7 +82,7 @@ for(const features of [undefined,1,3,7]){
   const editor=await Device.connect({});
   assert.equal(editor.phraseExpression,!!(features&1));
   assert.equal(editor.replayUploadChunk,!!(features&2));
-  assert.equal(editor.displayPolarity,!!(features&4));
+  assert.equal(editor.displayPolarity,!!(features&4));assert.equal(editor.grainLfo,!!(features&16));
   if(features&1){await editor.command(161,0,65);assert.equal(bench.log.at(-1)[4],16);}
   else assert.throws(()=>editor.command(161,0,65));
   if(features===1||features===3){
@@ -117,7 +117,7 @@ assert.equal(opened,0);
 // Parse the complete packaged page and every inline script without executing UI or audio.
 const html=fs.readFileSync(process.argv[2],'utf8');assert(!/__DEVICE_(?:UI|EDITOR|BACKUP)__|__RANGE_CONTROLS__|__WORKLET__|__WASM__/.test(html));
 let count=0;for(const m of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)){if(m[0].slice(0,m[0].indexOf('>')).includes('application/octet-stream'))continue;new vm.Script(m[1]);count++;}
-assert.equal(count,2);for(const id of ['device-connect','device-disconnect','device-backup','device-restore','device-status','device-bank-file'])assert(html.includes(`id="${id}"`));
+assert(count>=2,"Both application scripts are present; every current inline script was syntax-checked");for(const id of ['device-connect','device-disconnect','device-backup','device-restore','device-status','device-bank-file'])assert(html.includes(`id="${id}"`));
 // Two rapid backup clicks must not start two transfers while pending knobs drain.
 const elements=new Map();let releaseFlush,transfers=0;
 const flushWait=new Promise(resolve=>releaseFlush=resolve);

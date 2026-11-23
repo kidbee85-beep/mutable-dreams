@@ -1,0 +1,11 @@
+# Run on a host powered on with the flash dumped by 3-write-settings-2.4.txt (FM1B_FLASH=FILE).
+# 2.4: the settings are back (air 2). 2.3: the project and the starred Biome are intact; the settings are only ignored.
+wait 3400
+expect patch_valid 1
+expect unsaved 0
+page 1
+tap HOME
+tap HOME
+tap HOME
+spin K2 1
+expect browse_favorite 1

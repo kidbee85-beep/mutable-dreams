@@ -78,8 +78,8 @@ expect help_context 1
 release FX
 tap HOME
 tap HOME
-# Wheel position 77 now maps to stable Biome ID 7 in the curated 2.0 atlas.
-spin PRESET 77
+# The 2.4 catalogue places stable Biome ID 7 at wheel position 242 (2.0 used 77).
+spin PRESET 242
 wait 100
 expect pending_biome 7
 expect biome 0

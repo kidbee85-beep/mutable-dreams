@@ -30,22 +30,22 @@ int main(int argc,char **argv){
  }
  puts("PASS eight journeys / 1–16 bars / compact roots / bounded output");
  p=base();p.ext[0].tides=0;auto neutral=audio(p);
- for(int target=0;target<7;target++)for(int wave=0;wave<4;wave++){p.motion.target[0]=target;p.motion.wave[0]=wave;assert(audio(p)==neutral);}
+ for(int target=0;target<MD_LFO_TARGET_COUNT;target++)for(int wave=0;wave<4;wave++){p.motion.target[0]=target;p.motion.wave[0]=wave;assert(audio(p)==neutral);}
  puts("PASS depth zero is bit-identical across every routing and curve");
  p=base();p.ext[0].tides=950;p.ext[0].tides_rate=40;auto reference=audio(p,3);
- for(int target=0;target<7;target++)for(int wave=0;wave<4;wave++){
+ for(int target=0;target<MD_LFO_TARGET_COUNT;target++)for(int wave=0;wave<4;wave++){
   p.motion.target[0]=target;p.motion.wave[0]=wave;auto a=audio(p,3);double energy=0,diff=0;for(size_t k=0;k<a.size();k++){energy+=a[k]*a[k];diff+=fabs(a[k]-reference[k]);}assert(energy>.001);if(target||wave)assert(diff>.01);
  }
  p=base();p.ext[0].tides=0;neutral=audio(p);p.motion.target[1]=6;p.motion.wave[1]=3;p.ext[1].tides=1000;assert(audio(p)==neutral);
- puts("PASS 28 LFO combinations audible and finite; changes isolated to target track");
+ puts("PASS 36 LFO combinations audible and finite; changes isolated to target track");
  // The second LFO must be independently audible and stay neutral at zero depth.
  p=base();neutral=audio(p);p.motion.target2[0]=6;p.motion.wave2[0]=3;p.motion.rate2[0]=50;assert(audio(p)==neutral);
- for(int target=0;target<7;target++)for(int wave=0;wave<4;wave++){
+ for(int target=0;target<MD_LFO_TARGET_COUNT;target++)for(int wave=0;wave<4;wave++){
   p.motion.target2[0]=target;p.motion.wave2[0]=wave;p.motion.depth2[0]=800;auto a=audio(p);assert(a!=neutral);
  }
  p=base();p.ext[0].tides=700;p.motion.target[0]=1;p.motion.wave[0]=2;p.motion.target2[0]=2;p.motion.wave2[0]=3;p.motion.depth2[0]=700;p.motion.rate2[0]=500;auto both=audio(p);p.motion.depth2[0]=0;assert(audio(p)!=both);
- puts("PASS both LFOs independent; second 28 routes/curves audible; disabled adds no sound change");
- p=base();p.motion.depth2[0]=1001;assert(!md_validate(&p));p=base();p.motion.rate2[0]=1001;assert(!md_validate(&p));p=base();p.motion.target2[0]=7;assert(!md_validate(&p));p=base();p.motion.wave2[0]=4;assert(!md_validate(&p));
- p=base();p.motion.reserved=1;assert(!md_validate(&p));p=base();p.motion.target[2]=7;assert(!md_validate(&p));p=base();p.motion.wave[2]=4;assert(!md_validate(&p));p=base();p.motion.direction[2]=5;assert(!md_validate(&p));p=base();p.motion.feel[2]=101;assert(!md_validate(&p));p=base();p.motion.shift[2]=32;assert(!md_validate(&p));puts("PASS invalid motion storage rejected");
+ puts("PASS both LFOs independent; second 36 routes/curves audible; disabled adds no sound change");
+ p=base();p.motion.depth2[0]=1001;assert(!md_validate(&p));p=base();p.motion.rate2[0]=1001;assert(!md_validate(&p));p=base();p.motion.target2[0]=MD_LFO_TARGET_COUNT;assert(!md_validate(&p));p=base();p.motion.wave2[0]=4;assert(!md_validate(&p));
+ p=base();p.motion.reserved=1;assert(!md_validate(&p));p=base();p.motion.target[2]=MD_LFO_TARGET_COUNT;assert(!md_validate(&p));p=base();p.motion.wave[2]=4;assert(!md_validate(&p));p=base();p.motion.direction[2]=5;assert(!md_validate(&p));p=base();p.motion.feel[2]=101;assert(!md_validate(&p));p=base();p.motion.shift[2]=32;assert(!md_validate(&p));puts("PASS invalid motion storage rejected");
  p=base();p.sequence[0].enabled=1;p.sequence[0].length=4;for(auto &s:p.sequence[0].steps)s={48,60,100,85};p.motion.feel[0]=100;md_init();assert(md_load(&p));cmd(MD_PLAY,0,1);run(MD_RATE*8);assert(!memcmp(md_state()->sequence,p.sequence,sizeof p.sequence));cmd(MD_PLAY,0,0);assert(md_import(&p,sizeof p));assert(!memcmp(md_state(),&p,sizeof p));puts("PASS feel preserves stored notes and velocity; patch round trip retains every new setting");
 }

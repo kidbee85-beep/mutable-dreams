@@ -23,6 +23,8 @@ tap HOME
 tap HOME
 tap HOME
 tap HOME
+tap HOME
+tap HOME
 expect live_view 0
 tap EDIT
 expect page 1

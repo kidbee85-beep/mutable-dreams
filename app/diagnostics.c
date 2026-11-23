@@ -40,7 +40,32 @@ int app_sysex(const uint8_t *p,uint32_t n){
   }
   plat_unlock(f);
  }
- else if(p[3]==3&&n==5){uint32_t f=plat_lock();cpu_peak=ui_frame_peak_ms=0;plat_audio_peak_reset();plat_unlock(f);}
+ else if(p[3]==3&&n==5){uint32_t f=plat_lock();cpu_peak=ui_frame_peak_ms=0;plat_audio_peak_reset();
+#ifdef MD_PROFILE
+  md_prof_reset();
+#endif
+  plat_unlock(f);}
+#ifdef MD_PROFILE
+ else if(p[3]==23&&n==6&&p[5]<2){uint32_t w[56]={0},f=plat_lock();len=(uint32_t)md_prof_read(w,p[5])*4;plat_unlock(f);memcpy(raw,w,len);}
+ else if(p[3]==24&&(n==5||n==7)){uint32_t w[56]={0},f=plat_lock();len=(uint32_t)md_prof_avg(w,n==7?(unsigned)(p[5]|p[6]<<7):0u,n==7)*4;plat_unlock(f);memcpy(raw,w,len);}
+#endif
+#ifdef MD_MIX_DEVICE
+ else if(p[3]==26&&n==5){
+  extern char _ustack_lo[],_ustack_top[],_sstack_lo[],_sstack_top[];
+  uint32_t w[12]={0x4d584332u,1,4,(uint32_t)plat_stack_left(PLAT_STK_MAIN),(uint32_t)plat_stack_left(PLAT_STK_IRQ),(uint32_t)plat_stack_left(PLAT_STK_C1),APP_BLOCK,MD_RATE,(uint32_t)((uintptr_t)_ustack_top-(uintptr_t)_ustack_lo),(uint32_t)((uintptr_t)_sstack_top-(uintptr_t)_sstack_lo),2816,256};
+  memcpy(raw,w,sizeof w);len=sizeof w;
+ }
+ else if(p[3]==27&&(n==5||n==7)){
+  uint32_t f=plat_lock();
+  if(n==7){if(md_playing())tx[6]=4;
+   else if(p[5]==1&&(p[6]==1||p[6]==16||p[6]==32||p[6]==64||p[6]==65))md_mix_min_frames=p[6];
+#ifdef MD_CPU2_FAULT_TEST
+   else if(p[5]==2&&p[6]<=2&&plat_cpu2_on())mix2_inject=p[6];
+#endif
+   else tx[6]=1;}
+  uint32_t w[24];len=mix2_read(w);plat_unlock(f);memcpy(raw,w,len);
+ }
+#endif
  else if(p[3]==19&&n==5){
   uint32_t levels=0,pulses=0,grains=0;
   for(unsigned i=0;i<6;i++){if(living.level[i])levels|=1u<<i;if(living.age[i]<160)pulses|=1u<<i;}
@@ -63,8 +88,8 @@ int app_sysex(const uint8_t *p,uint32_t n){
   memcpy(raw,w,sizeof w);len=sizeof w;
  }
  else if(p[3]==21&&n==5){
-  /* Phrase Tools (bit 0), exact replay (bit 1), polarity (bit 2), clear slot (bit 3). */
-  const uint32_t features=15u;
+  /* Phrase Tools (bit 0), exact replay (bit 1), polarity (bit 2), clear slot (bit 3), grain LFO targets (bit 4). */
+  const uint32_t features=31u;
   memcpy(raw,&features,sizeof features);len=sizeof features;
  }
 #if defined(FELUCCA_UAC) && FELUCCA_UAC

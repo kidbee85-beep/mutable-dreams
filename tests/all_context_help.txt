@@ -1,3347 +1,7779 @@
-# All 23 current pages, all 14 held keys, no short tap on release.
+# All 46 pages and all 14 function buttons: long opens help; release has no short action.
 wait 3400
-tap HOME
-expect page 0
+page 0
 press FX
 wait 900
 expect help 0
-expect help_context 0
+expect page 0
 release FX
 wait 20
-expect page 0
-expect playing 0
-tap HOME
-expect help -1
-press SEL
-wait 900
-expect help 1
-expect help_context 0
-release SEL
-wait 20
+expect help 0
 expect page 0
 expect playing 0
 tap HOME
 expect help -1
-press ENV
+expect page 0
+press SEL
 wait 900
-expect help 2
-expect help_context 0
-release ENV
+expect help 1
+expect page 0
+release SEL
 wait 20
+expect help 1
 expect page 0
 expect playing 0
 tap HOME
 expect help -1
-press LFO
+expect page 0
+press ENV
 wait 900
-expect help 3
-expect help_context 0
-release LFO
+expect help 2
+expect page 0
+release ENV
 wait 20
+expect help 2
 expect page 0
 expect playing 0
 tap HOME
 expect help -1
-press EDIT
+expect page 0
+press LFO
 wait 900
-expect help 4
-expect help_context 0
-release EDIT
+expect help 3
+expect page 0
+release LFO
 wait 20
+expect help 3
 expect page 0
 expect playing 0
 tap HOME
 expect help -1
-press GLO
+expect page 0
+press EDIT
 wait 900
-expect help 5
-expect help_context 0
-release GLO
+expect help 4
+expect page 0
+release EDIT
 wait 20
+expect help 4
 expect page 0
 expect playing 0
 tap HOME
 expect help -1
-press HOME
+expect page 0
+press GLO
 wait 900
-expect help 6
-expect help_context 0
-release HOME
+expect help 5
+expect page 0
+release GLO
 wait 20
+expect help 5
 expect page 0
 expect playing 0
 tap HOME
 expect help -1
-press SAVE
+expect page 0
+press HOME
 wait 900
-expect help 7
-expect help_context 0
-release SAVE
+expect help 6
+expect page 0
+release HOME
 wait 20
+expect help 6
 expect page 0
 expect playing 0
 tap HOME
 expect help -1
-press ARP
+expect page 0
+press SAVE
 wait 900
-expect help 8
-expect help_context 0
-release ARP
+expect help 7
+expect page 0
+release SAVE
 wait 20
+expect help 7
 expect page 0
 expect playing 0
 tap HOME
 expect help -1
-press SEQ
+expect page 0
+press ARP
 wait 900
-expect help 9
-expect help_context 0
-release SEQ
+expect help 8
+expect page 0
+release ARP
 wait 20
+expect help 8
 expect page 0
 expect playing 0
 tap HOME
 expect help -1
-press PLAY
+expect page 0
+press SEQ
 wait 900
-expect help 10
-expect help_context 0
-release PLAY
+expect help 9
+expect page 0
+release SEQ
 wait 20
+expect help 9
 expect page 0
 expect playing 0
 tap HOME
 expect help -1
-press REC
+expect page 0
+press PLAY
 wait 900
-expect help 11
-expect help_context 0
-release REC
+expect help 10
+expect page 0
+release PLAY
 wait 20
+expect help 10
 expect page 0
 expect playing 0
 tap HOME
 expect help -1
-press OCT-
+expect page 0
+press REC
 wait 900
-expect help 12
-expect help_context 0
-release OCT-
+expect help 11
+expect page 0
+release REC
 wait 20
+expect help 11
 expect page 0
 expect playing 0
 tap HOME
 expect help -1
-press OCT+
+expect page 0
+press OCT-
 wait 900
-expect help 13
-expect help_context 0
-release OCT+
+expect help 12
+expect page 0
+release OCT-
 wait 20
+expect help 12
 expect page 0
 expect playing 0
 tap HOME
 expect help -1
+expect page 0
+press OCT+
+wait 900
+expect help 13
+expect page 0
+release OCT+
+wait 20
+expect help 13
+expect page 0
+expect playing 0
 tap HOME
-tap EDIT
-expect page 1
+expect help -1
+expect page 0
+page 1
 press FX
 wait 900
 expect help 0
-expect help_context 0
+expect page 1
 release FX
 wait 20
-expect page 1
-expect playing 0
-tap HOME
-expect help -1
-press SEL
-wait 900
-expect help 1
-expect help_context 0
-release SEL
-wait 20
-expect page 1
-expect playing 0
-tap HOME
-expect help -1
-press ENV
-wait 900
-expect help 2
-expect help_context 0
-release ENV
-wait 20
+expect help 0
 expect page 1
 expect playing 0
 tap HOME
 expect help -1
-press LFO
+expect page 1
+press SEL
 wait 900
-expect help 3
-expect help_context 0
-release LFO
+expect help 1
+expect page 1
+release SEL
 wait 20
+expect help 1
 expect page 1
 expect playing 0
 tap HOME
 expect help -1
-press EDIT
+expect page 1
+press ENV
 wait 900
-expect help 4
-expect help_context 0
-release EDIT
+expect help 2
+expect page 1
+release ENV
 wait 20
+expect help 2
 expect page 1
 expect playing 0
 tap HOME
 expect help -1
-press GLO
+expect page 1
+press LFO
 wait 900
-expect help 5
-expect help_context 0
-release GLO
+expect help 3
+expect page 1
+release LFO
 wait 20
+expect help 3
 expect page 1
 expect playing 0
 tap HOME
 expect help -1
-press HOME
+expect page 1
+press EDIT
 wait 900
-expect help 6
-expect help_context 0
-release HOME
+expect help 4
+expect page 1
+release EDIT
 wait 20
+expect help 4
 expect page 1
 expect playing 0
 tap HOME
 expect help -1
-press SAVE
+expect page 1
+press GLO
 wait 900
-expect help 7
-expect help_context 0
-release SAVE
+expect help 5
+expect page 1
+release GLO
 wait 20
+expect help 5
 expect page 1
 expect playing 0
 tap HOME
 expect help -1
-press ARP
+expect page 1
+press HOME
 wait 900
-expect help 8
-expect help_context 0
-release ARP
+expect help 6
+expect page 1
+release HOME
 wait 20
+expect help 6
 expect page 1
 expect playing 0
 tap HOME
 expect help -1
-press SEQ
+expect page 1
+press SAVE
 wait 900
-expect help 9
-expect help_context 0
-release SEQ
+expect help 7
+expect page 1
+release SAVE
 wait 20
+expect help 7
 expect page 1
 expect playing 0
 tap HOME
 expect help -1
-press PLAY
+expect page 1
+press ARP
 wait 900
-expect help 10
-expect help_context 0
-release PLAY
+expect help 8
+expect page 1
+release ARP
 wait 20
+expect help 8
 expect page 1
 expect playing 0
 tap HOME
 expect help -1
-press REC
+expect page 1
+press SEQ
 wait 900
-expect help 11
-expect help_context 0
-release REC
+expect help 9
+expect page 1
+release SEQ
 wait 20
+expect help 9
 expect page 1
 expect playing 0
 tap HOME
 expect help -1
-press OCT-
+expect page 1
+press PLAY
 wait 900
-expect help 12
-expect help_context 0
-release OCT-
+expect help 10
+expect page 1
+release PLAY
 wait 20
+expect help 10
 expect page 1
 expect playing 0
 tap HOME
 expect help -1
-press OCT+
+expect page 1
+press REC
 wait 900
-expect help 13
-expect help_context 0
-release OCT+
+expect help 11
+expect page 1
+release REC
 wait 20
+expect help 11
 expect page 1
 expect playing 0
 tap HOME
 expect help -1
+expect page 1
+press OCT-
+wait 900
+expect help 12
+expect page 1
+release OCT-
+wait 20
+expect help 12
+expect page 1
+expect playing 0
 tap HOME
-tap SEQ
-expect page 2
+expect help -1
+expect page 1
+press OCT+
+wait 900
+expect help 13
+expect page 1
+release OCT+
+wait 20
+expect help 13
+expect page 1
+expect playing 0
+tap HOME
+expect help -1
+expect page 1
+page 2
 press FX
 wait 900
 expect help 0
-expect help_context 0
+expect page 2
 release FX
 wait 20
-expect page 2
-expect playing 0
-tap HOME
-expect help -1
-press SEL
-wait 900
-expect help 1
-expect help_context 0
-release SEL
-wait 20
-expect page 2
-expect playing 0
-tap HOME
-expect help -1
-press ENV
-wait 900
-expect help 2
-expect help_context 0
-release ENV
-wait 20
-expect page 2
-expect playing 0
-tap HOME
-expect help -1
-press LFO
-wait 900
-expect help 3
-expect help_context 0
-release LFO
-wait 20
+expect help 0
 expect page 2
 expect playing 0
 tap HOME
 expect help -1
-press EDIT
+expect page 2
+press SEL
 wait 900
-expect help 4
-expect help_context 0
-release EDIT
+expect help 1
+expect page 2
+release SEL
 wait 20
+expect help 1
 expect page 2
 expect playing 0
 tap HOME
 expect help -1
-press GLO
+expect page 2
+press ENV
 wait 900
-expect help 5
-expect help_context 0
-release GLO
+expect help 2
+expect page 2
+release ENV
 wait 20
+expect help 2
 expect page 2
 expect playing 0
 tap HOME
 expect help -1
-press HOME
+expect page 2
+press LFO
 wait 900
-expect help 6
-expect help_context 0
-release HOME
+expect help 3
+expect page 2
+release LFO
 wait 20
+expect help 3
 expect page 2
 expect playing 0
 tap HOME
 expect help -1
-press SAVE
+expect page 2
+press EDIT
 wait 900
-expect help 7
-expect help_context 0
-release SAVE
+expect help 4
+expect page 2
+release EDIT
 wait 20
+expect help 4
 expect page 2
 expect playing 0
 tap HOME
 expect help -1
-press ARP
+expect page 2
+press GLO
 wait 900
-expect help 8
-expect help_context 0
-release ARP
+expect help 5
+expect page 2
+release GLO
 wait 20
+expect help 5
 expect page 2
 expect playing 0
 tap HOME
 expect help -1
-press SEQ
+expect page 2
+press HOME
 wait 900
-expect help 9
-expect help_context 0
-release SEQ
+expect help 6
+expect page 2
+release HOME
 wait 20
+expect help 6
 expect page 2
 expect playing 0
 tap HOME
 expect help -1
-press PLAY
+expect page 2
+press SAVE
 wait 900
-expect help 10
-expect help_context 0
-release PLAY
+expect help 7
+expect page 2
+release SAVE
 wait 20
+expect help 7
 expect page 2
 expect playing 0
 tap HOME
 expect help -1
-press REC
+expect page 2
+press ARP
 wait 900
-expect help 11
-expect help_context 0
-release REC
+expect help 8
+expect page 2
+release ARP
 wait 20
+expect help 8
 expect page 2
 expect playing 0
 tap HOME
 expect help -1
-press OCT-
+expect page 2
+press SEQ
 wait 900
-expect help 12
-expect help_context 0
-release OCT-
+expect help 9
+expect page 2
+release SEQ
 wait 20
+expect help 9
 expect page 2
 expect playing 0
 tap HOME
 expect help -1
-press OCT+
+expect page 2
+press PLAY
 wait 900
-expect help 13
-expect help_context 0
-release OCT+
+expect help 10
+expect page 2
+release PLAY
 wait 20
+expect help 10
 expect page 2
 expect playing 0
 tap HOME
 expect help -1
+expect page 2
+press REC
+wait 900
+expect help 11
+expect page 2
+release REC
+wait 20
+expect help 11
+expect page 2
+expect playing 0
 tap HOME
-tap FX
-expect page 3
+expect help -1
+expect page 2
+press OCT-
+wait 900
+expect help 12
+expect page 2
+release OCT-
+wait 20
+expect help 12
+expect page 2
+expect playing 0
+tap HOME
+expect help -1
+expect page 2
+press OCT+
+wait 900
+expect help 13
+expect page 2
+release OCT+
+wait 20
+expect help 13
+expect page 2
+expect playing 0
+tap HOME
+expect help -1
+expect page 2
+page 3
 press FX
 wait 900
 expect help 0
-expect help_context 0
+expect page 3
 release FX
 wait 20
-expect page 3
-expect playing 0
-tap HOME
-expect help -1
-press SEL
-wait 900
-expect help 1
-expect help_context 0
-release SEL
-wait 20
-expect page 3
-expect playing 0
-tap HOME
-expect help -1
-press ENV
-wait 900
-expect help 2
-expect help_context 0
-release ENV
-wait 20
-expect page 3
-expect playing 0
-tap HOME
-expect help -1
-press LFO
-wait 900
-expect help 3
-expect help_context 0
-release LFO
-wait 20
-expect page 3
-expect playing 0
-tap HOME
-expect help -1
-press EDIT
-wait 900
-expect help 4
-expect help_context 0
-release EDIT
-wait 20
+expect help 0
 expect page 3
 expect playing 0
 tap HOME
 expect help -1
-press GLO
+expect page 3
+press SEL
 wait 900
-expect help 5
-expect help_context 0
-release GLO
+expect help 1
+expect page 3
+release SEL
 wait 20
+expect help 1
 expect page 3
 expect playing 0
 tap HOME
 expect help -1
-press HOME
+expect page 3
+press ENV
 wait 900
-expect help 6
-expect help_context 0
-release HOME
+expect help 2
+expect page 3
+release ENV
 wait 20
+expect help 2
 expect page 3
 expect playing 0
 tap HOME
 expect help -1
-press SAVE
+expect page 3
+press LFO
 wait 900
-expect help 7
-expect help_context 0
-release SAVE
+expect help 3
+expect page 3
+release LFO
 wait 20
+expect help 3
 expect page 3
 expect playing 0
 tap HOME
 expect help -1
-press ARP
+expect page 3
+press EDIT
 wait 900
-expect help 8
-expect help_context 0
-release ARP
+expect help 4
+expect page 3
+release EDIT
 wait 20
+expect help 4
 expect page 3
 expect playing 0
 tap HOME
 expect help -1
-press SEQ
+expect page 3
+press GLO
 wait 900
-expect help 9
-expect help_context 0
-release SEQ
+expect help 5
+expect page 3
+release GLO
 wait 20
+expect help 5
 expect page 3
 expect playing 0
 tap HOME
 expect help -1
-press PLAY
+expect page 3
+press HOME
 wait 900
-expect help 10
-expect help_context 0
-release PLAY
+expect help 6
+expect page 3
+release HOME
 wait 20
+expect help 6
 expect page 3
 expect playing 0
 tap HOME
 expect help -1
-press REC
+expect page 3
+press SAVE
 wait 900
-expect help 11
-expect help_context 0
-release REC
+expect help 7
+expect page 3
+release SAVE
 wait 20
+expect help 7
 expect page 3
 expect playing 0
 tap HOME
 expect help -1
-press OCT-
+expect page 3
+press ARP
 wait 900
-expect help 12
-expect help_context 0
-release OCT-
+expect help 8
+expect page 3
+release ARP
 wait 20
+expect help 8
 expect page 3
 expect playing 0
 tap HOME
 expect help -1
-press OCT+
+expect page 3
+press SEQ
 wait 900
-expect help 13
-expect help_context 0
-release OCT+
+expect help 9
+expect page 3
+release SEQ
 wait 20
+expect help 9
 expect page 3
 expect playing 0
 tap HOME
 expect help -1
+expect page 3
+press PLAY
+wait 900
+expect help 10
+expect page 3
+release PLAY
+wait 20
+expect help 10
+expect page 3
+expect playing 0
 tap HOME
-tap EDIT
-tap EDIT
-tap EDIT
-tap EDIT
-expect page 4
+expect help -1
+expect page 3
+press REC
+wait 900
+expect help 11
+expect page 3
+release REC
+wait 20
+expect help 11
+expect page 3
+expect playing 0
+tap HOME
+expect help -1
+expect page 3
+press OCT-
+wait 900
+expect help 12
+expect page 3
+release OCT-
+wait 20
+expect help 12
+expect page 3
+expect playing 0
+tap HOME
+expect help -1
+expect page 3
+press OCT+
+wait 900
+expect help 13
+expect page 3
+release OCT+
+wait 20
+expect help 13
+expect page 3
+expect playing 0
+tap HOME
+expect help -1
+expect page 3
+page 4
 press FX
 wait 900
 expect help 0
-expect help_context 0
+expect page 4
 release FX
 wait 20
-expect page 4
-expect playing 0
-tap HOME
-expect help -1
-press SEL
-wait 900
-expect help 1
-expect help_context 0
-release SEL
-wait 20
-expect page 4
-expect playing 0
-tap HOME
-expect help -1
-press ENV
-wait 900
-expect help 2
-expect help_context 0
-release ENV
-wait 20
-expect page 4
-expect playing 0
-tap HOME
-expect help -1
-press LFO
-wait 900
-expect help 3
-expect help_context 0
-release LFO
-wait 20
-expect page 4
-expect playing 0
-tap HOME
-expect help -1
-press EDIT
-wait 900
-expect help 4
-expect help_context 0
-release EDIT
-wait 20
-expect page 4
-expect playing 0
-tap HOME
-expect help -1
-press GLO
-wait 900
-expect help 5
-expect help_context 0
-release GLO
-wait 20
+expect help 0
 expect page 4
 expect playing 0
 tap HOME
 expect help -1
-press HOME
+expect page 4
+press SEL
 wait 900
-expect help 6
-expect help_context 0
-release HOME
+expect help 1
+expect page 4
+release SEL
 wait 20
+expect help 1
 expect page 4
 expect playing 0
 tap HOME
 expect help -1
-press SAVE
+expect page 4
+press ENV
 wait 900
-expect help 7
-expect help_context 0
-release SAVE
+expect help 2
+expect page 4
+release ENV
 wait 20
+expect help 2
 expect page 4
 expect playing 0
 tap HOME
 expect help -1
-press ARP
+expect page 4
+press LFO
 wait 900
-expect help 8
-expect help_context 0
-release ARP
+expect help 3
+expect page 4
+release LFO
 wait 20
+expect help 3
 expect page 4
 expect playing 0
 tap HOME
 expect help -1
-press SEQ
+expect page 4
+press EDIT
 wait 900
-expect help 9
-expect help_context 0
-release SEQ
+expect help 4
+expect page 4
+release EDIT
 wait 20
+expect help 4
 expect page 4
 expect playing 0
 tap HOME
 expect help -1
-press PLAY
+expect page 4
+press GLO
 wait 900
-expect help 10
-expect help_context 0
-release PLAY
+expect help 5
+expect page 4
+release GLO
 wait 20
+expect help 5
 expect page 4
 expect playing 0
 tap HOME
 expect help -1
-press REC
+expect page 4
+press HOME
 wait 900
-expect help 11
-expect help_context 0
-release REC
+expect help 6
+expect page 4
+release HOME
 wait 20
+expect help 6
 expect page 4
 expect playing 0
 tap HOME
 expect help -1
-press OCT-
+expect page 4
+press SAVE
 wait 900
-expect help 12
-expect help_context 0
-release OCT-
+expect help 7
+expect page 4
+release SAVE
 wait 20
+expect help 7
 expect page 4
 expect playing 0
 tap HOME
 expect help -1
-press OCT+
+expect page 4
+press ARP
 wait 900
-expect help 13
-expect help_context 0
-release OCT+
+expect help 8
+expect page 4
+release ARP
 wait 20
+expect help 8
 expect page 4
 expect playing 0
 tap HOME
 expect help -1
+expect page 4
+press SEQ
+wait 900
+expect help 9
+expect page 4
+release SEQ
+wait 20
+expect help 9
+expect page 4
+expect playing 0
 tap HOME
-tap GLO
-tap GLO
-tap GLO
-expect page 5
+expect help -1
+expect page 4
+press PLAY
+wait 900
+expect help 10
+expect page 4
+release PLAY
+wait 20
+expect help 10
+expect page 4
+expect playing 0
+tap HOME
+expect help -1
+expect page 4
+press REC
+wait 900
+expect help 11
+expect page 4
+release REC
+wait 20
+expect help 11
+expect page 4
+expect playing 0
+tap HOME
+expect help -1
+expect page 4
+press OCT-
+wait 900
+expect help 12
+expect page 4
+release OCT-
+wait 20
+expect help 12
+expect page 4
+expect playing 0
+tap HOME
+expect help -1
+expect page 4
+press OCT+
+wait 900
+expect help 13
+expect page 4
+release OCT+
+wait 20
+expect help 13
+expect page 4
+expect playing 0
+tap HOME
+expect help -1
+expect page 4
+page 5
 press FX
 wait 900
 expect help 0
-expect help_context 0
+expect page 5
 release FX
 wait 20
-expect page 5
-expect playing 0
-tap HOME
-expect help -1
-press SEL
-wait 900
-expect help 1
-expect help_context 0
-release SEL
-wait 20
-expect page 5
-expect playing 0
-tap HOME
-expect help -1
-press ENV
-wait 900
-expect help 2
-expect help_context 0
-release ENV
-wait 20
-expect page 5
-expect playing 0
-tap HOME
-expect help -1
-press LFO
-wait 900
-expect help 3
-expect help_context 0
-release LFO
-wait 20
-expect page 5
-expect playing 0
-tap HOME
-expect help -1
-press EDIT
-wait 900
-expect help 4
-expect help_context 0
-release EDIT
-wait 20
-expect page 5
-expect playing 0
-tap HOME
-expect help -1
-press GLO
-wait 900
-expect help 5
-expect help_context 0
-release GLO
-wait 20
-expect page 5
-expect playing 0
-tap HOME
-expect help -1
-press HOME
-wait 900
-expect help 6
-expect help_context 0
-release HOME
-wait 20
+expect help 0
 expect page 5
 expect playing 0
 tap HOME
 expect help -1
-press SAVE
+expect page 5
+press SEL
 wait 900
-expect help 7
-expect help_context 0
-release SAVE
+expect help 1
+expect page 5
+release SEL
 wait 20
+expect help 1
 expect page 5
 expect playing 0
 tap HOME
 expect help -1
-press ARP
+expect page 5
+press ENV
 wait 900
-expect help 8
-expect help_context 0
-release ARP
+expect help 2
+expect page 5
+release ENV
 wait 20
+expect help 2
 expect page 5
 expect playing 0
 tap HOME
 expect help -1
-press SEQ
+expect page 5
+press LFO
 wait 900
-expect help 9
-expect help_context 0
-release SEQ
+expect help 3
+expect page 5
+release LFO
 wait 20
+expect help 3
 expect page 5
 expect playing 0
 tap HOME
 expect help -1
-press PLAY
+expect page 5
+press EDIT
 wait 900
-expect help 10
-expect help_context 0
-release PLAY
+expect help 4
+expect page 5
+release EDIT
 wait 20
+expect help 4
 expect page 5
 expect playing 0
 tap HOME
 expect help -1
-press REC
+expect page 5
+press GLO
 wait 900
-expect help 11
-expect help_context 0
-release REC
+expect help 5
+expect page 5
+release GLO
 wait 20
+expect help 5
 expect page 5
 expect playing 0
 tap HOME
 expect help -1
-press OCT-
+expect page 5
+press HOME
 wait 900
-expect help 12
-expect help_context 0
-release OCT-
+expect help 6
+expect page 5
+release HOME
 wait 20
+expect help 6
 expect page 5
 expect playing 0
 tap HOME
 expect help -1
-press OCT+
+expect page 5
+press SAVE
 wait 900
-expect help 13
-expect help_context 0
-release OCT+
+expect help 7
+expect page 5
+release SAVE
 wait 20
+expect help 7
 expect page 5
 expect playing 0
 tap HOME
 expect help -1
-tap HOME
-tap EDIT
-tap EDIT
-tap EDIT
-expect page 6
-press FX
-wait 900
-expect help 0
-expect help_context 0
-release FX
-wait 20
-expect page 6
-expect playing 0
-tap HOME
-expect help -1
-press SEL
-wait 900
-expect help 1
-expect help_context 0
-release SEL
-wait 20
-expect page 6
-expect playing 0
-tap HOME
-expect help -1
-press ENV
-wait 900
-expect help 2
-expect help_context 0
-release ENV
-wait 20
-expect page 6
-expect playing 0
-tap HOME
-expect help -1
-press LFO
-wait 900
-expect help 3
-expect help_context 0
-release LFO
-wait 20
-expect page 6
-expect playing 0
-tap HOME
-expect help -1
-press EDIT
-wait 900
-expect help 4
-expect help_context 0
-release EDIT
-wait 20
-expect page 6
-expect playing 0
-tap HOME
-expect help -1
-press GLO
-wait 900
-expect help 5
-expect help_context 0
-release GLO
-wait 20
-expect page 6
-expect playing 0
-tap HOME
-expect help -1
-press HOME
-wait 900
-expect help 6
-expect help_context 0
-release HOME
-wait 20
-expect page 6
-expect playing 0
-tap HOME
-expect help -1
-press SAVE
-wait 900
-expect help 7
-expect help_context 0
-release SAVE
-wait 20
-expect page 6
-expect playing 0
-tap HOME
-expect help -1
+expect page 5
 press ARP
 wait 900
 expect help 8
-expect help_context 0
+expect page 5
 release ARP
 wait 20
+expect help 8
+expect page 5
+expect playing 0
+tap HOME
+expect help -1
+expect page 5
+press SEQ
+wait 900
+expect help 9
+expect page 5
+release SEQ
+wait 20
+expect help 9
+expect page 5
+expect playing 0
+tap HOME
+expect help -1
+expect page 5
+press PLAY
+wait 900
+expect help 10
+expect page 5
+release PLAY
+wait 20
+expect help 10
+expect page 5
+expect playing 0
+tap HOME
+expect help -1
+expect page 5
+press REC
+wait 900
+expect help 11
+expect page 5
+release REC
+wait 20
+expect help 11
+expect page 5
+expect playing 0
+tap HOME
+expect help -1
+expect page 5
+press OCT-
+wait 900
+expect help 12
+expect page 5
+release OCT-
+wait 20
+expect help 12
+expect page 5
+expect playing 0
+tap HOME
+expect help -1
+expect page 5
+press OCT+
+wait 900
+expect help 13
+expect page 5
+release OCT+
+wait 20
+expect help 13
+expect page 5
+expect playing 0
+tap HOME
+expect help -1
+expect page 5
+page 6
+press FX
+wait 900
+expect help 0
+expect page 6
+release FX
+wait 20
+expect help 0
 expect page 6
 expect playing 0
 tap HOME
 expect help -1
-press SEQ
+expect page 6
+press SEL
 wait 900
-expect help 9
-expect help_context 0
-release SEQ
+expect help 1
+expect page 6
+release SEL
 wait 20
+expect help 1
 expect page 6
 expect playing 0
 tap HOME
 expect help -1
-press PLAY
+expect page 6
+press ENV
 wait 900
-expect help 10
-expect help_context 0
-release PLAY
+expect help 2
+expect page 6
+release ENV
 wait 20
+expect help 2
 expect page 6
 expect playing 0
 tap HOME
 expect help -1
-press REC
+expect page 6
+press LFO
 wait 900
-expect help 11
-expect help_context 0
-release REC
+expect help 3
+expect page 6
+release LFO
 wait 20
+expect help 3
 expect page 6
 expect playing 0
 tap HOME
 expect help -1
-press OCT-
+expect page 6
+press EDIT
 wait 900
-expect help 12
-expect help_context 0
-release OCT-
+expect help 4
+expect page 6
+release EDIT
 wait 20
+expect help 4
 expect page 6
 expect playing 0
 tap HOME
 expect help -1
-press OCT+
+expect page 6
+press GLO
 wait 900
-expect help 13
-expect help_context 0
-release OCT+
+expect help 5
+expect page 6
+release GLO
 wait 20
+expect help 5
 expect page 6
 expect playing 0
 tap HOME
 expect help -1
-tap HOME
-tap SEQ
-tap SEQ
-expect page 7
-press FX
-wait 900
-expect help 0
-expect help_context 0
-release FX
-wait 20
-expect page 7
-expect playing 0
-tap HOME
-expect help -1
-press SEL
-wait 900
-expect help 1
-expect help_context 0
-release SEL
-wait 20
-expect page 7
-expect playing 0
-tap HOME
-expect help -1
-press ENV
-wait 900
-expect help 2
-expect help_context 0
-release ENV
-wait 20
-expect page 7
-expect playing 0
-tap HOME
-expect help -1
-press LFO
-wait 900
-expect help 3
-expect help_context 0
-release LFO
-wait 20
-expect page 7
-expect playing 0
-tap HOME
-expect help -1
-press EDIT
-wait 900
-expect help 4
-expect help_context 0
-release EDIT
-wait 20
-expect page 7
-expect playing 0
-tap HOME
-expect help -1
-press GLO
-wait 900
-expect help 5
-expect help_context 0
-release GLO
-wait 20
-expect page 7
-expect playing 0
-tap HOME
-expect help -1
+expect page 6
 press HOME
 wait 900
 expect help 6
-expect help_context 0
+expect page 6
 release HOME
 wait 20
-expect page 7
+expect help 6
+expect page 6
 expect playing 0
 tap HOME
 expect help -1
+expect page 6
 press SAVE
 wait 900
 expect help 7
-expect help_context 0
+expect page 6
 release SAVE
 wait 20
-expect page 7
+expect help 7
+expect page 6
 expect playing 0
 tap HOME
 expect help -1
+expect page 6
 press ARP
 wait 900
 expect help 8
-expect help_context 0
+expect page 6
 release ARP
 wait 20
-expect page 7
+expect help 8
+expect page 6
 expect playing 0
 tap HOME
 expect help -1
+expect page 6
 press SEQ
 wait 900
 expect help 9
-expect help_context 0
+expect page 6
 release SEQ
 wait 20
-expect page 7
+expect help 9
+expect page 6
 expect playing 0
 tap HOME
 expect help -1
+expect page 6
 press PLAY
 wait 900
 expect help 10
-expect help_context 0
+expect page 6
 release PLAY
 wait 20
+expect help 10
+expect page 6
+expect playing 0
+tap HOME
+expect help -1
+expect page 6
+press REC
+wait 900
+expect help 11
+expect page 6
+release REC
+wait 20
+expect help 11
+expect page 6
+expect playing 0
+tap HOME
+expect help -1
+expect page 6
+press OCT-
+wait 900
+expect help 12
+expect page 6
+release OCT-
+wait 20
+expect help 12
+expect page 6
+expect playing 0
+tap HOME
+expect help -1
+expect page 6
+press OCT+
+wait 900
+expect help 13
+expect page 6
+release OCT+
+wait 20
+expect help 13
+expect page 6
+expect playing 0
+tap HOME
+expect help -1
+expect page 6
+page 7
+press FX
+wait 900
+expect help 0
+expect page 7
+release FX
+wait 20
+expect help 0
 expect page 7
 expect playing 0
 tap HOME
 expect help -1
-press REC
+expect page 7
+press SEL
 wait 900
-expect help 11
-expect help_context 0
-release REC
+expect help 1
+expect page 7
+release SEL
 wait 20
+expect help 1
 expect page 7
 expect playing 0
 tap HOME
 expect help -1
-press OCT-
+expect page 7
+press ENV
 wait 900
-expect help 12
-expect help_context 0
-release OCT-
+expect help 2
+expect page 7
+release ENV
 wait 20
+expect help 2
 expect page 7
 expect playing 0
 tap HOME
 expect help -1
-press OCT+
+expect page 7
+press LFO
 wait 900
-expect help 13
-expect help_context 0
-release OCT+
+expect help 3
+expect page 7
+release LFO
 wait 20
+expect help 3
 expect page 7
 expect playing 0
 tap HOME
 expect help -1
-tap HOME
-tap FX
-tap FX
-expect page 8
-press FX
-wait 900
-expect help 0
-expect help_context 0
-release FX
-wait 20
-expect page 8
-expect playing 0
-tap HOME
-expect help -1
-press SEL
-wait 900
-expect help 1
-expect help_context 0
-release SEL
-wait 20
-expect page 8
-expect playing 0
-tap HOME
-expect help -1
-press ENV
-wait 900
-expect help 2
-expect help_context 0
-release ENV
-wait 20
-expect page 8
-expect playing 0
-tap HOME
-expect help -1
-press LFO
-wait 900
-expect help 3
-expect help_context 0
-release LFO
-wait 20
-expect page 8
-expect playing 0
-tap HOME
-expect help -1
+expect page 7
 press EDIT
 wait 900
 expect help 4
-expect help_context 0
+expect page 7
 release EDIT
 wait 20
-expect page 8
+expect help 4
+expect page 7
 expect playing 0
 tap HOME
 expect help -1
+expect page 7
 press GLO
 wait 900
 expect help 5
-expect help_context 0
+expect page 7
 release GLO
 wait 20
-expect page 8
+expect help 5
+expect page 7
 expect playing 0
 tap HOME
 expect help -1
+expect page 7
 press HOME
 wait 900
 expect help 6
-expect help_context 0
+expect page 7
 release HOME
 wait 20
-expect page 8
+expect help 6
+expect page 7
 expect playing 0
 tap HOME
 expect help -1
+expect page 7
 press SAVE
 wait 900
 expect help 7
-expect help_context 0
+expect page 7
 release SAVE
 wait 20
-expect page 8
+expect help 7
+expect page 7
 expect playing 0
 tap HOME
 expect help -1
+expect page 7
 press ARP
 wait 900
 expect help 8
-expect help_context 0
+expect page 7
 release ARP
 wait 20
-expect page 8
+expect help 8
+expect page 7
 expect playing 0
 tap HOME
 expect help -1
+expect page 7
 press SEQ
 wait 900
 expect help 9
-expect help_context 0
+expect page 7
 release SEQ
 wait 20
-expect page 8
+expect help 9
+expect page 7
 expect playing 0
 tap HOME
 expect help -1
+expect page 7
 press PLAY
 wait 900
 expect help 10
-expect help_context 0
+expect page 7
 release PLAY
 wait 20
-expect page 8
+expect help 10
+expect page 7
 expect playing 0
 tap HOME
 expect help -1
+expect page 7
 press REC
 wait 900
 expect help 11
-expect help_context 0
+expect page 7
 release REC
 wait 20
-expect page 8
+expect help 11
+expect page 7
 expect playing 0
 tap HOME
 expect help -1
+expect page 7
 press OCT-
 wait 900
 expect help 12
-expect help_context 0
+expect page 7
 release OCT-
 wait 20
-expect page 8
+expect help 12
+expect page 7
 expect playing 0
 tap HOME
 expect help -1
+expect page 7
 press OCT+
 wait 900
 expect help 13
-expect help_context 0
+expect page 7
 release OCT+
 wait 20
+expect help 13
+expect page 7
+expect playing 0
+tap HOME
+expect help -1
+expect page 7
+page 8
+press FX
+wait 900
+expect help 0
+expect page 8
+release FX
+wait 20
+expect help 0
 expect page 8
 expect playing 0
 tap HOME
 expect help -1
-tap HOME
-tap GLO
-expect page 9
-press FX
-wait 900
-expect help 0
-expect help_context 0
-release FX
-wait 20
-expect page 9
-expect playing 0
-tap HOME
-expect help -1
+expect page 8
 press SEL
 wait 900
 expect help 1
-expect help_context 0
+expect page 8
 release SEL
 wait 20
+expect help 1
+expect page 8
+expect playing 0
+tap HOME
+expect help -1
+expect page 8
+press ENV
+wait 900
+expect help 2
+expect page 8
+release ENV
+wait 20
+expect help 2
+expect page 8
+expect playing 0
+tap HOME
+expect help -1
+expect page 8
+press LFO
+wait 900
+expect help 3
+expect page 8
+release LFO
+wait 20
+expect help 3
+expect page 8
+expect playing 0
+tap HOME
+expect help -1
+expect page 8
+press EDIT
+wait 900
+expect help 4
+expect page 8
+release EDIT
+wait 20
+expect help 4
+expect page 8
+expect playing 0
+tap HOME
+expect help -1
+expect page 8
+press GLO
+wait 900
+expect help 5
+expect page 8
+release GLO
+wait 20
+expect help 5
+expect page 8
+expect playing 0
+tap HOME
+expect help -1
+expect page 8
+press HOME
+wait 900
+expect help 6
+expect page 8
+release HOME
+wait 20
+expect help 6
+expect page 8
+expect playing 0
+tap HOME
+expect help -1
+expect page 8
+press SAVE
+wait 900
+expect help 7
+expect page 8
+release SAVE
+wait 20
+expect help 7
+expect page 8
+expect playing 0
+tap HOME
+expect help -1
+expect page 8
+press ARP
+wait 900
+expect help 8
+expect page 8
+release ARP
+wait 20
+expect help 8
+expect page 8
+expect playing 0
+tap HOME
+expect help -1
+expect page 8
+press SEQ
+wait 900
+expect help 9
+expect page 8
+release SEQ
+wait 20
+expect help 9
+expect page 8
+expect playing 0
+tap HOME
+expect help -1
+expect page 8
+press PLAY
+wait 900
+expect help 10
+expect page 8
+release PLAY
+wait 20
+expect help 10
+expect page 8
+expect playing 0
+tap HOME
+expect help -1
+expect page 8
+press REC
+wait 900
+expect help 11
+expect page 8
+release REC
+wait 20
+expect help 11
+expect page 8
+expect playing 0
+tap HOME
+expect help -1
+expect page 8
+press OCT-
+wait 900
+expect help 12
+expect page 8
+release OCT-
+wait 20
+expect help 12
+expect page 8
+expect playing 0
+tap HOME
+expect help -1
+expect page 8
+press OCT+
+wait 900
+expect help 13
+expect page 8
+release OCT+
+wait 20
+expect help 13
+expect page 8
+expect playing 0
+tap HOME
+expect help -1
+expect page 8
+page 9
+press FX
+wait 900
+expect help 0
+expect page 9
+release FX
+wait 20
+expect help 0
 expect page 9
 expect playing 0
 tap HOME
 expect help -1
-press ENV
+expect page 9
+press SEL
 wait 900
-expect help 2
-expect help_context 0
-release ENV
+expect help 1
+expect page 9
+release SEL
 wait 20
+expect help 1
 expect page 9
 expect playing 0
 tap HOME
 expect help -1
-press LFO
+expect page 9
+press ENV
 wait 900
-expect help 3
-expect help_context 0
-release LFO
+expect help 2
+expect page 9
+release ENV
 wait 20
+expect help 2
 expect page 9
 expect playing 0
 tap HOME
 expect help -1
-press EDIT
+expect page 9
+press LFO
 wait 900
-expect help 4
-expect help_context 0
-release EDIT
+expect help 3
+expect page 9
+release LFO
 wait 20
+expect help 3
 expect page 9
 expect playing 0
 tap HOME
 expect help -1
-press GLO
+expect page 9
+press EDIT
 wait 900
-expect help 5
-expect help_context 0
-release GLO
+expect help 4
+expect page 9
+release EDIT
 wait 20
+expect help 4
 expect page 9
 expect playing 0
 tap HOME
 expect help -1
-press HOME
+expect page 9
+press GLO
 wait 900
-expect help 6
-expect help_context 0
-release HOME
+expect help 5
+expect page 9
+release GLO
 wait 20
+expect help 5
 expect page 9
 expect playing 0
 tap HOME
 expect help -1
-press SAVE
+expect page 9
+press HOME
 wait 900
-expect help 7
-expect help_context 0
-release SAVE
+expect help 6
+expect page 9
+release HOME
 wait 20
+expect help 6
 expect page 9
 expect playing 0
 tap HOME
 expect help -1
-press ARP
+expect page 9
+press SAVE
 wait 900
-expect help 8
-expect help_context 0
-release ARP
+expect help 7
+expect page 9
+release SAVE
 wait 20
+expect help 7
 expect page 9
 expect playing 0
 tap HOME
 expect help -1
-press SEQ
+expect page 9
+press ARP
 wait 900
-expect help 9
-expect help_context 0
-release SEQ
+expect help 8
+expect page 9
+release ARP
 wait 20
+expect help 8
 expect page 9
 expect playing 0
 tap HOME
 expect help -1
-press PLAY
+expect page 9
+press SEQ
 wait 900
-expect help 10
-expect help_context 0
-release PLAY
+expect help 9
+expect page 9
+release SEQ
 wait 20
+expect help 9
 expect page 9
 expect playing 0
 tap HOME
 expect help -1
-press REC
+expect page 9
+press PLAY
 wait 900
-expect help 11
-expect help_context 0
-release REC
+expect help 10
+expect page 9
+release PLAY
 wait 20
+expect help 10
 expect page 9
 expect playing 0
 tap HOME
 expect help -1
-press OCT-
+expect page 9
+press REC
 wait 900
-expect help 12
-expect help_context 0
-release OCT-
+expect help 11
+expect page 9
+release REC
 wait 20
+expect help 11
 expect page 9
 expect playing 0
 tap HOME
 expect help -1
-press OCT+
+expect page 9
+press OCT-
 wait 900
-expect help 13
-expect help_context 0
-release OCT+
+expect help 12
+expect page 9
+release OCT-
 wait 20
+expect help 12
 expect page 9
 expect playing 0
 tap HOME
 expect help -1
-tap HOME
-tap EDIT
-tap EDIT
-expect page 10
-press FX
-wait 900
-expect help 0
-expect help_context 0
-release FX
-wait 20
-expect page 10
-expect playing 0
-tap HOME
-expect help -1
-press SEL
-wait 900
-expect help 1
-expect help_context 0
-release SEL
-wait 20
-expect page 10
-expect playing 0
-tap HOME
-expect help -1
-press ENV
-wait 900
-expect help 2
-expect help_context 0
-release ENV
-wait 20
-expect page 10
-expect playing 0
-tap HOME
-expect help -1
-press LFO
-wait 900
-expect help 3
-expect help_context 0
-release LFO
-wait 20
-expect page 10
-expect playing 0
-tap HOME
-expect help -1
-press EDIT
-wait 900
-expect help 4
-expect help_context 0
-release EDIT
-wait 20
-expect page 10
-expect playing 0
-tap HOME
-expect help -1
-press GLO
-wait 900
-expect help 5
-expect help_context 0
-release GLO
-wait 20
-expect page 10
-expect playing 0
-tap HOME
-expect help -1
-press HOME
-wait 900
-expect help 6
-expect help_context 0
-release HOME
-wait 20
-expect page 10
-expect playing 0
-tap HOME
-expect help -1
-press SAVE
-wait 900
-expect help 7
-expect help_context 0
-release SAVE
-wait 20
-expect page 10
-expect playing 0
-tap HOME
-expect help -1
-press ARP
-wait 900
-expect help 8
-expect help_context 0
-release ARP
-wait 20
-expect page 10
-expect playing 0
-tap HOME
-expect help -1
-press SEQ
-wait 900
-expect help 9
-expect help_context 0
-release SEQ
-wait 20
-expect page 10
-expect playing 0
-tap HOME
-expect help -1
-press PLAY
-wait 900
-expect help 10
-expect help_context 0
-release PLAY
-wait 20
-expect page 10
-expect playing 0
-tap HOME
-expect help -1
-press REC
-wait 900
-expect help 11
-expect help_context 0
-release REC
-wait 20
-expect page 10
-expect playing 0
-tap HOME
-expect help -1
-press OCT-
-wait 900
-expect help 12
-expect help_context 0
-release OCT-
-wait 20
-expect page 10
-expect playing 0
-tap HOME
-expect help -1
+expect page 9
 press OCT+
 wait 900
 expect help 13
-expect help_context 0
+expect page 9
 release OCT+
 wait 20
+expect help 13
+expect page 9
+expect playing 0
+tap HOME
+expect help -1
+expect page 9
+page 10
+press FX
+wait 900
+expect help 0
+expect page 10
+release FX
+wait 20
+expect help 0
 expect page 10
 expect playing 0
 tap HOME
 expect help -1
-tap HOME
-tap GLO
-tap GLO
-tap GLO
-tap GLO
-expect page 11
-press FX
-wait 900
-expect help 0
-expect help_context 0
-release FX
-wait 20
-expect page 11
-expect playing 0
-tap HOME
-expect help -1
+expect page 10
 press SEL
 wait 900
 expect help 1
-expect help_context 0
+expect page 10
 release SEL
 wait 20
-expect page 11
+expect help 1
+expect page 10
 expect playing 0
 tap HOME
 expect help -1
+expect page 10
 press ENV
 wait 900
 expect help 2
-expect help_context 0
+expect page 10
 release ENV
 wait 20
-expect page 11
+expect help 2
+expect page 10
 expect playing 0
 tap HOME
 expect help -1
+expect page 10
 press LFO
 wait 900
 expect help 3
-expect help_context 0
+expect page 10
 release LFO
 wait 20
-expect page 11
+expect help 3
+expect page 10
 expect playing 0
 tap HOME
 expect help -1
+expect page 10
 press EDIT
 wait 900
 expect help 4
-expect help_context 0
+expect page 10
 release EDIT
 wait 20
-expect page 11
+expect help 4
+expect page 10
 expect playing 0
 tap HOME
 expect help -1
+expect page 10
 press GLO
 wait 900
 expect help 5
-expect help_context 0
+expect page 10
 release GLO
 wait 20
-expect page 11
+expect help 5
+expect page 10
 expect playing 0
 tap HOME
 expect help -1
+expect page 10
 press HOME
 wait 900
 expect help 6
-expect help_context 0
+expect page 10
 release HOME
 wait 20
-expect page 11
+expect help 6
+expect page 10
 expect playing 0
 tap HOME
 expect help -1
+expect page 10
 press SAVE
 wait 900
 expect help 7
-expect help_context 0
+expect page 10
 release SAVE
 wait 20
-expect page 11
+expect help 7
+expect page 10
 expect playing 0
 tap HOME
 expect help -1
+expect page 10
 press ARP
 wait 900
 expect help 8
-expect help_context 0
+expect page 10
 release ARP
 wait 20
-expect page 11
+expect help 8
+expect page 10
 expect playing 0
 tap HOME
 expect help -1
+expect page 10
 press SEQ
 wait 900
 expect help 9
-expect help_context 0
+expect page 10
 release SEQ
 wait 20
-expect page 11
+expect help 9
+expect page 10
 expect playing 0
 tap HOME
 expect help -1
+expect page 10
 press PLAY
 wait 900
 expect help 10
-expect help_context 0
+expect page 10
 release PLAY
 wait 20
-expect page 11
+expect help 10
+expect page 10
 expect playing 0
 tap HOME
 expect help -1
+expect page 10
 press REC
 wait 900
 expect help 11
-expect help_context 0
+expect page 10
 release REC
 wait 20
-expect page 11
+expect help 11
+expect page 10
 expect playing 0
 tap HOME
 expect help -1
+expect page 10
 press OCT-
 wait 900
 expect help 12
-expect help_context 0
+expect page 10
 release OCT-
 wait 20
-expect page 11
+expect help 12
+expect page 10
 expect playing 0
 tap HOME
 expect help -1
+expect page 10
 press OCT+
 wait 900
 expect help 13
-expect help_context 0
+expect page 10
 release OCT+
 wait 20
-expect page 11
+expect help 13
+expect page 10
 expect playing 0
 tap HOME
 expect help -1
-tap HOME
-tap EDIT
-tap EDIT
-tap EDIT
-tap EDIT
-tap EDIT
-expect page 12
+expect page 10
+page 11
 press FX
 wait 900
 expect help 0
-expect help_context 0
+expect page 11
 release FX
 wait 20
-expect page 12
+expect help 0
+expect page 11
 expect playing 0
 tap HOME
 expect help -1
+expect page 11
 press SEL
 wait 900
 expect help 1
-expect help_context 0
+expect page 11
 release SEL
 wait 20
-expect page 12
+expect help 1
+expect page 11
 expect playing 0
 tap HOME
 expect help -1
+expect page 11
 press ENV
 wait 900
 expect help 2
-expect help_context 0
+expect page 11
 release ENV
 wait 20
-expect page 12
+expect help 2
+expect page 11
 expect playing 0
 tap HOME
 expect help -1
+expect page 11
 press LFO
 wait 900
 expect help 3
-expect help_context 0
+expect page 11
 release LFO
 wait 20
-expect page 12
+expect help 3
+expect page 11
 expect playing 0
 tap HOME
 expect help -1
+expect page 11
 press EDIT
 wait 900
 expect help 4
-expect help_context 1
+expect page 11
 release EDIT
 wait 20
-expect page 12
+expect help 4
+expect page 11
 expect playing 0
 tap HOME
 expect help -1
+expect page 11
 press GLO
 wait 900
 expect help 5
-expect help_context 0
+expect page 11
 release GLO
 wait 20
-expect page 12
+expect help 5
+expect page 11
 expect playing 0
 tap HOME
 expect help -1
+expect page 11
 press HOME
 wait 900
 expect help 6
-expect help_context 0
+expect page 11
 release HOME
 wait 20
-expect page 12
+expect help 6
+expect page 11
 expect playing 0
 tap HOME
 expect help -1
+expect page 11
 press SAVE
 wait 900
 expect help 7
-expect help_context 0
+expect page 11
 release SAVE
 wait 20
-expect page 12
+expect help 7
+expect page 11
 expect playing 0
 tap HOME
 expect help -1
+expect page 11
 press ARP
 wait 900
 expect help 8
-expect help_context 0
+expect page 11
 release ARP
 wait 20
-expect page 12
+expect help 8
+expect page 11
 expect playing 0
 tap HOME
 expect help -1
+expect page 11
 press SEQ
 wait 900
 expect help 9
-expect help_context 0
+expect page 11
 release SEQ
 wait 20
-expect page 12
+expect help 9
+expect page 11
 expect playing 0
 tap HOME
 expect help -1
+expect page 11
 press PLAY
 wait 900
 expect help 10
-expect help_context 0
+expect page 11
 release PLAY
 wait 20
-expect page 12
+expect help 10
+expect page 11
 expect playing 0
 tap HOME
 expect help -1
+expect page 11
 press REC
 wait 900
 expect help 11
-expect help_context 0
+expect page 11
 release REC
 wait 20
-expect page 12
+expect help 11
+expect page 11
 expect playing 0
 tap HOME
 expect help -1
+expect page 11
 press OCT-
 wait 900
 expect help 12
-expect help_context 0
+expect page 11
 release OCT-
 wait 20
-expect page 12
+expect help 12
+expect page 11
 expect playing 0
 tap HOME
 expect help -1
+expect page 11
 press OCT+
 wait 900
 expect help 13
-expect help_context 0
+expect page 11
 release OCT+
 wait 20
-expect page 12
+expect help 13
+expect page 11
 expect playing 0
 tap HOME
 expect help -1
-tap HOME
-tap SEQ
-tap SEQ
-tap SEQ
-expect page 13
+expect page 11
+page 12
 press FX
 wait 900
 expect help 0
-expect help_context 0
+expect page 12
 release FX
 wait 20
-expect page 13
+expect help 0
+expect page 12
 expect playing 0
 tap HOME
 expect help -1
+expect page 12
 press SEL
 wait 900
 expect help 1
-expect help_context 0
+expect page 12
 release SEL
 wait 20
-expect page 13
+expect help 1
+expect page 12
 expect playing 0
 tap HOME
 expect help -1
+expect page 12
 press ENV
 wait 900
 expect help 2
-expect help_context 0
+expect page 12
 release ENV
 wait 20
-expect page 13
+expect help 2
+expect page 12
 expect playing 0
 tap HOME
 expect help -1
+expect page 12
 press LFO
 wait 900
 expect help 3
-expect help_context 0
+expect page 12
 release LFO
 wait 20
-expect page 13
+expect help 3
+expect page 12
 expect playing 0
 tap HOME
 expect help -1
+expect page 12
 press EDIT
 wait 900
 expect help 4
-expect help_context 0
+expect page 12
 release EDIT
 wait 20
-expect page 13
+expect help 4
+expect page 12
 expect playing 0
 tap HOME
 expect help -1
+expect page 12
 press GLO
 wait 900
 expect help 5
-expect help_context 0
+expect page 12
 release GLO
 wait 20
-expect page 13
+expect help 5
+expect page 12
 expect playing 0
 tap HOME
 expect help -1
+expect page 12
 press HOME
 wait 900
 expect help 6
-expect help_context 0
+expect page 12
 release HOME
 wait 20
-expect page 13
+expect help 6
+expect page 12
 expect playing 0
 tap HOME
 expect help -1
+expect page 12
 press SAVE
 wait 900
 expect help 7
-expect help_context 0
+expect page 12
 release SAVE
 wait 20
-expect page 13
+expect help 7
+expect page 12
 expect playing 0
 tap HOME
 expect help -1
+expect page 12
 press ARP
 wait 900
 expect help 8
-expect help_context 0
+expect page 12
 release ARP
 wait 20
-expect page 13
+expect help 8
+expect page 12
 expect playing 0
 tap HOME
 expect help -1
+expect page 12
 press SEQ
 wait 900
 expect help 9
-expect help_context 1
+expect page 12
 release SEQ
 wait 20
-expect page 13
+expect help 9
+expect page 12
 expect playing 0
 tap HOME
 expect help -1
+expect page 12
 press PLAY
 wait 900
 expect help 10
-expect help_context 0
+expect page 12
 release PLAY
 wait 20
-expect page 13
+expect help 10
+expect page 12
 expect playing 0
 tap HOME
 expect help -1
+expect page 12
 press REC
 wait 900
 expect help 11
-expect help_context 0
+expect page 12
 release REC
 wait 20
-expect page 13
+expect help 11
+expect page 12
 expect playing 0
 tap HOME
 expect help -1
+expect page 12
 press OCT-
 wait 900
 expect help 12
-expect help_context 0
+expect page 12
 release OCT-
 wait 20
-expect page 13
+expect help 12
+expect page 12
 expect playing 0
 tap HOME
 expect help -1
+expect page 12
 press OCT+
 wait 900
 expect help 13
-expect help_context 0
+expect page 12
 release OCT+
 wait 20
-expect page 13
+expect help 13
+expect page 12
 expect playing 0
 tap HOME
 expect help -1
-tap HOME
-tap FX
-tap FX
-tap FX
-expect page 14
+expect page 12
+page 13
 press FX
 wait 900
 expect help 0
-expect help_context 1
+expect page 13
 release FX
 wait 20
-expect page 14
+expect help 0
+expect page 13
 expect playing 0
 tap HOME
 expect help -1
+expect page 13
 press SEL
 wait 900
 expect help 1
-expect help_context 0
+expect page 13
 release SEL
 wait 20
-expect page 14
+expect help 1
+expect page 13
 expect playing 0
 tap HOME
 expect help -1
+expect page 13
 press ENV
 wait 900
 expect help 2
-expect help_context 0
+expect page 13
 release ENV
 wait 20
-expect page 14
+expect help 2
+expect page 13
 expect playing 0
 tap HOME
 expect help -1
+expect page 13
 press LFO
 wait 900
 expect help 3
-expect help_context 0
+expect page 13
 release LFO
 wait 20
-expect page 14
+expect help 3
+expect page 13
 expect playing 0
 tap HOME
 expect help -1
+expect page 13
 press EDIT
 wait 900
 expect help 4
-expect help_context 0
+expect page 13
 release EDIT
 wait 20
-expect page 14
+expect help 4
+expect page 13
 expect playing 0
 tap HOME
 expect help -1
+expect page 13
 press GLO
 wait 900
 expect help 5
-expect help_context 0
+expect page 13
 release GLO
 wait 20
-expect page 14
+expect help 5
+expect page 13
 expect playing 0
 tap HOME
 expect help -1
+expect page 13
 press HOME
 wait 900
 expect help 6
-expect help_context 0
+expect page 13
 release HOME
 wait 20
-expect page 14
+expect help 6
+expect page 13
 expect playing 0
 tap HOME
 expect help -1
+expect page 13
 press SAVE
 wait 900
 expect help 7
-expect help_context 0
+expect page 13
 release SAVE
 wait 20
-expect page 14
+expect help 7
+expect page 13
 expect playing 0
 tap HOME
 expect help -1
+expect page 13
 press ARP
 wait 900
 expect help 8
-expect help_context 0
+expect page 13
 release ARP
 wait 20
-expect page 14
+expect help 8
+expect page 13
 expect playing 0
 tap HOME
 expect help -1
+expect page 13
 press SEQ
 wait 900
 expect help 9
-expect help_context 0
+expect page 13
 release SEQ
 wait 20
-expect page 14
+expect help 9
+expect page 13
 expect playing 0
 tap HOME
 expect help -1
+expect page 13
 press PLAY
 wait 900
 expect help 10
-expect help_context 0
+expect page 13
 release PLAY
 wait 20
-expect page 14
+expect help 10
+expect page 13
 expect playing 0
 tap HOME
 expect help -1
+expect page 13
 press REC
 wait 900
 expect help 11
-expect help_context 0
+expect page 13
 release REC
 wait 20
-expect page 14
+expect help 11
+expect page 13
 expect playing 0
 tap HOME
 expect help -1
+expect page 13
 press OCT-
 wait 900
 expect help 12
-expect help_context 0
+expect page 13
 release OCT-
 wait 20
-expect page 14
+expect help 12
+expect page 13
 expect playing 0
 tap HOME
 expect help -1
+expect page 13
 press OCT+
 wait 900
 expect help 13
-expect help_context 0
+expect page 13
 release OCT+
 wait 20
-expect page 14
+expect help 13
+expect page 13
 expect playing 0
 tap HOME
 expect help -1
-tap HOME
-tap FX
-tap FX
-tap FX
-tap FX
-expect page 15
+expect page 13
+page 14
 press FX
 wait 900
 expect help 0
-expect help_context 1
+expect page 14
 release FX
 wait 20
-expect page 15
+expect help 0
+expect page 14
 expect playing 0
 tap HOME
 expect help -1
+expect page 14
 press SEL
 wait 900
 expect help 1
-expect help_context 0
+expect page 14
 release SEL
 wait 20
-expect page 15
+expect help 1
+expect page 14
 expect playing 0
 tap HOME
 expect help -1
+expect page 14
 press ENV
 wait 900
 expect help 2
-expect help_context 0
+expect page 14
 release ENV
 wait 20
-expect page 15
+expect help 2
+expect page 14
 expect playing 0
 tap HOME
 expect help -1
+expect page 14
 press LFO
 wait 900
 expect help 3
-expect help_context 0
+expect page 14
 release LFO
 wait 20
-expect page 15
+expect help 3
+expect page 14
 expect playing 0
 tap HOME
 expect help -1
+expect page 14
 press EDIT
 wait 900
 expect help 4
-expect help_context 0
+expect page 14
 release EDIT
 wait 20
-expect page 15
+expect help 4
+expect page 14
 expect playing 0
 tap HOME
 expect help -1
+expect page 14
 press GLO
 wait 900
 expect help 5
-expect help_context 0
+expect page 14
 release GLO
 wait 20
-expect page 15
+expect help 5
+expect page 14
 expect playing 0
 tap HOME
 expect help -1
+expect page 14
 press HOME
 wait 900
 expect help 6
-expect help_context 0
+expect page 14
 release HOME
 wait 20
-expect page 15
+expect help 6
+expect page 14
 expect playing 0
 tap HOME
 expect help -1
+expect page 14
 press SAVE
 wait 900
 expect help 7
-expect help_context 0
+expect page 14
 release SAVE
 wait 20
-expect page 15
+expect help 7
+expect page 14
 expect playing 0
 tap HOME
 expect help -1
+expect page 14
 press ARP
 wait 900
 expect help 8
-expect help_context 0
+expect page 14
 release ARP
 wait 20
-expect page 15
+expect help 8
+expect page 14
 expect playing 0
 tap HOME
 expect help -1
+expect page 14
 press SEQ
 wait 900
 expect help 9
-expect help_context 0
+expect page 14
 release SEQ
 wait 20
-expect page 15
+expect help 9
+expect page 14
 expect playing 0
 tap HOME
 expect help -1
+expect page 14
 press PLAY
 wait 900
 expect help 10
-expect help_context 0
+expect page 14
 release PLAY
 wait 20
-expect page 15
+expect help 10
+expect page 14
 expect playing 0
 tap HOME
 expect help -1
+expect page 14
 press REC
 wait 900
 expect help 11
-expect help_context 0
+expect page 14
 release REC
 wait 20
-expect page 15
+expect help 11
+expect page 14
 expect playing 0
 tap HOME
 expect help -1
+expect page 14
 press OCT-
 wait 900
 expect help 12
-expect help_context 0
+expect page 14
 release OCT-
 wait 20
-expect page 15
+expect help 12
+expect page 14
 expect playing 0
 tap HOME
 expect help -1
+expect page 14
 press OCT+
 wait 900
 expect help 13
-expect help_context 0
+expect page 14
 release OCT+
 wait 20
-expect page 15
+expect help 13
+expect page 14
 expect playing 0
 tap HOME
 expect help -1
-tap HOME
-tap SEQ
-tap SEQ
-tap SEQ
-tap SEQ
-expect page 16
+expect page 14
+page 15
 press FX
 wait 900
 expect help 0
-expect help_context 0
+expect page 15
 release FX
 wait 20
-expect page 16
+expect help 0
+expect page 15
 expect playing 0
 tap HOME
 expect help -1
+expect page 15
 press SEL
 wait 900
 expect help 1
-expect help_context 0
+expect page 15
 release SEL
 wait 20
-expect page 16
+expect help 1
+expect page 15
 expect playing 0
 tap HOME
 expect help -1
+expect page 15
 press ENV
 wait 900
 expect help 2
-expect help_context 0
+expect page 15
 release ENV
 wait 20
-expect page 16
+expect help 2
+expect page 15
 expect playing 0
 tap HOME
 expect help -1
+expect page 15
 press LFO
 wait 900
 expect help 3
-expect help_context 0
+expect page 15
 release LFO
 wait 20
-expect page 16
+expect help 3
+expect page 15
 expect playing 0
 tap HOME
 expect help -1
+expect page 15
 press EDIT
 wait 900
 expect help 4
-expect help_context 0
+expect page 15
 release EDIT
 wait 20
-expect page 16
+expect help 4
+expect page 15
 expect playing 0
 tap HOME
 expect help -1
+expect page 15
 press GLO
 wait 900
 expect help 5
-expect help_context 0
+expect page 15
 release GLO
 wait 20
-expect page 16
+expect help 5
+expect page 15
 expect playing 0
 tap HOME
 expect help -1
+expect page 15
 press HOME
 wait 900
 expect help 6
-expect help_context 0
+expect page 15
 release HOME
 wait 20
-expect page 16
+expect help 6
+expect page 15
 expect playing 0
 tap HOME
 expect help -1
+expect page 15
 press SAVE
 wait 900
 expect help 7
-expect help_context 0
+expect page 15
 release SAVE
 wait 20
-expect page 16
+expect help 7
+expect page 15
 expect playing 0
 tap HOME
 expect help -1
+expect page 15
 press ARP
 wait 900
 expect help 8
-expect help_context 0
+expect page 15
 release ARP
 wait 20
-expect page 16
+expect help 8
+expect page 15
 expect playing 0
 tap HOME
 expect help -1
+expect page 15
 press SEQ
 wait 900
 expect help 9
-expect help_context 1
+expect page 15
 release SEQ
 wait 20
-expect page 16
+expect help 9
+expect page 15
 expect playing 0
 tap HOME
 expect help -1
+expect page 15
 press PLAY
 wait 900
 expect help 10
-expect help_context 0
+expect page 15
 release PLAY
 wait 20
-expect page 16
+expect help 10
+expect page 15
 expect playing 0
 tap HOME
 expect help -1
+expect page 15
 press REC
 wait 900
 expect help 11
-expect help_context 0
+expect page 15
 release REC
 wait 20
-expect page 16
+expect help 11
+expect page 15
 expect playing 0
 tap HOME
 expect help -1
+expect page 15
 press OCT-
 wait 900
 expect help 12
-expect help_context 0
+expect page 15
 release OCT-
 wait 20
-expect page 16
+expect help 12
+expect page 15
 expect playing 0
 tap HOME
 expect help -1
+expect page 15
 press OCT+
 wait 900
 expect help 13
-expect help_context 0
+expect page 15
 release OCT+
 wait 20
-expect page 16
+expect help 13
+expect page 15
 expect playing 0
 tap HOME
 expect help -1
-tap HOME
-tap GLO
-tap GLO
-tap GLO
-tap GLO
-tap GLO
-expect page 17
+expect page 15
+page 16
 press FX
 wait 900
 expect help 0
-expect help_context 0
+expect page 16
 release FX
 wait 20
-expect page 17
+expect help 0
+expect page 16
 expect playing 0
 tap HOME
 expect help -1
+expect page 16
 press SEL
 wait 900
 expect help 1
-expect help_context 0
+expect page 16
 release SEL
 wait 20
-expect page 17
+expect help 1
+expect page 16
 expect playing 0
 tap HOME
 expect help -1
+expect page 16
 press ENV
 wait 900
 expect help 2
-expect help_context 0
+expect page 16
 release ENV
 wait 20
-expect page 17
+expect help 2
+expect page 16
 expect playing 0
 tap HOME
 expect help -1
+expect page 16
 press LFO
 wait 900
 expect help 3
-expect help_context 0
+expect page 16
 release LFO
 wait 20
-expect page 17
+expect help 3
+expect page 16
 expect playing 0
 tap HOME
 expect help -1
+expect page 16
 press EDIT
 wait 900
 expect help 4
-expect help_context 0
+expect page 16
 release EDIT
 wait 20
-expect page 17
+expect help 4
+expect page 16
 expect playing 0
 tap HOME
 expect help -1
+expect page 16
 press GLO
 wait 900
 expect help 5
-expect help_context 1
+expect page 16
 release GLO
 wait 20
-expect page 17
+expect help 5
+expect page 16
 expect playing 0
 tap HOME
 expect help -1
+expect page 16
 press HOME
 wait 900
 expect help 6
-expect help_context 0
+expect page 16
 release HOME
 wait 20
-expect page 17
+expect help 6
+expect page 16
 expect playing 0
 tap HOME
 expect help -1
+expect page 16
 press SAVE
 wait 900
 expect help 7
-expect help_context 0
+expect page 16
 release SAVE
 wait 20
-expect page 17
+expect help 7
+expect page 16
 expect playing 0
 tap HOME
 expect help -1
+expect page 16
 press ARP
 wait 900
 expect help 8
-expect help_context 0
+expect page 16
 release ARP
 wait 20
-expect page 17
+expect help 8
+expect page 16
 expect playing 0
 tap HOME
 expect help -1
+expect page 16
 press SEQ
 wait 900
 expect help 9
-expect help_context 0
+expect page 16
 release SEQ
 wait 20
-expect page 17
+expect help 9
+expect page 16
 expect playing 0
 tap HOME
 expect help -1
+expect page 16
 press PLAY
 wait 900
 expect help 10
-expect help_context 0
+expect page 16
 release PLAY
 wait 20
-expect page 17
+expect help 10
+expect page 16
 expect playing 0
 tap HOME
 expect help -1
+expect page 16
 press REC
 wait 900
 expect help 11
-expect help_context 0
+expect page 16
 release REC
 wait 20
-expect page 17
+expect help 11
+expect page 16
 expect playing 0
 tap HOME
 expect help -1
+expect page 16
 press OCT-
 wait 900
 expect help 12
-expect help_context 0
+expect page 16
 release OCT-
 wait 20
-expect page 17
+expect help 12
+expect page 16
 expect playing 0
 tap HOME
 expect help -1
+expect page 16
 press OCT+
 wait 900
 expect help 13
-expect help_context 0
+expect page 16
 release OCT+
 wait 20
-expect page 17
+expect help 13
+expect page 16
 expect playing 0
 tap HOME
 expect help -1
-tap HOME
-tap GLO
-tap GLO
-tap GLO
-tap GLO
-tap GLO
-tap GLO
-tap GLO
-tap GLO
-tap GLO
-expect page 18
+expect page 16
+page 17
 press FX
 wait 900
 expect help 0
-expect help_context 0
+expect page 17
 release FX
 wait 20
-expect page 18
+expect help 0
+expect page 17
 expect playing 0
 tap HOME
 expect help -1
+expect page 17
 press SEL
 wait 900
 expect help 1
-expect help_context 0
+expect page 17
 release SEL
 wait 20
-expect page 18
+expect help 1
+expect page 17
 expect playing 0
 tap HOME
 expect help -1
+expect page 17
 press ENV
 wait 900
 expect help 2
-expect help_context 0
+expect page 17
 release ENV
 wait 20
-expect page 18
+expect help 2
+expect page 17
 expect playing 0
 tap HOME
 expect help -1
+expect page 17
 press LFO
 wait 900
 expect help 3
-expect help_context 0
+expect page 17
 release LFO
 wait 20
-expect page 18
+expect help 3
+expect page 17
 expect playing 0
 tap HOME
 expect help -1
+expect page 17
 press EDIT
 wait 900
 expect help 4
-expect help_context 0
+expect page 17
 release EDIT
 wait 20
-expect page 18
+expect help 4
+expect page 17
 expect playing 0
 tap HOME
 expect help -1
+expect page 17
 press GLO
 wait 900
 expect help 5
-expect help_context 1
+expect page 17
 release GLO
 wait 20
-expect page 18
+expect help 5
+expect page 17
 expect playing 0
 tap HOME
 expect help -1
+expect page 17
 press HOME
 wait 900
 expect help 6
-expect help_context 0
+expect page 17
 release HOME
 wait 20
-expect page 18
+expect help 6
+expect page 17
 expect playing 0
 tap HOME
 expect help -1
+expect page 17
 press SAVE
 wait 900
 expect help 7
-expect help_context 1
+expect page 17
 release SAVE
 wait 20
-expect page 18
+expect help 7
+expect page 17
 expect playing 0
 tap HOME
 expect help -1
+expect page 17
 press ARP
 wait 900
 expect help 8
-expect help_context 0
+expect page 17
 release ARP
 wait 20
-expect page 18
+expect help 8
+expect page 17
 expect playing 0
 tap HOME
 expect help -1
+expect page 17
 press SEQ
 wait 900
 expect help 9
-expect help_context 0
+expect page 17
 release SEQ
 wait 20
-expect page 18
+expect help 9
+expect page 17
 expect playing 0
 tap HOME
 expect help -1
+expect page 17
 press PLAY
 wait 900
 expect help 10
-expect help_context 0
+expect page 17
 release PLAY
 wait 20
-expect page 18
+expect help 10
+expect page 17
 expect playing 0
 tap HOME
 expect help -1
+expect page 17
 press REC
 wait 900
 expect help 11
-expect help_context 0
+expect page 17
 release REC
 wait 20
-expect page 18
+expect help 11
+expect page 17
 expect playing 0
 tap HOME
 expect help -1
+expect page 17
 press OCT-
 wait 900
 expect help 12
-expect help_context 0
+expect page 17
 release OCT-
 wait 20
-expect page 18
+expect help 12
+expect page 17
 expect playing 0
 tap HOME
 expect help -1
+expect page 17
 press OCT+
 wait 900
 expect help 13
-expect help_context 0
+expect page 17
 release OCT+
 wait 20
-expect page 18
+expect help 13
+expect page 17
 expect playing 0
 tap HOME
 expect help -1
-tap HOME
-tap SEQ
-tap SEQ
-tap SEQ
-tap SEQ
-tap SEQ
-expect page 19
+expect page 17
+page 18
 press FX
 wait 900
 expect help 0
-expect help_context 0
+expect page 18
 release FX
 wait 20
-expect page 19
+expect help 0
+expect page 18
 expect playing 0
 tap HOME
 expect help -1
+expect page 18
 press SEL
 wait 900
 expect help 1
-expect help_context 0
+expect page 18
 release SEL
 wait 20
-expect page 19
+expect help 1
+expect page 18
 expect playing 0
 tap HOME
 expect help -1
+expect page 18
 press ENV
 wait 900
 expect help 2
-expect help_context 0
+expect page 18
 release ENV
 wait 20
-expect page 19
+expect help 2
+expect page 18
 expect playing 0
 tap HOME
 expect help -1
+expect page 18
 press LFO
 wait 900
 expect help 3
-expect help_context 0
+expect page 18
 release LFO
 wait 20
-expect page 19
+expect help 3
+expect page 18
 expect playing 0
 tap HOME
 expect help -1
+expect page 18
 press EDIT
 wait 900
 expect help 4
-expect help_context 0
+expect page 18
 release EDIT
 wait 20
-expect page 19
+expect help 4
+expect page 18
 expect playing 0
 tap HOME
 expect help -1
+expect page 18
 press GLO
 wait 900
 expect help 5
-expect help_context 0
+expect page 18
 release GLO
 wait 20
-expect page 19
+expect help 5
+expect page 18
 expect playing 0
 tap HOME
 expect help -1
+expect page 18
 press HOME
 wait 900
 expect help 6
-expect help_context 0
+expect page 18
 release HOME
 wait 20
-expect page 19
+expect help 6
+expect page 18
 expect playing 0
 tap HOME
 expect help -1
+expect page 18
 press SAVE
 wait 900
 expect help 7
-expect help_context 0
+expect page 18
 release SAVE
 wait 20
-expect page 19
+expect help 7
+expect page 18
 expect playing 0
 tap HOME
 expect help -1
+expect page 18
 press ARP
 wait 900
 expect help 8
-expect help_context 0
+expect page 18
 release ARP
 wait 20
-expect page 19
+expect help 8
+expect page 18
 expect playing 0
 tap HOME
 expect help -1
+expect page 18
 press SEQ
 wait 900
 expect help 9
-expect help_context 1
+expect page 18
 release SEQ
 wait 20
-expect page 19
+expect help 9
+expect page 18
 expect playing 0
 tap HOME
 expect help -1
+expect page 18
 press PLAY
 wait 900
 expect help 10
-expect help_context 0
+expect page 18
 release PLAY
 wait 20
-expect page 19
+expect help 10
+expect page 18
 expect playing 0
 tap HOME
 expect help -1
+expect page 18
 press REC
 wait 900
 expect help 11
-expect help_context 1
+expect page 18
 release REC
 wait 20
-expect page 19
+expect help 11
+expect page 18
 expect playing 0
 tap HOME
 expect help -1
+expect page 18
 press OCT-
 wait 900
 expect help 12
-expect help_context 0
+expect page 18
 release OCT-
 wait 20
-expect page 19
+expect help 12
+expect page 18
 expect playing 0
 tap HOME
 expect help -1
+expect page 18
 press OCT+
 wait 900
 expect help 13
-expect help_context 0
+expect page 18
 release OCT+
 wait 20
-expect page 19
+expect help 13
+expect page 18
 expect playing 0
 tap HOME
 expect help -1
-tap HOME
-tap SEQ
-tap SEQ
-tap SEQ
-tap SEQ
-tap SEQ
-tap SEQ
-expect page 20
+expect page 18
+page 19
 press FX
 wait 900
 expect help 0
-expect help_context 0
+expect page 19
 release FX
 wait 20
-expect page 20
+expect help 0
+expect page 19
 expect playing 0
 tap HOME
 expect help -1
+expect page 19
 press SEL
 wait 900
 expect help 1
-expect help_context 0
+expect page 19
 release SEL
 wait 20
-expect page 20
+expect help 1
+expect page 19
 expect playing 0
 tap HOME
 expect help -1
+expect page 19
 press ENV
 wait 900
 expect help 2
-expect help_context 0
+expect page 19
 release ENV
 wait 20
-expect page 20
+expect help 2
+expect page 19
 expect playing 0
 tap HOME
 expect help -1
+expect page 19
 press LFO
 wait 900
 expect help 3
-expect help_context 0
+expect page 19
 release LFO
 wait 20
-expect page 20
+expect help 3
+expect page 19
 expect playing 0
 tap HOME
 expect help -1
+expect page 19
 press EDIT
 wait 900
 expect help 4
-expect help_context 0
+expect page 19
 release EDIT
 wait 20
-expect page 20
+expect help 4
+expect page 19
 expect playing 0
 tap HOME
 expect help -1
+expect page 19
 press GLO
 wait 900
 expect help 5
-expect help_context 0
+expect page 19
 release GLO
 wait 20
-expect page 20
+expect help 5
+expect page 19
 expect playing 0
 tap HOME
 expect help -1
+expect page 19
 press HOME
 wait 900
 expect help 6
-expect help_context 0
+expect page 19
 release HOME
 wait 20
-expect page 20
+expect help 6
+expect page 19
 expect playing 0
 tap HOME
 expect help -1
+expect page 19
 press SAVE
 wait 900
 expect help 7
-expect help_context 0
+expect page 19
 release SAVE
 wait 20
-expect page 20
+expect help 7
+expect page 19
 expect playing 0
 tap HOME
 expect help -1
+expect page 19
 press ARP
 wait 900
 expect help 8
-expect help_context 0
+expect page 19
 release ARP
 wait 20
-expect page 20
+expect help 8
+expect page 19
 expect playing 0
 tap HOME
 expect help -1
+expect page 19
 press SEQ
 wait 900
 expect help 9
-expect help_context 1
+expect page 19
 release SEQ
 wait 20
-expect page 20
+expect help 9
+expect page 19
 expect playing 0
 tap HOME
 expect help -1
+expect page 19
 press PLAY
 wait 900
 expect help 10
-expect help_context 0
+expect page 19
 release PLAY
 wait 20
-expect page 20
+expect help 10
+expect page 19
 expect playing 0
 tap HOME
 expect help -1
+expect page 19
 press REC
 wait 900
 expect help 11
-expect help_context 1
+expect page 19
 release REC
 wait 20
-expect page 20
+expect help 11
+expect page 19
 expect playing 0
 tap HOME
 expect help -1
+expect page 19
 press OCT-
 wait 900
 expect help 12
-expect help_context 0
+expect page 19
 release OCT-
 wait 20
-expect page 20
+expect help 12
+expect page 19
 expect playing 0
 tap HOME
 expect help -1
+expect page 19
 press OCT+
 wait 900
 expect help 13
-expect help_context 0
+expect page 19
 release OCT+
 wait 20
-expect page 20
+expect help 13
+expect page 19
 expect playing 0
 tap HOME
 expect help -1
-tap HOME
-tap GLO
-tap GLO
-expect page 21
+expect page 19
+page 20
 press FX
 wait 900
 expect help 0
-expect help_context 0
+expect page 20
 release FX
 wait 20
-expect page 21
+expect help 0
+expect page 20
 expect playing 0
 tap HOME
 expect help -1
+expect page 20
 press SEL
 wait 900
 expect help 1
-expect help_context 0
+expect page 20
 release SEL
 wait 20
-expect page 21
+expect help 1
+expect page 20
 expect playing 0
 tap HOME
 expect help -1
+expect page 20
 press ENV
 wait 900
 expect help 2
-expect help_context 0
+expect page 20
 release ENV
 wait 20
-expect page 21
+expect help 2
+expect page 20
 expect playing 0
 tap HOME
 expect help -1
+expect page 20
 press LFO
 wait 900
 expect help 3
-expect help_context 0
+expect page 20
 release LFO
 wait 20
-expect page 21
+expect help 3
+expect page 20
 expect playing 0
 tap HOME
 expect help -1
+expect page 20
 press EDIT
 wait 900
 expect help 4
-expect help_context 0
+expect page 20
 release EDIT
 wait 20
-expect page 21
+expect help 4
+expect page 20
 expect playing 0
 tap HOME
 expect help -1
+expect page 20
 press GLO
 wait 900
 expect help 5
-expect help_context 1
+expect page 20
 release GLO
 wait 20
-expect page 21
+expect help 5
+expect page 20
 expect playing 0
 tap HOME
 expect help -1
+expect page 20
 press HOME
 wait 900
 expect help 6
-expect help_context 0
+expect page 20
 release HOME
 wait 20
-expect page 21
+expect help 6
+expect page 20
 expect playing 0
 tap HOME
 expect help -1
+expect page 20
 press SAVE
 wait 900
 expect help 7
-expect help_context 0
+expect page 20
 release SAVE
 wait 20
-expect page 21
+expect help 7
+expect page 20
 expect playing 0
 tap HOME
 expect help -1
+expect page 20
 press ARP
 wait 900
 expect help 8
-expect help_context 0
+expect page 20
 release ARP
 wait 20
-expect page 21
+expect help 8
+expect page 20
 expect playing 0
 tap HOME
 expect help -1
+expect page 20
 press SEQ
 wait 900
 expect help 9
-expect help_context 0
+expect page 20
 release SEQ
 wait 20
-expect page 21
+expect help 9
+expect page 20
 expect playing 0
 tap HOME
 expect help -1
+expect page 20
 press PLAY
 wait 900
 expect help 10
-expect help_context 0
+expect page 20
 release PLAY
 wait 20
-expect page 21
+expect help 10
+expect page 20
 expect playing 0
 tap HOME
 expect help -1
+expect page 20
 press REC
 wait 900
 expect help 11
-expect help_context 0
+expect page 20
 release REC
 wait 20
-expect page 21
+expect help 11
+expect page 20
 expect playing 0
 tap HOME
 expect help -1
+expect page 20
 press OCT-
 wait 900
 expect help 12
-expect help_context 0
+expect page 20
 release OCT-
 wait 20
-expect page 21
+expect help 12
+expect page 20
 expect playing 0
 tap HOME
 expect help -1
+expect page 20
 press OCT+
 wait 900
 expect help 13
-expect help_context 0
+expect page 20
 release OCT+
 wait 20
-expect page 21
+expect help 13
+expect page 20
 expect playing 0
 tap HOME
 expect help -1
-tap HOME
-tap FX
-tap FX
-tap FX
-tap FX
-tap FX
-tap FX
-tap FX
-expect page 22
+expect page 20
+page 21
 press FX
 wait 900
 expect help 0
-expect help_context 1
+expect page 21
 release FX
 wait 20
-expect page 22
+expect help 0
+expect page 21
 expect playing 0
 tap HOME
 expect help -1
+expect page 21
 press SEL
 wait 900
 expect help 1
-expect help_context 0
+expect page 21
 release SEL
 wait 20
-expect page 22
+expect help 1
+expect page 21
 expect playing 0
 tap HOME
 expect help -1
+expect page 21
 press ENV
 wait 900
 expect help 2
-expect help_context 0
+expect page 21
 release ENV
 wait 20
-expect page 22
+expect help 2
+expect page 21
 expect playing 0
 tap HOME
 expect help -1
+expect page 21
 press LFO
 wait 900
 expect help 3
-expect help_context 0
+expect page 21
 release LFO
 wait 20
-expect page 22
+expect help 3
+expect page 21
 expect playing 0
 tap HOME
 expect help -1
+expect page 21
 press EDIT
 wait 900
 expect help 4
-expect help_context 0
+expect page 21
 release EDIT
 wait 20
-expect page 22
+expect help 4
+expect page 21
 expect playing 0
 tap HOME
 expect help -1
+expect page 21
 press GLO
 wait 900
 expect help 5
-expect help_context 0
+expect page 21
 release GLO
 wait 20
-expect page 22
+expect help 5
+expect page 21
 expect playing 0
 tap HOME
 expect help -1
+expect page 21
 press HOME
 wait 900
 expect help 6
-expect help_context 0
+expect page 21
 release HOME
 wait 20
-expect page 22
+expect help 6
+expect page 21
 expect playing 0
 tap HOME
 expect help -1
+expect page 21
 press SAVE
 wait 900
 expect help 7
-expect help_context 0
+expect page 21
 release SAVE
 wait 20
-expect page 22
+expect help 7
+expect page 21
 expect playing 0
 tap HOME
 expect help -1
+expect page 21
 press ARP
 wait 900
 expect help 8
-expect help_context 0
+expect page 21
 release ARP
 wait 20
-expect page 22
+expect help 8
+expect page 21
 expect playing 0
 tap HOME
 expect help -1
+expect page 21
 press SEQ
 wait 900
 expect help 9
-expect help_context 0
+expect page 21
 release SEQ
 wait 20
-expect page 22
+expect help 9
+expect page 21
 expect playing 0
 tap HOME
 expect help -1
+expect page 21
 press PLAY
 wait 900
 expect help 10
-expect help_context 0
+expect page 21
 release PLAY
 wait 20
-expect page 22
+expect help 10
+expect page 21
 expect playing 0
 tap HOME
 expect help -1
+expect page 21
 press REC
 wait 900
 expect help 11
-expect help_context 0
+expect page 21
 release REC
 wait 20
-expect page 22
+expect help 11
+expect page 21
 expect playing 0
 tap HOME
 expect help -1
+expect page 21
 press OCT-
 wait 900
 expect help 12
-expect help_context 0
+expect page 21
 release OCT-
 wait 20
-expect page 22
+expect help 12
+expect page 21
 expect playing 0
 tap HOME
 expect help -1
+expect page 21
 press OCT+
 wait 900
 expect help 13
-expect help_context 0
+expect page 21
 release OCT+
 wait 20
+expect help 13
+expect page 21
+expect playing 0
+tap HOME
+expect help -1
+expect page 21
+page 22
+press FX
+wait 900
+expect help 0
+expect page 22
+release FX
+wait 20
+expect help 0
 expect page 22
 expect playing 0
 tap HOME
 expect help -1
+expect page 22
+press SEL
+wait 900
+expect help 1
+expect page 22
+release SEL
+wait 20
+expect help 1
+expect page 22
+expect playing 0
+tap HOME
+expect help -1
+expect page 22
+press ENV
+wait 900
+expect help 2
+expect page 22
+release ENV
+wait 20
+expect help 2
+expect page 22
+expect playing 0
+tap HOME
+expect help -1
+expect page 22
+press LFO
+wait 900
+expect help 3
+expect page 22
+release LFO
+wait 20
+expect help 3
+expect page 22
+expect playing 0
+tap HOME
+expect help -1
+expect page 22
+press EDIT
+wait 900
+expect help 4
+expect page 22
+release EDIT
+wait 20
+expect help 4
+expect page 22
+expect playing 0
+tap HOME
+expect help -1
+expect page 22
+press GLO
+wait 900
+expect help 5
+expect page 22
+release GLO
+wait 20
+expect help 5
+expect page 22
+expect playing 0
+tap HOME
+expect help -1
+expect page 22
+press HOME
+wait 900
+expect help 6
+expect page 22
+release HOME
+wait 20
+expect help 6
+expect page 22
+expect playing 0
+tap HOME
+expect help -1
+expect page 22
+press SAVE
+wait 900
+expect help 7
+expect page 22
+release SAVE
+wait 20
+expect help 7
+expect page 22
+expect playing 0
+tap HOME
+expect help -1
+expect page 22
+press ARP
+wait 900
+expect help 8
+expect page 22
+release ARP
+wait 20
+expect help 8
+expect page 22
+expect playing 0
+tap HOME
+expect help -1
+expect page 22
+press SEQ
+wait 900
+expect help 9
+expect page 22
+release SEQ
+wait 20
+expect help 9
+expect page 22
+expect playing 0
+tap HOME
+expect help -1
+expect page 22
+press PLAY
+wait 900
+expect help 10
+expect page 22
+release PLAY
+wait 20
+expect help 10
+expect page 22
+expect playing 0
+tap HOME
+expect help -1
+expect page 22
+press REC
+wait 900
+expect help 11
+expect page 22
+release REC
+wait 20
+expect help 11
+expect page 22
+expect playing 0
+tap HOME
+expect help -1
+expect page 22
+press OCT-
+wait 900
+expect help 12
+expect page 22
+release OCT-
+wait 20
+expect help 12
+expect page 22
+expect playing 0
+tap HOME
+expect help -1
+expect page 22
+press OCT+
+wait 900
+expect help 13
+expect page 22
+release OCT+
+wait 20
+expect help 13
+expect page 22
+expect playing 0
+tap HOME
+expect help -1
+expect page 22
+page 23
+press FX
+wait 900
+expect help 0
+expect page 23
+release FX
+wait 20
+expect help 0
+expect page 23
+expect playing 0
+tap HOME
+expect help -1
+expect page 23
+press SEL
+wait 900
+expect help 1
+expect page 23
+release SEL
+wait 20
+expect help 1
+expect page 23
+expect playing 0
+tap HOME
+expect help -1
+expect page 23
+press ENV
+wait 900
+expect help 2
+expect page 23
+release ENV
+wait 20
+expect help 2
+expect page 23
+expect playing 0
+tap HOME
+expect help -1
+expect page 23
+press LFO
+wait 900
+expect help 3
+expect page 23
+release LFO
+wait 20
+expect help 3
+expect page 23
+expect playing 0
+tap HOME
+expect help -1
+expect page 23
+press EDIT
+wait 900
+expect help 4
+expect page 23
+release EDIT
+wait 20
+expect help 4
+expect page 23
+expect playing 0
+tap HOME
+expect help -1
+expect page 23
+press GLO
+wait 900
+expect help 5
+expect page 23
+release GLO
+wait 20
+expect help 5
+expect page 23
+expect playing 0
+tap HOME
+expect help -1
+expect page 23
+press HOME
+wait 900
+expect help 6
+expect page 23
+release HOME
+wait 20
+expect help 6
+expect page 23
+expect playing 0
+tap HOME
+expect help -1
+expect page 23
+press SAVE
+wait 900
+expect help 7
+expect page 23
+release SAVE
+wait 20
+expect help 7
+expect page 23
+expect playing 0
+tap HOME
+expect help -1
+expect page 23
+press ARP
+wait 900
+expect help 8
+expect page 23
+release ARP
+wait 20
+expect help 8
+expect page 23
+expect playing 0
+tap HOME
+expect help -1
+expect page 23
+press SEQ
+wait 900
+expect help 9
+expect page 23
+release SEQ
+wait 20
+expect help 9
+expect page 23
+expect playing 0
+tap HOME
+expect help -1
+expect page 23
+press PLAY
+wait 900
+expect help 10
+expect page 23
+release PLAY
+wait 20
+expect help 10
+expect page 23
+expect playing 0
+tap HOME
+expect help -1
+expect page 23
+press REC
+wait 900
+expect help 11
+expect page 23
+release REC
+wait 20
+expect help 11
+expect page 23
+expect playing 0
+tap HOME
+expect help -1
+expect page 23
+press OCT-
+wait 900
+expect help 12
+expect page 23
+release OCT-
+wait 20
+expect help 12
+expect page 23
+expect playing 0
+tap HOME
+expect help -1
+expect page 23
+press OCT+
+wait 900
+expect help 13
+expect page 23
+release OCT+
+wait 20
+expect help 13
+expect page 23
+expect playing 0
+tap HOME
+expect help -1
+expect page 23
+page 24
+press FX
+wait 900
+expect help 0
+expect page 24
+release FX
+wait 20
+expect help 0
+expect page 24
+expect playing 0
+tap HOME
+expect help -1
+expect page 24
+press SEL
+wait 900
+expect help 1
+expect page 24
+release SEL
+wait 20
+expect help 1
+expect page 24
+expect playing 0
+tap HOME
+expect help -1
+expect page 24
+press ENV
+wait 900
+expect help 2
+expect page 24
+release ENV
+wait 20
+expect help 2
+expect page 24
+expect playing 0
+tap HOME
+expect help -1
+expect page 24
+press LFO
+wait 900
+expect help 3
+expect page 24
+release LFO
+wait 20
+expect help 3
+expect page 24
+expect playing 0
+tap HOME
+expect help -1
+expect page 24
+press EDIT
+wait 900
+expect help 4
+expect page 24
+release EDIT
+wait 20
+expect help 4
+expect page 24
+expect playing 0
+tap HOME
+expect help -1
+expect page 24
+press GLO
+wait 900
+expect help 5
+expect page 24
+release GLO
+wait 20
+expect help 5
+expect page 24
+expect playing 0
+tap HOME
+expect help -1
+expect page 24
+press HOME
+wait 900
+expect help 6
+expect page 24
+release HOME
+wait 20
+expect help 6
+expect page 24
+expect playing 0
+tap HOME
+expect help -1
+expect page 24
+press SAVE
+wait 900
+expect help 7
+expect page 24
+release SAVE
+wait 20
+expect help 7
+expect page 24
+expect playing 0
+tap HOME
+expect help -1
+expect page 24
+press ARP
+wait 900
+expect help 8
+expect page 24
+release ARP
+wait 20
+expect help 8
+expect page 24
+expect playing 0
+tap HOME
+expect help -1
+expect page 24
+press SEQ
+wait 900
+expect help 9
+expect page 24
+release SEQ
+wait 20
+expect help 9
+expect page 24
+expect playing 0
+tap HOME
+expect help -1
+expect page 24
+press PLAY
+wait 900
+expect help 10
+expect page 24
+release PLAY
+wait 20
+expect help 10
+expect page 24
+expect playing 0
+tap HOME
+expect help -1
+expect page 24
+press REC
+wait 900
+expect help 11
+expect page 24
+release REC
+wait 20
+expect help 11
+expect page 24
+expect playing 0
+tap HOME
+expect help -1
+expect page 24
+press OCT-
+wait 900
+expect help 12
+expect page 24
+release OCT-
+wait 20
+expect help 12
+expect page 24
+expect playing 0
+tap HOME
+expect help -1
+expect page 24
+press OCT+
+wait 900
+expect help 13
+expect page 24
+release OCT+
+wait 20
+expect help 13
+expect page 24
+expect playing 0
+tap HOME
+expect help -1
+expect page 24
+page 25
+press FX
+wait 900
+expect help 0
+expect page 25
+release FX
+wait 20
+expect help 0
+expect page 25
+expect playing 0
+tap HOME
+expect help -1
+expect page 25
+press SEL
+wait 900
+expect help 1
+expect page 25
+release SEL
+wait 20
+expect help 1
+expect page 25
+expect playing 0
+tap HOME
+expect help -1
+expect page 25
+press ENV
+wait 900
+expect help 2
+expect page 25
+release ENV
+wait 20
+expect help 2
+expect page 25
+expect playing 0
+tap HOME
+expect help -1
+expect page 25
+press LFO
+wait 900
+expect help 3
+expect page 25
+release LFO
+wait 20
+expect help 3
+expect page 25
+expect playing 0
+tap HOME
+expect help -1
+expect page 25
+press EDIT
+wait 900
+expect help 4
+expect page 25
+release EDIT
+wait 20
+expect help 4
+expect page 25
+expect playing 0
+tap HOME
+expect help -1
+expect page 25
+press GLO
+wait 900
+expect help 5
+expect page 25
+release GLO
+wait 20
+expect help 5
+expect page 25
+expect playing 0
+tap HOME
+expect help -1
+expect page 25
+press HOME
+wait 900
+expect help 6
+expect page 25
+release HOME
+wait 20
+expect help 6
+expect page 25
+expect playing 0
+tap HOME
+expect help -1
+expect page 25
+press SAVE
+wait 900
+expect help 7
+expect page 25
+release SAVE
+wait 20
+expect help 7
+expect page 25
+expect playing 0
+tap HOME
+expect help -1
+expect page 25
+press ARP
+wait 900
+expect help 8
+expect page 25
+release ARP
+wait 20
+expect help 8
+expect page 25
+expect playing 0
+tap HOME
+expect help -1
+expect page 25
+press SEQ
+wait 900
+expect help 9
+expect page 25
+release SEQ
+wait 20
+expect help 9
+expect page 25
+expect playing 0
+tap HOME
+expect help -1
+expect page 25
+press PLAY
+wait 900
+expect help 10
+expect page 25
+release PLAY
+wait 20
+expect help 10
+expect page 25
+expect playing 0
+tap HOME
+expect help -1
+expect page 25
+press REC
+wait 900
+expect help 11
+expect page 25
+release REC
+wait 20
+expect help 11
+expect page 25
+expect playing 0
+tap HOME
+expect help -1
+expect page 25
+press OCT-
+wait 900
+expect help 12
+expect page 25
+release OCT-
+wait 20
+expect help 12
+expect page 25
+expect playing 0
+tap HOME
+expect help -1
+expect page 25
+press OCT+
+wait 900
+expect help 13
+expect page 25
+release OCT+
+wait 20
+expect help 13
+expect page 25
+expect playing 0
+tap HOME
+expect help -1
+expect page 25
+page 26
+press FX
+wait 900
+expect help 0
+expect page 26
+release FX
+wait 20
+expect help 0
+expect page 26
+expect playing 0
+tap HOME
+expect help -1
+expect page 26
+press SEL
+wait 900
+expect help 1
+expect page 26
+release SEL
+wait 20
+expect help 1
+expect page 26
+expect playing 0
+tap HOME
+expect help -1
+expect page 26
+press ENV
+wait 900
+expect help 2
+expect page 26
+release ENV
+wait 20
+expect help 2
+expect page 26
+expect playing 0
+tap HOME
+expect help -1
+expect page 26
+press LFO
+wait 900
+expect help 3
+expect page 26
+release LFO
+wait 20
+expect help 3
+expect page 26
+expect playing 0
+tap HOME
+expect help -1
+expect page 26
+press EDIT
+wait 900
+expect help 4
+expect page 26
+release EDIT
+wait 20
+expect help 4
+expect page 26
+expect playing 0
+tap HOME
+expect help -1
+expect page 26
+press GLO
+wait 900
+expect help 5
+expect page 26
+release GLO
+wait 20
+expect help 5
+expect page 26
+expect playing 0
+tap HOME
+expect help -1
+expect page 26
+press HOME
+wait 900
+expect help 6
+expect page 26
+release HOME
+wait 20
+expect help 6
+expect page 26
+expect playing 0
+tap HOME
+expect help -1
+expect page 26
+press SAVE
+wait 900
+expect help 7
+expect page 26
+release SAVE
+wait 20
+expect help 7
+expect page 26
+expect playing 0
+tap HOME
+expect help -1
+expect page 26
+press ARP
+wait 900
+expect help 8
+expect page 26
+release ARP
+wait 20
+expect help 8
+expect page 26
+expect playing 0
+tap HOME
+expect help -1
+expect page 26
+press SEQ
+wait 900
+expect help 9
+expect page 26
+release SEQ
+wait 20
+expect help 9
+expect page 26
+expect playing 0
+tap HOME
+expect help -1
+expect page 26
+press PLAY
+wait 900
+expect help 10
+expect page 26
+release PLAY
+wait 20
+expect help 10
+expect page 26
+expect playing 0
+tap HOME
+expect help -1
+expect page 26
+press REC
+wait 900
+expect help 11
+expect page 26
+release REC
+wait 20
+expect help 11
+expect page 26
+expect playing 0
+tap HOME
+expect help -1
+expect page 26
+press OCT-
+wait 900
+expect help 12
+expect page 26
+release OCT-
+wait 20
+expect help 12
+expect page 26
+expect playing 0
+tap HOME
+expect help -1
+expect page 26
+press OCT+
+wait 900
+expect help 13
+expect page 26
+release OCT+
+wait 20
+expect help 13
+expect page 26
+expect playing 0
+tap HOME
+expect help -1
+expect page 26
+page 27
+press FX
+wait 900
+expect help 0
+expect page 27
+release FX
+wait 20
+expect help 0
+expect page 27
+expect playing 0
+tap HOME
+expect help -1
+expect page 27
+press SEL
+wait 900
+expect help 1
+expect page 27
+release SEL
+wait 20
+expect help 1
+expect page 27
+expect playing 0
+tap HOME
+expect help -1
+expect page 27
+press ENV
+wait 900
+expect help 2
+expect page 27
+release ENV
+wait 20
+expect help 2
+expect page 27
+expect playing 0
+tap HOME
+expect help -1
+expect page 27
+press LFO
+wait 900
+expect help 3
+expect page 27
+release LFO
+wait 20
+expect help 3
+expect page 27
+expect playing 0
+tap HOME
+expect help -1
+expect page 27
+press EDIT
+wait 900
+expect help 4
+expect page 27
+release EDIT
+wait 20
+expect help 4
+expect page 27
+expect playing 0
+tap HOME
+expect help -1
+expect page 27
+press GLO
+wait 900
+expect help 5
+expect page 27
+release GLO
+wait 20
+expect help 5
+expect page 27
+expect playing 0
+tap HOME
+expect help -1
+expect page 27
+press HOME
+wait 900
+expect help 6
+expect page 27
+release HOME
+wait 20
+expect help 6
+expect page 27
+expect playing 0
+tap HOME
+expect help -1
+expect page 27
+press SAVE
+wait 900
+expect help 7
+expect page 27
+release SAVE
+wait 20
+expect help 7
+expect page 27
+expect playing 0
+tap HOME
+expect help -1
+expect page 27
+press ARP
+wait 900
+expect help 8
+expect page 27
+release ARP
+wait 20
+expect help 8
+expect page 27
+expect playing 0
+tap HOME
+expect help -1
+expect page 27
+press SEQ
+wait 900
+expect help 9
+expect page 27
+release SEQ
+wait 20
+expect help 9
+expect page 27
+expect playing 0
+tap HOME
+expect help -1
+expect page 27
+press PLAY
+wait 900
+expect help 10
+expect page 27
+release PLAY
+wait 20
+expect help 10
+expect page 27
+expect playing 0
+tap HOME
+expect help -1
+expect page 27
+press REC
+wait 900
+expect help 11
+expect page 27
+release REC
+wait 20
+expect help 11
+expect page 27
+expect playing 0
+tap HOME
+expect help -1
+expect page 27
+press OCT-
+wait 900
+expect help 12
+expect page 27
+release OCT-
+wait 20
+expect help 12
+expect page 27
+expect playing 0
+tap HOME
+expect help -1
+expect page 27
+press OCT+
+wait 900
+expect help 13
+expect page 27
+release OCT+
+wait 20
+expect help 13
+expect page 27
+expect playing 0
+tap HOME
+expect help -1
+expect page 27
+page 28
+press FX
+wait 900
+expect help 0
+expect page 28
+release FX
+wait 20
+expect help 0
+expect page 28
+expect playing 0
+tap HOME
+expect help -1
+expect page 28
+press SEL
+wait 900
+expect help 1
+expect page 28
+release SEL
+wait 20
+expect help 1
+expect page 28
+expect playing 0
+tap HOME
+expect help -1
+expect page 28
+press ENV
+wait 900
+expect help 2
+expect page 28
+release ENV
+wait 20
+expect help 2
+expect page 28
+expect playing 0
+tap HOME
+expect help -1
+expect page 28
+press LFO
+wait 900
+expect help 3
+expect page 28
+release LFO
+wait 20
+expect help 3
+expect page 28
+expect playing 0
+tap HOME
+expect help -1
+expect page 28
+press EDIT
+wait 900
+expect help 4
+expect page 28
+release EDIT
+wait 20
+expect help 4
+expect page 28
+expect playing 0
+tap HOME
+expect help -1
+expect page 28
+press GLO
+wait 900
+expect help 5
+expect page 28
+release GLO
+wait 20
+expect help 5
+expect page 28
+expect playing 0
+tap HOME
+expect help -1
+expect page 28
+press HOME
+wait 900
+expect help 6
+expect page 28
+release HOME
+wait 20
+expect help 6
+expect page 28
+expect playing 0
+tap HOME
+expect help -1
+expect page 28
+press SAVE
+wait 900
+expect help 7
+expect page 28
+release SAVE
+wait 20
+expect help 7
+expect page 28
+expect playing 0
+tap HOME
+expect help -1
+expect page 28
+press ARP
+wait 900
+expect help 8
+expect page 28
+release ARP
+wait 20
+expect help 8
+expect page 28
+expect playing 0
+tap HOME
+expect help -1
+expect page 28
+press SEQ
+wait 900
+expect help 9
+expect page 28
+release SEQ
+wait 20
+expect help 9
+expect page 28
+expect playing 0
+tap HOME
+expect help -1
+expect page 28
+press PLAY
+wait 900
+expect help 10
+expect page 28
+release PLAY
+wait 20
+expect help 10
+expect page 28
+expect playing 0
+tap HOME
+expect help -1
+expect page 28
+press REC
+wait 900
+expect help 11
+expect page 28
+release REC
+wait 20
+expect help 11
+expect page 28
+expect playing 0
+tap HOME
+expect help -1
+expect page 28
+press OCT-
+wait 900
+expect help 12
+expect page 28
+release OCT-
+wait 20
+expect help 12
+expect page 28
+expect playing 0
+tap HOME
+expect help -1
+expect page 28
+press OCT+
+wait 900
+expect help 13
+expect page 28
+release OCT+
+wait 20
+expect help 13
+expect page 28
+expect playing 0
+tap HOME
+expect help -1
+expect page 28
+page 29
+press FX
+wait 900
+expect help 0
+expect page 29
+release FX
+wait 20
+expect help 0
+expect page 29
+expect playing 0
+tap HOME
+expect help -1
+expect page 29
+press SEL
+wait 900
+expect help 1
+expect page 29
+release SEL
+wait 20
+expect help 1
+expect page 29
+expect playing 0
+tap HOME
+expect help -1
+expect page 29
+press ENV
+wait 900
+expect help 2
+expect page 29
+release ENV
+wait 20
+expect help 2
+expect page 29
+expect playing 0
+tap HOME
+expect help -1
+expect page 29
+press LFO
+wait 900
+expect help 3
+expect page 29
+release LFO
+wait 20
+expect help 3
+expect page 29
+expect playing 0
+tap HOME
+expect help -1
+expect page 29
+press EDIT
+wait 900
+expect help 4
+expect page 29
+release EDIT
+wait 20
+expect help 4
+expect page 29
+expect playing 0
+tap HOME
+expect help -1
+expect page 29
+press GLO
+wait 900
+expect help 5
+expect page 29
+release GLO
+wait 20
+expect help 5
+expect page 29
+expect playing 0
+tap HOME
+expect help -1
+expect page 29
+press HOME
+wait 900
+expect help 6
+expect page 29
+release HOME
+wait 20
+expect help 6
+expect page 29
+expect playing 0
+tap HOME
+expect help -1
+expect page 29
+press SAVE
+wait 900
+expect help 7
+expect page 29
+release SAVE
+wait 20
+expect help 7
+expect page 29
+expect playing 0
+tap HOME
+expect help -1
+expect page 29
+press ARP
+wait 900
+expect help 8
+expect page 29
+release ARP
+wait 20
+expect help 8
+expect page 29
+expect playing 0
+tap HOME
+expect help -1
+expect page 29
+press SEQ
+wait 900
+expect help 9
+expect page 29
+release SEQ
+wait 20
+expect help 9
+expect page 29
+expect playing 0
+tap HOME
+expect help -1
+expect page 29
+press PLAY
+wait 900
+expect help 10
+expect page 29
+release PLAY
+wait 20
+expect help 10
+expect page 29
+expect playing 0
+tap HOME
+expect help -1
+expect page 29
+press REC
+wait 900
+expect help 11
+expect page 29
+release REC
+wait 20
+expect help 11
+expect page 29
+expect playing 0
+tap HOME
+expect help -1
+expect page 29
+press OCT-
+wait 900
+expect help 12
+expect page 29
+release OCT-
+wait 20
+expect help 12
+expect page 29
+expect playing 0
+tap HOME
+expect help -1
+expect page 29
+press OCT+
+wait 900
+expect help 13
+expect page 29
+release OCT+
+wait 20
+expect help 13
+expect page 29
+expect playing 0
+tap HOME
+expect help -1
+expect page 29
+page 30
+press FX
+wait 900
+expect help 0
+expect page 30
+release FX
+wait 20
+expect help 0
+expect page 30
+expect playing 0
+tap HOME
+expect help -1
+expect page 30
+press SEL
+wait 900
+expect help 1
+expect page 30
+release SEL
+wait 20
+expect help 1
+expect page 30
+expect playing 0
+tap HOME
+expect help -1
+expect page 30
+press ENV
+wait 900
+expect help 2
+expect page 30
+release ENV
+wait 20
+expect help 2
+expect page 30
+expect playing 0
+tap HOME
+expect help -1
+expect page 30
+press LFO
+wait 900
+expect help 3
+expect page 30
+release LFO
+wait 20
+expect help 3
+expect page 30
+expect playing 0
+tap HOME
+expect help -1
+expect page 30
+press EDIT
+wait 900
+expect help 4
+expect page 30
+release EDIT
+wait 20
+expect help 4
+expect page 30
+expect playing 0
+tap HOME
+expect help -1
+expect page 30
+press GLO
+wait 900
+expect help 5
+expect page 30
+release GLO
+wait 20
+expect help 5
+expect page 30
+expect playing 0
+tap HOME
+expect help -1
+expect page 30
+press HOME
+wait 900
+expect help 6
+expect page 30
+release HOME
+wait 20
+expect help 6
+expect page 30
+expect playing 0
+tap HOME
+expect help -1
+expect page 30
+press SAVE
+wait 900
+expect help 7
+expect page 30
+release SAVE
+wait 20
+expect help 7
+expect page 30
+expect playing 0
+tap HOME
+expect help -1
+expect page 30
+press ARP
+wait 900
+expect help 8
+expect page 30
+release ARP
+wait 20
+expect help 8
+expect page 30
+expect playing 0
+tap HOME
+expect help -1
+expect page 30
+press SEQ
+wait 900
+expect help 9
+expect page 30
+release SEQ
+wait 20
+expect help 9
+expect page 30
+expect playing 0
+tap HOME
+expect help -1
+expect page 30
+press PLAY
+wait 900
+expect help 10
+expect page 30
+release PLAY
+wait 20
+expect help 10
+expect page 30
+expect playing 0
+tap HOME
+expect help -1
+expect page 30
+press REC
+wait 900
+expect help 11
+expect page 30
+release REC
+wait 20
+expect help 11
+expect page 30
+expect playing 0
+tap HOME
+expect help -1
+expect page 30
+press OCT-
+wait 900
+expect help 12
+expect page 30
+release OCT-
+wait 20
+expect help 12
+expect page 30
+expect playing 0
+tap HOME
+expect help -1
+expect page 30
+press OCT+
+wait 900
+expect help 13
+expect page 30
+release OCT+
+wait 20
+expect help 13
+expect page 30
+expect playing 0
+tap HOME
+expect help -1
+expect page 30
+page 31
+press FX
+wait 900
+expect help 0
+expect page 31
+release FX
+wait 20
+expect help 0
+expect page 31
+expect playing 0
+tap HOME
+expect help -1
+expect page 31
+press SEL
+wait 900
+expect help 1
+expect page 31
+release SEL
+wait 20
+expect help 1
+expect page 31
+expect playing 0
+tap HOME
+expect help -1
+expect page 31
+press ENV
+wait 900
+expect help 2
+expect page 31
+release ENV
+wait 20
+expect help 2
+expect page 31
+expect playing 0
+tap HOME
+expect help -1
+expect page 31
+press LFO
+wait 900
+expect help 3
+expect page 31
+release LFO
+wait 20
+expect help 3
+expect page 31
+expect playing 0
+tap HOME
+expect help -1
+expect page 31
+press EDIT
+wait 900
+expect help 4
+expect page 31
+release EDIT
+wait 20
+expect help 4
+expect page 31
+expect playing 0
+tap HOME
+expect help -1
+expect page 31
+press GLO
+wait 900
+expect help 5
+expect page 31
+release GLO
+wait 20
+expect help 5
+expect page 31
+expect playing 0
+tap HOME
+expect help -1
+expect page 31
+press HOME
+wait 900
+expect help 6
+expect page 31
+release HOME
+wait 20
+expect help 6
+expect page 31
+expect playing 0
+tap HOME
+expect help -1
+expect page 31
+press SAVE
+wait 900
+expect help 7
+expect page 31
+release SAVE
+wait 20
+expect help 7
+expect page 31
+expect playing 0
+tap HOME
+expect help -1
+expect page 31
+press ARP
+wait 900
+expect help 8
+expect page 31
+release ARP
+wait 20
+expect help 8
+expect page 31
+expect playing 0
+tap HOME
+expect help -1
+expect page 31
+press SEQ
+wait 900
+expect help 9
+expect page 31
+release SEQ
+wait 20
+expect help 9
+expect page 31
+expect playing 0
+tap HOME
+expect help -1
+expect page 31
+press PLAY
+wait 900
+expect help 10
+expect page 31
+release PLAY
+wait 20
+expect help 10
+expect page 31
+expect playing 0
+tap HOME
+expect help -1
+expect page 31
+press REC
+wait 900
+expect help 11
+expect page 31
+release REC
+wait 20
+expect help 11
+expect page 31
+expect playing 0
+tap HOME
+expect help -1
+expect page 31
+press OCT-
+wait 900
+expect help 12
+expect page 31
+release OCT-
+wait 20
+expect help 12
+expect page 31
+expect playing 0
+tap HOME
+expect help -1
+expect page 31
+press OCT+
+wait 900
+expect help 13
+expect page 31
+release OCT+
+wait 20
+expect help 13
+expect page 31
+expect playing 0
+tap HOME
+expect help -1
+expect page 31
+page 32
+press FX
+wait 900
+expect help 0
+expect page 32
+release FX
+wait 20
+expect help 0
+expect page 32
+expect playing 0
+tap HOME
+expect help -1
+expect page 32
+press SEL
+wait 900
+expect help 1
+expect page 32
+release SEL
+wait 20
+expect help 1
+expect page 32
+expect playing 0
+tap HOME
+expect help -1
+expect page 32
+press ENV
+wait 900
+expect help 2
+expect page 32
+release ENV
+wait 20
+expect help 2
+expect page 32
+expect playing 0
+tap HOME
+expect help -1
+expect page 32
+press LFO
+wait 900
+expect help 3
+expect page 32
+release LFO
+wait 20
+expect help 3
+expect page 32
+expect playing 0
+tap HOME
+expect help -1
+expect page 32
+press EDIT
+wait 900
+expect help 4
+expect page 32
+release EDIT
+wait 20
+expect help 4
+expect page 32
+expect playing 0
+tap HOME
+expect help -1
+expect page 32
+press GLO
+wait 900
+expect help 5
+expect page 32
+release GLO
+wait 20
+expect help 5
+expect page 32
+expect playing 0
+tap HOME
+expect help -1
+expect page 32
+press HOME
+wait 900
+expect help 6
+expect page 32
+release HOME
+wait 20
+expect help 6
+expect page 32
+expect playing 0
+tap HOME
+expect help -1
+expect page 32
+press SAVE
+wait 900
+expect help 7
+expect page 32
+release SAVE
+wait 20
+expect help 7
+expect page 32
+expect playing 0
+tap HOME
+expect help -1
+expect page 32
+press ARP
+wait 900
+expect help 8
+expect page 32
+release ARP
+wait 20
+expect help 8
+expect page 32
+expect playing 0
+tap HOME
+expect help -1
+expect page 32
+press SEQ
+wait 900
+expect help 9
+expect page 32
+release SEQ
+wait 20
+expect help 9
+expect page 32
+expect playing 0
+tap HOME
+expect help -1
+expect page 32
+press PLAY
+wait 900
+expect help 10
+expect page 32
+release PLAY
+wait 20
+expect help 10
+expect page 32
+expect playing 0
+tap HOME
+expect help -1
+expect page 32
+press REC
+wait 900
+expect help 11
+expect page 32
+release REC
+wait 20
+expect help 11
+expect page 32
+expect playing 0
+tap HOME
+expect help -1
+expect page 32
+press OCT-
+wait 900
+expect help 12
+expect page 32
+release OCT-
+wait 20
+expect help 12
+expect page 32
+expect playing 0
+tap HOME
+expect help -1
+expect page 32
+press OCT+
+wait 900
+expect help 13
+expect page 32
+release OCT+
+wait 20
+expect help 13
+expect page 32
+expect playing 0
+tap HOME
+expect help -1
+expect page 32
+page 33
+press FX
+wait 900
+expect help 0
+expect page 33
+release FX
+wait 20
+expect help 0
+expect page 33
+expect playing 0
+tap HOME
+expect help -1
+expect page 33
+press SEL
+wait 900
+expect help 1
+expect page 33
+release SEL
+wait 20
+expect help 1
+expect page 33
+expect playing 0
+tap HOME
+expect help -1
+expect page 33
+press ENV
+wait 900
+expect help 2
+expect page 33
+release ENV
+wait 20
+expect help 2
+expect page 33
+expect playing 0
+tap HOME
+expect help -1
+expect page 33
+press LFO
+wait 900
+expect help 3
+expect page 33
+release LFO
+wait 20
+expect help 3
+expect page 33
+expect playing 0
+tap HOME
+expect help -1
+expect page 33
+press EDIT
+wait 900
+expect help 4
+expect page 33
+release EDIT
+wait 20
+expect help 4
+expect page 33
+expect playing 0
+tap HOME
+expect help -1
+expect page 33
+press GLO
+wait 900
+expect help 5
+expect page 33
+release GLO
+wait 20
+expect help 5
+expect page 33
+expect playing 0
+tap HOME
+expect help -1
+expect page 33
+press HOME
+wait 900
+expect help 6
+expect page 33
+release HOME
+wait 20
+expect help 6
+expect page 33
+expect playing 0
+tap HOME
+expect help -1
+expect page 33
+press SAVE
+wait 900
+expect help 7
+expect page 33
+release SAVE
+wait 20
+expect help 7
+expect page 33
+expect playing 0
+tap HOME
+expect help -1
+expect page 33
+press ARP
+wait 900
+expect help 8
+expect page 33
+release ARP
+wait 20
+expect help 8
+expect page 33
+expect playing 0
+tap HOME
+expect help -1
+expect page 33
+press SEQ
+wait 900
+expect help 9
+expect page 33
+release SEQ
+wait 20
+expect help 9
+expect page 33
+expect playing 0
+tap HOME
+expect help -1
+expect page 33
+press PLAY
+wait 900
+expect help 10
+expect page 33
+release PLAY
+wait 20
+expect help 10
+expect page 33
+expect playing 0
+tap HOME
+expect help -1
+expect page 33
+press REC
+wait 900
+expect help 11
+expect page 33
+release REC
+wait 20
+expect help 11
+expect page 33
+expect playing 0
+tap HOME
+expect help -1
+expect page 33
+press OCT-
+wait 900
+expect help 12
+expect page 33
+release OCT-
+wait 20
+expect help 12
+expect page 33
+expect playing 0
+tap HOME
+expect help -1
+expect page 33
+press OCT+
+wait 900
+expect help 13
+expect page 33
+release OCT+
+wait 20
+expect help 13
+expect page 33
+expect playing 0
+tap HOME
+expect help -1
+expect page 33
+page 34
+press FX
+wait 900
+expect help 0
+expect page 34
+release FX
+wait 20
+expect help 0
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+expect page 34
+press SEL
+wait 900
+expect help 1
+expect page 34
+release SEL
+wait 20
+expect help 1
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+expect page 34
+press ENV
+wait 900
+expect help 2
+expect page 34
+release ENV
+wait 20
+expect help 2
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+expect page 34
+press LFO
+wait 900
+expect help 3
+expect page 34
+release LFO
+wait 20
+expect help 3
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+expect page 34
+press EDIT
+wait 900
+expect help 4
+expect page 34
+release EDIT
+wait 20
+expect help 4
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+expect page 34
+press GLO
+wait 900
+expect help 5
+expect page 34
+release GLO
+wait 20
+expect help 5
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+expect page 34
+press HOME
+wait 900
+expect help 6
+expect page 34
+release HOME
+wait 20
+expect help 6
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+expect page 34
+press SAVE
+wait 900
+expect help 7
+expect page 34
+release SAVE
+wait 20
+expect help 7
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+expect page 34
+press ARP
+wait 900
+expect help 8
+expect page 34
+release ARP
+wait 20
+expect help 8
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+expect page 34
+press SEQ
+wait 900
+expect help 9
+expect page 34
+release SEQ
+wait 20
+expect help 9
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+expect page 34
+press PLAY
+wait 900
+expect help 10
+expect page 34
+release PLAY
+wait 20
+expect help 10
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+expect page 34
+press REC
+wait 900
+expect help 11
+expect page 34
+release REC
+wait 20
+expect help 11
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+expect page 34
+press OCT-
+wait 900
+expect help 12
+expect page 34
+release OCT-
+wait 20
+expect help 12
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+expect page 34
+press OCT+
+wait 900
+expect help 13
+expect page 34
+release OCT+
+wait 20
+expect help 13
+expect page 34
+expect playing 0
+tap HOME
+expect help -1
+expect page 34
+page 35
+press FX
+wait 900
+expect help 0
+expect page 35
+release FX
+wait 20
+expect help 0
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+expect page 35
+press SEL
+wait 900
+expect help 1
+expect page 35
+release SEL
+wait 20
+expect help 1
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+expect page 35
+press ENV
+wait 900
+expect help 2
+expect page 35
+release ENV
+wait 20
+expect help 2
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+expect page 35
+press LFO
+wait 900
+expect help 3
+expect page 35
+release LFO
+wait 20
+expect help 3
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+expect page 35
+press EDIT
+wait 900
+expect help 4
+expect page 35
+release EDIT
+wait 20
+expect help 4
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+expect page 35
+press GLO
+wait 900
+expect help 5
+expect page 35
+release GLO
+wait 20
+expect help 5
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+expect page 35
+press HOME
+wait 900
+expect help 6
+expect page 35
+release HOME
+wait 20
+expect help 6
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+expect page 35
+press SAVE
+wait 900
+expect help 7
+expect page 35
+release SAVE
+wait 20
+expect help 7
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+expect page 35
+press ARP
+wait 900
+expect help 8
+expect page 35
+release ARP
+wait 20
+expect help 8
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+expect page 35
+press SEQ
+wait 900
+expect help 9
+expect page 35
+release SEQ
+wait 20
+expect help 9
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+expect page 35
+press PLAY
+wait 900
+expect help 10
+expect page 35
+release PLAY
+wait 20
+expect help 10
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+expect page 35
+press REC
+wait 900
+expect help 11
+expect page 35
+release REC
+wait 20
+expect help 11
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+expect page 35
+press OCT-
+wait 900
+expect help 12
+expect page 35
+release OCT-
+wait 20
+expect help 12
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+expect page 35
+press OCT+
+wait 900
+expect help 13
+expect page 35
+release OCT+
+wait 20
+expect help 13
+expect page 35
+expect playing 0
+tap HOME
+expect help -1
+expect page 35
+page 36
+press FX
+wait 900
+expect help 0
+expect page 36
+release FX
+wait 20
+expect help 0
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+expect page 36
+press SEL
+wait 900
+expect help 1
+expect page 36
+release SEL
+wait 20
+expect help 1
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+expect page 36
+press ENV
+wait 900
+expect help 2
+expect page 36
+release ENV
+wait 20
+expect help 2
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+expect page 36
+press LFO
+wait 900
+expect help 3
+expect page 36
+release LFO
+wait 20
+expect help 3
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+expect page 36
+press EDIT
+wait 900
+expect help 4
+expect page 36
+release EDIT
+wait 20
+expect help 4
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+expect page 36
+press GLO
+wait 900
+expect help 5
+expect page 36
+release GLO
+wait 20
+expect help 5
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+expect page 36
+press HOME
+wait 900
+expect help 6
+expect page 36
+release HOME
+wait 20
+expect help 6
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+expect page 36
+press SAVE
+wait 900
+expect help 7
+expect page 36
+release SAVE
+wait 20
+expect help 7
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+expect page 36
+press ARP
+wait 900
+expect help 8
+expect page 36
+release ARP
+wait 20
+expect help 8
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+expect page 36
+press SEQ
+wait 900
+expect help 9
+expect page 36
+release SEQ
+wait 20
+expect help 9
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+expect page 36
+press PLAY
+wait 900
+expect help 10
+expect page 36
+release PLAY
+wait 20
+expect help 10
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+expect page 36
+press REC
+wait 900
+expect help 11
+expect page 36
+release REC
+wait 20
+expect help 11
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+expect page 36
+press OCT-
+wait 900
+expect help 12
+expect page 36
+release OCT-
+wait 20
+expect help 12
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+expect page 36
+press OCT+
+wait 900
+expect help 13
+expect page 36
+release OCT+
+wait 20
+expect help 13
+expect page 36
+expect playing 0
+tap HOME
+expect help -1
+expect page 36
+page 37
+press FX
+wait 900
+expect help 0
+expect page 37
+release FX
+wait 20
+expect help 0
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+expect page 37
+press SEL
+wait 900
+expect help 1
+expect page 37
+release SEL
+wait 20
+expect help 1
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+expect page 37
+press ENV
+wait 900
+expect help 2
+expect page 37
+release ENV
+wait 20
+expect help 2
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+expect page 37
+press LFO
+wait 900
+expect help 3
+expect page 37
+release LFO
+wait 20
+expect help 3
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+expect page 37
+press EDIT
+wait 900
+expect help 4
+expect page 37
+release EDIT
+wait 20
+expect help 4
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+expect page 37
+press GLO
+wait 900
+expect help 5
+expect page 37
+release GLO
+wait 20
+expect help 5
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+expect page 37
+press HOME
+wait 900
+expect help 6
+expect page 37
+release HOME
+wait 20
+expect help 6
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+expect page 37
+press SAVE
+wait 900
+expect help 7
+expect page 37
+release SAVE
+wait 20
+expect help 7
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+expect page 37
+press ARP
+wait 900
+expect help 8
+expect page 37
+release ARP
+wait 20
+expect help 8
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+expect page 37
+press SEQ
+wait 900
+expect help 9
+expect page 37
+release SEQ
+wait 20
+expect help 9
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+expect page 37
+press PLAY
+wait 900
+expect help 10
+expect page 37
+release PLAY
+wait 20
+expect help 10
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+expect page 37
+press REC
+wait 900
+expect help 11
+expect page 37
+release REC
+wait 20
+expect help 11
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+expect page 37
+press OCT-
+wait 900
+expect help 12
+expect page 37
+release OCT-
+wait 20
+expect help 12
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+expect page 37
+press OCT+
+wait 900
+expect help 13
+expect page 37
+release OCT+
+wait 20
+expect help 13
+expect page 37
+expect playing 0
+tap HOME
+expect help -1
+expect page 37
+page 38
+press FX
+wait 900
+expect help 0
+expect page 38
+release FX
+wait 20
+expect help 0
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+expect page 38
+press SEL
+wait 900
+expect help 1
+expect page 38
+release SEL
+wait 20
+expect help 1
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+expect page 38
+press ENV
+wait 900
+expect help 2
+expect page 38
+release ENV
+wait 20
+expect help 2
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+expect page 38
+press LFO
+wait 900
+expect help 3
+expect page 38
+release LFO
+wait 20
+expect help 3
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+expect page 38
+press EDIT
+wait 900
+expect help 4
+expect page 38
+release EDIT
+wait 20
+expect help 4
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+expect page 38
+press GLO
+wait 900
+expect help 5
+expect page 38
+release GLO
+wait 20
+expect help 5
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+expect page 38
+press HOME
+wait 900
+expect help 6
+expect page 38
+release HOME
+wait 20
+expect help 6
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+expect page 38
+press SAVE
+wait 900
+expect help 7
+expect page 38
+release SAVE
+wait 20
+expect help 7
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+expect page 38
+press ARP
+wait 900
+expect help 8
+expect page 38
+release ARP
+wait 20
+expect help 8
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+expect page 38
+press SEQ
+wait 900
+expect help 9
+expect page 38
+release SEQ
+wait 20
+expect help 9
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+expect page 38
+press PLAY
+wait 900
+expect help 10
+expect page 38
+release PLAY
+wait 20
+expect help 10
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+expect page 38
+press REC
+wait 900
+expect help 11
+expect page 38
+release REC
+wait 20
+expect help 11
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+expect page 38
+press OCT-
+wait 900
+expect help 12
+expect page 38
+release OCT-
+wait 20
+expect help 12
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+expect page 38
+press OCT+
+wait 900
+expect help 13
+expect page 38
+release OCT+
+wait 20
+expect help 13
+expect page 38
+expect playing 0
+tap HOME
+expect help -1
+expect page 38
+page 39
+press FX
+wait 900
+expect help 0
+expect page 39
+release FX
+wait 20
+expect help 0
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+expect page 39
+press SEL
+wait 900
+expect help 1
+expect page 39
+release SEL
+wait 20
+expect help 1
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+expect page 39
+press ENV
+wait 900
+expect help 2
+expect page 39
+release ENV
+wait 20
+expect help 2
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+expect page 39
+press LFO
+wait 900
+expect help 3
+expect page 39
+release LFO
+wait 20
+expect help 3
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+expect page 39
+press EDIT
+wait 900
+expect help 4
+expect page 39
+release EDIT
+wait 20
+expect help 4
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+expect page 39
+press GLO
+wait 900
+expect help 5
+expect page 39
+release GLO
+wait 20
+expect help 5
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+expect page 39
+press HOME
+wait 900
+expect help 6
+expect page 39
+release HOME
+wait 20
+expect help 6
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+expect page 39
+press SAVE
+wait 900
+expect help 7
+expect page 39
+release SAVE
+wait 20
+expect help 7
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+expect page 39
+press ARP
+wait 900
+expect help 8
+expect page 39
+release ARP
+wait 20
+expect help 8
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+expect page 39
+press SEQ
+wait 900
+expect help 9
+expect page 39
+release SEQ
+wait 20
+expect help 9
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+expect page 39
+press PLAY
+wait 900
+expect help 10
+expect page 39
+release PLAY
+wait 20
+expect help 10
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+expect page 39
+press REC
+wait 900
+expect help 11
+expect page 39
+release REC
+wait 20
+expect help 11
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+expect page 39
+press OCT-
+wait 900
+expect help 12
+expect page 39
+release OCT-
+wait 20
+expect help 12
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+expect page 39
+press OCT+
+wait 900
+expect help 13
+expect page 39
+release OCT+
+wait 20
+expect help 13
+expect page 39
+expect playing 0
+tap HOME
+expect help -1
+expect page 39
+page 40
+press FX
+wait 900
+expect help 0
+expect page 40
+release FX
+wait 20
+expect help 0
+expect page 40
+expect playing 0
+tap HOME
+expect help -1
+expect page 40
+press SEL
+wait 900
+expect help 1
+expect page 40
+release SEL
+wait 20
+expect help 1
+expect page 40
+expect playing 0
+tap HOME
+expect help -1
+expect page 40
+press ENV
+wait 900
+expect help 2
+expect page 40
+release ENV
+wait 20
+expect help 2
+expect page 40
+expect playing 0
+tap HOME
+expect help -1
+expect page 40
+press LFO
+wait 900
+expect help 3
+expect page 40
+release LFO
+wait 20
+expect help 3
+expect page 40
+expect playing 0
+tap HOME
+expect help -1
+expect page 40
+press EDIT
+wait 900
+expect help 4
+expect page 40
+release EDIT
+wait 20
+expect help 4
+expect page 40
+expect playing 0
+tap HOME
+expect help -1
+expect page 40
+press GLO
+wait 900
+expect help 5
+expect page 40
+release GLO
+wait 20
+expect help 5
+expect page 40
+expect playing 0
+tap HOME
+expect help -1
+expect page 40
+press HOME
+wait 900
+expect help 6
+expect page 40
+release HOME
+wait 20
+expect help 6
+expect page 40
+expect playing 0
+tap HOME
+expect help -1
+expect page 40
+press SAVE
+wait 900
+expect help 7
+expect page 40
+release SAVE
+wait 20
+expect help 7
+expect page 40
+expect playing 0
+tap HOME
+expect help -1
+expect page 40
+press ARP
+wait 900
+expect help 8
+expect page 40
+release ARP
+wait 20
+expect help 8
+expect page 40
+expect playing 0
+tap HOME
+expect help -1
+expect page 40
+press SEQ
+wait 900
+expect help 9
+expect page 40
+release SEQ
+wait 20
+expect help 9
+expect page 40
+expect playing 0
+tap HOME
+expect help -1
+expect page 40
+press PLAY
+wait 900
+expect help 10
+expect page 40
+release PLAY
+wait 20
+expect help 10
+expect page 40
+expect playing 0
+tap HOME
+expect help -1
+expect page 40
+press REC
+wait 900
+expect help 11
+expect page 40
+release REC
+wait 20
+expect help 11
+expect page 40
+expect playing 0
+tap HOME
+expect help -1
+expect page 40
+press OCT-
+wait 900
+expect help 12
+expect page 40
+release OCT-
+wait 20
+expect help 12
+expect page 40
+expect playing 0
+tap HOME
+expect help -1
+expect page 40
+press OCT+
+wait 900
+expect help 13
+expect page 40
+release OCT+
+wait 20
+expect help 13
+expect page 40
+expect playing 0
+tap HOME
+expect help -1
+expect page 40
+page 41
+press FX
+wait 900
+expect help 0
+expect page 41
+release FX
+wait 20
+expect help 0
+expect page 41
+expect playing 0
+tap HOME
+expect help -1
+expect page 41
+press SEL
+wait 900
+expect help 1
+expect page 41
+release SEL
+wait 20
+expect help 1
+expect page 41
+expect playing 0
+tap HOME
+expect help -1
+expect page 41
+press ENV
+wait 900
+expect help 2
+expect page 41
+release ENV
+wait 20
+expect help 2
+expect page 41
+expect playing 0
+tap HOME
+expect help -1
+expect page 41
+press LFO
+wait 900
+expect help 3
+expect page 41
+release LFO
+wait 20
+expect help 3
+expect page 41
+expect playing 0
+tap HOME
+expect help -1
+expect page 41
+press EDIT
+wait 900
+expect help 4
+expect page 41
+release EDIT
+wait 20
+expect help 4
+expect page 41
+expect playing 0
+tap HOME
+expect help -1
+expect page 41
+press GLO
+wait 900
+expect help 5
+expect page 41
+release GLO
+wait 20
+expect help 5
+expect page 41
+expect playing 0
+tap HOME
+expect help -1
+expect page 41
+press HOME
+wait 900
+expect help 6
+expect page 41
+release HOME
+wait 20
+expect help 6
+expect page 41
+expect playing 0
+tap HOME
+expect help -1
+expect page 41
+press SAVE
+wait 900
+expect help 7
+expect page 41
+release SAVE
+wait 20
+expect help 7
+expect page 41
+expect playing 0
+tap HOME
+expect help -1
+expect page 41
+press ARP
+wait 900
+expect help 8
+expect page 41
+release ARP
+wait 20
+expect help 8
+expect page 41
+expect playing 0
+tap HOME
+expect help -1
+expect page 41
+press SEQ
+wait 900
+expect help 9
+expect page 41
+release SEQ
+wait 20
+expect help 9
+expect page 41
+expect playing 0
+tap HOME
+expect help -1
+expect page 41
+press PLAY
+wait 900
+expect help 10
+expect page 41
+release PLAY
+wait 20
+expect help 10
+expect page 41
+expect playing 0
+tap HOME
+expect help -1
+expect page 41
+press REC
+wait 900
+expect help 11
+expect page 41
+release REC
+wait 20
+expect help 11
+expect page 41
+expect playing 0
+tap HOME
+expect help -1
+expect page 41
+press OCT-
+wait 900
+expect help 12
+expect page 41
+release OCT-
+wait 20
+expect help 12
+expect page 41
+expect playing 0
+tap HOME
+expect help -1
+expect page 41
+press OCT+
+wait 900
+expect help 13
+expect page 41
+release OCT+
+wait 20
+expect help 13
+expect page 41
+expect playing 0
+tap HOME
+expect help -1
+expect page 41
+page 42
+press FX
+wait 900
+expect help 0
+expect page 42
+release FX
+wait 20
+expect help 0
+expect page 42
+expect playing 0
+tap HOME
+expect help -1
+expect page 42
+press SEL
+wait 900
+expect help 1
+expect page 42
+release SEL
+wait 20
+expect help 1
+expect page 42
+expect playing 0
+tap HOME
+expect help -1
+expect page 42
+press ENV
+wait 900
+expect help 2
+expect page 42
+release ENV
+wait 20
+expect help 2
+expect page 42
+expect playing 0
+tap HOME
+expect help -1
+expect page 42
+press LFO
+wait 900
+expect help 3
+expect page 42
+release LFO
+wait 20
+expect help 3
+expect page 42
+expect playing 0
+tap HOME
+expect help -1
+expect page 42
+press EDIT
+wait 900
+expect help 4
+expect page 42
+release EDIT
+wait 20
+expect help 4
+expect page 42
+expect playing 0
+tap HOME
+expect help -1
+expect page 42
+press GLO
+wait 900
+expect help 5
+expect page 42
+release GLO
+wait 20
+expect help 5
+expect page 42
+expect playing 0
+tap HOME
+expect help -1
+expect page 42
+press HOME
+wait 900
+expect help 6
+expect page 42
+release HOME
+wait 20
+expect help 6
+expect page 42
+expect playing 0
+tap HOME
+expect help -1
+expect page 42
+press SAVE
+wait 900
+expect help 7
+expect page 42
+release SAVE
+wait 20
+expect help 7
+expect page 42
+expect playing 0
+tap HOME
+expect help -1
+expect page 42
+press ARP
+wait 900
+expect help 8
+expect page 42
+release ARP
+wait 20
+expect help 8
+expect page 42
+expect playing 0
+tap HOME
+expect help -1
+expect page 42
+press SEQ
+wait 900
+expect help 9
+expect page 42
+release SEQ
+wait 20
+expect help 9
+expect page 42
+expect playing 0
+tap HOME
+expect help -1
+expect page 42
+press PLAY
+wait 900
+expect help 10
+expect page 42
+release PLAY
+wait 20
+expect help 10
+expect page 42
+expect playing 0
+tap HOME
+expect help -1
+expect page 42
+press REC
+wait 900
+expect help 11
+expect page 42
+release REC
+wait 20
+expect help 11
+expect page 42
+expect playing 0
+tap HOME
+expect help -1
+expect page 42
+press OCT-
+wait 900
+expect help 12
+expect page 42
+release OCT-
+wait 20
+expect help 12
+expect page 42
+expect playing 0
+tap HOME
+expect help -1
+expect page 42
+press OCT+
+wait 900
+expect help 13
+expect page 42
+release OCT+
+wait 20
+expect help 13
+expect page 42
+expect playing 0
+tap HOME
+expect help -1
+expect page 42
+page 43
+press FX
+wait 900
+expect help 0
+expect page 43
+release FX
+wait 20
+expect help 0
+expect page 43
+expect playing 0
+tap HOME
+expect help -1
+expect page 43
+press SEL
+wait 900
+expect help 1
+expect page 43
+release SEL
+wait 20
+expect help 1
+expect page 43
+expect playing 0
+tap HOME
+expect help -1
+expect page 43
+press ENV
+wait 900
+expect help 2
+expect page 43
+release ENV
+wait 20
+expect help 2
+expect page 43
+expect playing 0
+tap HOME
+expect help -1
+expect page 43
+press LFO
+wait 900
+expect help 3
+expect page 43
+release LFO
+wait 20
+expect help 3
+expect page 43
+expect playing 0
+tap HOME
+expect help -1
+expect page 43
+press EDIT
+wait 900
+expect help 4
+expect page 43
+release EDIT
+wait 20
+expect help 4
+expect page 43
+expect playing 0
+tap HOME
+expect help -1
+expect page 43
+press GLO
+wait 900
+expect help 5
+expect page 43
+release GLO
+wait 20
+expect help 5
+expect page 43
+expect playing 0
+tap HOME
+expect help -1
+expect page 43
+press HOME
+wait 900
+expect help 6
+expect page 43
+release HOME
+wait 20
+expect help 6
+expect page 43
+expect playing 0
+tap HOME
+expect help -1
+expect page 43
+press SAVE
+wait 900
+expect help 7
+expect page 43
+release SAVE
+wait 20
+expect help 7
+expect page 43
+expect playing 0
+tap HOME
+expect help -1
+expect page 43
+press ARP
+wait 900
+expect help 8
+expect page 43
+release ARP
+wait 20
+expect help 8
+expect page 43
+expect playing 0
+tap HOME
+expect help -1
+expect page 43
+press SEQ
+wait 900
+expect help 9
+expect page 43
+release SEQ
+wait 20
+expect help 9
+expect page 43
+expect playing 0
+tap HOME
+expect help -1
+expect page 43
+press PLAY
+wait 900
+expect help 10
+expect page 43
+release PLAY
+wait 20
+expect help 10
+expect page 43
+expect playing 0
+tap HOME
+expect help -1
+expect page 43
+press REC
+wait 900
+expect help 11
+expect page 43
+release REC
+wait 20
+expect help 11
+expect page 43
+expect playing 0
+tap HOME
+expect help -1
+expect page 43
+press OCT-
+wait 900
+expect help 12
+expect page 43
+release OCT-
+wait 20
+expect help 12
+expect page 43
+expect playing 0
+tap HOME
+expect help -1
+expect page 43
+press OCT+
+wait 900
+expect help 13
+expect page 43
+release OCT+
+wait 20
+expect help 13
+expect page 43
+expect playing 0
+tap HOME
+expect help -1
+expect page 43
+page 44
+press FX
+wait 900
+expect help 0
+expect page 44
+release FX
+wait 20
+expect help 0
+expect page 44
+expect playing 0
+tap HOME
+expect help -1
+expect page 44
+press SEL
+wait 900
+expect help 1
+expect page 44
+release SEL
+wait 20
+expect help 1
+expect page 44
+expect playing 0
+tap HOME
+expect help -1
+expect page 44
+press ENV
+wait 900
+expect help 2
+expect page 44
+release ENV
+wait 20
+expect help 2
+expect page 44
+expect playing 0
+tap HOME
+expect help -1
+expect page 44
+press LFO
+wait 900
+expect help 3
+expect page 44
+release LFO
+wait 20
+expect help 3
+expect page 44
+expect playing 0
+tap HOME
+expect help -1
+expect page 44
+press EDIT
+wait 900
+expect help 4
+expect page 44
+release EDIT
+wait 20
+expect help 4
+expect page 44
+expect playing 0
+tap HOME
+expect help -1
+expect page 44
+press GLO
+wait 900
+expect help 5
+expect page 44
+release GLO
+wait 20
+expect help 5
+expect page 44
+expect playing 0
+tap HOME
+expect help -1
+expect page 44
+press HOME
+wait 900
+expect help 6
+expect page 44
+release HOME
+wait 20
+expect help 6
+expect page 44
+expect playing 0
+tap HOME
+expect help -1
+expect page 44
+press SAVE
+wait 900
+expect help 7
+expect page 44
+release SAVE
+wait 20
+expect help 7
+expect page 44
+expect playing 0
+tap HOME
+expect help -1
+expect page 44
+press ARP
+wait 900
+expect help 8
+expect page 44
+release ARP
+wait 20
+expect help 8
+expect page 44
+expect playing 0
+tap HOME
+expect help -1
+expect page 44
+press SEQ
+wait 900
+expect help 9
+expect page 44
+release SEQ
+wait 20
+expect help 9
+expect page 44
+expect playing 0
+tap HOME
+expect help -1
+expect page 44
+press PLAY
+wait 900
+expect help 10
+expect page 44
+release PLAY
+wait 20
+expect help 10
+expect page 44
+expect playing 0
+tap HOME
+expect help -1
+expect page 44
+press REC
+wait 900
+expect help 11
+expect page 44
+release REC
+wait 20
+expect help 11
+expect page 44
+expect playing 0
+tap HOME
+expect help -1
+expect page 44
+press OCT-
+wait 900
+expect help 12
+expect page 44
+release OCT-
+wait 20
+expect help 12
+expect page 44
+expect playing 0
+tap HOME
+expect help -1
+expect page 44
+press OCT+
+wait 900
+expect help 13
+expect page 44
+release OCT+
+wait 20
+expect help 13
+expect page 44
+expect playing 0
+tap HOME
+expect help -1
+expect page 44
+page 45
+press FX
+wait 900
+expect help 0
+expect page 45
+release FX
+wait 20
+expect help 0
+expect page 45
+expect playing 0
+tap HOME
+expect help -1
+expect page 45
+press SEL
+wait 900
+expect help 1
+expect page 45
+release SEL
+wait 20
+expect help 1
+expect page 45
+expect playing 0
+tap HOME
+expect help -1
+expect page 45
+press ENV
+wait 900
+expect help 2
+expect page 45
+release ENV
+wait 20
+expect help 2
+expect page 45
+expect playing 0
+tap HOME
+expect help -1
+expect page 45
+press LFO
+wait 900
+expect help 3
+expect page 45
+release LFO
+wait 20
+expect help 3
+expect page 45
+expect playing 0
+tap HOME
+expect help -1
+expect page 45
+press EDIT
+wait 900
+expect help 4
+expect page 45
+release EDIT
+wait 20
+expect help 4
+expect page 45
+expect playing 0
+tap HOME
+expect help -1
+expect page 45
+press GLO
+wait 900
+expect help 5
+expect page 45
+release GLO
+wait 20
+expect help 5
+expect page 45
+expect playing 0
+tap HOME
+expect help -1
+expect page 45
+press HOME
+wait 900
+expect help 6
+expect page 45
+release HOME
+wait 20
+expect help 6
+expect page 45
+expect playing 0
+tap HOME
+expect help -1
+expect page 45
+press SAVE
+wait 900
+expect help 7
+expect page 45
+release SAVE
+wait 20
+expect help 7
+expect page 45
+expect playing 0
+tap HOME
+expect help -1
+expect page 45
+press ARP
+wait 900
+expect help 8
+expect page 45
+release ARP
+wait 20
+expect help 8
+expect page 45
+expect playing 0
+tap HOME
+expect help -1
+expect page 45
+press SEQ
+wait 900
+expect help 9
+expect page 45
+release SEQ
+wait 20
+expect help 9
+expect page 45
+expect playing 0
+tap HOME
+expect help -1
+expect page 45
+press PLAY
+wait 900
+expect help 10
+expect page 45
+release PLAY
+wait 20
+expect help 10
+expect page 45
+expect playing 0
+tap HOME
+expect help -1
+expect page 45
+press REC
+wait 900
+expect help 11
+expect page 45
+release REC
+wait 20
+expect help 11
+expect page 45
+expect playing 0
+tap HOME
+expect help -1
+expect page 45
+press OCT-
+wait 900
+expect help 12
+expect page 45
+release OCT-
+wait 20
+expect help 12
+expect page 45
+expect playing 0
+tap HOME
+expect help -1
+expect page 45
+press OCT+
+wait 900
+expect help 13
+expect page 45
+release OCT+
+wait 20
+expect help 13
+expect page 45
+expect playing 0
+tap HOME
+expect help -1
+expect page 45
+expect unsaved 0
 expect invalid 0
 expect queue_drops 0

@@ -11,16 +11,21 @@ static int dream_name_valid(const char *s){
 int app_backup_playing(void){return md_playing()||md_clock_source();}
 void app_backup_flush(void){} /* Export saved objects; never overwrite a live edit implicitly. */
 void app_backup_hold(int on){dream_store_hold=on;bank_armed=-1;}
-static int dream_install_mode(const void *data,unsigned n,int edit){
- if(dream_store_hold||md_playing()||md_clock_source()||md_command_space()!=64)return 0;
- uint32_t f=plat_lock();dream_reloading=1;plat_unlock(f);
+static int dream_install_mode(const void *data,unsigned n,int edit,int user_recall){
+ /* A stopped bank recall is read-only and keeps the chosen MIDI clock/input.
+  * Own the stop check and reload gate together: a queued external START must
+  * not begin a render between checking transport and rebuilding the voices. */
+ uint32_t f=plat_lock();
+ if(dream_store_hold||md_playing()||(!user_recall&&md_clock_source())||md_command_space()!=64){plat_unlock(f);return 0;}
+ dream_reloading=1;plat_unlock(f);
  /* Keep the audio callback punctual while reinitialising voices and effect memory. */
  int ok=edit?md_import_edit(data,n):md_import(data,n);
  f=plat_lock();dream_reloading=0;if(ok){bank_pending=-1;bank_armed=-1;}plat_unlock(f);
  return ok;
 }
-static int dream_install(const void *data,unsigned n){return dream_install_mode(data,n,0);}
-static int dream_install_edit(const void *data,unsigned n){return dream_install_mode(data,n,1);}
+static int dream_install(const void *data,unsigned n){return dream_install_mode(data,n,0,0);}
+static int dream_install_edit(const void *data,unsigned n){return dream_install_mode(data,n,1,0);}
+static int dream_install_user(const void *data,unsigned n,int edit){return dream_install_mode(data,n,edit,1);}
 /* A restore needs a terminated name with nothing after its end; older builds could store control characters
  * (editor command 116), which the bank loader never minded. Their backups stay restorable. */
 static int dream_name_terminated(const char *s){int ended=0;for(int i=0;i<24;i++){if(!s[i])ended=1;else if(ended)return 0;}return ended;}

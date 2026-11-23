@@ -4,7 +4,7 @@ import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:asser
 const source=fs.readFileSync(new URL('../web/index.html',import.meta.url),'utf8');
 const root={children:[],querySelectorAll(){return[]},append(e){this.children.push(e)}};
 const document={querySelector(){return null},createElement(){const r={value:'500',dataset:{}};return {style:{setProperty(){}},html:'',set innerHTML(s){this.html=s},querySelector(){return r}}}};
-const calls=[];const context=vm.createContext({document,$:()=>root,rangeGestures:{delete(){}},bindRange(){},values:{models:[0],raw:[500,500,500,500],knobs:[50,50,50,50]},page:1,active:0,hardwareDevice:null,pagePalette:()=>['a','b','c','d'],knobText:()=>0,cmd:(...x)=>calls.push(x),post(){},CATALOG:{biomes:Array(213)}});
+const calls=[];const context=vm.createContext({document,$:()=>root,rangeGestures:{delete(){}},bindRange(){},syncPhraseControls(){},values:{models:[0],raw:[500,500,500,500],knobs:[50,50,50,50]},page:1,active:0,hardwareDevice:null,pagePalette:()=>['a','b','c','d'],knobText:()=>0,cmd:(...x)=>calls.push(x),post(){},CATALOG:{biomes:Array(213)}});
 for(const marker of ['const shapedModels=','const defs=','const controlDefs=']){const at=source.indexOf(marker);assert(at>=0);vm.runInContext(source.slice(at,source.indexOf(';\n',at)+1),context)}
 vm.runInContext(source.slice(source.indexOf('function macroUI(){'),source.indexOf('for(const el of document.querySelectorAll',source.indexOf('function macroUI(){'))),context);
 for(let model=0;model<20;model++){

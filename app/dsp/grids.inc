@@ -5,7 +5,6 @@
  * As a kit generator, it fills KICK (pad 0), SNARE (pad 1) and HAT (pad 2); the kit plays them as usual. */
 #include "grids_map.h"
 
-static uint32_t grids_rng = 0x1234567u;
 static uint8_t grids_perturb[3];
 
 static uint8_t grids_mix(uint8_t a, uint8_t b, uint8_t bal) { return (uint8_t)((a * (255 - bal) + b * bal) >> 8); }
@@ -21,14 +20,16 @@ static uint8_t grids_level(int step, int inst, uint8_t x, uint8_t y)
 }
 
 /* fill KICK/SNARE/HAT gates from the map. x/y: position 0..255 (the two macro knobs), density 0..255 (threshold),
- * chaos 0..255 (how far each part strays at the start of a pattern). */
-static void grids_generate(md_kit &k, uint8_t x, uint8_t y, uint8_t density, uint8_t chaos)
+ * chaos 0..255 (how far each part strays at the start of a pattern). seed: the project's random state, so a locked
+ * seed repeats the pattern (the sequencer's rule) and a free one gives a new one. Pads 4-8 are left as they are:
+ * what was played or recorded there stays when GRIDS rolls again. */
+static void grids_generate(md_kit &k, uint8_t x, uint8_t y, uint8_t density, uint8_t chaos, unsigned seed)
 {
     k.length = 32;
-    memset(k.gates, 0, sizeof k.gates);
-    grids_rng = grids_rng * 1664525u + 1013904223u;
-    for (int i = 0; i < 3; i++)
-        grids_perturb[i] = (uint8_t)(((grids_rng >> 24) * (uint32_t)(chaos * 63u >> 8)) >> 8);
+    k.gates[0] = k.gates[1] = k.gates[2] = 0;
+    unsigned r = seed ? seed : 1u;
+    for (int i = 0; i < 3; i++)                    /* each part strays by its own amount, as in the module */
+        grids_perturb[i] = (uint8_t)(((random_word(r) >> 24) * (uint32_t)(chaos * 63u >> 8)) >> 8);
     const uint8_t threshold = (uint8_t)~density;   /* a part plays when its level is above it */
     for (unsigned s = 0; s < 32; s++)
         for (int i = 0; i < 3; i++) {

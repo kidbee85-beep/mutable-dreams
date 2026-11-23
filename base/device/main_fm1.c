@@ -347,6 +347,8 @@ static void crash_keep(void)                        /* the boot: a crash since t
         r.flags |= cl_stk_pack(pst_crash.left);
     (void)cl_boot(&r, &fm1b_dbg.crash_kept, &fm1b_dbg.crash_saving);
 }
+#elif defined(MD_STACK_PROBE) && MD_STACK_PROBE
+#include "stacks.c"
 #else
 int32_t plat_stack_left(int k) { (void)k; return -1; }   /* (fm1.toml crash_history = true measures them) */
 #endif
@@ -1258,7 +1260,7 @@ static void fm1_main(void)
     uint32_t last_frame = 0;
     {
         uint32_t f = irq_save();
-#if FM1B_CRASHLOG
+#if FM1B_CRASHLOG || (defined(MD_STACK_PROBE) && MD_STACK_PROBE)
         pst_boot(&knob);                            /* the stacks painted below what is live (stacks.c: the room a crash
                                                      * finds; the last run's marks were read at its fault, if any) */
 #endif

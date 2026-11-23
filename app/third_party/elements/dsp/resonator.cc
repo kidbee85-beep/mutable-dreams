@@ -113,7 +113,7 @@ size_t Resonator::ComputeFilters() {
   return num_modes;
 }
 
-void Resonator::Process(
+void Resonator::ProcessScalar(
     const float* bow_strength,
     const float* in,
     float* center,
@@ -163,6 +163,65 @@ void Resonator::Process(
     // Mutable Dreams Strike subset: bowed waveguides are omitted.
     *center++ = sum_center;
   }
+}
+
+// Independent modes may be traversed before samples. Per-sample sums still
+// visit modes 0..N-1; each filter and pickup ramp keeps its scalar time order.
+// Preserve the original API's in-place/overlap behavior through Scalar.
+void Resonator::Process(const float* bow_strength, const float* in,
+    float* center, float* sides, size_t size) {
+  const size_t bytes=size*sizeof(float);
+  const auto separate=[bytes](const float* a,const float* b) {
+    const uintptr_t x=reinterpret_cast<uintptr_t>(a);
+    const uintptr_t y=reinterpret_cast<uintptr_t>(b);
+    return x<y ? y-x>=bytes : x-y>=bytes;
+  };
+  if(!size || size>64 || !separate(in,center) || !separate(in,sides) ||
+      !separate(center,sides)) {
+    ProcessScalar(bow_strength,in,center,sides,size); return;
+  }
+  // Keep NaN sign/payload propagation on the original scalar instruction path.
+  // Once a bad input has entered a mode, retain that path until its reset.
+  // Actual Mutable Dreams tiles have at most 64 samples. Scale each input
+  // exactly once, as Scalar does, instead of repeating it for every mode.
+  float scaled_input[64];
+  for(size_t k=0;k<size;k++) {
+    const float input=in[k];
+    if(!stmlib::IsFiniteFloat32(input)) {
+      ProcessScalar(bow_strength,in,center,sides,size); return;
+    }
+    scaled_input[k]=input*0.125f;
+  }
+  for(size_t i=0;i<std::min(kMaxModes,resolution_);i++)
+    if(!f_[i].has_finite_state()) {
+      ProcessScalar(bow_strength,in,center,sides,size); return;
+    }
+  if(filters_dirty_ || resolution_>24) {
+    cached_modes_=ComputeFilters(); filters_dirty_=false;
+  }
+  const size_t num_modes=cached_modes_;
+  CosineOscillator c0,c1,s0,s1;
+  float end_phase=lfo_phase_+size*modulation_frequency_;
+  if(end_phase>=1)end_phase-=1;
+  const float lfo0=lfo_phase_>.5f?1-lfo_phase_:lfo_phase_;
+  const float lfo1=end_phase>.5f?1-end_phase:end_phase;
+  c0.Init<COSINE_OSCILLATOR_APPROXIMATE>(previous_position_);
+  c1.Init<COSINE_OSCILLATOR_APPROXIMATE>(position_);
+  s0.Init<COSINE_OSCILLATOR_APPROXIMATE>(modulation_offset_+lfo0);
+  s1.Init<COSINE_OSCILLATOR_APPROXIMATE>(modulation_offset_+lfo1);
+  c0.Start(); c1.Start(); s0.Start(); s1.Start();
+  previous_position_=position_; lfo_phase_=end_phase;
+  if(!num_modes)for(size_t k=0;k<size;k++){center[k]=0.f; sides[k]=0.f;}
+  for(size_t i=0;i<num_modes;i++) {
+    const float center_gain=c0.Next(),side_gain=s0.Next();
+    const float center_step=(c1.Next()-center_gain)/size;
+    const float side_step=(s1.Next()-side_gain)/size;
+    if(i==0)f_[i].ProcessBandPassDualRamp<true>(scaled_input,center,sides,size,
+        center_gain,center_step,side_gain,side_step);
+    else f_[i].ProcessBandPassDualRamp<false>(scaled_input,center,sides,size,
+        center_gain,center_step,side_gain,side_step);
+  }
+  for(size_t k=0;k<size;k++)sides[k]=sides[k]-center[k];
 }
 
 }  // namespace elements

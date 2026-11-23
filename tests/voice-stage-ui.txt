@@ -47,6 +47,8 @@ tap SEL
 wait 25
 expect selected_muted 0
 tap HOME
+tap HOME
+tap HOME
 expect live_view 0
 tap PLAY
 expect patch_valid 1

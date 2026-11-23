@@ -1,0 +1,25 @@
+# The same held ARP guide changes from playing-Dream context to the idle button context at natural finish.
+wait 3400
+page 44
+spin K2 -63
+wait 40
+listen
+wait 200
+tap PLAY
+wait 400
+press ARP
+wait 900
+release ARP
+wait 400
+expect help 8
+expect radio_active 1
+said During a dream: help only
+wait 1801000
+expect radio_active 0
+expect help 8
+said ARP: lock the random seed
+tap HOME
+expect help -1
+expect playing 0
+expect invalid 0
+expect queue_drops 0

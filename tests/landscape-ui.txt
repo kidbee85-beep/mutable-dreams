@@ -1,3 +1,4 @@
+# Documented HOME hold opens Dreams; release must not execute a short tap. Original motion/animation steps retained.
 wait 3400
 tap HOME
 shot garden-a.png
@@ -34,8 +35,10 @@ shot still-b.png
 press HOME
 wait 900
 expect help 6
+expect page 0
 release HOME
 wait 100
+expect page 0
 shot live-guide.png
 tap HOME
 expect page 0

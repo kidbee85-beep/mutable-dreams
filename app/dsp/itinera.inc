@@ -36,7 +36,7 @@ static constexpr ItineraPreset itinera_presets[MD_ITINERA_PRESETS]={
   {85,108,114,119,127,130,136,146,149,158,163,165,222,221,231,243}, 74,2,2},
  {"Somnus Lenis", {204,170,178,181,216,211,228,224,233,227,265,234,257,253,260,77},
   {65,69,71,72,78,79,80,89,95,96,98,100,109,114,122,130}, 57,0,1},
- {"Murmur Arenae", {266,174,184,232,194,246,219,250,225,258,237,262,239,255,261,197},
+ {"Murmur Arenae", {265,174,184,232,194,246,219,256,203,258,237,218,192,249,240,197},   /* 2.4: seven heavy scenes (266 262 261 225 239 250 255: 4.9-5.2 ms of the 5.8 ms block on the FM-1) replaced by lighter Biomes of the same mood (265 218 240 203 192 256 249: 2.9-4.0 ms) */
   {80,90,101,102,105,106,111,113,120,129,135,161,179,215,233,247}, 79,1,1},
  {"Speculum Glaciei", {251,207,234,208,242,220,231,235,243,244,253,256,271,260,263,217},
   {73,79,84,100,114,130,133,146,158,163,165,176,183,209,249,247}, 58,0,2},
@@ -47,12 +47,38 @@ static constexpr ItineraPreset itinera_presets[MD_ITINERA_PRESETS]={
  {"Terra Resonans", {223,190,194,202,240,206,215,264,214,266,199,237,195,226,265,247},
   {74,88,101,121,125,130,137,145,152,158,162,186,209,228,231,269}, 85,2,0},
  {"Aer Silens", {253,178,176,222,185,228,207,257,244,260,271,254,208,242,211,267},
-  {70,85,94,98,103,117,130,133,145,152,158,173,181,199,217,249}, 56,0,2}
+  {70,85,94,98,103,117,130,133,145,152,158,173,181,199,217,249}, 56,0,2},
+ {"Chordae Nocturnae", {85,213,233,82,227,234,235,253,220,178,183,230,272,170,216,92},
+  {65,72,73,181,197,228,245,257,271,204,217,205,193,211,109,77}, 58,0,2},
+ {"Fundus Profundus", {77,95,100,112,134,157,167,161,206,236,238,265,250,275,136,92},
+  {101,107,113,120,150,152,171,180,187,189,191,200,208,229,252,262}, 64,1,1},
+ {"Lanterna Lenta", {68,102,88,245,169,120,166,279,180,231,82,215,209,225,223,71},
+  {66,69,74,96,106,108,179,199,201,219,226,236,80,90,261,262}, 66,0,1},
+ {"Crepusculum Calidum", {65,67,93,66,128,105,267,96,226,210,136,274,90,99,75,71},
+  {69,74,70,73,76,97,98,106,94,81,244,265,272,249,278,215}, 60,0,2},
+ {"Vitrum Lucidum", {111,135,165,202,207,242,251,263,133,247,158,173,123,127,151,168},
+  {109,115,139,143,146,154,231,243,216,221,222,271,276,91,83,119}, 70,1,2},
+ {"Focus Domesticus", {80,74,199,161,221,201,215,192,219,191,214,226,223,245,95,69},
+  {68,78,86,88,97,99,102,107,138,177,179,182,203,205,254,261}, 62,0,0},
+ {"Aestus Maris", {84,4,9,39,47,117,124,157,247,275,256,11,28,26,79,66},
+  {5,7,14,17,20,22,23,44,62,73,76,98,155,188,198,263}, 58,0,2},
+ {"Nix Silens", {77,11,16,158,13,18,89,12,9,14,181,87,251,70,92,100},
+  {8,57,78,82,85,91,105,120,149,187,204,210,211,267,269,273}, 56,0,1},
+ {"Pratum Aestatis", {63,56,59,106,103,42,43,62,58,60,159,215,201,278,276,286},
+  {6,19,21,23,41,46,67,86,122,141,149,177,184,203,209,269}, 74,1,0},
+ {"Stellae Cadentes", {57,85,186,108,172,25,60,8,127,123,133,165,135,202,87,92},
+  {10,30,63,89,105,119,140,173,194,207,251,263,267,268,272,274}, 66,1,2},
+ {"Somnium Meum", {77,5,10,72,65,96,142,60,63,95,56,70,282,93,92,100},
+  {6,9,12,41,57,66,67,70,71,73,74,75,76,78,98,99}, 60,0,1}
 };
+/* 2.4 MY DREAM: the app hands over the Biomes the player has starred; the dream then walks through them (md_set_mine). Without
+ * 4 or more it plays the list above. */
+static uint16_t mine_ids[itinera_scenes];
+static uint8_t mine_ready;
 static md_patch itinera_undo;
 static constexpr unsigned itinera_fade_frames=12u*MD_RATE;
 static struct {
- uint32_t start,length,seed;
+ uint32_t start,length,seed,code;
  uint16_t section_steps,part;
  uint16_t macros[4];
  uint8_t active,preset,sections,hall,saved_clock;
@@ -72,6 +98,10 @@ static struct {
  /* 2.2: the listener's K1-K4 during the dream, -500..500 on top of each
   * scene's DENSITY, MOTION, COLOUR and SPACE (0 = the dream as written) */
  int16_t user[4];
+ /* 2.4: the dream's heartbeat (itinera_heartbeat in dreams.cpp): the notes fired so far, and the steps since one */
+ uint32_t events_seen;
+ uint16_t idle_steps;
+ uint8_t heard;
 } itinera;
 static unsigned itinera_remaining(){
  const unsigned elapsed=stats.frames-itinera.start;
@@ -135,9 +165,17 @@ static void itinera_bridge(md_patch &next,int sounding_root){
 }
 static void itinera_stage(unsigned at){
  const auto &preset=itinera_presets[itinera.preset];
- const unsigned order=at*(itinera_scenes-1)/(itinera.sections-1);
+ unsigned order=at*(itinera_scenes-1)/(itinera.sections-1);
+ /* 2.4: the walk through the preset's 32 scenes was the same at every start; only the notes changed. With 16 scenes or
+  * fewer, an inner scene takes its own or the next one by the dream's seed. The first and the last stay (the last
+  * anchor closes the story), and the order stays rising: the next scene is at least two further on. */
+ if(at&&at+1<itinera.sections&&itinera.sections<=16){
+  unsigned h=itinera.seed^((at+1)*0x9e3779b9u);
+  order+=random_word(h)&1u;
+ }
  const int sounding_root=patch.root;
- factory_scene(previous,itinera_biome_base+preset.biomes[order]);
+ factory_scene(previous,itinera.preset==MD_ITINERA_MINE&&mine_ready?(int)mine_ids[order]:itinera_biome_base+preset.biomes[order]);
+ PROF_NEXT(itinera.preset==MD_ITINERA_MINE&&mine_ready?(int)mine_ids[order]:itinera_biome_base+preset.biomes[order]);
  if(at)itinera_bridge(previous,sounding_root);
  previous.seed=(previous.seed^itinera.seed^((itinera.part+1)*0x9e3779b9u))|1u;
  previous.locked=0;
@@ -150,13 +188,14 @@ static void itinera_stage(unsigned at){
  }
 }
 static void itinera_enter(){
+ PROF_ENTER();
  const unsigned left=itinera.part<itinera.sections?itinera.sections-itinera.part:1;
  const int seconds=(itinera_remaining()+MD_RATE-1)/MD_RATE/left;
  const int drift=(int)((itinera.seed>>(itinera.part%23))%17)-8;
  // Budget the remaining time against the remaining sections. Leave the final
  // patch playing until the session fades out, even when the bar rounds down.
  const unsigned time=left>1?seconds+seconds*drift/100:seconds+8;
- itinera.section_steps=bound((time*patch.tempo+120)/240,1,4095)*16;
+ itinera.section_steps=bound(((time*patch.tempo>>tempo_shift)+120)/240,1,4095)*16;   /* 2.4: the tempo the sound really has (TEMPO RANGE divides it) */
  for(unsigned i=0;i<4;i++)itinera.macros[i]=patch.macro[i];
  for(unsigned i=0;i<MD_TRACKS;i++)itinera.fade[i]=itinera.part&&itinera_role(patch,i)==0?.35f:1.f;
  // K-8: VARIED dreams rest for one or two bars in about every other scene,
@@ -193,13 +232,24 @@ static void itinera_breathe(){
   { 6, 4, 5}, { 3,-6, 7}, { 5, 8, 2}, {-4, 3, 8},
   { 8, 4, 4}, { 3, 8, 3}, {-5,-7, 8}, {-4, 2, 4},
   { 5,-7, 3}, { 6, 2, 6}, { 4, 9, 4}, {-5, 7, 6},
-  { 5,11, 2}, {-7,-3, 8}
+  { 5,11, 2}, {-7,-3, 8},
+  { 4,-3, 7}, {-6, 2, 5}, { 3, 5, 4}, { 5,-2, 6}, { 2, 7, 6}, { 4, 1, 2},
+  {-3, 3, 8}, {-7,-2, 6}, { 6, 4, 3}, { 5, 8, 7},
+  {-2, 2, 5}
  };
  const auto &shape=contour[itinera.preset];
  const int swell=(phase<32?phase:64-phase)-12+arc[chapter];
  const unsigned pulse=(phase+itinera.part*9)%64;
  const int tide=(int)(pulse<32?pulse:64-pulse)-16;
- patch.macro[0]=bound(itinera.macros[0]+swell*shape[0]+itinera.user[0],0,1000);
+ /* 2.4: a slow random wander on top of the fixed arcs (from AMB-1's idea): every 90 s a new target, eased between, from the dream's
+  * seed, so the same code wanders the same way and no two dreams do. Density up to +-60 and colour +-40. */
+ const unsigned elapsed=itinera.length-itinera_remaining();
+ const unsigned segment=90u*MD_RATE,at=elapsed/segment;
+ float ease=(float)(elapsed%segment)/(float)segment;ease=ease*ease*(3.f-2.f*ease);
+ unsigned wr0=itinera.seed^((at+3u)*0x85ebca6bu),wr1=itinera.seed^((at+4u)*0x85ebca6bu);
+ const int target0=(int)(random_word(wr0)&1023u)-512,target1=(int)(random_word(wr1)&1023u)-512;
+ const int wander=(int)((float)target0*(1.f-ease)*(60.f/512.f)+(float)target1*ease*(60.f/512.f));
+ patch.macro[0]=bound(itinera.macros[0]+swell*shape[0]+itinera.user[0]+wander,0,1000);
  patch.macro[1]=bound(itinera.macros[1]+tide*shape[1]+itinera.user[1],0,1000);
  // K-7: one slow arc over the whole dream: colour lower at its start and
  // end, brightest in the middle ("morning, noon, evening"); the grain's share
@@ -207,7 +257,7 @@ static void itinera_breathe(){
  const float dream=(float)(itinera.length-itinera_remaining())/itinera.length;
  const int day=(int)(-40.f+100.f*plaits::Sine(.5f*dream));
  const int dusk=(int)(120.f*dream*dream*(3-2*dream));
- patch.macro[2]=bound(itinera.macros[2]+swell*3-tide*2+day+itinera.user[2],0,1000);
+ patch.macro[2]=bound(itinera.macros[2]+swell*3-tide*2+day+itinera.user[2]-wander*2/3,0,1000);
  patch.macro[3]=bound(itinera.macros[3]+swell*shape[2]+dusk+itinera.user[3],0,1000);
 }
 /* 2.2: a listener's turn of K1-K4 during the dream. It is heard at once and
@@ -217,14 +267,20 @@ static void itinera_nudge(unsigned k,int v){
  patch.macro[k]=bound(patch.macro[k]+u-itinera.user[k],0,1000);
  itinera.user[k]=(int16_t)u;
 }
-static void itinera_begin(int preset,int settings){
- if(playing||pending_biome>=0||preset<0||preset>=MD_ITINERA_PRESETS||settings<0||settings>=36)return;
+static void itinera_begin(int preset,int value){
+ /* 2.4: VALUE is settings (0..35) plus 36 times a dream code (20 bits, 0 = a fresh random one): the same code, dream and settings tell the same story */
+ if(value<0)return;
+ int settings=value%36;
+ uint32_t code=(uint32_t)(value/36)&0xFFFFFu;
+ if(playing||pending_biome>=0||preset<0||preset>=MD_ITINERA_PRESETS)return;
  static constexpr uint16_t minutes[4]={30,60,120,240};
  static constexpr uint8_t sections[4][3]={{8,12,16},{12,16,20},{16,20,24},{16,24,32}};
  itinera={};
  itinera.start=stats.frames;
  itinera.length=(unsigned)minutes[settings%4]*60u*MD_RATE;
- itinera.seed=(stats.frames^patch.seed^0x4d445241u)|1u;
+ if(!code){code=(stats.frames^patch.seed^0x4d445241u)*2654435761u>>12&0xFFFFFu;if(!code)code=1;}
+ itinera.code=code;
+ itinera.seed=((code*2654435761u)^0x4d445241u)|1u;
  itinera.preset=preset;
  itinera.sections=sections[settings%4][settings/4%3];
  itinera.hall=settings/12;
@@ -232,6 +288,7 @@ static void itinera_begin(int preset,int settings){
  itinera.gain=1.f;
  itinera.saved_clock=clock_source;
  itinera.active=1;
+ for(unsigned j=0;j<6;j++)itinera.events_seen+=stats.events[j];
  clock_source=0;
  journey_home=patch;
  itinera_undo=previous;
@@ -247,6 +304,16 @@ static void itinera_end(){
  clock_age=clock_last=clock_pulse=0;
  clock_interval=0;
  itinera.active=0;
+}
+/* 2.4: a dream opens softly: its first three seconds rise on a smooth curve (it began at full level at once) */
+static void itinera_arrive_audio(float *lr,float *grain,float *delay,float *room,unsigned n){
+ const unsigned since=stats.frames-itinera.start,fade=3u*MD_RATE;
+ if(since>=fade)return;
+ for(unsigned k=0;k<n;k++){
+  const unsigned at=since+k;
+  const float t=at>=fade?1.f:at*(1.f/fade),gain=t*t*(3.f-2.f*t);
+  lr[k*2]*=gain;lr[k*2+1]*=gain;grain[k]*=gain;delay[k]*=gain;room[k]*=gain;
+ }
 }
 static void itinera_release_audio(float *lr,float *grain,float *delay,float *room,unsigned n){
  const unsigned left=itinera_remaining();

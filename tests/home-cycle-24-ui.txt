@@ -1,0 +1,40 @@
+# Documented 2.4 HOME order, exercised through real button taps.
+wait 3400
+page 1
+tap HOME
+expect page 0
+expect live_view 0
+tap HOME
+expect page 0
+expect live_view 1
+tap HOME
+expect page 0
+expect live_view 2
+tap HOME
+expect page 0
+expect live_view 3
+tap HOME
+expect page 0
+expect live_view 4
+tap HOME
+expect page 12
+tap HOME
+expect page 44
+tap HOME
+expect page 0
+expect live_view 0
+# HOME long is help, as required by AGENTS.md. Release and the closing tap do not navigate.
+press HOME
+wait 900
+expect page 0
+expect help 6
+release HOME
+wait 100
+expect page 0
+expect help 6
+tap HOME
+expect help -1
+expect page 0
+expect playing 0
+expect invalid 0
+expect queue_drops 0

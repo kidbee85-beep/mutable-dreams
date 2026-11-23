@@ -15,9 +15,9 @@ class Device{
    if(dev.id==='FM-1_710010000')throw Error('Mutable Dreams 1.0 detected. The live editor requires a later firmware. Back up your current work and update first, or use browser-only mode.');
    const cap=words(await d.call(7));
    if(cap[0]!==1||![11,12].includes(cap[1])||cap[2]!==2604)throw Error('This FM-1 needs the matching private Mutable Dreams 2.0 firmware.');
-   d.schema=cap[1];d.pages=cap[3];d.tones=cap[6];d.biomes=cap[7];d.phraseExpression=false;d.replayUploadChunk=false;d.displayPolarity=false;d.clearBank=false;
+   d.schema=cap[1];d.pages=cap[3];d.tones=cap[6];d.biomes=cap[7];d.phraseExpression=false;d.replayUploadChunk=false;d.displayPolarity=false;d.clearBank=false;d.grainLfo=false;
    if(d.schema===12){
-    try{const [features]=words(await d.call(21));d.phraseExpression=!!(features&1);d.replayUploadChunk=!!(features&2);d.displayPolarity=!!(features&4);d.clearBank=!!(features&8);}
+    try{const [features]=words(await d.call(21));d.phraseExpression=!!(features&1);d.replayUploadChunk=!!(features&2);d.displayPolarity=!!(features&4);d.clearBank=!!(features&8);d.grainLfo=!!(features&16);}
     catch(e){if(e.status!==1)throw e;}
    }
    await d.remote([5,1]);return d;
