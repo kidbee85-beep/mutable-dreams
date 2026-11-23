@@ -6,6 +6,8 @@ Qualified application build **8FBE5AF8**, identity **FM-1_710020400**. Package S
 
 [Website and installer](https://kidbee85-beep.github.io/mutable-dreams/) · [Full release notes](Release-Notes-2.4.md) · [2.4 manual](https://kidbee85-beep.github.io/mutable-dreams/Mutable-Dreams-2.4-Manual.pdf)
 
+[2.4 feature film](https://youtu.be/8P0lTBVRz0g) · [YouTube Short](https://youtube.com/shorts/KZrkoWiPnmA) · [Instagram Reel](https://www.instagram.com/mutabledreams/reel/DgGGRqByh3i/) · [TikTok](https://www.tiktok.com/@kid.bunka/video/7711447337851227414)
+
 With special thanks to **Sarmiento (Funkelectric)**, Yimiblú, Screen Reader testers and all our helpers.
 
 ## New in 2.4
